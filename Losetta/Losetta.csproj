@@ -1,9 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TargetFramework>net6.0</TargetFramework>
+    <Company>WSOFT</Company>
+    <Authors>WSOFT</Authors>
+    <Product>Losetta</Product>
+    <RepositoryUrl>https://github.com/WSOFT-Project/Losetta</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/WSOFT-Project/Losetta</PackageProjectUrl>
+    <Description>The next generation implementation of alice</Description>
+    <SignAssembly>False</SignAssembly>
+    <Version>0.9.1</Version>
   </PropertyGroup>
 
 </Project>
