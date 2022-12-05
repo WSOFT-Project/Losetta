@@ -377,6 +377,7 @@ namespace AliceScript
 
         public static ParserFunction GetFunction(string name, ParsingScript script,bool toDelegate=false)
         {
+            //TODO:関数の取得部分
             name = Constants.ConvertName(name);
             ParserFunction impl;
             if (script.TryGetFunction(name, out impl))
@@ -406,9 +407,38 @@ namespace AliceScript
                 }
             }
 
+            var fc = GetFromNS(name,script);
+            if (fc != null)
+            {
+                return fc;
+            }
+
             return GetFromNamespace(name, script);
         }
-
+        private static ParserFunction GetFromNS(string name,ParsingScript script)
+        {
+            foreach (var nm in script.UsingNamespaces)
+            {
+                var fc = nm.Functions.Where((x) => x.FunctionName.ToLower() == name.ToLower()).FirstOrDefault();
+                if (fc != null)
+                {
+                    return fc;
+                }
+            }
+            foreach (var nm in script.UsingNamespaces)
+            {
+                var fc = nm.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                if (fc != null)
+                {
+                    return new GetVarFunction(new Variable(fc));
+                }
+            }
+            if (script.ParentScript != null)
+            {
+                return GetFromNS(name,script.ParentScript);
+            }
+            return null;
+        }
         public static void UpdateFunction(string name, ParserFunction function)
         {
             name = Constants.ConvertName(name);

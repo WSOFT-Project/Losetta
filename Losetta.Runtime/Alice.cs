@@ -93,9 +93,6 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new ExitFunction());
             FunctionBaseManerger.Add(new DelayFunc());
             FunctionBaseManerger.Add(new ImportFunc());
-            FunctionBaseManerger.Add(new ImportFunc(true));
-            FunctionBaseManerger.Add(new DllImportFunc());
-            FunctionBaseManerger.Add(new IceImportFunc());
             FunctionBaseManerger.Add(new DelegateCreator());
             FunctionBaseManerger.Add(new DelegateCreator(), "_");
             FunctionBaseManerger.Add(new PrintFunction());
@@ -1545,102 +1542,81 @@ namespace AliceScript.NameSpaces
             e.Return = Interpreter.Instance.ProcessTry(e.Script);
         }
     }
-    internal class DllImportFunc : FunctionBase
+
+    internal class UsingStatement : FunctionBase
     {
-        public DllImportFunc()
+        public UsingStatement()
         {
-            this.FunctionName = "Dllimport";
-            this.MinimumArgCounts = 1;
-            this.Run += ImportFunc_Run;
+            this.Name = "using";
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += UsingStatement_Run;
         }
 
-        private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void UsingStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            string filename = e.Args[0].AsString();
-            if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-            {
-                Interop.NetLibraryLoader.LoadLibrary(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
-                return;
-            }
-            if (File.Exists(filename))
-            {
-                Interop.NetLibraryLoader.LoadLibrary(filename);
-            }
-            else
-            {
-                ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
-            }
-        }
-    }
-
-    internal class IceImportFunc : FunctionBase
-    {
-        public IceImportFunc()
-        {
-            this.FunctionName = "Iceimport";
-            this.MinimumArgCounts = 1;
-            this.Run += IceImportFunc_Run;
-        }
-
-        private void IceImportFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string filename = e.Args[0].AsString();
-            if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-            {
-                AlicePackage.LoadData(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
-                return;
-            }
-            AlicePackage.Load(filename);
-        }
-    }
-
-    internal class ImportFunc : FunctionBase
-    {
-        public ImportFunc(bool isunimport = false)
-        {
-            if (isunimport)
-            {
-                this.FunctionName = "unimport";
-                unimport = true;
-            }
-            else
-            {
-                this.FunctionName = "import";
-            }
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE | FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.MinimumArgCounts = 0;
-            this.Run += ImportFunc_Run;
-        }
-        private bool unimport = false;
-        private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-
             string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             if (NameSpaceManerger.Contains(file))
             {
-                //NameSpace形式で存在
-                if (unimport)
-                {
-                    if (NameSpaceManerger.NameSpaces.ContainsKey(file))
-                    {
-                        NameSpaceManerger.UnLoad(file, e.Script);
-                    }
-                    else
-                    {
-                        ThrowErrorManerger.OnThrowError("該当する名前空間は読み込まれていません", Exceptions.NAMESPACE_NOT_LOADED, e.Script);
-                    }
-                }
-                else
-                {
-                    NameSpaceManerger.Load(file, e.Script);
-                }
-                return;
+
+                e.Script.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[file]);
             }
             else
             {
                 ThrowErrorManerger.OnThrowError("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, e.Script);
             }
-
+        }
+    }
+    internal class ImportFunc : FunctionBase
+    {
+        public ImportFunc()
+        {
+           
+                this.FunctionName = "import";
+            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            this.MinimumArgCounts = 1;
+            this.Run += ImportFunc_Run;
+        }
+        private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string filename = e.Args[0].AsString();
+            if (Utils.GetSafeBool(e.Args, 1))
+            {
+                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
+                {
+                    Interop.NetLibraryLoader.LoadLibrary(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
+                    return;
+                }
+                if (File.Exists(filename))
+                {
+                    Interop.NetLibraryLoader.LoadLibrary(filename);
+                }
+                else
+                {
+                    ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
+                }
+                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
+                {
+                    Interop.NetLibraryLoader.LoadLibrary(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
+                    return;
+                }
+                if (File.Exists(filename))
+                {
+                    Interop.NetLibraryLoader.LoadLibrary(filename);
+                }
+                else
+                {
+                    ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
+                }
+            }
+            else
+            {
+                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
+                {
+                    AlicePackage.LoadData(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
+                    return;
+                }
+                AlicePackage.Load(filename);
+            }
         }
     }
     internal class DelayFunc : FunctionBase

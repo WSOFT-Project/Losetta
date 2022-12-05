@@ -21,6 +21,16 @@ namespace AliceScript
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
+        private List<NameSpace> m_namespace = new List<NameSpace>();
+
+        /// <summary>
+        /// このスクリプトでusingされた名前空間の一覧
+        /// </summary>
+        public List<NameSpace> UsingNamespaces
+        {
+            get { return m_namespace; }
+            set { m_namespace = value; }
+        }
         /// <summary>
         /// このスクリプトに関連付けられたオブジェクトです
         /// </summary>
@@ -192,6 +202,7 @@ namespace AliceScript
             m_char2Line = other.Char2Line;
             m_filename = other.Filename;
             m_originalScript = other.OriginalScript;
+            m_namespace = other.m_namespace;
             StackLevel = other.StackLevel;
             CurrentClass = other.CurrentClass;
             ClassInstance = other.ClassInstance;

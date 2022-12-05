@@ -4,10 +4,7 @@ using System.IO;
 
 namespace AliceScript
 {
-    internal class Import
-    {
-
-    }
+   
     public static class NameSpaceManerger
     {
         public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>();
@@ -24,14 +21,7 @@ namespace AliceScript
         {
             return NameSpaces.ContainsKey(name);
         }
-        public static void Load(string name, ParsingScript script)
-        {
-            NameSpaces[name].Load(script);
-        }
-        public static void UnLoad(string name, ParsingScript script)
-        {
-            NameSpaces[name].UnLoad(script);
-        }
+
     }
     public class NameSpace
     {
@@ -69,81 +59,7 @@ namespace AliceScript
         }
         public event EventHandler<ImportEventArgs> Loading;
         public event EventHandler<ImportEventArgs> UnLoading;
-        public virtual void Load(ParsingScript script)
-        {
-            int ecount = 0;
-            ImportEventArgs e = new ImportEventArgs();
-            e.Cancel = false;
-            e.Script = script;
-            Loading?.Invoke(this, e);
-            if (e.Cancel)
-            {
-                return;
-            }
-            foreach (FunctionBase func in Functions)
-            {
-                try
-                {
-                    FunctionBaseManerger.Add(func,func.Name,script);
-                }
-                catch { ecount++; }
-            }
-            foreach (ObjectBase obj in Classes)
-            {
-                try
-                {
-                    ClassManerger.Add(obj,script);
-                }
-                catch { ecount++; }
-            }
-            foreach (string s in Enums.Keys)
-            {
-                try
-                {
-                    FunctionBase.RegisterEnum(s, Enums[s],script);
-                }
-                catch { ecount++; }
-            }
-
-            if (ecount != 0) { throw new Exception("名前空間のロード中に" + ecount + "件の例外が発生しました。これらの例外は捕捉されませんでした"); }
-        }
-        public virtual void UnLoad(ParsingScript script)
-        {
-            int ecount = 0;
-            ImportEventArgs e = new ImportEventArgs();
-            e.Cancel = false;
-            e.Script = script;
-            UnLoading?.Invoke(this, e);
-            if (e.Cancel)
-            {
-                return;
-            }
-            foreach (FunctionBase func in Functions)
-            {
-                try
-                {
-                    FunctionBaseManerger.Remove(func,func.Name,script);
-                }
-                catch { ecount++; }
-            }
-            foreach (ObjectBase obj in Classes)
-            {
-                try
-                {
-                    ClassManerger.Remove(obj,script);
-                }
-                catch { ecount++; }
-            }
-            foreach (string s in Enums.Keys)
-            {
-                try
-                {
-                    FunctionBase.UnregisterScriptFunction(s,script);
-                }
-                catch { ecount++; }
-            }
-            if (ecount != 0) { throw new Exception("名前空間のアンロード中に" + ecount + "件の例外が発生しました。これらの例外は捕捉されませんでした"); }
-        }
+        
         public int Count
         {
             get
