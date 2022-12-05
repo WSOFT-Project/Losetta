@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AliceScript.Interop
 {
-    internal class NetLibraryLoader
+    public class NetLibraryLoader
     {
         public static void LoadLibrary(string path)
         {

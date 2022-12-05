@@ -71,7 +71,7 @@ namespace AliceScript
         /// Exitingイベントを発生させます
         /// </summary>
         /// <param name="exitcode">終了の理由を表す終了コード</param>
-        internal static void OnExiting(int exitcode=0)
+        public static void OnExiting(int exitcode=0)
         {
             ExitingEventArgs e = new ExitingEventArgs();
             e.Cancel = false;
@@ -86,10 +86,6 @@ namespace AliceScript
                 Environment.Exit(e.ExitCode);
             }
         }
-        /// <summary>
-        /// Alice.Runtimeファイルの場所
-        /// </summary>
-        public static string Runtime_File_Path = Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"Losetta.Runtime.dll");
         /// <summary>
         /// AliceScriptのバージョン
         /// </summary>

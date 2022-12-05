@@ -40,43 +40,7 @@ namespace AliceScript
         }
     }
 
-    internal class TryBlock : FunctionBase
-    {
-        public TryBlock()
-        {
-            this.Name = Constants.TRY;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += TryBlock_Run;
-        }
-
-        private void TryBlock_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = Interpreter.Instance.ProcessTry(e.Script);
-        }
-    }
-
-    internal class ExitFunction : FunctionBase
-    {
-        public ExitFunction()
-        {
-            this.FunctionName = Constants.EXIT;
-            this.MinimumArgCounts = 0;
-            this.Run += ExitFunction_Run;
-        }
-
-        private void ExitFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count == 0)
-            {
-                Alice.OnExiting(0);
-            }
-            else
-            {
-                Alice.OnExiting(Utils.GetSafeInt(e.Args, 0, 0));
-            }
-        }
-    }
-
+   
     internal class IsNaNFunction : ParserFunction
     {
         protected override Variable Evaluate(ParsingScript script)
@@ -143,33 +107,7 @@ namespace AliceScript
         }
     }
 
-    internal class ThrowFunction : FunctionBase
-    {
-        public ThrowFunction()
-        {
-            this.Name = "throw";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
-            this.MinimumArgCounts = 1;
-            this.Run += ThrowFunction_Run;
-        }
-
-        private void ThrowFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            switch (e.Args[0].Type)
-            {
-                case Variable.VarType.STRING:
-                    {
-                        ThrowErrorManerger.OnThrowError(e.Args[0].AsString(), Exceptions.USER_DEFINED, e.Script);
-                        break;
-                    }
-                case Variable.VarType.NUMBER:
-                    {
-                        ThrowErrorManerger.OnThrowError(Utils.GetSafeString(e.Args, 1), (Exceptions)e.Args[0].AsInt(), e.Script);
-                        break;
-                    }
-            }
-        }
-    }
+  
     internal class VarFunction : ParserFunction
     {
         private bool m_Const = false;
@@ -236,7 +174,29 @@ namespace AliceScript
             return result == null ? Variable.EmptyInstance : await result;
         }
     }
+    internal class CustomMethodFunction : FunctionBase
+    {
+        public CustomMethodFunction(CustomFunction func, string name = "")
+        {
+            Function = func;
+            Name = name;
+            if (Function.IsMethod)
+            {
+                RequestType = Function.MethodRequestType;
+                isNative = Function.isNative;
+                IsVirtual = Function.IsVirtual;
+                Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+                this.Run += CustomMethodFunction_Run;
+            }
+        }
 
+        private void CustomMethodFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = Function.GetVariable(e.Script, e.CurentVariable);
+        }
+
+        public CustomFunction Function { get; set; }
+    }
     internal class FunctionCreator : ParserFunction
     {
         public FunctionCreator()
@@ -1443,154 +1403,7 @@ namespace AliceScript
         }
     }
 
-    internal class IfStatement : FunctionBase
-    {
-        public IfStatement()
-        {
-            this.Name = Constants.IF;
-
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            Variable result = Interpreter.Instance.ProcessIf(script);
-            return result;
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            Variable result = await Interpreter.Instance.ProcessIfAsync(script);
-            return result;
-        }
-    }
-
-    internal class ForStatement : FunctionBase
-    {
-        public ForStatement()
-        {
-            this.Name = Constants.FOR;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessFor(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForAsync(script);
-        }
-    }
-
-    internal class ForeachStatement : FunctionBase
-    {
-        public ForeachStatement()
-        {
-            this.Name = Constants.FOREACH;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessForeach(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForeachAsync(script);
-        }
-    }
-
-    internal class WhileStatement : FunctionBase
-    {
-        public WhileStatement()
-        {
-            this.Name = Constants.WHILE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessWhile(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessWhileAsync(script);
-        }
-    }
-
-    internal class DoWhileStatement : FunctionBase
-    {
-        public DoWhileStatement()
-        {
-            this.Name = Constants.DO;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessDoWhile(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessDoWhile(script);
-        }
-    }
-
-    internal class SwitchStatement : FunctionBase
-    {
-        public SwitchStatement()
-        {
-            this.Name = Constants.SWITCH;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessSwitch(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessSwitch(script);
-        }
-    }
-
-    internal class CaseStatement : FunctionBase
-    {
-        public CaseStatement()
-        {
-            this.Name = Constants.CASE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessCase(script, Name);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessCase(script, Name);
-        }
-    }
-
-    internal class IncludeFile : FunctionBase
-    {
-        public IncludeFile()
-        {
-            this.Name = "include";
-            this.MinimumArgCounts = 1;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
-            this.Run += IncludeFile_Run;
-        }
-
-        private void IncludeFile_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Script == null)
-            {
-                e.Script = new ParsingScript("");
-            }
-            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString());
-
-            Variable result = null;
-            while (tempScript.StillValid())
-            {
-                result = tempScript.Execute();
-                tempScript.GoToNextStatement();
-            }
-            if (result == null) { result = Variable.EmptyInstance; }
-            e.Return = result;
-        }
-
-    }
+  
 
     // Get a value of a variable or of an array element
     public class GetVarFunction : ParserFunction

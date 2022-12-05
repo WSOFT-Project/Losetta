@@ -119,20 +119,7 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
-            FunctionBaseManerger.Add(new IfStatement());
-            FunctionBaseManerger.Add(new DoWhileStatement());
-            FunctionBaseManerger.Add(new WhileStatement());
-            FunctionBaseManerger.Add(new SwitchStatement());
-            FunctionBaseManerger.Add(new CaseStatement());
-            FunctionBaseManerger.Add(new CaseStatement(), Constants.DEFAULT);
-            FunctionBaseManerger.Add(new ForStatement());
-            FunctionBaseManerger.Add(new ForeachStatement());
-            FunctionBaseManerger.Add(new GotoGosubFunction(true));
-            FunctionBaseManerger.Add(new GotoGosubFunction(false));
-            FunctionBaseManerger.Add(new IncludeFile());
-            FunctionBaseManerger.Add(new ThrowFunction());
-            FunctionBaseManerger.Add(new TryBlock());
-
+            
             ParserFunction.RegisterFunction(Constants.CLASS, new ClassCreator());
             ParserFunction.RegisterFunction(Constants.ENUM, new EnumFunction());
             ParserFunction.RegisterFunction(Constants.ISNAN, new IsNaNFunction());
@@ -142,20 +129,6 @@ namespace AliceScript
             ParserFunction.RegisterFunction(Constants.GET_PROPERTIES, new GetPropertiesFunction());
             ParserFunction.RegisterFunction(Constants.GET_PROPERTY, new GetPropertyFunction());
             ParserFunction.RegisterFunction(Constants.SET_PROPERTY, new SetPropertyFunction());
-
-            FunctionBaseManerger.Add(new ExitFunction());
-            FunctionBaseManerger.Add(new wsverFunc());
-            FunctionBaseManerger.Add(new DelayFunc());
-            FunctionBaseManerger.Add(new ImportFunc());
-            FunctionBaseManerger.Add(new ImportFunc(true));
-            FunctionBaseManerger.Add(new DllImportFunc());
-            FunctionBaseManerger.Add(new IceImportFunc());
-            FunctionBaseManerger.Add(new DelegateCreator());
-            FunctionBaseManerger.Add(new DelegateCreator(), "_");
-            FunctionBaseManerger.Add(new PrintFunction());
-            FunctionBaseManerger.Add(new PrintFunction(true));
-            FunctionBaseManerger.Add(new StringFormatFunction());
-            FunctionBaseManerger.Add(new LockFunction());
 
             ParserFunction.RegisterFunction(Constants.ADD_TO_HASH, new AddVariableToHashFunction());
             ParserFunction.RegisterFunction(Constants.ADD_ALL_TO_HASH, new AddVariablesToHashFunction());
@@ -178,13 +151,6 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.POINTER, new PointerFunction());
             ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
 
-
-            if (File.Exists(Alice.Runtime_File_Path))
-            {
-                Interop.NetLibraryLoader.LoadLibrary(Alice.Runtime_File_Path);
-            }
-
-            VariableFunctionIniter.Init();
         }
 
         public void RegisterEnums()

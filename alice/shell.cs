@@ -113,9 +113,13 @@ namespace alice
                     throw_redirect_files.Add(pa.Values["throw"]);
                 }
             }
-            if (pa.Values.ContainsKey("runtime"))
+            if (pa.Values.ContainsKey("runtime") && (pa.Values["runtime"].ToLower() == "disable"))
             {
-                Alice.Runtime_File_Path = pa.Values["runtime"];
+                //ランタイムを初期化しない
+            }
+            else
+            {
+                new AliceScript.NameSpaces.Alice_Runtime().Main();
             }
             mainfile = pa.Flags.Contains("mainfile");
             foreach (string fn in pa.Files)

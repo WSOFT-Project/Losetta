@@ -12,6 +12,11 @@ namespace AliceScript
 
         internal ZipArchive archive { get; set; }
 
+        public ZipArchive Archive
+        {
+            get { return archive; }
+        }
+
         public PackageManifest Manifest { get; set; }
 
         public static void Load(string path)
@@ -164,7 +169,7 @@ namespace AliceScript
         {
             return (archive.GetEntry(filename) != null);
         }
-        internal static byte[] GetEntryData(ZipArchiveEntry e, string filename)
+        public static byte[] GetEntryData(ZipArchiveEntry e, string filename)
         {
             try
             {
