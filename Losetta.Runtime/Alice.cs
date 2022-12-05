@@ -92,6 +92,7 @@ namespace AliceScript.NameSpaces
 
             FunctionBaseManerger.Add(new ExitFunction());
             FunctionBaseManerger.Add(new DelayFunc());
+            FunctionBaseManerger.Add(new UsingStatement());
             FunctionBaseManerger.Add(new ImportFunc());
             FunctionBaseManerger.Add(new DelegateCreator());
             FunctionBaseManerger.Add(new DelegateCreator(), "_");
