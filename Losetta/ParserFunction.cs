@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -411,6 +412,36 @@ namespace AliceScript
             if (fc != null)
             {
                 return fc;
+            }
+
+            //ちょっとでも高速化（ここのロジックは時間がかかる）
+            if (name.Contains("."))
+            {
+                string namespacename = string.Empty;
+
+                foreach (string nsn in NameSpaceManerger.NameSpaces.Keys)
+                {
+                    //より長い名前（AliceとAlice.IOならAlice.IO）を採用
+                    if (name.StartsWith(nsn.ToLower() + ".") && nsn.Length > namespacename.Length)
+                    {
+                        namespacename = nsn.ToLower();
+                    }
+                }
+
+                //完全修飾名で関数を検索
+                if (namespacename != string.Empty)
+                {
+                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.EndsWith(x.Name.ToLower())).FirstOrDefault();
+                    if (fc != null)
+                    {
+                        return fc;
+                    }
+                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower())).FirstOrDefault();
+                    if (cfc != null)
+                    {
+                        return new GetVarFunction(new Variable(cfc));
+                    }
+                }
             }
 
             return GetFromNamespace(name, script);
