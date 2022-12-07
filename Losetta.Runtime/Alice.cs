@@ -1,5 +1,4 @@
-﻿using AliceScript.Nam;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
 {
