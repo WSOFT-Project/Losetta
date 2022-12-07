@@ -1,4 +1,8 @@
 # Losetta
+![Build state](https://github.com/WSOFT-Project/Losetta/actions/workflows/build.yml/badge.svg)
+[![LICENCE](https://img.shields.io/github/license/WSOFT-Project/Losetta)](LICENCE.md)
+![Commit Activity](https://img.shields.io/github/commit-activity/y/WSOFT-Project/Losetta)
+
 Losettaは、オープンソースのSAIM（標準AliceScript実装）の実装です。.NET6.0で開発されているため、WindowsをはじめmacOSやLinuxなどでも使用でき、さらにAliceScriptをあなたの.NETアプリに埋め込むこともできます。
 
 LosettaはMITライセンスで公開されているため、無料勝つ無保証で使用できます。詳細については[LICENCE](/LICENSE.txt)を参照してください。
