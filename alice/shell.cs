@@ -37,7 +37,8 @@ namespace alice
                 Console.WriteLine("Ctrl+Cが入力されました");
                 Console.WriteLine("Escキーを押すと、現在のシェルに戻ります");
                 Console.WriteLine("スペースキーを押すと、画面がクリアされます");
-                Console.WriteLine("Endキーを押した後、終了コードを入力するとそのコードで終了します");
+                Console.WriteLine("Bacmspaceキーを押した後、終了コードを入力するとそのコードで終了します");
+                Console.WriteLine("その他のキーを押すと、終了します");
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
@@ -45,7 +46,7 @@ namespace alice
                             e.Cancel = true;
                             break;
                         }
-                    case ConsoleKey.End:
+                    case ConsoleKey.Backspace:
                         {
                             while (true)
                             {

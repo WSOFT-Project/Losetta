@@ -7,13 +7,17 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.Security");
+            try
+            {
+                NameSpace space = new NameSpace("Alice.Security");
 
-            space.Add(new Password_Hash());
-            space.Add(new Password_Salt());
-            space.Add(new Password_Verify());
+                space.Add(new Password_Hash());
+                space.Add(new Password_Salt());
+                space.Add(new Password_Verify());
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
 

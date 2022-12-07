@@ -8,41 +8,45 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.Math");
+            try
+            {
+                NameSpace space = new NameSpace("Alice.Math");
 
-            space.Add(new math_eFunc());
-            space.Add(new math_tauFunc());
-            space.Add(new math_piFunc());
-            space.Add(new math_absFunc());
-            space.Add(new math_acosFunc());
-            space.Add(new math_acoshFunc());
-            space.Add(new math_atan2Func());
-            space.Add(new math_atanFunc());
-            space.Add(new math_atanhFunc());
-            space.Add(new math_bitdecrementFunc());
-            space.Add(new math_bitincrementFunc());
-            space.Add(new math_cbrtFunc());
-            space.Add(new math_ceilingFunc());
-            space.Add(new math_clampFunc());
-            space.Add(new math_copysignFunc());
-            space.Add(new math_cosFunc());
-            space.Add(new math_coshFunc());
-            space.Add(new math_expFunc());
-            space.Add(new math_floorFunc());
-            space.Add(new math_fusedmultiplyaddFunc());
-            space.Add(new math_sinFunc());
-            space.Add(new math_sinhFunc());
-            space.Add(new math_sqrtFunc());
-            space.Add(new math_tanFunc());
-            space.Add(new math_tanhFunc());
-            space.Add(new math_truncateFunc());
-            space.Add(new math_isPrimeFunc());
-            space.Add(new math_powFunc());
-            space.Add(new math_RoundFunc());
-            space.Add(new math_MinMaxFunc(true));
-            space.Add(new math_MinMaxFunc(false));
+                space.Add(new math_eFunc());
+                space.Add(new math_tauFunc());
+                space.Add(new math_piFunc());
+                space.Add(new math_absFunc());
+                space.Add(new math_acosFunc());
+                space.Add(new math_acoshFunc());
+                space.Add(new math_atan2Func());
+                space.Add(new math_atanFunc());
+                space.Add(new math_atanhFunc());
+                space.Add(new math_bitdecrementFunc());
+                space.Add(new math_bitincrementFunc());
+                space.Add(new math_cbrtFunc());
+                space.Add(new math_ceilingFunc());
+                space.Add(new math_clampFunc());
+                space.Add(new math_copysignFunc());
+                space.Add(new math_cosFunc());
+                space.Add(new math_coshFunc());
+                space.Add(new math_expFunc());
+                space.Add(new math_floorFunc());
+                space.Add(new math_fusedmultiplyaddFunc());
+                space.Add(new math_sinFunc());
+                space.Add(new math_sinhFunc());
+                space.Add(new math_sqrtFunc());
+                space.Add(new math_tanFunc());
+                space.Add(new math_tanhFunc());
+                space.Add(new math_truncateFunc());
+                space.Add(new math_isPrimeFunc());
+                space.Add(new math_powFunc());
+                space.Add(new math_RoundFunc());
+                space.Add(new math_MinMaxFunc(true));
+                space.Add(new math_MinMaxFunc(false));
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
     class math_MinMaxFunc : FunctionBase

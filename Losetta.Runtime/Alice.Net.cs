@@ -9,24 +9,28 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            wc = new WebClient();
+            try
+            {
+                wc = new WebClient();
 
-            NameSpace space = new NameSpace("Alice.Net");
+                NameSpace space = new NameSpace("Alice.Net");
 
-            space.Add(new web_urldecodeFunc());
-            space.Add(new web_urlencodeFunc());
-            space.Add(new web_htmldecodeFunc());
-            space.Add(new web_htmlencodeFunc());
-            space.Add(new web_upload_dataFunc());
-            space.Add(new web_upload_fileFunc());
-            space.Add(new web_upload_textFunc());
-            space.Add(new web_download_dataFunc());
-            space.Add(new web_download_fileFunc());
-            space.Add(new web_download_textFunc());
-            space.Add(new web_send_pingFunc());
+                space.Add(new web_urldecodeFunc());
+                space.Add(new web_urlencodeFunc());
+                space.Add(new web_htmldecodeFunc());
+                space.Add(new web_htmlencodeFunc());
+                space.Add(new web_upload_dataFunc());
+                space.Add(new web_upload_fileFunc());
+                space.Add(new web_upload_textFunc());
+                space.Add(new web_download_dataFunc());
+                space.Add(new web_download_fileFunc());
+                space.Add(new web_download_textFunc());
+                space.Add(new web_send_pingFunc());
 
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
         internal static WebClient wc;
     }

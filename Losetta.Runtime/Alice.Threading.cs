@@ -10,15 +10,19 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.Threading");
+            try
+            {
+                NameSpace space = new NameSpace("Alice.Threading");
 
-            space.Add(new thread_idFunc());
-            space.Add(new thread_queueFunc());
-            space.Add(new SignalWaitFunction(true));
-            space.Add(new SignalWaitFunction(false));
-            space.Add(new task_runFunc());
+                space.Add(new thread_idFunc());
+                space.Add(new thread_queueFunc());
+                space.Add(new SignalWaitFunction(true));
+                space.Add(new SignalWaitFunction(false));
+                space.Add(new task_runFunc());
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
     class thread_idFunc : FunctionBase

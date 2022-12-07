@@ -7,37 +7,41 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.Interpreter");
+            try
+            {
+                NameSpace space = new NameSpace("Alice.Interpreter");
 
-            space.Add(new Interpreter_Reset_VariablesFunc());
-            space.Add(new Interpreter_Append_OutputOrDataFunc());
-            space.Add(new Interpreter_Append_OutputOrDataFunc(true));
-            space.Add(new Interpreter_NameExistsFunc());
-            space.Add(new Interpreter_ProcessOrFileFunc());
-            space.Add(new Interpreter_ProcessOrFileFunc(true));
-            space.Add(new Interpreter_GetVariable());
-            space.Add(new Interpreter_NamespacesFunc());
-            space.Add(new Interpreter_FunctionsFunc());
-            space.Add(new Interpreter_VariablesFunc());
-            space.Add(new Interpreter_NameFunc());
-            space.Add(new GetPackageFunc());
-            space.Add(new Interpreter_ConstsFunc());
-            space.Add(new ScheduleRunFunction(true));
-            space.Add(new ScheduleRunFunction(false));
-            space.Add(new Interpreter_GetScriptFunc());
-            space.Add(new gc_collectFunc());
-            space.Add(new gc_gettotalmemoryFunc());
-            space.Add(new gc_collectafterexecuteFunc());
-            space.Add(new Function_ShowFunc());
-            space.Add(new Debug_PrintFunction());
-            space.Add(new Debug_PrintFunction(true));
-            space.Add(new Debug_PrintFunction(true, true));
-            space.Add(new Debug_PrintFunction(false, true));
-            space.Add(new Debug_IndentFunction());
-            space.Add(new Debug_IndentFunction(true));
-            space.Add(new Debug_IndentLevelFunction());
+                space.Add(new Interpreter_Reset_VariablesFunc());
+                space.Add(new Interpreter_Append_OutputOrDataFunc());
+                space.Add(new Interpreter_Append_OutputOrDataFunc(true));
+                space.Add(new Interpreter_NameExistsFunc());
+                space.Add(new Interpreter_ProcessOrFileFunc());
+                space.Add(new Interpreter_ProcessOrFileFunc(true));
+                space.Add(new Interpreter_GetVariable());
+                space.Add(new Interpreter_NamespacesFunc());
+                space.Add(new Interpreter_FunctionsFunc());
+                space.Add(new Interpreter_VariablesFunc());
+                space.Add(new Interpreter_NameFunc());
+                space.Add(new GetPackageFunc());
+                space.Add(new Interpreter_ConstsFunc());
+                space.Add(new ScheduleRunFunction(true));
+                space.Add(new ScheduleRunFunction(false));
+                space.Add(new Interpreter_GetScriptFunc());
+                space.Add(new gc_collectFunc());
+                space.Add(new gc_gettotalmemoryFunc());
+                space.Add(new gc_collectafterexecuteFunc());
+                space.Add(new Function_ShowFunc());
+                space.Add(new Debug_PrintFunction());
+                space.Add(new Debug_PrintFunction(true));
+                space.Add(new Debug_PrintFunction(true, true));
+                space.Add(new Debug_PrintFunction(false, true));
+                space.Add(new Debug_IndentFunction());
+                space.Add(new Debug_IndentFunction(true));
+                space.Add(new Debug_IndentLevelFunction());
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
 

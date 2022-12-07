@@ -122,9 +122,7 @@ namespace AliceScript
             
             ParserFunction.RegisterFunction(Constants.CLASS, new ClassCreator());
             ParserFunction.RegisterFunction(Constants.ENUM, new EnumFunction());
-            ParserFunction.RegisterFunction(Constants.ISNAN, new IsNaNFunction());
             ParserFunction.RegisterFunction(Constants.NEW, new NewObjectFunction());
-            ParserFunction.RegisterFunction(Constants.RETURN, new ReturnStatement());
             ParserFunction.RegisterFunction(Constants.FUNCTION, new FunctionCreator());
             ParserFunction.RegisterFunction(Constants.GET_PROPERTIES, new GetPropertiesFunction());
             ParserFunction.RegisterFunction(Constants.GET_PROPERTY, new GetPropertyFunction());

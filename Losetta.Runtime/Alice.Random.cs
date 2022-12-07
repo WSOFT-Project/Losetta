@@ -9,20 +9,24 @@ namespace AliceScript.NameSpaces
         internal static Random random;
         public static void Init()
         {
-            random = new Random();
-            NameSpace space = new NameSpace("Alice.Random");
+            try
+            {
+                random = new Random();
+                NameSpace space = new NameSpace("Alice.Random");
 
-            space.Add(new randFunc());
-            space.Add(new rand_bytesFunc());
-            space.Add(new random_intFunc());
-            space.Add(new rand_doubleFunc());
-            space.Add(new random_bytesFunc());
+                space.Add(new randFunc());
+                space.Add(new rand_bytesFunc());
+                space.Add(new random_intFunc());
+                space.Add(new rand_doubleFunc());
+                space.Add(new random_bytesFunc());
 
-            space.Add(new guid_new_textFunc());
-            space.Add(new guid_new_bytesFunc());
+                space.Add(new guid_new_textFunc());
+                space.Add(new guid_new_bytesFunc());
 
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
     class randFunc : FunctionBase

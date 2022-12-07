@@ -6,51 +6,7 @@ using System.Threading.Tasks;
 
 namespace AliceScript
 {
-    internal class ReturnStatement : ParserFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            script.MoveForwardIf(Constants.SPACE);
-            if (!script.FromPrev(Constants.RETURN.Length).Contains(Constants.RETURN))
-            {
-                script.Backward();
-            }
-            Variable result = Utils.GetItem(script);
 
-            // If we are in Return, we are done:
-            script.SetDone();
-            result.IsReturn = true;
-
-            return result;
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            script.MoveForwardIf(Constants.SPACE);
-            if (!script.FromPrev(Constants.RETURN.Length).Contains(Constants.RETURN))
-            {
-                script.Backward();
-            }
-            Variable result = await Utils.GetItemAsync(script);
-
-            // If we are in Return, we are done:
-            script.SetDone();
-            result.IsReturn = true;
-
-            return result;
-        }
-    }
-
-   
-    internal class IsNaNFunction : ParserFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 1, m_name);
-            Variable arg = args[0];
-            return new Variable(arg.Type != Variable.VarType.NUMBER || double.IsNaN(arg.Value));
-        }
-    }
 
     internal class ReturnValueFunction : FunctionBase, INumericFunction
     {

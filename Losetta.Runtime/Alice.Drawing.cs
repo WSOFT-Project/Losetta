@@ -10,13 +10,17 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.Drawing");
+            try
+            {
+                NameSpace space = new NameSpace("Alice.Drawing");
 
-            space.Add(new ColorObject(0,0,0));
-            //メモリ消費が激しすぎるため一旦Colorsオブジェクトを無効化
-          //  space.Add(new ColorsObject());
+                space.Add(new ColorObject(0, 0, 0));
+                //メモリ消費が激しすぎるため一旦Colorsオブジェクトを無効化
+                //  space.Add(new ColorsObject());
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
    

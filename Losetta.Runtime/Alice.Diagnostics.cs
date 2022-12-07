@@ -9,19 +9,23 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            //名前空間のメインエントリポイントです。
-            NameSpace space = new NameSpace("Alice.Diagnostics");
+            try
+            {
+                //名前空間のメインエントリポイントです。
+                NameSpace space = new NameSpace("Alice.Diagnostics");
 
-            space.Add(new Process_GetProcessFunc());
-            space.Add(new Process_GetProcessFunc(true));
+                space.Add(new Process_GetProcessFunc());
+                space.Add(new Process_GetProcessFunc(true));
 
-            space.Add(new StopWatchObject());
-            space.Add(new ProcessObject());
-            space.Add(new ProcessStartInfoObject());
+                space.Add(new StopWatchObject());
+                space.Add(new ProcessObject());
+                space.Add(new ProcessStartInfoObject());
 
-            space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
+                space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
   

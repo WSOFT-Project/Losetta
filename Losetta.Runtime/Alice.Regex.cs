@@ -9,19 +9,23 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.Regex");
+            try
+            {
+                NameSpace space = new NameSpace("Alice.Regex");
 
-            space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Escape));
-            space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.IsMatch));
-            space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Match));
-            space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Matches));
-            space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Replace));
-            space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Split));
+                space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Escape));
+                space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.IsMatch));
+                space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Match));
+                space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Matches));
+                space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Replace));
+                space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Split));
 
-            space.Loading += Space_Loading;
-            space.UnLoading += Space_UnLoading;
+                space.Loading += Space_Loading;
+                space.UnLoading += Space_UnLoading;
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
 
         private static void Space_UnLoading(object sender, ImportEventArgs e)

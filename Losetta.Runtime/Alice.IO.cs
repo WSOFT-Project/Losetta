@@ -11,49 +11,53 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.IO");
+            try
+            {
+                NameSpace space = new NameSpace("Alice.IO");
 
-            space.Add(new file_existsFunc());
-            space.Add(new file_moveFunc());
-            space.Add(new file_copyFunc());
-            space.Add(new file_deleteFunc());
-            space.Add(new file_encryptFunc());
-            space.Add(new file_decrypt());
-            space.Add(new file_read_dataFunc());
-            space.Add(new file_read_textFunc());
-            space.Add(new file_write_dataFunc());
-            space.Add(new file_write_textFunc());
-            space.Add(new file_append_textFunc());
+                space.Add(new file_existsFunc());
+                space.Add(new file_moveFunc());
+                space.Add(new file_copyFunc());
+                space.Add(new file_deleteFunc());
+                space.Add(new file_encryptFunc());
+                space.Add(new file_decrypt());
+                space.Add(new file_read_dataFunc());
+                space.Add(new file_read_textFunc());
+                space.Add(new file_write_dataFunc());
+                space.Add(new file_write_textFunc());
+                space.Add(new file_append_textFunc());
 
-            space.Add(new directory_copyFunc());
-            space.Add(new directory_moveFunc());
-            space.Add(new directory_deleteFunc());
-            space.Add(new directory_existsFunc());
-            space.Add(new directory_createFunc());
-            space.Add(new directory_getfilesFunc());
-            space.Add(new directory_getdirectoriesFunc());
-            space.Add(new directory_currentdirectoryFunc());
+                space.Add(new directory_copyFunc());
+                space.Add(new directory_moveFunc());
+                space.Add(new directory_deleteFunc());
+                space.Add(new directory_existsFunc());
+                space.Add(new directory_createFunc());
+                space.Add(new directory_getfilesFunc());
+                space.Add(new directory_getdirectoriesFunc());
+                space.Add(new directory_currentdirectoryFunc());
 
-            space.Add(new path_ChangeExtensionFunc());
-            space.Add(new path_CombineFunc());
-            space.Add(new path_EndsInDirectorySeparatorFunc());
-            space.Add(new path_get_DirectoryNameFunc());
-            space.Add(new path_get_ExtensionFunc());
-            space.Add(new path_get_FileNameFunc());
-            space.Add(new path_get_FileNameWithoutExtensionFunc());
-            space.Add(new path_get_FullPathFunc());
-            space.Add(new path_get_GetRelativePathFunc());
-            space.Add(new path_get_PathRootFunc());
-            space.Add(new path_get_RandomFileNameFunc());
-            space.Add(new path_get_TempFileNameFunc());
-            space.Add(new path_get_TempPathFunc());
-            space.Add(new path_HasExtensionFunc());
-            space.Add(new path_IsPathFullyQualifiedFunc());
-            space.Add(new path_IsPathRootedFunc());
-            space.Add(new path_JoinFunc());
-            space.Add(new path_TrimEndingDirectorySeparatorFunc());
+                space.Add(new path_ChangeExtensionFunc());
+                space.Add(new path_CombineFunc());
+                space.Add(new path_EndsInDirectorySeparatorFunc());
+                space.Add(new path_get_DirectoryNameFunc());
+                space.Add(new path_get_ExtensionFunc());
+                space.Add(new path_get_FileNameFunc());
+                space.Add(new path_get_FileNameWithoutExtensionFunc());
+                space.Add(new path_get_FullPathFunc());
+                space.Add(new path_get_GetRelativePathFunc());
+                space.Add(new path_get_PathRootFunc());
+                space.Add(new path_get_RandomFileNameFunc());
+                space.Add(new path_get_TempFileNameFunc());
+                space.Add(new path_get_TempPathFunc());
+                space.Add(new path_HasExtensionFunc());
+                space.Add(new path_IsPathFullyQualifiedFunc());
+                space.Add(new path_IsPathRootedFunc());
+                space.Add(new path_JoinFunc());
+                space.Add(new path_TrimEndingDirectorySeparatorFunc());
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
     class path_ChangeExtensionFunc : FunctionBase

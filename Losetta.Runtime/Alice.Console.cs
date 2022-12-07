@@ -6,42 +6,46 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            //名前空間のメインエントリポイントです。
-            NameSpace space = new NameSpace("Alice.Console");
+            try
+            {
+                //名前空間のメインエントリポイントです。
+                NameSpace space = new NameSpace("Alice.Console");
 
-            space.Add(new Console_BeepFunc());
-            space.Add(new Console_ClearFunc());
-            space.Add(new Console_MoveBufferAreaFunc());
-            space.Add(new Console_ReadsFunc(0));
-            space.Add(new Console_ReadsFunc(1));
-            space.Add(new Console_ReadsFunc(2));
-            space.Add(new Console_WriteLineFunc());
-            space.Add(new Console_WriteLineFunc(false));
-            space.Add(new Console_GetCursorPositionFunc(0));
-            space.Add(new Console_GetCursorPositionFunc(1));
-            space.Add(new Console_GetCursorPositionFunc(2));
-            space.Add(new Console_GetCursorPositionFunc(3));
-            space.Add(new Console_GetBufferSizenFunc(0));
-            space.Add(new Console_GetBufferSizenFunc(1));
-            space.Add(new Console_SetBufferSizeFunc());
-            space.Add(new Console_SetCursorPositionFunc());
-            space.Add(new Console_SetWindowPositionFunc());
-            space.Add(new Console_SetWindowSizeFunc());
-            space.Add(new Console_GetWindowFunc(0));
-            space.Add(new Console_GetWindowFunc(1));
-            space.Add(new Console_GetWindowFunc(2));
-            space.Add(new Console_GetWindowFunc(3));
-            space.Add(new Console_GetWindowFunc(4));
-            space.Add(new Console_GetWindowFunc(5));
-            space.Add(new Console_GetColorFunc());
-            space.Add(new Console_GetColorFunc(false));
-            space.Add(new Console_SetColorFunc());
-            space.Add(new Console_SetColorFunc(false));
-            space.Add(new Console_ResetColorFunc());
+                space.Add(new Console_BeepFunc());
+                space.Add(new Console_ClearFunc());
+                space.Add(new Console_MoveBufferAreaFunc());
+                space.Add(new Console_ReadsFunc(0));
+                space.Add(new Console_ReadsFunc(1));
+                space.Add(new Console_ReadsFunc(2));
+                space.Add(new Console_WriteLineFunc());
+                space.Add(new Console_WriteLineFunc(false));
+                space.Add(new Console_GetCursorPositionFunc(0));
+                space.Add(new Console_GetCursorPositionFunc(1));
+                space.Add(new Console_GetCursorPositionFunc(2));
+                space.Add(new Console_GetCursorPositionFunc(3));
+                space.Add(new Console_GetBufferSizenFunc(0));
+                space.Add(new Console_GetBufferSizenFunc(1));
+                space.Add(new Console_SetBufferSizeFunc());
+                space.Add(new Console_SetCursorPositionFunc());
+                space.Add(new Console_SetWindowPositionFunc());
+                space.Add(new Console_SetWindowSizeFunc());
+                space.Add(new Console_GetWindowFunc(0));
+                space.Add(new Console_GetWindowFunc(1));
+                space.Add(new Console_GetWindowFunc(2));
+                space.Add(new Console_GetWindowFunc(3));
+                space.Add(new Console_GetWindowFunc(4));
+                space.Add(new Console_GetWindowFunc(5));
+                space.Add(new Console_GetColorFunc());
+                space.Add(new Console_GetColorFunc(false));
+                space.Add(new Console_SetColorFunc());
+                space.Add(new Console_SetColorFunc(false));
+                space.Add(new Console_ResetColorFunc());
 
-            space.Add("ConsoleColor", "System.ConsoleColor");
+                space.Add("ConsoleColor", "System.ConsoleColor");
 
-            NameSpaceManerger.Add(space);
+                NameSpaceManerger.Add(space);
+            }
+            catch { }
         }
     }
 

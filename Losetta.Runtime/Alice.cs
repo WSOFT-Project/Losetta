@@ -87,10 +87,12 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new GotoGosubFunction(true));
             FunctionBaseManerger.Add(new GotoGosubFunction(false));
             FunctionBaseManerger.Add(new IncludeFile());
+            FunctionBaseManerger.Add(new ReturnStatement());
             FunctionBaseManerger.Add(new ThrowFunction());
             FunctionBaseManerger.Add(new TryBlock());
 
             FunctionBaseManerger.Add(new ExitFunction());
+            FunctionBaseManerger.Add(new IsNaNFunction());
             FunctionBaseManerger.Add(new DelayFunc());
             FunctionBaseManerger.Add(new UsingStatement());
             FunctionBaseManerger.Add(new ImportFunc());
@@ -103,8 +105,50 @@ namespace AliceScript.NameSpaces
         }
     }
 
+    internal class ReturnStatement : FunctionBase
+    {
+        public ReturnStatement()
+        {
+            this.Name = Constants.RETURN;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += ReturnStatement_Run;
+        }
+
+        private void ReturnStatement_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Script.MoveForwardIf(Constants.SPACE);
+            if (!e.Script.FromPrev(Constants.RETURN.Length).Contains(Constants.RETURN))
+            {
+                e.Script.Backward();
+            }
+            Variable result = Utils.GetItem(e.Script);
+
+            // Returnに到達したら終了
+            e.Script.SetDone();
+            result.IsReturn = true;
+
+            e.Return = result;
+        }
+
+    }
 
 
+
+    internal class IsNaNFunction : FunctionBase
+    {
+        public IsNaNFunction()
+        {
+            this.Name = Constants.ISNAN;
+            this.MinimumArgCounts = 0;
+            this.Run += IsNaNFunction_Run;
+        }
+
+        private void IsNaNFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            Variable arg = e.Args[0];
+            e.Return = new Variable(arg.Type != Variable.VarType.NUMBER || double.IsNaN(arg.Value));
+        }
+    }
 
     internal class list_RemoveRangeFunc : FunctionBase
     {
