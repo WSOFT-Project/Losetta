@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using AliceScript.Nam;
+using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
 {
@@ -91,6 +92,10 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new ThrowFunction());
             FunctionBaseManerger.Add(new TryBlock());
 
+            FunctionBaseManerger.Add(new VarFunction(true));
+            FunctionBaseManerger.Add(new VarFunction(false));
+
+            FunctionBaseManerger.Add(new SingletonFunction());
             FunctionBaseManerger.Add(new ExitFunction());
             FunctionBaseManerger.Add(new IsNaNFunction());
             FunctionBaseManerger.Add(new DelayFunc());
@@ -1195,124 +1200,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class IfStatement : FunctionBase
-    {
-        public IfStatement()
-        {
-            this.Name = Constants.IF;
-
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            Variable result = Interpreter.Instance.ProcessIf(script);
-            return result;
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            Variable result = await Interpreter.Instance.ProcessIfAsync(script);
-            return result;
-        }
-    }
-
-    internal class ForStatement : FunctionBase
-    {
-        public ForStatement()
-        {
-            this.Name = Constants.FOR;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessFor(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForAsync(script);
-        }
-    }
-
-    internal class ForeachStatement : FunctionBase
-    {
-        public ForeachStatement()
-        {
-            this.Name = Constants.FOREACH;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessForeach(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForeachAsync(script);
-        }
-    }
-
-    internal class WhileStatement : FunctionBase
-    {
-        public WhileStatement()
-        {
-            this.Name = Constants.WHILE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessWhile(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessWhileAsync(script);
-        }
-    }
-
-    internal class DoWhileStatement : FunctionBase
-    {
-        public DoWhileStatement()
-        {
-            this.Name = Constants.DO;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessDoWhile(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessDoWhile(script);
-        }
-    }
-
-    internal class SwitchStatement : FunctionBase
-    {
-        public SwitchStatement()
-        {
-            this.Name = Constants.SWITCH;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessSwitch(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessSwitch(script);
-        }
-    }
-
-    internal class CaseStatement : FunctionBase
-    {
-        public CaseStatement()
-        {
-            this.Name = Constants.CASE;
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessCase(script, Name);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessCase(script, Name);
-        }
-    }
+   
 
     internal class IncludeFile : FunctionBase
     {
@@ -1534,180 +1422,9 @@ namespace AliceScript.NameSpaces
             return text;
         }
     }
-    //デリゲートを作成する関数クラスです
-    internal class DelegateCreator : FunctionBase
-    {
-        public DelegateCreator()
-        {
-            this.Name = "delegate";
-        }
-        protected override Variable Evaluate(ParsingScript script)
-        {
+ 
 
-
-            string[] args = Utils.GetFunctionSignature(script);
-            if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
-            {
-                args = new string[0];
-            }
-
-            script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
-            /*string line = */
-            script.GetOriginalLine(out _);
-
-            int parentOffset = script.Pointer;
-
-            if (script.CurrentClass != null)
-            {
-                parentOffset += script.CurrentClass.ParentOffset;
-            }
-
-            string body = Utils.GetBodyArrowBetween(script, Constants.START_GROUP, Constants.END_GROUP);
-            //AliceScript926から、Delegateの宣言に=>演算子は必要なくなりました。下の式は将来使用するために残されています。
-            //string body = Utils.GetBodyBetween(script,Constants.START_GROUP,Constants.END_GROUP);
-
-            script.MoveForwardIf(Constants.END_GROUP);
-            CustomFunction customFunc = new CustomFunction("", body, args, script, "DELEGATE");
-            customFunc.ParentScript = script;
-            customFunc.ParentOffset = parentOffset;
-            return new Variable(customFunc);
-        }
-    }
-    internal class TryBlock : FunctionBase
-    {
-        public TryBlock()
-        {
-            this.Name = Constants.TRY;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += TryBlock_Run;
-        }
-
-        private void TryBlock_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = Interpreter.Instance.ProcessTry(e.Script);
-        }
-    }
-
-    internal class UsingStatement : FunctionBase
-    {
-        public UsingStatement()
-        {
-            this.Name = "using";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += UsingStatement_Run;
-        }
-
-        private void UsingStatement_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            if (NameSpaceManerger.Contains(file))
-            {
-
-                e.Script.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[file]);
-            }
-            else
-            {
-                ThrowErrorManerger.OnThrowError("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, e.Script);
-            }
-        }
-    }
-    internal class ImportFunc : FunctionBase
-    {
-        public ImportFunc()
-        {
-           
-                this.FunctionName = "import";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.MinimumArgCounts = 1;
-            this.Run += ImportFunc_Run;
-        }
-        private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string filename = e.Args[0].AsString();
-            if (Utils.GetSafeBool(e.Args, 1))
-            {
-                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
-                    return;
-                }
-                if (File.Exists(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(filename);
-                }
-                else
-                {
-                    ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
-                }
-                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
-                    return;
-                }
-                if (File.Exists(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(filename);
-                }
-                else
-                {
-                    ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
-                }
-            }
-            else
-            {
-                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-                {
-                    AlicePackage.LoadData(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
-                    return;
-                }
-                AlicePackage.Load(filename);
-            }
-        }
-    }
-    internal class DelayFunc : FunctionBase
-    {
-        public DelayFunc()
-        {
-            this.Name = "delay";
-            this.MinimumArgCounts = 0;
-            this.Run += DelayFunc_Run;
-        }
-
-        private void DelayFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.NUMBER)
-            {
-                Thread.Sleep((int)e.Args[0].Value);
-            }
-            else
-            {
-                Thread.Sleep(-1);
-            }
-        }
-    }
-
-    internal class ExitFunction : FunctionBase
-    {
-        public ExitFunction()
-        {
-            this.FunctionName = Constants.EXIT;
-            this.MinimumArgCounts = 0;
-            this.Run += ExitFunction_Run;
-        }
-
-        private void ExitFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count == 0)
-            {
-                Alice.OnExiting(0);
-            }
-            else
-            {
-                Alice.OnExiting(Utils.GetSafeInt(e.Args, 0, 0));
-            }
-        }
-    }
-
+    
     internal class list_ForeachFunc : FunctionBase
     {
         public list_ForeachFunc()

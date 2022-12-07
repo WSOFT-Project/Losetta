@@ -144,7 +144,7 @@ namespace alice
             //例外出力
             ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
 
-            string welcome_mes = "AliceScript バージョン " + Alice.Version.ToString()+" (Losetta)";
+            string welcome_mes = "AliceScript バージョン " + Alice.Version.ToString()+" (Losetta v"+Alice.ImplementationVersion.ToString()+")";
             if (!allow_print)
             {
                 welcome_mes += " [標準出力無効]";

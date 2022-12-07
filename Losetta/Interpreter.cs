@@ -135,9 +135,6 @@ namespace AliceScript
             ParserFunction.RegisterFunction(Constants.GET_COLUMN, new GetColumnFunction());
             ParserFunction.RegisterFunction(Constants.GET_KEYS, new GetAllKeysFunction());
             ParserFunction.RegisterFunction(Constants.NAMESPACE, new NamespaceFunction());
-            ParserFunction.RegisterFunction(Constants.SINGLETON, new SingletonFunction());
-            ParserFunction.RegisterFunction(Constants.VAR, new VarFunction());
-            ParserFunction.RegisterFunction(Constants.CONST,new VarFunction(true));
 
             ParserFunction.RegisterFunction(Constants.ADD_DATA, new DataFunction(DataFunction.DataMode.ADD));
             ParserFunction.RegisterFunction(Constants.COLLECT_DATA, new DataFunction(DataFunction.DataMode.SUBSCRIBE));

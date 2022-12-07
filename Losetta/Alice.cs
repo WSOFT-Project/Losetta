@@ -93,12 +93,20 @@ namespace AliceScript
         {
             get
             {
-                //自分自身のAssemblyを取得
+                return new Version(2,0);
+            }
+        }
+        /// <summary>
+        /// Losettaのバージョン
+        /// </summary>
+        public static Version ImplementationVersion
+        {
+            get
+            {
                 System.Reflection.Assembly asm =
                     System.Reflection.Assembly.GetExecutingAssembly();
                 //バージョンの取得
                 return asm.GetName().Version;
-                
             }
         }
     }
