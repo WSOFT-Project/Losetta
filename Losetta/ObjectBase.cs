@@ -30,7 +30,7 @@ namespace AliceScript
             v.AddRange(new List<string>(Events.Keys));
             return v;
         }
-        internal static bool GETTING = false;
+        public static bool GETTING = false;
         public static List<Variable> LaskVariable;
 
         public virtual Variable Operator(Variable left, Variable right, string action, ParsingScript script)
@@ -41,9 +41,11 @@ namespace AliceScript
         public virtual Task<Variable> GetProperty(string sPropertyName, List<Variable> args = null, ParsingScript script = null)
         {
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
-            if (Properties.ContainsKey(sPropertyName))
+
+            var prop = GetPropertyBase(sPropertyName);
+            if (prop!=null)
             {
-               return Task.FromResult(Properties[sPropertyName].Property);
+               return Task.FromResult(prop.Property);
             }
             else
             {
@@ -73,13 +75,26 @@ namespace AliceScript
             }
         }
 
+        public virtual PropertyBase GetPropertyBase(string sPropertyName)
+        {
+            if (Properties.ContainsKey(sPropertyName))
+            {
+                return Properties[sPropertyName];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public virtual Task<Variable> SetProperty(string sPropertyName, Variable argValue)
         {
            
                 sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
-                if (Properties.ContainsKey(sPropertyName))
+                var prop = GetPropertyBase(sPropertyName);
+                if (prop!=null)
                 {
-                    Properties[sPropertyName].Property = argValue;
+                prop.Property = argValue;
                 }
                 else if (Events.ContainsKey(sPropertyName))
                 {

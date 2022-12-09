@@ -662,11 +662,12 @@ namespace AliceScript
     public class CustomFunction : ParserFunction
     {
         public CustomFunction(string funcName,
-                                string body, string[] args, ParsingScript script, object tag = null)
+                                string body, string[] args, ParsingScript script, object tag = null,bool forceReturn=false)
         {
             Name = funcName;
             m_body = body;
             m_tag = tag;
+            m_forceReturn = forceReturn;
             //正確な変数名の一覧
             List<string> trueArgs = new List<string>();
             //m_args = RealArgs = args;
@@ -1052,9 +1053,13 @@ namespace AliceScript
             {
                 result = Variable.EmptyInstance;
             }
-            else
+            else if (result.IsReturn || m_forceReturn)
             {
                 result.IsReturn = false;
+            }
+            else
+            {
+                result = Variable.EmptyInstance;
             }
 
             return result;
@@ -1086,9 +1091,13 @@ namespace AliceScript
             {
                 result = Variable.EmptyInstance;
             }
-            else
+            else if (result.IsReturn || m_forceReturn)
             {
                 result.IsReturn = false;
+            }
+            else
+            {
+                result = Variable.EmptyInstance;
             }
 
             return result;
@@ -1162,6 +1171,7 @@ namespace AliceScript
         protected int m_this = -1;
         protected string m_body;
         protected object m_tag;
+        protected bool m_forceReturn;
         protected string[] m_args;
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;

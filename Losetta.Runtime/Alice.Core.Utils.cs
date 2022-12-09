@@ -92,19 +92,6 @@ namespace AliceScript.NameSpaces
                 {
                     ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
                 }
-                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
-                    return;
-                }
-                if (File.Exists(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(filename);
-                }
-                else
-                {
-                    ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
-                }
             }
             else
             {

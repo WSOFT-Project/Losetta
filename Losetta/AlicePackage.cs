@@ -9,13 +9,19 @@ namespace AliceScript
 {
     public class AlicePackage
     {
-
-        internal ZipArchive archive { get; set; }
-
         public ZipArchive Archive
         {
-            get { return archive; }
+            get
+            {
+                return archive;
+            }
+            set
+            {
+                archive = value;
+            }
         }
+
+        internal ZipArchive archive;
 
         public PackageManifest Manifest { get; set; }
 
@@ -27,7 +33,7 @@ namespace AliceScript
                 return;
             }
             byte[] file = File.ReadAllBytes(path);
-            LoadData(file,path);
+            LoadData(file, path);
         }
         public static void LoadData(byte[] data, string filename = "")
         {
@@ -111,15 +117,15 @@ namespace AliceScript
                     //見つかった時は開く
                     AlicePackage package = new AlicePackage();
                     package.archive = a;
-                    string xml = GetEntryScript(e,Constants.PACKAGE_MANIFEST_FILENAME);
+                    string xml = GetEntryScript(e, Constants.PACKAGE_MANIFEST_FILENAME);
                     if (xml == null)
                     {
                         return;
                     }
                     package.Manifest = GetManifest(xml);
-                    if (package.Manifest!=null)
+                    if (package.Manifest != null)
                     {
-                        if (package.Manifest.Target!=null)
+                        if (package.Manifest.Target != null)
                         {
                             if (!package.Manifest.Target.Contains(Interpreter.Instance.Name))
                             {
@@ -127,7 +133,7 @@ namespace AliceScript
                                 return;
                             }
                         }
-                        string srcname=string.IsNullOrEmpty(package.Manifest.ScriptPath) ? Constants.PACKAGE_MANIFEST_FILENAME: package.Manifest.ScriptPath;
+                        string srcname = string.IsNullOrEmpty(package.Manifest.ScriptPath) ? Constants.PACKAGE_MANIFEST_FILENAME : package.Manifest.ScriptPath;
                         if (!package.Manifest.UseInlineScript)
                         {
                             ZipArchiveEntry entry = a.GetEntry(srcname);
@@ -220,11 +226,33 @@ namespace AliceScript
                 return ms.GetBuffer();
             }
         }
-        public static void CreateEncodingPackage(string filepath, string outfilepath)
+        public static void CreateEncodingPackage(string filepath, string outfilepath, byte[] controlCode = null)
         {
             int i, len;
             byte[] buffer = new byte[4096];
             byte[] data = File.ReadAllBytes(filepath);
+
+            if (controlCode == null)
+            {
+                controlCode = new byte[16];
+            }
+            else if (controlCode.Length != 16)
+            {
+                //制御コードが16バイトに満たない場合は0で埋め、それより大きい場合は切り詰めます
+                byte[] newCode = new byte[16];
+                for (i = 0; i < newCode.Length; i++)
+                {
+                    if (i < controlCode.Length)
+                    {
+                        newCode[i] = controlCode[i];
+                    }
+                    else
+                    {
+                        newCode[i] = 0x00;
+                    }
+                }
+                controlCode = newCode;
+            }
 
             using (FileStream outfs = new FileStream(outfilepath, FileMode.Create, FileAccess.Write))
             {
@@ -245,14 +273,15 @@ namespace AliceScript
                     using (CryptoStream cse = new CryptoStream(outfs, encryptor, CryptoStreamMode.Write))
                     {
                         outfs.Write(Constants.PACKAGE_MAGIC_NUMBER, 0, Constants.PACKAGE_MAGIC_NUMBER.Length);     // ファイルヘッダを先頭に埋め込む
-                        outfs.Write(aes.Key,0,16); //次にKeyをファイルに埋め込む
+                        outfs.Write(controlCode, 0, 16);//制御コードをファイルに埋め込む
+                        outfs.Write(aes.Key, 0, 16); //次にKeyをファイルに埋め込む
                         outfs.Write(aes.IV, 0, 16); // 続けてIVもファイルに埋め込む
                         using (DeflateStream ds = new DeflateStream(cse, CompressionMode.Compress)) //圧縮
                         {
                             double size = data.LongLength;
                             byte[] sum = BitConverter.GetBytes(size);
-                            ds.Write(sum,0,8);//解凍後の実際の長さを書き込む(これを用いて解凍をチェックする)
-                            using (MemoryStream fs=new MemoryStream(data))
+                            ds.Write(sum, 0, 8);//解凍後の実際の長さを書き込む(これを用いて解凍をチェックする)
+                            using (MemoryStream fs = new MemoryStream(data))
                             {
                                 while ((len = fs.Read(buffer, 0, 4096)) > 0)
                                 {
@@ -266,16 +295,16 @@ namespace AliceScript
                 }
             }
         }
-        
-        public static void LoadEncodingPackage(byte[] data,string filename="")
+
+        public static void LoadEncodingPackage(byte[] data, string filename = "")
         {
-            int i, len;
+            int len;
             byte[] buffer = new byte[4096];
 
             using (MemoryStream outfs = new MemoryStream())
             {
-                
-                using (MemoryStream fs=new MemoryStream(data))
+
+                using (MemoryStream fs = new MemoryStream(data))
                 {
                     using (AesManaged aes = new AesManaged())
                     {
@@ -289,12 +318,13 @@ namespace AliceScript
                         fs.Read(mark, 0, ml);
                         if (!mark.SequenceEqual(Constants.PACKAGE_MAGIC_NUMBER))
                         {
-                            ThrowErrorManerger.OnThrowError("エラー:有効なAlicePackageファイルではありません",Exceptions.BAD_PACKAGE);
+                            ThrowErrorManerger.OnThrowError("エラー:有効なAlicePackageファイルではありません", Exceptions.BAD_PACKAGE);
                             return;
                         }
+                        fs.Seek(16, SeekOrigin.Current);//制御コード分シーク
                         // Key
                         byte[] key = new byte[16];
-                        fs.Read(key,0,16);
+                        fs.Read(key, 0, 16);
                         aes.Key = key;
                         // Initilization Vector
                         byte[] iv = new byte[16];
@@ -308,7 +338,7 @@ namespace AliceScript
                             using (DeflateStream ds = new DeflateStream(cse, CompressionMode.Decompress))   //解凍
                             {
                                 byte[] sum = new byte[8];
-                                ds.Read(sum,0,8);
+                                ds.Read(sum, 0, 8);
                                 double size = BitConverter.ToDouble(sum);
                                 while ((len = ds.Read(buffer, 0, 4096)) > 0)
                                 {
@@ -325,7 +355,7 @@ namespace AliceScript
                 }
                 try
                 {
-                    LoadArchive(new ZipArchive(outfs),filename);
+                    LoadArchive(new ZipArchive(outfs), filename);
                 }
                 catch
                 {

@@ -38,6 +38,7 @@ namespace AliceScript
         public const string UNDEFINED = "undefined";
 
         public const string ASSIGNMENT = "=";
+        public const string ARROW = "=>";
         public const string AND = "&&";
         public const string OR = "||";
         public const string NOT = "!";

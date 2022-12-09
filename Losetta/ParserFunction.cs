@@ -27,8 +27,51 @@ namespace AliceScript
         {
             if (item.Length == 0 && (ch == Constants.START_ARG || !script.StillValid()))
             {
-                // There is no function, just an expression in parentheses
-                m_impl = s_idFunction;
+                bool isLambda = false;
+                int pointbc = script.Pointer;
+                while (script.StillValid())
+                {
+                    script.Pointer++;
+                    if (script.Prev == Constants.ARROW[0] && script.Current == Constants.ARROW[1])
+                    {
+                        isLambda = true;
+                        break;
+                    }
+                }
+                script.Pointer = pointbc;
+                if (!isLambda)
+                {
+                    // 括弧内の式を計算します
+                    m_impl = s_idFunction;
+                }
+                else
+                {
+                    // ラムダ式です
+                    string[] args = Utils.GetFunctionSignature(script);
+                    if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
+                    {
+                        args = new string[0];
+                    }
+
+                    script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+                    /*string line = */
+                    script.GetOriginalLine(out _);
+
+                    int parentOffset = script.Pointer;
+
+                    if (script.CurrentClass != null)
+                    {
+                        parentOffset += script.CurrentClass.ParentOffset;
+                    }
+
+                    string body = Utils.GetBodyLambdaBetween(script);
+
+                    script.MoveForwardIf(Constants.END_GROUP);
+                    CustomFunction customFunc = new CustomFunction("", body, args, script, "DELEGATE", true);
+                    customFunc.ParentScript = script;
+                    customFunc.ParentOffset = parentOffset;
+                    m_impl = new GetVarFunction(new Variable(customFunc));
+                }
                 return;
             }
 
