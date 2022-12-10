@@ -1399,7 +1399,7 @@ namespace AliceScript.NameSpaces
                         }
                         else
                         {
-                            if (args != null)
+                            if (args != null && args[mn] !=null)
                             {
                                 text = text.Replace(match.Value, args[mn].AsString());
                             }

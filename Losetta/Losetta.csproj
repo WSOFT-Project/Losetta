@@ -14,4 +14,8 @@
     <Version>0.9.3</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+  </ItemGroup>
+
 </Project>

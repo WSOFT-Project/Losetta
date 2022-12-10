@@ -16,42 +16,56 @@ namespace alice
         }
         private void m_init(string[] args)
         {
+            bool aarg = false;
             foreach (string arg in args)
             {
-                System.Text.RegularExpressions.MatchCollection mc =
-    System.Text.RegularExpressions.Regex.Matches(
-    arg, @"-.*");
-                if (mc.Count > 0)
+                if (arg.ToLower() == "--arg")
                 {
-                    foreach (System.Text.RegularExpressions.Match m in mc)
-                    {
-                        System.Text.RegularExpressions.MatchCollection mc2 =
-        System.Text.RegularExpressions.Regex.Matches(
-        arg, @"-.*:.*");
-                        if (mc2.Count > 0)
-                        {
-                            foreach (System.Text.RegularExpressions.Match m2 in mc2)
-                            {
-                                string v = m2.Value;
-                                v = v.TrimStart('-'); string[] vs = v.Split(':');
-                                Values.Add(vs[0].ToLower(), vs[1]);
-                            }
-                        }
-                        else
-                        {
-                            string v = m.Value;
-                            v = v.TrimStart('-');
-                            Flags.Add(v.ToLower());
-                        }
-                    }
+                    aarg = true;
+                    continue;
+                }
+                if (aarg)
+                {
+                    Args.Add(arg);
                 }
                 else
                 {
-                    Files.Add(arg);
+                    System.Text.RegularExpressions.MatchCollection mc =
+        System.Text.RegularExpressions.Regex.Matches(
+        arg, @"-.*");
+                    if (mc.Count > 0)
+                    {
+                        foreach (System.Text.RegularExpressions.Match m in mc)
+                        {
+                            System.Text.RegularExpressions.MatchCollection mc2 =
+            System.Text.RegularExpressions.Regex.Matches(
+            arg, @"-.*:.*");
+                            if (mc2.Count > 0)
+                            {
+                                foreach (System.Text.RegularExpressions.Match m2 in mc2)
+                                {
+                                    string v = m2.Value;
+                                    v = v.TrimStart('-'); string[] vs = v.Split(':');
+                                    Values.Add(vs[0].ToLower(), vs[1]);
+                                }
+                            }
+                            else
+                            {
+                                string v = m.Value;
+                                v = v.TrimStart('-');
+                                Flags.Add(v.ToLower());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Files.Add(arg);
+                    }
                 }
             }
         }
         private Dictionary<string, string> m_values = new Dictionary<string, string>();
+        public List<string> Args = new List<string>();
         public Dictionary<string,string> Values
         {
             get
