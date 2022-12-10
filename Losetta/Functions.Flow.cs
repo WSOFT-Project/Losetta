@@ -731,7 +731,7 @@ namespace AliceScript
                 Variable.VarType reqType = Variable.VarType.NONE;
                 if (options.Count > 0)
                 {
-                    parms = (options.Contains("parms"));
+                    parms = (options.Contains("params"));
                     if (options.Contains("this"))
                     {
                         if (m_this == -1)
@@ -788,7 +788,7 @@ namespace AliceScript
                         if (parms)
                         {
                             parmsindex = i;
-                            argName = argName.TrimStart("parms".ToCharArray());
+                            argName = argName.TrimStart("params".ToCharArray());
                             argName = argName.Trim();
                         }
                         trueArgs[i] = argName;

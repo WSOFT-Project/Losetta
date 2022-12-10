@@ -29,6 +29,22 @@ namespace AliceScript.NameSpaces
         }
     }
   
+    class Process_StartFunc : FunctionBase
+    {
+        public Process_StartFunc()
+        {
+            this.Name = "Process_Start";
+            this.MinimumArgCounts = 1;
+            this.Run += Process_StartFunc_Run;
+        }
+
+        private void Process_StartFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            var po = new ProcessObject();
+            po.Process = Process.Start(e.Args[0].AsString(), Utils.GetSafeString(e.Args, 1));
+            e.Return = new Variable(po);
+        }
+    }
     class Process_GetProcessFunc : FunctionBase
     {
         public Process_GetProcessFunc(bool byname = false)
