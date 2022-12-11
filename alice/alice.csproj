@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <ApplicationIcon>alice_logo.ico</ApplicationIcon>
+	  <Version>0.9.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
