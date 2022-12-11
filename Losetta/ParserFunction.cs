@@ -862,33 +862,35 @@ namespace AliceScript
         public static void AddGlobal(string name, ParserFunction function,
                                      bool isNative = true, bool registVar = false)
         {
-            Utils.CheckLegalName(name);
-            name = Constants.ConvertName(name);
-            NormalizeValue(function);
-            function.isNative = isNative;
-            if (Constants.CONSTS.ContainsKey(name))
+            if (Utils.CheckLegalName(name))
             {
-                ThrowErrorManerger.OnThrowError("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT);
-                return;
-            }
-            var handle = OnVariableChange;
-            bool exists = s_variables.ContainsKey(name);
-            if (exists && registVar)
-            {
-                ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
-                return;
-            }
-            else if (!exists && !registVar)
-            {
-                ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
-                return;
-            }
-            s_variables[name] = function;
+                name = Constants.ConvertName(name);
+                NormalizeValue(function);
+                function.isNative = isNative;
+                if (Constants.CONSTS.ContainsKey(name))
+                {
+                    ThrowErrorManerger.OnThrowError("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT);
+                    return;
+                }
+                var handle = OnVariableChange;
+                bool exists = s_variables.ContainsKey(name);
+                if (exists && registVar)
+                {
+                    ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
+                    return;
+                }
+                else if (!exists && !registVar)
+                {
+                    ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
+                    return;
+                }
+                s_variables[name] = function;
 
-            function.Name = Constants.GetRealName(name);
-            if (handle != null && function is GetVarFunction)
-            {
-                handle.Invoke(function.Name, ((GetVarFunction)function).Value, exists);
+                function.Name = Constants.GetRealName(name);
+                if (handle != null && function is GetVarFunction)
+                {
+                    handle.Invoke(function.Name, ((GetVarFunction)function).Value, exists);
+                }
             }
         }
 
@@ -991,57 +993,58 @@ namespace AliceScript
         public static void AddLocalVariable(ParserFunction local, ParsingScript script, string varName = "", bool setScript = true,bool registVar=false)
         {
             NormalizeValue(local);
-            local.m_isGlobal = false;
-            if (setScript)
-            {
-                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
-                local.Name = Constants.GetRealName(name);
-                if (local is GetVarFunction)
+                local.m_isGlobal = false;
+                if (setScript)
                 {
-                    ((GetVarFunction)local).Value.ParamName = local.Name;
-                }
-                bool exists = script.ContainsVariable(name);
-                if (exists && registVar)
-                {
-                    ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
-                    return;
-                }
-                else if (!exists && !registVar)
-                {
-                    ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
-                    return;
-                }
-                script.Variables[name] = local;
-            }
-            else
-            {
-                lock (s_variables)
-                {
-
-                    if (s_lastExecutionLevel == null)
+                    var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
+                    
+                    local.Name = Constants.GetRealName(name);
+                    if (local is GetVarFunction)
                     {
-                        s_lastExecutionLevel = new StackLevel();
-                        s_locals.Push(s_lastExecutionLevel);
+                        ((GetVarFunction)local).Value.ParamName = local.Name;
+                    }
+                    bool exists = script.ContainsVariable(name);
+                    if (exists && registVar)
+                    {
+                        ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
+                        return;
+                    }
+                    else if (!exists && !registVar && !string.IsNullOrEmpty(name))
+                    {
+                        ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
+                        return;
+                    }
+                    script.Variables[name] = local;
+                }
+                else
+                {
+                    lock (s_variables)
+                    {
+
+                        if (s_lastExecutionLevel == null)
+                        {
+                            s_lastExecutionLevel = new StackLevel();
+                            s_locals.Push(s_lastExecutionLevel);
+                        }
+                    }
+
+                    var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
+                    local.Name = Constants.GetRealName(name);
+                    if (local is GetVarFunction)
+                    {
+                        ((GetVarFunction)local).Value.ParamName = local.Name;
+                    }
+
+                    var handle = OnVariableChange;
+                    bool exists = handle != null && s_lastExecutionLevel.Variables.ContainsKey(name);
+
+                    s_lastExecutionLevel.Variables[name] = local;
+
+                    if (handle != null && local is GetVarFunction)
+                    {
+                        handle.Invoke(local.Name, ((GetVarFunction)local).Value, exists);
                     }
                 }
-
-                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
-                local.Name = Constants.GetRealName(name);
-                if (local is GetVarFunction)
-                {
-                    ((GetVarFunction)local).Value.ParamName = local.Name;
-                }
-
-                var handle = OnVariableChange;
-                bool exists = handle != null && s_lastExecutionLevel.Variables.ContainsKey(name);
-
-                s_lastExecutionLevel.Variables[name] = local;
-
-                if (handle != null && local is GetVarFunction)
-                {
-                    handle.Invoke(local.Name, ((GetVarFunction)local).Value, exists);
-                }
-            }
         }
 
         public static void PopLocalVariables(int id)

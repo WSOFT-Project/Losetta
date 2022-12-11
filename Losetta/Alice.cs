@@ -109,6 +109,13 @@ namespace AliceScript
                 return asm.GetName().Version;
             }
         }
+        public static string ImplementationName
+        {
+            get
+            {
+                return Interpreter.Instance.Name;
+            }
+        }
     }
     public delegate void Exiting(object sender,ExitingEventArgs e);
     public class ExitingEventArgs : EventArgs

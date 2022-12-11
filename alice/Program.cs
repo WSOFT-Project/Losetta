@@ -16,6 +16,7 @@ namespace alice
         static void Main(string[] args)
         {
             ParsedArguments pa = new ParsedArguments(args);
+            AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
             ParserFunction.s_variables.Add("args",new GetVarFunction(new Variable(pa.Args)));
             if (pa.Flags.Contains("r") || pa.Flags.Contains("run"))
             {

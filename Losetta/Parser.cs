@@ -572,12 +572,12 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             //[is]演算子、型テスト演算子ですべての型に適応できます
-            if (leftCell.Action == "is")
+            if (leftCell.Action == " is ")
             {
                 leftCell = new Variable(leftCell.Type==rightCell.AsType());
             }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
-            else if (leftCell.Action == "as"&&rightCell.Type==Variable.VarType.TYPE)
+            else if (leftCell.Action == " as "&&rightCell.Type==Variable.VarType.TYPE)
             {
                 leftCell = leftCell.Convert(rightCell.VariableType);
             //[??]演算子、Null合体演算子ですべての型に適応できます
@@ -897,6 +897,8 @@ namespace AliceScript
                 case "!==":
                     return new Variable(!leftCell.Equals(rightCell));
                 case ")":
+                    return leftCell;
+                case ">":
                     return leftCell;
                 default:
                     Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]",Exceptions.INVALID_OPERAND,

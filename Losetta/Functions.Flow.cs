@@ -813,6 +813,10 @@ namespace AliceScript
             {
                 args.Insert(m_this, current);
             }
+            if (m_args == null)
+            {
+                m_args = new List<string>().ToArray();
+            }
             int missingArgs = m_args.Length - args.Count;
             bool namedParameters = false;
             for (int i = 0; i < args.Count; i++)
@@ -951,8 +955,10 @@ namespace AliceScript
             Utils.ExtractParameterNames(args, m_name, script);
 
             script.MoveBackIf(Constants.START_GROUP);
-
-            m_args ??= new string[0];
+            if (m_args == null)
+            {
+                m_args = new string[0];
+            }
             if (args.Count + m_defaultArgs.Count < m_args.Length)
             {
                 ThrowErrorManerger.OnThrowError("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script);
@@ -1823,10 +1829,16 @@ namespace AliceScript
             m_name = Constants.GetRealName(varName);
             script.CurrentAssign = m_name;
             Variable varValue = Utils.GetItem(script);
-
-            baseScript ??= script;
+            if (baseScript == null)
+            {
+                baseScript = script;
+            }
 
             script.MoveBackIfPrevious(Constants.END_ARG);
+            if (varValue == null)
+            {
+                return Variable.EmptyInstance;
+            }
             varValue.TrySetAsMap();
 
             if (script.Current == ' ' || script.Prev == ' ')
@@ -1881,14 +1893,14 @@ namespace AliceScript
                 {
                     if (script.CurrentClass == null && script.ClassInstance == null)
                     {
-
-                        ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(result), baseScript, localIfPossible, registVar, isGlobal);
+                      //TODO:これ無効化したけど大丈夫そ？
+                      //  ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(result), baseScript, localIfPossible, registVar, isGlobal);
                     }
                     return result;
                 }
 
-                // Check if the variable to be set has the form of x[a][b]...,
-                // meaning that this is an array element.
+                // 設定する変数が x[a][b]... のような形式かどうかをチェックする
+                // つまり、配列添え字演算子が書いてあるかどうかを確認
                 List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
 
                 if (arrayIndices.Count == 0)
@@ -1921,8 +1933,10 @@ namespace AliceScript
             m_name = Constants.GetRealName(varName);
             script.CurrentAssign = m_name;
             Variable varValue = Utils.GetItem(script);
-
-            baseScript ??= script;
+            if (baseScript == null)
+            {
+                baseScript = script;
+            }
 
             script.MoveBackIfPrevious(Constants.END_ARG);
             varValue.TrySetAsMap();

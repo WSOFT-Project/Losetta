@@ -157,23 +157,26 @@ namespace AliceScript
 
         public static bool CheckLegalName(string name, ParsingScript script = null, bool throwError = true)
         {
-            if (string.IsNullOrWhiteSpace(name) || Constants.CheckReserved(name))
+            if (string.IsNullOrEmpty(name))
             {
-                if (!throwError)
-                {
-                    return false;
-                }
-                Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME,script, name);
+                return false;
             }
-            if (Char.IsDigit(name[0]) || name[0] == '-')
-            {
-                if (!throwError)
+                if (Constants.CheckReserved(name))
                 {
-                    return false;
+                    if (!throwError)
+                    {
+                        return false;
+                    }
+                    Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, script, name);
                 }
-                Utils.ThrowErrorMsg(name + "として定義されていますが、[" + name[0]+"]を変数名の先端に使用することはできません",Exceptions.ITHAS_ILLEGAL_FIRST_CHARACTER, null, name);
-            }
-
+                if (Char.IsDigit(name[0]) || name[0] == '-')
+                {
+                    if (!throwError)
+                    {
+                        return false;
+                    }
+                    Utils.ThrowErrorMsg(name + "として定義されていますが、[" + name[0] + "]を変数名の先端に使用することはできません", Exceptions.ITHAS_ILLEGAL_FIRST_CHARACTER, null, name);
+                }
             return true;
         }
 
@@ -468,21 +471,23 @@ namespace AliceScript
 
         public static void ProcessErrorMsg(string str, ParsingScript script)
         {
-            char ch = script.TryPrev();
-            string entity = ch == '(' ? "関数":
-                            ch == '[' ? "配列"   :
-                            ch == '{' ? "演算子" :
-                                        "変数";
-            Exceptions ex = ch == '(' ? Exceptions.COULDNT_FIND_FUNCTION :
-                            ch == '[' ? Exceptions.COULDNT_FIND_ARRAY :
-                            ch == '{' ? Exceptions.COULDNT_FIND_OPERATOR :
-                                        Exceptions.COULDNT_FIND_VARIABLE;
-            string token    = Constants.GetRealName(str);
+            if (!string.IsNullOrEmpty(str))
+            {
+                char ch = script.TryPrev();
+                string entity = ch == '(' ? "関数" :
+                                ch == '[' ? "配列" :
+                                ch == '{' ? "演算子" :
+                                            "変数";
+                Exceptions ex = ch == '(' ? Exceptions.COULDNT_FIND_FUNCTION :
+                                ch == '[' ? Exceptions.COULDNT_FIND_ARRAY :
+                                ch == '{' ? Exceptions.COULDNT_FIND_OPERATOR :
+                                            Exceptions.COULDNT_FIND_VARIABLE;
+                string token = Constants.GetRealName(str);
 
-            string msg = entity+":["+token+"]は定義されていないか、存在しません";
+                string msg = entity + ":[" + token + "]は定義されていないか、存在しません";
 
-            ThrowErrorMsg(msg,ex, script, str);
-
+                ThrowErrorMsg(msg, ex, script, str);
+            }
 
         }
 

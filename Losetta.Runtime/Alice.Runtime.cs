@@ -29,6 +29,7 @@ namespace AliceScript.NameSpaces
             Alice_Threading_Initer.Init();
             Alice_Security_Initer.Init();
             Alice_Packaging_Initer.Init();
+            Alice_Environment_Initer.Init();
         }
     }
 }

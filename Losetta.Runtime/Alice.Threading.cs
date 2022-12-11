@@ -85,13 +85,16 @@ namespace AliceScript.NameSpaces
 
         private void Task_runFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args[0].Type != Variable.VarType.DELEGATE) { ThrowErrorManerger.OnThrowError("不正な引数です",Exceptions.WRONG_TYPE_VARIABLE,e.Script); }
-            List<Variable> args = new List<Variable>();
-            if (e.Args.Count > 1)
+            if (e.Args[0].Type != Variable.VarType.DELEGATE) { ThrowErrorManerger.OnThrowError("不正な引数です", Exceptions.WRONG_TYPE_VARIABLE, e.Script); }
+            else
             {
-                args = e.Args.GetRange(1, e.Args.Count - 1);
+                List<Variable> args = new List<Variable>();
+                if (e.Args.Count > 1)
+                {
+                    args = e.Args.GetRange(1, e.Args.Count - 1);
+                }
+                Task.Run(() => { e.Args[0].Delegate.Invoke(args, e.Script); });
             }
-            Task.Run(()=> { e.Args[0].Delegate.Invoke(args,e.Script); });
         }
     }
     class SignalWaitFunction : FunctionBase
