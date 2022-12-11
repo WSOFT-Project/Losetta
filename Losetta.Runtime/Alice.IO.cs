@@ -26,6 +26,8 @@ namespace AliceScript.NameSpaces
                 space.Add(new file_write_dataFunc());
                 space.Add(new file_write_textFunc());
                 space.Add(new file_append_textFunc());
+                space.Add(new file_encrypt_dataFunc());
+                space.Add(new file_decrypt_dataFunc());
 
                 space.Add(new directory_copyFunc());
                 space.Add(new directory_moveFunc());
@@ -535,6 +537,34 @@ namespace AliceScript.NameSpaces
             FileEncrypter.FileDecrypt(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString());
         }
     }
+    class file_encrypt_dataFunc : FunctionBase
+    {
+        public file_encrypt_dataFunc()
+        {
+            this.Name = "file_encrypt_data";
+            this.MinimumArgCounts = 2;
+            this.Run += File_encrypt_dataFunc_Run;
+        }
+
+        private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return=new Variable(FileEncrypter.Encrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
+        }
+    }
+    class file_decrypt_dataFunc : FunctionBase
+    {
+        public file_decrypt_dataFunc()
+        {
+            this.Name = "file_decrypt_data";
+            this.MinimumArgCounts = 2;
+            this.Run += File_encrypt_dataFunc_Run;
+        }
+
+        private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return=new Variable(FileEncrypter.Decrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
+        }
+    }
     internal static class FileEncrypter
     {
         internal static bool FileDecrypt(string FilePath,string OutFilePath, string Password)
@@ -675,8 +705,152 @@ namespace AliceScript.NameSpaces
 
             return (true);
         }
+
+        internal static byte[] Encrypt(byte[] data,string Password)
+        {
+
+            int len;
+            byte[] buffer = new byte[4096];
+
+
+
+            using (MemoryStream outfs = new MemoryStream())
+            {
+                using (AesManaged aes = new AesManaged())
+                {
+                    aes.BlockSize = 128;              // BlockSize = 16bytes
+                    aes.KeySize = 128;                // KeySize = 16bytes
+                    aes.Mode = CipherMode.CBC;        // CBC mode
+                    aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+
+                    //入力されたパスワードをベースに擬似乱数を新たに生成
+                    Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(Password, 16);
+                    byte[] salt = new byte[16]; // Rfc2898DeriveBytesが内部生成したなソルトを取得
+                    salt = deriveBytes.Salt;
+                    // 生成した擬似乱数から16バイト切り出したデータをパスワードにする
+                    byte[] bufferKey = deriveBytes.GetBytes(16);
+
+                    /*
+                    // パスワード文字列が大きい場合は、切り詰め、16バイトに満たない場合は0で埋めます
+                    byte[] bufferKey = new byte[16];
+                    byte[] bufferPassword = Encoding.UTF8.GetBytes(Password);
+                    for (i = 0; i < bufferKey.Length; i++)
+                    {
+                        if (i < bufferPassword.Length)
+                        {
+                            bufferKey[i] = bufferPassword[i];
+                        }
+                        else
+                        {
+                            bufferKey[i] = 0;
+                        }
+                    */
+
+                    aes.Key = bufferKey;
+                    // IV ( Initilization Vector ) は、AesManagedにつくらせる
+                    aes.GenerateIV();
+
+                    //Encryption interface.
+                    ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                    using (CryptoStream cse = new CryptoStream(outfs, encryptor, CryptoStreamMode.Write))
+                    {
+                        outfs.Write(salt, 0, 16);     // salt をファイル先頭に埋め込む
+                        outfs.Write(aes.IV, 0, 16); // 次にIVもファイルに埋め込む
+                        using (DeflateStream ds = new DeflateStream(cse, CompressionMode.Compress)) //圧縮
+                        {
+                            using (MemoryStream fs = new MemoryStream(data))
+                            {
+                                while ((len = fs.Read(buffer, 0, 4096)) > 0)
+                                {
+                                    ds.Write(buffer, 0, len);
+                                }
+                                return fs.GetBuffer();
+                            }
+                        }
+
+                    }
+
+                }
+                return null;
+            }
+
+
+        }
+
+        internal static byte[] Decrypt(byte[] data , string Password)
+        {
+            int len;
+            byte[] buffer = new byte[4096];
+
+
+
+            using (MemoryStream outfs=new MemoryStream())
+            {
+                using (MemoryStream fs=new MemoryStream())
+                {
+                    using (AesManaged aes = new AesManaged())
+                    {
+                        aes.BlockSize = 128;              // BlockSize = 16bytes
+                        aes.KeySize = 128;                // KeySize = 16bytes
+                        aes.Mode = CipherMode.CBC;        // CBC mode
+                        aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+
+                        // salt
+                        byte[] salt = new byte[16];
+                        fs.Read(salt, 0, 16);
+
+                        // Initilization Vector
+                        byte[] iv = new byte[16];
+                        fs.Read(iv, 0, 16);
+                        aes.IV = iv;
+
+                        /*
+                        // パスワード文字列が大きい場合は、切り詰め、16バイトに満たない場合は0で埋めます
+                        byte[] bufferKey = new byte[16];
+                        byte[] bufferPassword = Encoding.UTF8.GetBytes(Password);
+                        for (i = 0; i < bufferKey.Length; i++)
+                        {
+                            if (i < bufferPassword.Length)
+                            {
+                                bufferKey[i] = bufferPassword[i];
+                            }
+                            else
+                            {
+                                bufferKey[i] = 0;
+                            }
+                        */
+
+                        // ivをsaltにしてパスワードを擬似乱数に変換
+                        Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(Password, salt);
+                        byte[] bufferKey = deriveBytes.GetBytes(16);    // 16バイトのsaltを切り出してパスワードに変換
+                        aes.Key = bufferKey;
+
+                        //Decryption interface.
+                        ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                        using (CryptoStream cse = new CryptoStream(fs, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (DeflateStream ds = new DeflateStream(cse, CompressionMode.Decompress))   //解凍
+                            {
+                                while ((len = ds.Read(buffer, 0, 4096)) > 0)
+                                {
+                                    outfs.Write(buffer, 0, len);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return outfs.GetBuffer();
+            }
+
+            return null;
+        }
     }
-    class directory_createFunc : FunctionBase
+
+  
+class directory_createFunc : FunctionBase
     {
         public directory_createFunc()
         {

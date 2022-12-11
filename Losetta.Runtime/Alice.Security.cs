@@ -173,7 +173,6 @@ namespace AliceScript.NameSpaces
 
 
     }
-
     internal static class PasswordSaltHashManerger
     {
         internal static byte[] GetHash(string password, byte[] salt, int size, int cnt)
