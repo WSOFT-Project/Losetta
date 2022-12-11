@@ -17,6 +17,22 @@ namespace AliceScript
         public Dictionary<string, FunctionBase> Functions = new Dictionary<string, FunctionBase>();
         public Dictionary<string, Variable> Events = new Dictionary<string, Variable>();
 
+        private bool m_handle_operator = false;
+
+        /// <summary>
+        /// Operator関数を上書きするかどうかを表す値
+        /// </summary>
+        public bool HandleOperator {
+            get
+            {
+                return m_handle_operator;
+            }
+            set
+            {
+                m_handle_operator = value;
+            }
+        }
+
         public ObjectBase(string name = "")
         {
             Name = name;

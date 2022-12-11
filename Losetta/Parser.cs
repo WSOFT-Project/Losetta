@@ -253,8 +253,8 @@ namespace AliceScript
             char next = script.TryCurrent(); // 前進済み
             bool done = listToMerge.Count == 0 &&
                         (next == Constants.END_STATEMENT ||
-                        ((action == Constants.NULL_ACTION) && (current.Type != Variable.VarType.BOOLEAN)) ||
-                         current.IsReturn);
+                        ((action == Constants.NULL_ACTION) && (current!=null && current.Type != Variable.VarType.BOOLEAN)) ||
+                         (current!=null&&current.IsReturn));
             if (done)
             {
 
@@ -616,7 +616,7 @@ namespace AliceScript
             {
                 leftCell = MergeDelegate(leftCell,rightCell,script);
             }
-            else if(leftCell.Type==Variable.VarType.OBJECT&&leftCell.Object is ObjectBase obj)
+            else if(leftCell.Type==Variable.VarType.OBJECT&&leftCell.Object is ObjectBase obj && obj.HandleOperator)
             {
                 leftCell=obj.Operator(leftCell,rightCell,leftCell.Action,script);
             }

@@ -66,11 +66,19 @@ namespace AliceScript
                 manifest.Version = config.Read("version");
                 manifest.Description = config.Read("description");
                 manifest.Publisher = config.Read("publisher");
-
                 string sip = config.Read("target");
                 if (!string.IsNullOrEmpty(sip) && sip.ToLower() != "any")
                 {
                     manifest.Target = new List<string>(sip.Split(','));
+                }
+                else
+                {
+                    manifest.Target = null;
+                }
+                sip = config.Read("targetapp");
+                if (!string.IsNullOrEmpty(sip) && sip.ToLower() != "any")
+                {
+                    manifest.TargetApp = new List<string>(sip.Split(','));
                 }
                 else
                 {
@@ -130,6 +138,14 @@ namespace AliceScript
                             if (!package.Manifest.Target.Contains(Interpreter.Instance.Name))
                             {
                                 ThrowErrorManerger.OnThrowError("そのパッケージをこのインタプリタで実行することはできません", Exceptions.NOT_COMPATIBLE_PACKAGES);
+                                return;
+                            }
+                        }
+                        if (package.Manifest.TargetApp != null)
+                        {
+                            if (!package.Manifest.TargetApp.Contains(Alice.AppName))
+                            {
+                                ThrowErrorManerger.OnThrowError("そのパッケージをこのアプリケーションで実行することはできません", Exceptions.NOT_COMPATIBLE_PACKAGES);
                                 return;
                             }
                         }
@@ -355,6 +371,7 @@ namespace AliceScript
                 }
                 try
                 {
+                    new ZipArchive(outfs);
                     LoadArchive(new ZipArchive(outfs), filename);
                 }
                 catch
@@ -399,6 +416,10 @@ namespace AliceScript
         /// インラインスクリプトを使用するかどうか
         /// </summary>
         public bool UseInlineScript { get; set; }
+        /// <summary>
+        /// ターゲットにするアプリケーション
+        /// </summary>
+        public List<string> TargetApp { get; set; }
     }
 
 }

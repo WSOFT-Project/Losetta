@@ -9,11 +9,29 @@ namespace AliceScript
 
     public class Variable : ScriptObject
     {
+        [Flags]
         public enum VarType
         {
-            NONE, UNDEFINED, NUMBER, STRING, ARRAY,
-            ARRAY_NUM, ARRAY_STR, MAP_NUM, MAP_STR, BYTES,
-            BREAK, CONTINUE, OBJECT, ENUM, VARIABLE, CUSTOM, POINTER, DELEGATE, BOOLEAN, TYPE
+            NONE      = 0b0, 
+            UNDEFINED = 0b1,
+            NUMBER    = 0b10, 
+            STRING    = 0b100, 
+            ARRAY     = 0b1000,
+            ARRAY_NUM = 0b100000, 
+            ARRAY_STR = 0b1000000, 
+            MAP_NUM   = 0b10000000, 
+            MAP_STR   = 0b100000000, 
+            BYTES     = 0b1000000000,
+            BREAK     = 0b10000000000, 
+            CONTINUE  = 0b100000000000, 
+            OBJECT    = 0b1000000000000, 
+            ENUM      = 0b10000000000000, 
+            VARIABLE  = 0b100000000000000, 
+            CUSTOM    = 0b1000000000000000, 
+            POINTER   = 0b10000000000000000, 
+            DELEGATE  = 0b100000000000000000, 
+            BOOLEAN   = 0b1000000000000000000, 
+            TYPE      = 0b10000000000000000000
         };
 
         public static Variable True

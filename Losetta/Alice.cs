@@ -116,6 +116,13 @@ namespace AliceScript
                 return Interpreter.Instance.Name;
             }
         }
+        /// <summary>
+        /// このAliceScriptが実行されているアプリケーションの名前
+        /// </summary>
+        public static string AppName
+        {
+            get;set;
+        }
     }
     public delegate void Exiting(object sender,ExitingEventArgs e);
     public class ExitingEventArgs : EventArgs
