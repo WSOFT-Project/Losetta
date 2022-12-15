@@ -223,22 +223,22 @@ namespace AliceScript
             RegisterClass(className, this);
         }
 
-        public AliceScriptClass(string className, string[] baseClasses)
+        public AliceScriptClass(string className, string[] baseClasses,ParsingScript script)
         {
             Name = className;
             RegisterClass(className, this);
 
             foreach (string baseClass in baseClasses)
             {
-                var bc = AliceScriptClass.GetClass(baseClass);
+                var bc = AliceScriptClass.GetClass(baseClass,script);
                 if (bc == null)
                 {
                     throw new ArgumentException("継承元クラスである [" + baseClass + "] が存在しません");
                 }
-
+                
                 foreach (var entry in bc.m_classProperties)
                 {
-                    m_classProperties[entry.Key] = entry.Value;
+                    m_classProperties[entry.Key]=entry.Value;
                 }
                 foreach (var entry in bc.m_customFunctions)
                 {
@@ -286,10 +286,10 @@ namespace AliceScript
 
         public void AddProperty(string name, Variable property)
         {
-            m_classProperties[name] = property;
+            m_classProperties[name] = new PropertyBase(property);
         }
 
-        public static AliceScriptClass GetClass(string name)
+        public static AliceScriptClass GetClass(string name,ParsingScript script)
         {
             string currNamespace = ParserFunction.GetCurrentNamespace;
             if (!string.IsNullOrWhiteSpace(currNamespace))
@@ -302,18 +302,68 @@ namespace AliceScript
             }
 
             AliceScriptClass theClass = null;
-            s_allClasses.TryGetValue(name, out theClass);
-            return theClass;
+            if (s_allClasses.TryGetValue(name, out theClass))
+            {
+                return theClass;
+            }
+            var cls = GetFromNS(name,script);
+            if (cls != null)
+            {
+                return null;
+            }
+
+            //ちょっとでも高速化（ここのロジックは時間がかかる）
+            if (name.Contains("."))
+            {
+                string namespacename = string.Empty;
+
+                foreach (string nsn in NameSpaceManerger.NameSpaces.Keys)
+                {
+                    //より長い名前（AliceとAlice.IOならAlice.IO）を採用
+                    if (name.StartsWith(nsn.ToLower() + ".") && nsn.Length > namespacename.Length)
+                    {
+                        namespacename = nsn.ToLower();
+                    }
+                }
+
+                //完全修飾名で関数を検索
+                if (namespacename != string.Empty)
+                {
+                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower())).FirstOrDefault();
+                    if (cfc != null)
+                    {
+                        return cfc;
+                    }
+                }
+            }
+
+            return null;
+        }
+        private static AliceScriptClass GetFromNS(string name, ParsingScript script)
+        {
+            foreach (var nm in script.UsingNamespaces)
+            {
+                var fc = nm.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                if (fc != null)
+                {
+                    return fc;
+                }
+            }
+            if (script.ParentScript != null)
+            {
+                return GetFromNS(name, script.ParentScript);
+            }
+            return null;
         }
 
         private static Dictionary<string, AliceScriptClass> s_allClasses =
             new Dictionary<string, AliceScriptClass>();
         private Dictionary<int, CustomFunction> m_constructors =
             new Dictionary<int, CustomFunction>();
-        private Dictionary<string, CustomFunction> m_customFunctions =
-            new Dictionary<string, CustomFunction>();
-        private Dictionary<string, Variable> m_classProperties =
-            new Dictionary<string, Variable>();
+        private Dictionary<string,FunctionBase> m_customFunctions =
+            new Dictionary<string, FunctionBase>();
+        private Dictionary<string,PropertyBase> m_classProperties =
+            new Dictionary<string, PropertyBase>();
 
         public ParsingScript ParentScript = null;
         public int ParentOffset = 0;
@@ -326,7 +376,7 @@ namespace AliceScript
                                  ParsingScript script = null)
             {
                 InstanceName = instanceName;
-                m_cscsClass = AliceScriptClass.GetClass(className);
+                m_cscsClass = AliceScriptClass.GetClass(className,script);
                 if (m_cscsClass == null)
                 {
                     throw new ArgumentException("継承元クラスである [" + className + "] が存在しません");
@@ -335,14 +385,14 @@ namespace AliceScript
                 // Copy over all the properties defined for this class.
                 foreach (var entry in m_cscsClass.m_classProperties)
                 {
-                    SetProperty(entry.Key, entry.Value);
+                    SetProperty(entry.Key,entry.Value.Value);
                 }
 
                 // Run "constructor" if any is defined for this number of args.
                 CustomFunction constructor = null;
                 if (m_cscsClass.m_constructors.TryGetValue(args.Count, out constructor))
                 {
-                    constructor.Run(args, script, this);
+                    constructor.ARun(args, script, this);
                 }
             }
 
@@ -355,14 +405,14 @@ namespace AliceScript
 
             public override string ToString()
             {
-                CustomFunction customFunction = null;
+                FunctionBase customFunction = null;
                 if (!m_cscsClass.m_customFunctions.TryGetValue(Constants.PROP_TO_STRING.ToLower(),
                      out customFunction))
                 {
                     return m_cscsClass.Name + "." + InstanceName;
                 }
 
-                Variable result = customFunction.Run(null, null, this);
+                Variable result = customFunction.Evaluate(new List<Variable>(),null);
                 return result.ToString();
             }
 
@@ -381,7 +431,7 @@ namespace AliceScript
                     return value;
                 }
 
-                if (!m_cscsClass.m_customFunctions.TryGetValue(name, out CustomFunction customFunction))
+                if (!m_cscsClass.m_customFunctions.TryGetValue(name, out FunctionBase customFunction))
                 {
                     return null;
                 }
@@ -392,10 +442,10 @@ namespace AliceScript
 
                 foreach (var entry in m_cscsClass.m_classProperties)
                 {
-                    args.Add(entry.Value);
+                    args.Add(entry.Value.Value);
                 }
 
-                Variable result = await customFunction.RunAsync(args, script, this);
+                Variable result = customFunction.Evaluate(args, script, this);
                 return result;
             }
 
@@ -423,7 +473,7 @@ namespace AliceScript
 
             public bool FunctionExists(string name)
             {
-                if (!m_cscsClass.m_customFunctions.TryGetValue(name, out CustomFunction customFunction))
+                if (!m_cscsClass.m_customFunctions.TryGetValue(name, out FunctionBase customFunction))
                 {
                     return false;
                 }
@@ -518,58 +568,34 @@ namespace AliceScript
         }
     }
 
-    internal class NewObjectFunction : ParserFunction
+    internal class NewObjectFunction : FunctionBase
     {
-        protected override Variable Evaluate(ParsingScript script)
+        public NewObjectFunction()
         {
-            string className = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
-            className = Constants.ConvertName(className);
-            script.MoveForwardIf(Constants.START_ARG);
-            List<Variable> args = script.GetFunctionArgs();
-
-            CompiledClass csClass = AliceScriptClass.GetClass(className) as CompiledClass;
-            if (csClass != null)
-            {
-                ScriptObject obj = csClass.GetImplementation(args);
-                return new Variable(obj);
-            }
-            CompiledClassAsync csClassAsync = AliceScriptClass.GetClass(className) as CompiledClassAsync;
-            if (csClassAsync != null)
-            {
-                ScriptObject obj = csClassAsync.GetImplementationAsync(args).Result;
-                return new Variable(obj);
-            }
-
-            AliceScriptClass.ClassInstance instance = new
-                AliceScriptClass.ClassInstance(script.CurrentAssign, className, args, script);
-
-            return new Variable(instance);
+            this.Name = Constants.NEW;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += NewObjectFunction_Run;
         }
 
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
+        private void NewObjectFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            string className = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
+            string className = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             className = Constants.ConvertName(className);
-            script.MoveForwardIf(Constants.START_ARG);
-            List<Variable> args = await script.GetFunctionArgsAsync();
+            e.Script.MoveForwardIf(Constants.START_ARG);
+            List<Variable> args = e.Script.GetFunctionArgs();
 
-            CompiledClassAsync csClassAsync = AliceScriptClass.GetClass(className) as CompiledClassAsync;
-            if (csClassAsync != null)
-            {
-                ScriptObject obj = await csClassAsync.GetImplementationAsync(args);
-                return new Variable(obj);
-            }
-            CompiledClass csClass = AliceScriptClass.GetClass(className) as CompiledClass;
+            ObjectBase csClass = AliceScriptClass.GetClass(className,e.Script) as ObjectBase;
             if (csClass != null)
             {
-                ScriptObject obj = csClass.GetImplementation(args);
-                return new Variable(obj);
+                Variable obj = csClass.GetImplementation(args,e.Script);
+                e.Return = obj;
+                return;
             }
 
             AliceScriptClass.ClassInstance instance = new
-                AliceScriptClass.ClassInstance(script.CurrentAssign, className, args, script);
+                AliceScriptClass.ClassInstance(e.Script.CurrentAssign, className, args, e.Script);
 
-            return new Variable(instance);
+            e.Return= new Variable(instance);
         }
     }
 
@@ -580,7 +606,7 @@ namespace AliceScript
             string className = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             className = Constants.ConvertName(className);
             string[] baseClasses = Utils.GetBaseClasses(script);
-            AliceScriptClass newClass = new AliceScriptClass(className, baseClasses);
+            AliceScriptClass newClass = new AliceScriptClass(className, baseClasses,script);
 
             script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
 
@@ -659,7 +685,7 @@ namespace AliceScript
         }
     }
 
-    public class CustomFunction : ParserFunction
+    public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
                                 string body, string[] args, ParsingScript script, object tag = null,bool forceReturn=false)
@@ -668,6 +694,9 @@ namespace AliceScript
             m_body = body;
             m_tag = tag;
             m_forceReturn = forceReturn;
+
+            this.Run += CustomFunction_Run;
+
             //正確な変数名の一覧
             List<string> trueArgs = new List<string>();
             //m_args = RealArgs = args;
@@ -799,6 +828,39 @@ namespace AliceScript
                 }
                 m_args = RealArgs = trueArgs.ToArray();
             }
+        }
+
+        private void CustomFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
+                // Special case of extracting args.
+                Utils.GetFunctionArgsAsStrings(e.Script) :
+                e.Script.GetFunctionArgs();
+
+            Utils.ExtractParameterNames(args, m_name, e.Script);
+
+            e.Script.MoveBackIf(Constants.START_GROUP);
+            if (m_args == null)
+            {
+                m_args = new string[0];
+            }
+            if (args.Count + m_defaultArgs.Count < m_args.Length)
+            {
+                ThrowErrorManerger.OnThrowError("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
+
+                return;
+            }
+            Variable result = ARun(args, e.Script);
+            //このCustomFunctionに子があればそれも実行する
+            if (Children != null)
+            {
+                foreach (CustomFunction child in Children)
+                {
+                    result = child.Evaluate(e.Script);
+                }
+            }
+            e.Return = result;
+            return;
         }
 
         private int parmsindex = -1;
@@ -944,37 +1006,6 @@ namespace AliceScript
         {
             get; set;
         }
-        protected override Variable Evaluate(ParsingScript script)
-        {
-
-            List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
-                // Special case of extracting args.
-                Utils.GetFunctionArgsAsStrings(script) :
-                script.GetFunctionArgs();
-
-            Utils.ExtractParameterNames(args, m_name, script);
-
-            script.MoveBackIf(Constants.START_GROUP);
-            if (m_args == null)
-            {
-                m_args = new string[0];
-            }
-            if (args.Count + m_defaultArgs.Count < m_args.Length)
-            {
-                ThrowErrorManerger.OnThrowError("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script);
-                return Variable.EmptyInstance;
-            }
-            Variable result = Run(args, script);
-            //このCustomFunctionに子があればそれも実行する
-            if (Children != null)
-            {
-                foreach (CustomFunction child in Children)
-                {
-                    result = child.Evaluate(script);
-                }
-            }
-            return result;
-        }
         public Variable GetVariable(ParsingScript script, Variable current)
         {
             List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
@@ -992,7 +1023,7 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
 
-            Variable result = Run(args, script, null, current);
+            Variable result = ARun(args, script, null, current);
             //このCustomFunctionに子があればそれも実行する
             if (Children != null)
             {
@@ -1003,36 +1034,7 @@ namespace AliceScript
             }
             return result;
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
-                // Special case of extracting args.
-                Utils.GetFunctionArgsAsStrings(script) :
-                await script.GetFunctionArgsAsync();
-
-            Utils.ExtractParameterNames(args, m_name, script);
-
-            script.MoveBackIf(Constants.START_GROUP);
-
-            if (args.Count + m_defaultArgs.Count < m_args.Length)
-            {
-                ThrowErrorManerger.OnThrowError("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script);
-                return Variable.EmptyInstance;
-            }
-
-            Variable result = await RunAsync(args, script);
-            //このCustomFunctionに子があればそれも実行する
-            if (Children != null)
-            {
-                foreach (CustomFunction child in Children)
-                {
-                    result = await child.EvaluateAsync(script);
-                }
-            }
-            return result;
-        }
-
-        public Variable Run(List<Variable> args = null, ParsingScript script = null,
+        public Variable ARun(List<Variable> args = null, ParsingScript script = null,
                             AliceScriptClass.ClassInstance instance = null, Variable current = null)
         {
             List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
@@ -1109,7 +1111,7 @@ namespace AliceScript
             return result;
         }
 
-        public static Task<Variable> Run(string functionName,
+        public static Task<Variable> ARun(string functionName,
              Variable arg1 = null, Variable arg2 = null, Variable arg3 = null, ParsingScript script = null)
         {
             CustomFunction customFunction = ParserFunction.GetFunction(functionName, null) as CustomFunction;
@@ -1133,7 +1135,7 @@ namespace AliceScript
                 args.Add(arg3);
             }
 
-            Variable result = customFunction.Run(args, script);
+            Variable result = customFunction.ARun(args, script);
             return Task.FromResult(result);
         }
 
@@ -1474,7 +1476,7 @@ namespace AliceScript
                 {
                     args.AddRange(var.StackVariables);
                 }
-                return var.CustomFunctionGet.Run(args, script);
+                return var.CustomFunctionGet.ARun(args, script);
             }
             if (var != null && !string.IsNullOrWhiteSpace(var.CustomGet))
             {

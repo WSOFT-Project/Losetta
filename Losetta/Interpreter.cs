@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AliceScript
 {
@@ -41,13 +36,7 @@ namespace AliceScript
             }
         }
 
-        public string Name
-        {
-            get
-            {
-                return Assembly.GetExecutingAssembly().GetName().Name;
-            }
-        }
+        public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
         private int MAX_LOOPS;
 
@@ -113,16 +102,13 @@ namespace AliceScript
             RegisterFunctions();
             RegisterEnums();
             RegisterActions();
-
-            CompiledClass.Init();
         }
 
         public void RegisterFunctions()
         {
-            
+
             ParserFunction.RegisterFunction(Constants.CLASS, new ClassCreator());
             ParserFunction.RegisterFunction(Constants.ENUM, new EnumFunction());
-            ParserFunction.RegisterFunction(Constants.NEW, new NewObjectFunction());
             ParserFunction.RegisterFunction(Constants.GET_PROPERTIES, new GetPropertiesFunction());
             ParserFunction.RegisterFunction(Constants.GET_PROPERTY, new GetPropertyFunction());
             ParserFunction.RegisterFunction(Constants.SET_PROPERTY, new SetPropertyFunction());
@@ -146,6 +132,7 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
 
             FunctionBaseManerger.Add(new FunctionCreator());
+            FunctionBaseManerger.Add(new NewObjectFunction());
         }
 
         public void RegisterEnums()
@@ -198,7 +185,7 @@ namespace AliceScript
             }
             return toParse;
         }
-        public Variable Process(string script, string filename = "", bool mainFile = false,object tag=null,AlicePackage package=null)
+        public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
             Dictionary<int, int> char2Line;
             string data = Utils.ConvertToScript(script, out char2Line, filename);
@@ -340,7 +327,7 @@ namespace AliceScript
                                                        Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
                 ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new GetVarFunction(current), mainScript,false,true);
+                               new GetVarFunction(current), mainScript, false, true);
                 Variable result = mainScript.Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
@@ -462,8 +449,8 @@ namespace AliceScript
                 loopScript.Execute(null, 0);
             }
 
-          //  script.Pointer = startForCondition;
-          //  SkipBlock(script); 
+            //  script.Pointer = startForCondition;
+            //  SkipBlock(script); 
         }
 
         private async Task ProcessCanonicalForAsync(ParsingScript script, string forString)
@@ -518,8 +505,8 @@ namespace AliceScript
                 await loopScript.ExecuteAsync(null, 0);
             }
 
-          //  script.Pointer = startForCondition;
-          //  SkipBlock(script);
+            //  script.Pointer = startForCondition;
+            //  SkipBlock(script);
         }
 
         public Variable ProcessWhile(ParsingScript script)
@@ -530,8 +517,8 @@ namespace AliceScript
             int cycles = 0;
             bool stillValid = true;
             Variable result = Variable.EmptyInstance;
-            ParsingScript condScript = script.GetTempScript(Utils.GetBodyBetween(script,Constants.START_ARG,Constants.END_ARG));
-            
+            ParsingScript condScript = script.GetTempScript(Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG));
+
             while (stillValid)
             {
                 //int startSkipOnBreakChar = from;
@@ -706,7 +693,7 @@ namespace AliceScript
                     }
                 }
             }
-          //  script.MoveForwardIfNotPrevious('}');
+            //  script.MoveForwardIfNotPrevious('}');
             script.GoToNextStatement();
             return result;
         }
@@ -780,7 +767,7 @@ namespace AliceScript
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
                                                        Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
-                result =await mainScript.ProcessAsync();
+                result = await mainScript.ProcessAsync();
 
                 if (result.IsReturn ||
                     result.Type == Variable.VarType.BREAK ||
@@ -817,7 +804,7 @@ namespace AliceScript
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
                                                        Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
-                result =await mainScript.ProcessAsync();
+                result = await mainScript.ProcessAsync();
             }
 
             return result.IsReturn ||
@@ -850,7 +837,7 @@ namespace AliceScript
 
             }
 
-            if (exception != null || (result!=null&&(result.IsReturn ||
+            if (exception != null || (result != null && (result.IsReturn ||
                 result.Type == Variable.VarType.BREAK ||
                 result.Type == Variable.VarType.CONTINUE)))
             {
@@ -907,7 +894,7 @@ namespace AliceScript
                                                         Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
                 mainScript.InTryBlock = true;
-                result =await mainScript.ProcessAsync();
+                result = await mainScript.ProcessAsync();
             }
             catch (Exception exc)
             {
@@ -948,9 +935,9 @@ namespace AliceScript
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
                                                        Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
-                mainScript.Variables.Add(exceptionName,excMsgFunc);
-                mainScript.Variables.Add(exceptionName+".Stack",excStackFunc);
-                result =await mainScript.ProcessAsync();
+                mainScript.Variables.Add(exceptionName, excMsgFunc);
+                mainScript.Variables.Add(exceptionName + ".Stack", excStackFunc);
+                result = await mainScript.ProcessAsync();
             }
             else
             {
@@ -1087,11 +1074,11 @@ namespace AliceScript
             System.Threading.Tasks.Task<Variable> task = null;
             try
             {
-                task = CustomFunction.Run(functionName, arg1, arg2, arg3, script);
+                task = CustomFunction.ARun(functionName, arg1, arg2, arg3, script);
             }
             catch (Exception exc)
             {
-                task = CustomFunction.Run(Constants.ON_EXCEPTION, new Variable(functionName),
+                task = CustomFunction.ARun(Constants.ON_EXCEPTION, new Variable(functionName),
                                           new Variable(exc.Message), arg2, script);
                 if (task == null)
                 {
@@ -1107,11 +1094,11 @@ namespace AliceScript
             Variable result = null;
             try
             {
-                result = function.Run(args, script);
+                result = function.ARun(args, script);
             }
             catch (Exception exc)
             {
-                var task = CustomFunction.Run(Constants.ON_EXCEPTION, new Variable(function.Name),
+                var task = CustomFunction.ARun(Constants.ON_EXCEPTION, new Variable(function.Name),
                                           new Variable(exc.Message), args.Count > 0 ? args[0] : Variable.EmptyInstance, script);
                 if (task == null)
                 {

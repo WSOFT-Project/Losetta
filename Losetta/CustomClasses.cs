@@ -79,22 +79,7 @@ namespace AliceScript
         }
     }
 
-    public abstract class CompiledClass : AliceScriptClass
-    {
-        public static void Init()
-        {
-            /*
-            RegisterClass("CompiledTest", new TestCompiledClass());
-            RegisterClass("CompiledTestAsync", new TestCompiledClassAsync());
 
-            RegisterFunction("TestObject",
-                new GetVarFunction(new Variable(new TestScriptObject())), true);
-            */
-           
-        }
-
-        public abstract ScriptObject GetImplementation(List<Variable> args);
-    }
     public static class ClassManerger
     {
         public static void Add(ObjectBase obj,ParsingScript script=null)
@@ -118,31 +103,6 @@ namespace AliceScript
             {
                 ParserFunction.UnregisterScriptFunction(obj.Name,script);
             }
-        }
-    }
-
-    public abstract class CompiledClassAsync : AliceScriptClass
-    {
-        public abstract Task<ScriptObject> GetImplementationAsync(List<Variable> args);
-    }
-
-    public class TestCompiledClass : CompiledClass
-    {
-        public override ScriptObject GetImplementation(List<Variable> args)
-        {
-            string name = Utils.GetSafeString(args, 0);
-            string color = Utils.GetSafeString(args, 1);
-            return new TestScriptObject(name, color);
-        }
-    }
-    public class TestCompiledClassAsync : CompiledClassAsync
-    {
-        public override Task<ScriptObject> GetImplementationAsync(List<Variable> args)
-        {
-            string name = Utils.GetSafeString(args, 0);
-            string color = Utils.GetSafeString(args, 1);
-            ScriptObject myScriptObject = new TestScriptObject(name, color);
-            return Task.FromResult( myScriptObject );
         }
     }
 }

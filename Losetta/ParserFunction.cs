@@ -479,11 +479,6 @@ namespace AliceScript
                     {
                         return fc;
                     }
-                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower())).FirstOrDefault();
-                    if (cfc != null)
-                    {
-                        return new GetVarFunction(new Variable(cfc));
-                    }
                 }
             }
 
@@ -497,14 +492,6 @@ namespace AliceScript
                 if (fc != null)
                 {
                     return fc;
-                }
-            }
-            foreach (var nm in script.UsingNamespaces)
-            {
-                var fc = nm.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
-                if (fc != null)
-                {
-                    return new GetVarFunction(new Variable(fc));
                 }
             }
             if (script.ParentScript != null)
@@ -1157,7 +1144,6 @@ namespace AliceScript
             s_localScope.Clear();
             s_namespaces.Clear();
             s_namespace = s_namespacePrefix = "";
-            CompiledClass.Init();
         }
 
         protected string m_name;

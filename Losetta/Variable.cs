@@ -1078,7 +1078,7 @@ namespace AliceScript
                 if (result.CustomFunctionSet != null)
                 {
                     var args = new List<Variable> { value };
-                    result.CustomFunctionSet.Run(args, script);
+                    result.CustomFunctionSet.ARun(args, script);
                     return result;
                 }
                 if (!string.IsNullOrWhiteSpace(result.CustomSet))

@@ -114,7 +114,7 @@ namespace AliceScript
             Variable last_result = Variable.EmptyInstance;
             foreach(CustomFunction func in m_fucntions)
             {
-                last_result=func.Run(args,script,instance);
+                last_result=func.ARun(args,script,instance);
             }
             return last_result;
         }

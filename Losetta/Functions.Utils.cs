@@ -62,7 +62,7 @@ namespace AliceScript
             {
                 script.Forward();
                 List<Variable> args = script.GetFunctionArgs();
-                return ((CustomFunction)result).Run(args, script);
+                return ((CustomFunction)result).ARun(args, script);
             }
             return Variable.Undefined;
         }
@@ -142,7 +142,7 @@ namespace AliceScript
         {
             if (!string.IsNullOrWhiteSpace(s_method))
             {
-                CustomFunction.Run(s_method, new Variable(s_tracking),
+                CustomFunction.ARun(s_method, new Variable(s_tracking),
                                    new Variable(data));
                 return "";
             }

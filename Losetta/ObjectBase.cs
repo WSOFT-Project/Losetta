@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
-    public class ObjectBase : ScriptObject
+    public class ObjectBase : AliceScriptClass, ScriptObject
     {
         /// <summary>
         /// このオブジェクトの名前
@@ -18,19 +12,21 @@ namespace AliceScript
         public Dictionary<string, Variable> Events = new Dictionary<string, Variable>();
 
         private bool m_handle_operator = false;
+        private FunctionBase m_constructor = null;
+
+        public FunctionBase Constructor
+        {
+            get => m_constructor;
+            set => m_constructor = value;
+        }
 
         /// <summary>
         /// Operator関数を上書きするかどうかを表す値
         /// </summary>
-        public bool HandleOperator {
-            get
-            {
-                return m_handle_operator;
-            }
-            set
-            {
-                m_handle_operator = value;
-            }
+        public bool HandleOperator
+        {
+            get => m_handle_operator;
+            set => m_handle_operator = value;
         }
 
         public ObjectBase(string name = "")
@@ -38,6 +34,18 @@ namespace AliceScript
             Name = name;
         }
 
+        public virtual Variable GetImplementation(List<Variable> args, ParsingScript script)
+        {
+            if (m_constructor != null)
+            {
+                var impl = m_constructor.Evaluate(args, script);
+                if (impl.Type == Variable.VarType.OBJECT)
+                {
+                    return impl;
+                }
+            }
+            return new Variable((ObjectBase)Activator.CreateInstance(this.GetType()));
+        }
 
         public virtual List<string> GetProperties()
         {
@@ -46,7 +54,7 @@ namespace AliceScript
             v.AddRange(new List<string>(Events.Keys));
             return v;
         }
-        public static bool GETTING = false;
+        internal static bool GETTING = false;
         public static List<Variable> LaskVariable;
 
         public virtual Variable Operator(Variable left, Variable right, string action, ParsingScript script)
@@ -59,9 +67,9 @@ namespace AliceScript
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
 
             var prop = GetPropertyBase(sPropertyName);
-            if (prop!=null)
+            if (prop != null)
             {
-               return Task.FromResult(prop.Property);
+                return Task.FromResult(prop.Property);
             }
             else
             {
@@ -105,39 +113,39 @@ namespace AliceScript
 
         public virtual Task<Variable> SetProperty(string sPropertyName, Variable argValue)
         {
-           
-                sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
-                var prop = GetPropertyBase(sPropertyName);
-                if (prop!=null)
-                {
+
+            sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
+            var prop = GetPropertyBase(sPropertyName);
+            if (prop != null)
+            {
                 prop.Property = argValue;
-                }
-                else if (Events.ContainsKey(sPropertyName))
+            }
+            else if (Events.ContainsKey(sPropertyName))
+            {
+                if (argValue.Type == Variable.VarType.DELEGATE && argValue.Delegate != null)
                 {
-                    if (argValue.Type==Variable.VarType.DELEGATE && argValue.Delegate != null)
-                    {
-                        Events[sPropertyName] = argValue;
-                    }
+                    Events[sPropertyName] = argValue;
                 }
-                else
-                {
-                    ThrowErrorManerger.OnThrowError("指定されたプロパティまたはデリゲートは存在しません",Exceptions.COULDNT_FIND_VARIABLE);
-                }
-            
+            }
+            else
+            {
+                ThrowErrorManerger.OnThrowError("指定されたプロパティまたはデリゲートは存在しません", Exceptions.COULDNT_FIND_VARIABLE);
+            }
+
             return Task.FromResult(Variable.EmptyInstance);
         }
-      public void AddProperty(PropertyBase property)
+        public void AddProperty(PropertyBase property)
         {
-            this.Properties.Add(property.Name,property);
+            this.Properties.Add(property.Name, property);
         }
         public void RemoveProperty(PropertyBase property)
         {
             this.Properties.Remove(property.Name);
         }
-        public void AddFunction(FunctionBase function,string name="")
+        public void AddFunction(FunctionBase function, string name = "")
         {
             if (string.IsNullOrEmpty(name)) { name = function.Name; }
-            this.Functions.Add(name,function);
+            this.Functions.Add(name, function);
         }
         public void RemoveFunction(string name)
         {
@@ -147,7 +155,7 @@ namespace AliceScript
         {
             this.Functions.Remove(function.Name);
         }
-        
+
     }
 
 
@@ -212,16 +220,18 @@ namespace AliceScript
         /// </summary>
         public bool CanSet
         {
-            get
-            {
-                return m_CanSet;
-            }
-            set
-            {
-                m_CanSet = value;
-            }
+            get => m_CanSet;
+            set => m_CanSet = value;
         }
         private bool m_CanSet = true;
+        public PropertyBase(Variable value)
+        {
+            this.Value= value;
+        }
+        public PropertyBase()
+        {
+
+        }
         public Variable Property
         {
             get
@@ -252,9 +262,10 @@ namespace AliceScript
                     {
                         Value = value;
                     }
-                }else
+                }
+                else
                 {
-                    ThrowErrorManerger.OnThrowError("このプロパティに代入できません",Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
+                    ThrowErrorManerger.OnThrowError("このプロパティに代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
                 }
             }
         }

@@ -49,6 +49,21 @@ namespace AliceScript
         /// この関数が変数のプロパティとして呼び出される場合、その変数の種類を取得または設定します
         /// </summary>
         public Variable.VarType RequestType { get; set; }
+        public Variable Evaluate(List<Variable> args,ParsingScript script, AliceScriptClass.ClassInstance instance=null)
+        {
+            FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
+            ex.Args = args;
+            if (ex.Args == null) { ex.Args = new List<Variable>(); }
+            ex.UseObjectResult = false;
+            ex.ObjectResult = null;
+            ex.OriginalScript = script.OriginalScript;
+            ex.Return = Variable.EmptyInstance;
+            ex.Script = script;
+            ex.ClassInstance = instance;
+            Run?.Invoke(script, ex);
+            if (ex.UseObjectResult) { return new Variable(ex.ObjectResult); }
+            return ex.Return;
+        }
         protected override Variable Evaluate(ParsingScript script)
         {
             List<Variable> args = null;
@@ -68,17 +83,7 @@ namespace AliceScript
                     Utils.CheckArgs(args.Count, MinimumArgCounts, m_name);
                 }
             }
-            FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = args;
-            if (ex.Args == null) { ex.Args = new List<Variable>(); }
-            ex.UseObjectResult = false;
-            ex.ObjectResult = null;
-            ex.OriginalScript = script.OriginalScript;
-            ex.Return = Variable.EmptyInstance;
-            ex.Script = script;
-            Run?.Invoke(script, ex);
-            if (ex.UseObjectResult) { return new Variable(ex.ObjectResult); }
-            return ex.Return;
+            return Evaluate(args,script);
         }
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
@@ -297,7 +302,7 @@ namespace AliceScript
         /// </summary>
         public Variable CurentVariable { get; set; }
 
-
+        public AliceScriptClass.ClassInstance ClassInstance { get; set; }
     }
 
 }
