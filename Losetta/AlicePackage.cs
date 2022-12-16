@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
+﻿using System.IO.Compression;
 using System.Security.Cryptography;
 
 namespace AliceScript
@@ -11,14 +7,8 @@ namespace AliceScript
     {
         public ZipArchive Archive
         {
-            get
-            {
-                return archive;
-            }
-            set
-            {
-                archive = value;
-            }
+            get => archive;
+            set => archive = value;
         }
 
         internal ZipArchive archive;
@@ -191,7 +181,15 @@ namespace AliceScript
         {
             return (archive.GetEntry(filename) != null);
         }
-        public static byte[] GetEntryData(ZipArchiveEntry e, string filename)
+        public byte[] GetEntryData(string filename)
+        {
+            return (GetEntryToData(archive.GetEntry(filename),filename));
+        }
+        public string GetEntryText(string filename)
+        {
+            return GetEntryScript(archive.GetEntry(filename),filename);
+        }
+        internal static byte[] GetEntryToData(ZipArchiveEntry e, string filename)
         {
             try
             {
@@ -200,7 +198,14 @@ namespace AliceScript
                     ThrowErrorManerger.OnThrowError("パッケージ内のファイル[" + filename + "]が見つかりません", Exceptions.FILE_NOT_FOUND);
                     return null;
                 }
-                return GetDataFromStream(e.Open());
+                var stream = e.Open();
+                byte[] bytes;
+                using (var ms = new MemoryStream())
+                {
+                    stream.CopyTo(ms);
+                    bytes = ms.ToArray();
+                    return bytes;
+                }
             }
             catch (Exception ex)
             {
@@ -212,34 +217,12 @@ namespace AliceScript
         {
             try
             {
-                if (e == null)
-                {
-                    ThrowErrorManerger.OnThrowError("パッケージ内のファイル[" + filename + "]が見つかりません", Exceptions.FILE_NOT_FOUND);
-                    return null;
-                }
-                string temp = Path.GetTempFileName();
-                WriteStreamToExitingFile(temp, e.Open());
-                return SafeReader.ReadAllText(temp, out _);
+                return SafeReader.ReadAllText(GetEntryToData(e, filename), out _);
             }
             catch (Exception ex)
             {
                 ThrowErrorManerger.OnThrowError("パッケージ内のファイル[" + filename + "]を読み込めません。詳細:" + ex.Message, Exceptions.BAD_PACKAGE);
                 return null;
-            }
-        }
-        private static void WriteStreamToExitingFile(string filename, Stream stream)
-        {
-            using (FileStream fs = new FileStream(filename, FileMode.Open))
-            {
-                stream.CopyTo(fs);
-            }
-        }
-        private static byte[] GetDataFromStream(Stream stream)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                stream.CopyTo(ms);
-                return ms.GetBuffer();
             }
         }
         public static void CreateEncodingPackage(string filepath, string outfilepath, byte[] controlCode = null)

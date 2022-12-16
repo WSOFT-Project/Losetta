@@ -81,7 +81,7 @@ namespace AliceScript.NameSpaces
             {
                 if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
                 {
-                    Interop.NetLibraryLoader.LoadLibrary(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
+                    Interop.NetLibraryLoader.LoadLibrary(e.Script.Package.GetEntryData(filename));
                     return;
                 }
                 if (File.Exists(filename))
@@ -97,7 +97,7 @@ namespace AliceScript.NameSpaces
             {
                 if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
                 {
-                    AlicePackage.LoadData(AlicePackage.GetEntryData(e.Script.Package.Archive.GetEntry(filename), filename));
+                    AlicePackage.LoadData(e.Script.Package.GetEntryData(filename));
                     return;
                 }
                 AlicePackage.Load(filename);

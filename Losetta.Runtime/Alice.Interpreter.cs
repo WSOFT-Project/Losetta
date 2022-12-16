@@ -553,8 +553,70 @@ namespace AliceScript.NameSpaces
                 this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
                 this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
                 this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+
+                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this,AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadData));
+                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadText));
+                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.Exists));
             }
             public AlicePackage Package { get; set; }
+            private class AlicePackageObject_EntryIOFunctions : FunctionBase
+            {
+                public AlicePackageObject_EntryIOFunctions(AlicePackageObject package, AlicePackageObjectt_EntryIOFunctionMode mode)
+                {
+                    switch (mode)
+                    {
+                        case AlicePackageObjectt_EntryIOFunctionMode.Exists:
+                            {
+                                this.Name = "entry_exists";
+                                this.MinimumArgCounts = 1;
+                                break;
+                            }
+                        case AlicePackageObjectt_EntryIOFunctionMode.ReadData:
+                            {
+                                this.Name = "entry_read_data";
+                                this.MinimumArgCounts = 1;
+                                break;
+                            }
+                        case AlicePackageObjectt_EntryIOFunctionMode.ReadText:
+                            {
+                                this.Name = "entry_read_text";
+                                this.MinimumArgCounts = 1;
+                                break;
+                            }
+                    }
+                    Mode = mode;
+                    Package = package;
+                    this.Run += AlicePackageObject_EntryIOFunctions_Run;
+                }
+                public AlicePackageObject Package { get; set; }
+                public AlicePackageObjectt_EntryIOFunctionMode Mode { get; set; }
+                private void AlicePackageObject_EntryIOFunctions_Run(object sender, FunctionBaseEventArgs e)
+                {
+                    switch (Mode)
+                    {
+                        case AlicePackageObjectt_EntryIOFunctionMode.Exists:
+                            {
+                                e.Return = new Variable(Package.Package.ExistsEntry(e.Args[0].AsString()));
+                                break;
+                            }
+                        case AlicePackageObjectt_EntryIOFunctionMode.ReadData:
+                            {
+                                e.Return = new Variable(Package.Package.GetEntryData(e.Args[0].AsString()));
+                                break;
+                            }
+                        case AlicePackageObjectt_EntryIOFunctionMode.ReadText:
+                            {
+                                e.Return = new Variable(Package.Package.GetEntryText(e.Args[0].AsString()));
+                                break;
+                            }
+                    }
+                }
+
+                public enum AlicePackageObjectt_EntryIOFunctionMode
+                {
+                    Exists, ReadData, ReadText
+                }
+            }
             private class AlicePackageObjectProperty : PropertyBase
             {
                 public AlicePackageObjectProperty(AlicePackageObject host, AlicePackageObjectPropertyMode mode)
@@ -598,7 +660,7 @@ namespace AliceScript.NameSpaces
                             }
                     }
                 }
-
+                
                 public enum AlicePackageObjectPropertyMode
                 {
                     Name, Version, Description, Publisher,Target

@@ -1,18 +1,29 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace AliceScript
 {
     public static class SafeReader
     {
-        public static string ReadAllText(string filename,out string charcode)
+        public static string ReadAllText(string filename, out string charcode)
         {
             FileInfo file = new FileInfo(filename);
-            if (!file.Exists) throw new FileNotFoundException();
+            if (!file.Exists)
+            {
+                throw new FileNotFoundException();
+            }
+
             using (FileReader reader = new FileReader(file))
             {
                 CharCode c = reader.Read(file);
+                charcode = c.Name;
+                return reader.Text;
+            }
+        }
+        public static string ReadAllText(byte[] data,out string charcode)
+        {
+            using (FileReader reader=new FileReader(data))
+            {
+                CharCode c = reader.Read(data);
                 charcode = c.Name;
                 return reader.Text;
             }
@@ -353,6 +364,8 @@ namespace AliceScript
         /// <param name="file">読み出すファイル（このファイルのサイズどおりに読み出し領域バッファを確保する）</param>
         internal FileReader(FileInfo file)
             : this((file.Length < int.MaxValue ? (int)file.Length : 0)) { }
+        internal FileReader(byte[] data)
+            : this((data.Length < int.MaxValue ? data.Length : 0)) { }
 
         /// <summary>複数ファイル連続読み出し用にバッファサイズを指定して新しいインスタンスを初期化します。</summary>
         /// <param name="len">最大読み出しファイルサイズ（領域バッファ確保サイズ）</param>
@@ -431,9 +444,54 @@ namespace AliceScript
             catch (System.IO.IOException) { return FileType.READERROR; } // ■読み取りエラー
             catch (System.UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
         }
+
+        internal virtual CharCode Read(byte[] data)
+        {
+            this.Length = 0;
+            text = null;
+            try
+            {   // 無用なDiskIOを極力行わないよう、オープン前にもファイルサイズチェック
+                if (data.Length == 0) { return FileType.EMPTYFILE; } // ■空ファイル
+                if (data.Length > Bytes.Length) { return FileType.HUGEFILE; } // ■巨大ファイル
+                CharCode c;
+                // ファイルを読み込み、ファイル文字コード種類を把握
+                using (MemoryStream stream = new MemoryStream(data))
+                {   // オープン後の実際のファイルサイズによるチェック
+                    long filesize = stream.Length;
+                    if (filesize == 0) { return FileType.EMPTYFILE; } // ■空ファイル
+                    if (filesize > Bytes.Length) { return FileType.HUGEFILE; } // ■巨大ファイル
+                    if (filesize > 65536)
+                    {   // 一定サイズ以上の大きいファイルなら、BOM/マジックナンバー判定に必要な先頭バイトを読み込み、判断
+                        this.Length = stream.Read(Bytes, 0, FileType.GetBinaryType_LEASTREADSIZE);
+                        c = GetPreamble(filesize);
+                        if (c == null || c is CharCode.Text)
+                        {   // 残りの読みこみ（ただし非テキストと確定した場合は省略）
+                            this.Length += stream.Read(Bytes, this.Length, (int)filesize - this.Length);
+                        }
+                    }
+                    else
+                    {   // 大きくないファイルは一括で全バイト読み込み、判断
+                        this.Length = stream.Read(Bytes, 0, (int)filesize);
+                        c = GetPreamble(filesize);
+                    }
+                }
+                if (c is CharCode.Text)
+                {   // BOMありテキストなら文字列を取り出す（取り出せなかったら非テキスト扱い）
+                    if ((text = c.GetString(Bytes, Length)) == null) { c = null; }
+                }
+                else if (c == null)
+                {   // ファイル文字コード種類不明なら、全バイト走査して文字コード確定
+                    c = ReadJEnc.GetEncoding(Bytes, Length, out text);
+                }
+                // ここまでで文字コードが決まらなかったらバイナリファイル扱い
+                return (c == null ? FileType.GetBinaryType(Bytes, Length) : c);
+            }
+            catch (System.IO.IOException) { return FileType.READERROR; } // ■読み取りエラー
+            catch (System.UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
+        }
         /// <summary>Readメソッド呼び出し時にファイルから読み出したテキスト文字列内容を取得します。</summary>
         /// <remarks>ファイルからテキストが取り出せなかった場合はnullとなります。</remarks>
-        internal string Text { get { return text; } }
+        internal string Text => text;
 
         #region 非internal処理----------------------------------------------------
         /// <summary>ファイル内容の読み出し先領域</summary>
@@ -656,9 +714,10 @@ namespace AliceScript
 
         #region 基本クラス定義--------------------------------------------------
         /// <summary>バイナリと判定するDEL文字コード、兼、ASCII/非ASCIIの境界文字コード</summary>
-        const byte DEL = (byte)0x7F;
+        private const byte DEL = 0x7F;
+
         /// <summary>非テキストファイルと判定する制御文字コードの最大値</summary>
-        const byte BINARY = (byte)0x03; // 0x01-0x07位の範囲で調整。0x08(BS)はTeraTerm等ログで出る。0x09(TAB)は普通にテキストで使う。0x03くらいにするのがよい。HNXgrep/TresGrepでは0x03を採用
+        private const byte BINARY = 0x03; // 0x01-0x07位の範囲で調整。0x08(BS)はTeraTerm等ログで出る。0x09(TAB)は普通にテキストで使う。0x03くらいにするのがよい。HNXgrep/TresGrepでは0x03を採用
 
         /// <summary>このインスタンスでおもに判別対象とするデフォルト文字コード</summary>
         internal readonly CharCode CharCode;
@@ -1009,14 +1068,17 @@ namespace AliceScript
             }
 
             #region JIS判定用のインスタンスメンバ／メソッド--------------------
-            byte[] bytes;
-            int len;
+            private byte[] bytes;
+            private int len;
+
             /// <summary>JIS補助漢字エスケープシーケンス有無(有ならtrue)</summary>
-            bool JISH = false;
+            private bool JISH = false;
+
             /// <summary>ISO-2022-KRエスケープシーケンス有無(有ならtrue)</summary>
-            bool ISOKR = false;
+            private bool ISOKR = false;
+
             /// <summary>JIS評価値(JISとしてデコードすべきなら正値、否ならマイナス値)</summary>
-            int c = 0;
+            private int c = 0;
 
             /// <summary>JISエスケープシーケンス判定オブジェクト初期化（およびISO-2022-KR判定）</summary>
             /// <param name="bytes">判定対象のバイト配列</param>
