@@ -185,17 +185,16 @@ namespace AliceScript.NameSpaces
 
         private void ConvertFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            //TODO:Convert
-            /*
-            if (e.Args[0].Type == Variable.VarType.TYPE)
+            
+            if (e.Args[0].Type == Variable.VarType.OBJECT && e.Args[0].Object is TypeObject type)
             {
-                e.Return = e.CurentVariable.Convert(e.Args[0].VariableType);
+                e.Return = e.CurentVariable.Convert(type.Type);
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("Type型である必要があります", Exceptions.COULDNT_CONVERT_VARIABLE);
+                ThrowErrorManerger.OnThrowError("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE);
             }
-            */
+            
         }
     }
 
@@ -599,21 +598,7 @@ namespace AliceScript.NameSpaces
     }
 
     //ここより下は変数(Variable)オブジェクトの関数です
-    internal class type_ActivateFunc : FunctionBase
-    {
-        public type_ActivateFunc()
-        {
-            this.Name = "Activate";
-            //this.RequestType = Variable.VarType.TYPE;
-            this.Run += Type_ActivateFunc_Run;
-        }
-
-        private void Type_ActivateFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            //Activate
-            e.Return = new Variable(e.CurentVariable.VariableType);
-        }
-    }
+    
 
     internal class string_TrimFunc : FunctionBase
     {

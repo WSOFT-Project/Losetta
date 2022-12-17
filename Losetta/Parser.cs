@@ -578,9 +578,9 @@ namespace AliceScript
             }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
             //TODO:AS演算子
-            else if (leftCell.Action == " as " /* && rightCell.Type==Variable.VarType.TYPE */)
+            else if (leftCell.Action == " as " && rightCell.Object is TypeObject type)
             {
-                leftCell = leftCell.Convert(rightCell.VariableType);
+                leftCell = leftCell.Convert(type.Type);
             //[??]演算子、Null合体演算子ですべての型に適応できます
             }
             else if (leftCell.Action == "??")
