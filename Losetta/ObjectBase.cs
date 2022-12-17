@@ -64,7 +64,10 @@
         }
         internal static bool GETTING = false;
         public static List<Variable> LaskVariable;
-
+        public virtual bool Equals(ObjectBase other)
+        {
+            return (other==this);
+        }
         public virtual Variable Operator(Variable left, Variable right, string action, ParsingScript script)
         {
             //継承先によって定義されます

@@ -100,7 +100,6 @@ namespace AliceScript
 
 
             RegisterFunctions();
-            RegisterEnums();
             RegisterActions();
         }
 
@@ -121,24 +120,13 @@ namespace AliceScript
             ParserFunction.RegisterFunction(Constants.GET_KEYS, new GetAllKeysFunction());
             ParserFunction.RegisterFunction(Constants.NAMESPACE, new NamespaceFunction());
 
-            ParserFunction.RegisterFunction(Constants.ADD_DATA, new DataFunction(DataFunction.DataMode.ADD));
-            ParserFunction.RegisterFunction(Constants.COLLECT_DATA, new DataFunction(DataFunction.DataMode.SUBSCRIBE));
-            ParserFunction.RegisterFunction(Constants.GET_DATA, new DataFunction(DataFunction.DataMode.SEND));
-
-            ParserFunction.RegisterFunction(Constants.OBJECT_DEFPROP, new ObjectPropsFunction());
-
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
             ParserFunction.AddAction(Constants.POINTER, new PointerFunction());
             ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
 
             FunctionBaseManerger.Add(new FunctionCreator());
-            FunctionBaseManerger.Add(new NewObjectFunction());
         }
 
-        public void RegisterEnums()
-        {
-            //ParserFunction.RegisterEnum(Constants.VARIABLE_TYPE, "AliceScript.Variable.VarType");
-        }
 
         public void RegisterActions()
         {

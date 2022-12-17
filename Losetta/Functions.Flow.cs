@@ -247,6 +247,11 @@ namespace AliceScript
             }
         }
 
+        public Dictionary<string, FunctionBase> StaticFunctions
+        {
+            get { return m_static_customFunctions; }
+            set { m_static_customFunctions = value; }
+        }
         public static void RegisterClass(string className, AliceScriptClass obj)
         {
             obj.Namespace = ParserFunction.GetCurrentNamespace;
@@ -364,6 +369,8 @@ namespace AliceScript
             new Dictionary<string, FunctionBase>();
         protected Dictionary<string,PropertyBase> m_classProperties =
             new Dictionary<string, PropertyBase>();
+        protected Dictionary<string, FunctionBase> m_static_customFunctions =
+            new Dictionary<string, FunctionBase>();
 
         public ParsingScript ParentScript = null;
         public int ParentOffset = 0;
@@ -565,37 +572,6 @@ namespace AliceScript
                 }
             }
             return null;
-        }
-    }
-
-    internal class NewObjectFunction : FunctionBase
-    {
-        public NewObjectFunction()
-        {
-            this.Name = Constants.NEW;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += NewObjectFunction_Run;
-        }
-
-        private void NewObjectFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string className = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            className = Constants.ConvertName(className);
-            e.Script.MoveForwardIf(Constants.START_ARG);
-            List<Variable> args = e.Script.GetFunctionArgs();
-
-            ObjectBase csClass = AliceScriptClass.GetClass(className,e.Script) as ObjectBase;
-            if (csClass != null)
-            {
-                Variable obj = csClass.GetImplementation(args,e.Script);
-                e.Return = obj;
-                return;
-            }
-
-            AliceScriptClass.ClassInstance instance = new
-                AliceScriptClass.ClassInstance(e.Script.CurrentAssign, className, args, e.Script);
-
-            e.Return= new Variable(instance);
         }
     }
 

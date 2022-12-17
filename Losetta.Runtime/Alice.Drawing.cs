@@ -43,7 +43,22 @@ namespace AliceScript.NameSpaces
             this.AddFunction(new FromNameFunc());
             this.AddFunction(new ToArgbFunc(this));
             this.AddFunction(new ToNameFunc(this));
-            
+
+            this.StaticFunctions.Add("FromRGB",new Color_FromRGBFunc());
+        }
+        public class Color_FromRGBFunc : FunctionBase
+        {
+            public Color_FromRGBFunc()
+            {
+                this.Name = "FromRGB";
+                this.MinimumArgCounts = 3;
+                this.Run += Color_FromRGBFunc_Run;
+            }
+
+            private void Color_FromRGBFunc_Run(object sender, FunctionBaseEventArgs e)
+            {
+                e.Return = new Variable(new ColorObject(e.Args[0].AsInt(), e.Args[1].AsInt(), e.Args[2].AsInt()));
+            }
         }
         public ColorObject(int r, int g, int b, int a = 255)
         {

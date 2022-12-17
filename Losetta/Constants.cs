@@ -167,8 +167,6 @@ namespace AliceScript
         public const string GOTO = "goto";
         public const string GOSUB = "gosub";
 
-        public const string OBJECT_DEFPROP = "Object.defineProperty";
-
 
         public const string PROP_TO_STRING = "ToString";
 
@@ -269,7 +267,7 @@ namespace AliceScript
             {"pointer",Variable.AsType(Variable.VarType.POINTER) },
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
-            {"type",Variable.AsType(Variable.VarType.TYPE) }
+            //{"type",Variable.AsType(Variable.VarType.TYPE) }
 
         };
         //型指定修飾子
@@ -339,7 +337,7 @@ namespace AliceScript
                 case Variable.VarType.DELEGATE: return "DELEGATE";
                 case Variable.VarType.BOOLEAN:  return "BOOLEAN";
                 case Variable.VarType.BYTES:    return "BYTES";
-                case Variable.VarType.TYPE:     return "TYPE";
+                //case Variable.VarType.TYPE:     return "TYPE";
                 case Variable.VarType.UNDEFINED: return "UNDEFINED";
                 default: return "NONE";
             }
@@ -372,7 +370,7 @@ namespace AliceScript
                 case "CONTINUE": type= Variable.VarType.CONTINUE; break;
                 case "DELEGATE": type= Variable.VarType.DELEGATE; break;
                 case "VARIABLE": type= Variable.VarType.VARIABLE; break;
-                case "TYPE": type= Variable.VarType.TYPE; break;
+                //case "TYPE": type= Variable.VarType.TYPE; break;
                 default: type = Variable.VarType.NONE; return false;
             }
             return true;

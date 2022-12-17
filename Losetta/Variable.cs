@@ -30,8 +30,7 @@ namespace AliceScript
             CUSTOM    = 0b1000000000000000, 
             POINTER   = 0b10000000000000000, 
             DELEGATE  = 0b100000000000000000, 
-            BOOLEAN   = 0b1000000000000000000, 
-            TYPE      = 0b10000000000000000000
+            BOOLEAN   = 0b1000000000000000000
         };
 
         public static Variable True
@@ -123,7 +122,7 @@ namespace AliceScript
         }
         public static Variable AsType(VarType type)
         {
-            var r = new Variable(VarType.TYPE);
+            var r = new Variable(new TypeObject(type));
             r.VariableType = type;
             return r;
         }
@@ -384,9 +383,9 @@ namespace AliceScript
             {
                 return EqualsArray(Tuple, other.Tuple);
             }
-            if (Type == VarType.TYPE)
+            if (Type == VarType.OBJECT && Object is  ObjectBase o && other.Type==VarType.OBJECT && other.Object is ObjectBase o2)
             {
-                return VariableType == other.VariableType;
+                return o.Equals(o2);
             }
             if (Type == VarType.NONE)
             {
@@ -517,15 +516,6 @@ namespace AliceScript
                         {
                             return new Variable(AsString());
                         }
-                    }
-                case VarType.TYPE:
-                    {
-                        VarType ptype;
-                        if (Constants.TryParseType(AsString(), out ptype))
-                        {
-                            return Variable.AsType(ptype);
-                        }
-                        break;
                     }
             }
             //変換に失敗または非対応
@@ -783,10 +773,12 @@ namespace AliceScript
         }
         public virtual VarType AsType()
         {
+            /*
             if (Type == VarType.TYPE)
             {
                 return VariableType;
             }
+            */
             return Type;
         }
         public override string ToString()
@@ -846,11 +838,12 @@ namespace AliceScript
             {
                 return Encoding.Unicode.GetString(m_byteArray, 0, m_byteArray.Length);
             }
+            /*
             if (Type == VarType.TYPE)
             {
                 return Constants.TypeToString(VariableType);
             }
-
+            */
 
             StringBuilder sb = new StringBuilder();
             if (Type == VarType.ENUM)

@@ -474,10 +474,15 @@ namespace AliceScript
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.EndsWith(x.Name.ToLower())).FirstOrDefault();
+                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename+"."+x.Name.ToLower())).FirstOrDefault();
                     if (fc != null)
                     {
                         return fc;
+                    }
+                    var cc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower())).FirstOrDefault();
+                    if (cc != null)
+                    {
+                        return new GetVarFunction(new Variable(new TypeObject(cc)));
                     }
                 }
             }
@@ -492,6 +497,11 @@ namespace AliceScript
                 if (fc != null)
                 {
                     return fc;
+                }
+                var cc = nm.Classes.Where((x)=>x.Name.ToLower()==name.ToLower()).FirstOrDefault();
+                if(cc != null)
+                {
+                    return new GetVarFunction(new Variable(new TypeObject(cc)));
                 }
             }
             if (script.ParentScript != null)
