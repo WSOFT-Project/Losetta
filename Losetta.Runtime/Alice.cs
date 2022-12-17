@@ -487,7 +487,7 @@ namespace AliceScript.NameSpaces
     {
         public InvokeFunc()
         {
-            this.FunctionName = "Invoke";
+            this.Name = "Invoke";
             this.RequestType = Variable.VarType.DELEGATE;
             this.Run += InvokeFunc_Run;
         }
@@ -582,7 +582,7 @@ namespace AliceScript.NameSpaces
 
         public DisposeFunc()
         {
-            this.FunctionName = "Dispose";
+            this.Name = "Dispose";
             this.Run += DisposeFunc_Run;
 
         }
@@ -619,17 +619,17 @@ namespace AliceScript.NameSpaces
             {
                 case 0:
                     {
-                        this.FunctionName = Constants.TRIM;
+                        this.Name = Constants.TRIM;
                         break;
                     }
                 case 1:
                     {
-                        this.FunctionName = Constants.TRIM_START;
+                        this.Name = Constants.TRIM_START;
                         break;
                     }
                 case 2:
                     {
-                        this.FunctionName = Constants.TRIM_END;
+                        this.Name = Constants.TRIM_END;
                         break;
                     }
             }
@@ -1009,7 +1009,7 @@ namespace AliceScript.NameSpaces
     {
         public list_addFunc()
         {
-            this.FunctionName = Constants.ADD;
+            this.Name = Constants.ADD;
             this.RequestType = Variable.VarType.ARRAY;
             this.MinimumArgCounts = 1;
             this.Run += List_addFunc_Run;
@@ -1031,7 +1031,7 @@ namespace AliceScript.NameSpaces
     {
         public list_addRangeFunc()
         {
-            this.FunctionName = Constants.ADD_RANGE;
+            this.Name = Constants.ADD_RANGE;
             this.RequestType = Variable.VarType.ARRAY;
             this.MinimumArgCounts = 1;
             this.Run += List_addFunc_Run;
@@ -1060,7 +1060,7 @@ namespace AliceScript.NameSpaces
     {
         public list_InsertFunc()
         {
-            this.FunctionName = Constants.INSERT;
+            this.Name = Constants.INSERT;
             this.RequestType = Variable.VarType.ARRAY | Variable.VarType.STRING;
             this.MinimumArgCounts = 2;
             this.Run += List_InsertFunc_Run;
@@ -1095,7 +1095,7 @@ namespace AliceScript.NameSpaces
     {
         public list_InsertRangeFunc()
         {
-            this.FunctionName = Constants.INSERT_RANGE;
+            this.Name = Constants.INSERT_RANGE;
             this.RequestType = Variable.VarType.ARRAY;
             this.MinimumArgCounts = 2;
             this.Run += List_InsertFunc_Run;
@@ -1475,7 +1475,7 @@ namespace AliceScript.NameSpaces
     {
         public bytes_toBase64Func()
         {
-            this.FunctionName = "ToBase64";
+            this.Name = "ToBase64";
             this.RequestType = Variable.VarType.BYTES;
             this.Run += ToBase64Func_Run;
         }
@@ -1490,7 +1490,7 @@ namespace AliceScript.NameSpaces
     {
         public list_SortFunc()
         {
-            this.FunctionName = Constants.SORT;
+            this.Name = Constants.SORT;
             this.RequestType = Variable.VarType.ARRAY;
             this.Run += List_SortFunc_Run;
         }
@@ -1505,7 +1505,7 @@ namespace AliceScript.NameSpaces
     {
         public list_ReverseFunc()
         {
-            this.FunctionName = Constants.REVERSE;
+            this.Name = Constants.REVERSE;
             this.RequestType = Variable.VarType.ARRAY;
             this.Run += List_ReverseFunc_Run;
         }
@@ -1527,7 +1527,7 @@ namespace AliceScript.NameSpaces
     {
         public list_flattenFunc()
         {
-            this.FunctionName = "Flatten";
+            this.Name = "Flatten";
             this.RequestType = Variable.VarType.ARRAY;
             this.Run += List_flattenFunc_Run;
         }
@@ -1555,7 +1555,7 @@ namespace AliceScript.NameSpaces
         public list_marge2Func()
         {
 
-            this.FunctionName = "Merge";
+            this.Name = "Merge";
             this.RequestType = Variable.VarType.ARRAY;
             this.Run += List_marge2Func_Run;
         }
@@ -1589,11 +1589,11 @@ namespace AliceScript.NameSpaces
             m_Last = isLast;
             if (m_Last)
             {
-                this.FunctionName = Constants.LAST;
+                this.Name = Constants.LAST;
             }
             else
             {
-                this.FunctionName = Constants.FIRST;
+                this.Name = Constants.FIRST;
             }
             this.RequestType = Variable.VarType.ARRAY;
             this.Run += List_FirstOrLastFunc_Run;

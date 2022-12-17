@@ -309,7 +309,7 @@ namespace AliceScript
             var cls = GetFromNS(name,script);
             if (cls != null)
             {
-                return null;
+                return cls;
             }
 
             //ちょっとでも高速化（ここのロジックは時間がかかる）
@@ -360,9 +360,9 @@ namespace AliceScript
             new Dictionary<string, AliceScriptClass>();
         private Dictionary<int, CustomFunction> m_constructors =
             new Dictionary<int, CustomFunction>();
-        private Dictionary<string,FunctionBase> m_customFunctions =
+        protected Dictionary<string,FunctionBase> m_customFunctions =
             new Dictionary<string, FunctionBase>();
-        private Dictionary<string,PropertyBase> m_classProperties =
+        protected Dictionary<string,PropertyBase> m_classProperties =
             new Dictionary<string, PropertyBase>();
 
         public ParsingScript ParentScript = null;
@@ -625,13 +625,6 @@ namespace AliceScript
             ParsingScript tempScript = script.GetTempScript(body);
             tempScript.CurrentClass = newClass;
             tempScript.DisableBreakpoints = true;
-
-            // Uncomment if want to step into the class creation code when the debugger is attached (unlikely)
-            /*Debugger debugger = script != null && script.Debugger != null ? script.Debugger : Debugger.MainInstance;
-            if (debugger != null)
-            {
-                result = debugger.StepInFunctionIfNeeded(tempScript);
-            }*/
 
             while (tempScript.Pointer < body.Length - 1 &&
                   (result == null || !result.IsReturn))
@@ -1189,7 +1182,6 @@ namespace AliceScript
         private Dictionary<int, Variable.VarType> m_typArgMap = new Dictionary<int, Variable.VarType>();
 
         public Dictionary<string, int> ArgMap { get; private set; } = new Dictionary<string, int>();
-        public string[] RealArgs { get; private set; }
     }
 
     internal class StringOrNumberFunction : ParserFunction
@@ -1527,7 +1519,7 @@ namespace AliceScript
     {
         protected override Variable Evaluate(ParsingScript script)
         {
-            bool prefix = string.IsNullOrWhiteSpace(m_name);
+            bool prefix = string.IsNullOrWhiteSpace(Name);
             if (prefix)
             {// If it is a prefix we do not have the variable name yet.
                 Name = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
@@ -2453,7 +2445,7 @@ namespace AliceScript
         protected override Variable Evaluate(ParsingScript script)
         {
             Variable varName = Utils.GetItem(script);
-            Utils.CheckNotNull(varName, m_name, script);
+            Utils.CheckNotNull(varName, Name, script);
 
             List<Variable> results = varName.GetAllKeys();
 

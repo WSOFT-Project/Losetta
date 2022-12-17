@@ -5,10 +5,6 @@ namespace AliceScript
 {
     public class FunctionBase : ParserFunction
     {
-        /// <summary>
-        /// 関数の名前を取得または設定します
-        /// </summary>
-        public string FunctionName { get; set; }
 
         /// <summary>
         /// この関数に必要な引数の数を取得または設定します
@@ -27,20 +23,6 @@ namespace AliceScript
             set
             {
                 m_Attribute = value;
-            }
-        }
-        /// <summary>
-        /// この関数の名前を取得または設定します
-        /// </summary>
-        public new string Name
-        {
-            get
-            {
-                return FunctionName;
-            }
-            set
-            {
-                FunctionName = value;
             }
         }
         private FunctionAttribute m_Attribute = FunctionAttribute.GENERAL;
@@ -90,7 +72,7 @@ namespace AliceScript
             if (currentVariable == null) { return Variable.EmptyInstance; }
             if (this.RequestType != Variable.VarType.NONE)
             {
-                    if (!this.RequestType.HasFlag(currentVariable.Type)) { ThrowErrorManerger.OnThrowError("関数[" + FunctionName + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); return Variable.EmptyInstance; }
+                    if (!this.RequestType.HasFlag(currentVariable.Type)) { ThrowErrorManerger.OnThrowError("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); return Variable.EmptyInstance; }
             }
             List<Variable> args = null;
             if (!this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
@@ -122,6 +104,7 @@ namespace AliceScript
             if (ex.UseObjectResult) { return new Variable(ex.ObjectResult); }
             return ex.Return;
         }
+        public string[] RealArgs { get; internal set; }
         public FunctionBase()
         {
             MinimumArgCounts = 0;

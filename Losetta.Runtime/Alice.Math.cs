@@ -130,7 +130,7 @@ namespace AliceScript.NameSpaces
     {
         public math_eFunc()
         {
-            this.FunctionName = "math_e";
+            this.Name = "math_e";
             this.MinimumArgCounts = 0;
             this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
             this.Run += Math_EFunc_Run;
@@ -178,7 +178,7 @@ namespace AliceScript.NameSpaces
     {
         public math_tauFunc()
         {
-            this.FunctionName = "math_tau";
+            this.Name = "math_tau";
             this.MinimumArgCounts = 0;
             this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
             this.Run += Math_EFunc_Run;
@@ -208,7 +208,7 @@ namespace AliceScript.NameSpaces
     {
         public math_absFunc()
         {
-            this.FunctionName = "math_abs";
+            this.Name = "math_abs";
             this.MinimumArgCounts = 1;
             this.Run += Math_absFunc_Run;
         }
@@ -222,7 +222,7 @@ namespace AliceScript.NameSpaces
     {
         public math_acosFunc()
         {
-            this.FunctionName = "math_acos";
+            this.Name = "math_acos";
             this.MinimumArgCounts = 1;
             this.Run += Math_absFunc_Run;
         }
@@ -236,7 +236,7 @@ namespace AliceScript.NameSpaces
     {
         public math_acoshFunc()
         {
-            this.FunctionName = "math_acosh";
+            this.Name = "math_acosh";
             this.MinimumArgCounts = 1;
             this.Run += Math_absFunc_Run;
         }
@@ -250,7 +250,7 @@ namespace AliceScript.NameSpaces
     {
         public math_sinFunc()
         {
-            this.FunctionName = "math_sin";
+            this.Name = "math_sin";
             this.MinimumArgCounts = 1;
             this.Run += Math_absFunc_Run;
         }
@@ -264,7 +264,7 @@ namespace AliceScript.NameSpaces
     {
         public math_sinhFunc()
         {
-            this.FunctionName = "math_sinh";
+            this.Name = "math_sinh";
             this.MinimumArgCounts = 1;
             this.Run += Math_absFunc_Run;
         }
@@ -278,7 +278,7 @@ namespace AliceScript.NameSpaces
     {
         public math_atanFunc()
         {
-            this.FunctionName = "math_atan";
+            this.Name = "math_atan";
             this.MinimumArgCounts = 1;
             this.Run += Math_absFunc_Run;
         }
@@ -292,7 +292,7 @@ namespace AliceScript.NameSpaces
     {
         public math_atan2Func()
         {
-            this.FunctionName = "math_atan2";
+            this.Name = "math_atan2";
             this.MinimumArgCounts = 2;
             this.Run += Math_absFunc_Run;
         }
@@ -306,7 +306,7 @@ namespace AliceScript.NameSpaces
     {
         public math_atanhFunc()
         {
-            this.FunctionName = "math_atanh";
+            this.Name = "math_atanh";
             this.MinimumArgCounts = 1;
             this.Run += Math_absFunc_Run;
         }
@@ -320,7 +320,7 @@ namespace AliceScript.NameSpaces
     {
         public math_bitdecrementFunc()
         {
-            this.FunctionName = "math_bitdecrement";
+            this.Name = "math_bitdecrement";
             this.MinimumArgCounts = 1;
             this.Run += Math_bitdecrementFunc_Run;
         }
@@ -334,7 +334,7 @@ namespace AliceScript.NameSpaces
     {
         public math_bitincrementFunc()
         {
-            this.FunctionName = "math_bitincrement";
+            this.Name = "math_bitincrement";
             this.MinimumArgCounts = 1;
             this.Run += Math_bitdecrementFunc_Run;
         }
@@ -348,7 +348,7 @@ namespace AliceScript.NameSpaces
     {
         public math_cbrtFunc()
         {
-            this.FunctionName = "math_cbrt";
+            this.Name = "math_cbrt";
             this.MinimumArgCounts = 1;
             this.Run += Math_cbrtFunc_Run;
         }
@@ -362,7 +362,7 @@ namespace AliceScript.NameSpaces
     {
         public math_ceilingFunc()
         {
-            this.FunctionName = "math_ceiling";
+            this.Name = "math_ceiling";
             this.MinimumArgCounts = 1;
             this.Run += Math_cbrtFunc_Run;
         }
@@ -376,7 +376,7 @@ namespace AliceScript.NameSpaces
     {
         public math_clampFunc()
         {
-            this.FunctionName = "math_clamp";
+            this.Name = "math_clamp";
             this.MinimumArgCounts = 3;
             this.Run += Math_clampFunc_Run;
         }
@@ -390,7 +390,7 @@ namespace AliceScript.NameSpaces
     {
         public math_copysignFunc()
         {
-            this.FunctionName = "math_copysign";
+            this.Name = "math_copysign";
             this.MinimumArgCounts = 2;
             this.Run += Math_copysignFunc_Run;
         }
@@ -405,7 +405,7 @@ namespace AliceScript.NameSpaces
     {
         public math_cosFunc()
         {
-            this.FunctionName = "math_cos";
+            this.Name = "math_cos";
             this.MinimumArgCounts = 1;
             this.Run += Math_cosFunc_Run;
         }
@@ -419,7 +419,7 @@ namespace AliceScript.NameSpaces
     {
         public math_coshFunc()
         {
-            this.FunctionName = "math_cosh";
+            this.Name = "math_cosh";
             this.MinimumArgCounts = 1;
             this.Run += Math_cosFunc_Run;
         }
@@ -433,7 +433,7 @@ namespace AliceScript.NameSpaces
     {
         public math_expFunc()
         {
-            this.FunctionName = "math_exp";
+            this.Name = "math_exp";
             this.MinimumArgCounts = 1;
             this.Run += Math_expFunc_Run;
         }
@@ -447,7 +447,7 @@ namespace AliceScript.NameSpaces
     {
         public math_floorFunc()
         {
-            this.FunctionName = "math_floor";
+            this.Name = "math_floor";
             this.MinimumArgCounts = 1;
             this.Run += Math_floorFunc_Run;
         }
@@ -489,7 +489,7 @@ namespace AliceScript.NameSpaces
     {
         public math_tanFunc()
         {
-            this.FunctionName = "math_tan";
+            this.Name = "math_tan";
             this.MinimumArgCounts = 1;
             this.Run += Math_cosFunc_Run;
         }
@@ -503,7 +503,7 @@ namespace AliceScript.NameSpaces
     {
         public math_tanhFunc()
         {
-            this.FunctionName = "math_tanh";
+            this.Name = "math_tanh";
             this.MinimumArgCounts = 1;
             this.Run += Math_cosFunc_Run;
         }
@@ -517,7 +517,7 @@ namespace AliceScript.NameSpaces
     {
         public math_truncateFunc()
         {
-            this.FunctionName = "math_truncate";
+            this.Name = "math_truncate";
             this.MinimumArgCounts = 1;
             this.Run += Math_cosFunc_Run;
         }

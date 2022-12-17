@@ -488,7 +488,7 @@ namespace AliceScript
         {
             foreach (var nm in script.UsingNamespaces)
             {
-                var fc = nm.Functions.Where((x) => x.FunctionName.ToLower() == name.ToLower()).FirstOrDefault();
+                var fc = nm.Functions.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
@@ -1146,12 +1146,12 @@ namespace AliceScript
             s_namespace = s_namespacePrefix = "";
         }
 
-        protected string m_name;
         public string Name
         {
             get { return m_name; }
             set { m_name = value; }
         }
+        protected string m_name = "";
 
         protected bool m_isGlobal = true;
         public bool isGlobal { get { return m_isGlobal; } set { m_isGlobal = value; } }

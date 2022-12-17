@@ -198,7 +198,7 @@ namespace AliceScript.NameSpaces
     {
         public web_send_pingFunc()
         {
-            FunctionName = "web_send_ping";
+            Name = "web_send_ping";
             MinimumArgCounts = 1;
             Run += W_pingFunc_Run;
 

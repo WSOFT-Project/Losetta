@@ -207,7 +207,7 @@ namespace AliceScript
 
         public static bool ExtractParameterNames(List<Variable> args, string functionName, ParsingScript script)
         {
-            CustomFunction custFunc = ParserFunction.GetFunction(functionName, script) as CustomFunction;
+            FunctionBase custFunc = ParserFunction.GetFunction(functionName, script) as FunctionBase;
             if (custFunc == null)
             {
                 return false;

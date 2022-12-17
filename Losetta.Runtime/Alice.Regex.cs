@@ -44,7 +44,7 @@ namespace AliceScript.NameSpaces
     {
         public str_IsMatchFunc()
         {
-            this.FunctionName = "IsMatch";
+            this.Name = "IsMatch";
             this.MinimumArgCounts = 1;
             this.RequestType = Variable.VarType.STRING;
             this.Run += Str_IsMatchFunc_Run;
@@ -59,7 +59,7 @@ namespace AliceScript.NameSpaces
     {
         public str_MatchesFunc()
         {
-            this.FunctionName = "Matches";
+            this.Name = "Matches";
             this.MinimumArgCounts = 1;
             this.RequestType = Variable.VarType.STRING;
             this.Run += Str_IsMatchFunc_Run;

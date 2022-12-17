@@ -56,7 +56,7 @@ namespace AliceScript
         {
             if (name == "")
             {
-                name = fb.FunctionName;
+                name = fb.Name;
             }
             name = name.ToLower();
             Functions.Add(name, fb);
@@ -66,7 +66,7 @@ namespace AliceScript
 
             if (name == "")
             {
-                name = fb.FunctionName;
+                name = fb.Name;
             }
             name = name.ToLower();
             if (Functions.ContainsKey(name))

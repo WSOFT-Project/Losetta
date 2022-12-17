@@ -20,11 +20,11 @@ namespace AliceScript
         protected override Variable Evaluate(ParsingScript script)
         {
             List<string> args = Utils.GetTokens(script);
-            Utils.CheckArgs(args.Count, 1, m_name);
+            Utils.CheckArgs(args.Count, 1, Name);
 
             var result = new Variable(Variable.VarType.POINTER);
             result.Pointer = args[0];
-            ParserFunction.AddGlobalOrLocalVariable(m_name,
+            ParserFunction.AddGlobalOrLocalVariable(Name,
                                         new GetVarFunction(result), script);
             return result;
         }

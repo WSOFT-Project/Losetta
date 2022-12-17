@@ -69,7 +69,7 @@ namespace AliceScript.NameSpaces
         public ImportFunc()
         {
 
-            this.FunctionName = "import";
+            this.Name = "import";
             this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
             this.MinimumArgCounts = 1;
             this.Run += ImportFunc_Run;
@@ -130,7 +130,7 @@ namespace AliceScript.NameSpaces
     {
         public ExitFunction()
         {
-            this.FunctionName = Constants.EXIT;
+            this.Name = Constants.EXIT;
             this.MinimumArgCounts = 0;
             this.Run += ExitFunction_Run;
         }

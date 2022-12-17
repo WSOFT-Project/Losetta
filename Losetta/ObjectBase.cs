@@ -7,8 +7,16 @@
         /// </summary>
         public string Name { get; set; }
 
-        public Dictionary<string, PropertyBase> Properties = new Dictionary<string, PropertyBase>();
-        public Dictionary<string, FunctionBase> Functions = new Dictionary<string, FunctionBase>();
+        public Dictionary<string, PropertyBase> Properties
+        {
+            get { return m_classProperties; }
+            set { m_classProperties = value; }
+        }
+        public Dictionary<string, FunctionBase> Functions
+        {
+            get { return m_customFunctions; }
+            set { m_customFunctions = value; }
+        }
         public Dictionary<string, Variable> Events = new Dictionary<string, Variable>();
 
         private bool m_handle_operator = false;

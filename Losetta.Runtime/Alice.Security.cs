@@ -35,7 +35,7 @@ namespace AliceScript.NameSpaces
 
         public Password_Hash()
         {
-            FunctionName = "password_hash";
+            Name = "password_hash";
             MinimumArgCounts = 2;
             Run += Class1_Run;
         }
@@ -66,7 +66,7 @@ namespace AliceScript.NameSpaces
 
         public Password_HashData()
         {
-            FunctionName = "password_hash_data";
+            Name = "password_hash_data";
             MinimumArgCounts = 2;
             Run += Class1_Run;
         }
@@ -96,7 +96,7 @@ namespace AliceScript.NameSpaces
     {
         public Password_Salt()
         {
-            FunctionName = "password_salt";
+            Name = "password_salt";
             MinimumArgCounts = 0;
             Run += Class3_Run;
         }
@@ -113,7 +113,7 @@ namespace AliceScript.NameSpaces
 
         public Password_Verify()
         {
-            FunctionName = "password_verify";
+            Name = "password_verify";
             MinimumArgCounts = 3;
             Run += Class1_Run;
         }
@@ -146,7 +146,7 @@ namespace AliceScript.NameSpaces
 
         public Password_VerifyData()
         {
-            FunctionName = "password_verify_data";
+            Name = "password_verify_data";
             MinimumArgCounts = 3;
             Run += Class1_Run;
         }

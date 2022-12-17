@@ -371,7 +371,7 @@ namespace AliceScript.NameSpaces
     {
         public Interpreter_NamespacesFunc()
         {
-            this.FunctionName = "Interpreter_Namespaces";
+            this.Name = "Interpreter_Namespaces";
             this.Run += NamespacesFunc_Run;
         }
 
