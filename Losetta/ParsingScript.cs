@@ -656,7 +656,7 @@ namespace AliceScript
                         }
                     }
                 }
-                catch (AccessViolationException exc)
+                catch (Exception exc)
                 {
                     if (!this.InTryBlock)
                     {
