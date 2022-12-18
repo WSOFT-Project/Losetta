@@ -21,6 +21,14 @@ namespace AliceScript.NameSpaces
                 space.Add(new ProcessObject());
                 space.Add(new ProcessStartInfoObject());
 
+                space.Add(new Debug_PrintFunction());
+                space.Add(new Debug_PrintFunction(true));
+                space.Add(new Debug_PrintFunction(true, true));
+                space.Add(new Debug_PrintFunction(false, true));
+                space.Add(new Debug_IndentFunction());
+                space.Add(new Debug_IndentFunction(true));
+                space.Add(new Debug_IndentLevelFunction());
+
                 space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
 
                 NameSpaceManerger.Add(space);
@@ -28,7 +36,126 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-  
+
+    internal class Debug_IndentFunction : FunctionBase
+    {
+        public Debug_IndentFunction(bool unindent = false)
+        {
+            m_UnIndent = unindent;
+            if (this.m_UnIndent)
+            {
+                this.Name = "Debug_Unindent";
+            }
+            else
+            {
+                this.Name = "Debug_Indent";
+            }
+            this.Run += Debug_IndentFunction_Run;
+        }
+
+        private void Debug_IndentFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            if (m_UnIndent && IndentLevel > 0)
+            {
+                IndentLevel--;
+            }
+            else if (!m_UnIndent)
+            {
+                IndentLevel++;
+            }
+        }
+        public static int IndentLevel = 0;
+        private bool m_UnIndent = false;
+    }
+
+    internal class Debug_IndentLevelFunction : FunctionBase
+    {
+        public Debug_IndentLevelFunction()
+        {
+            this.Name = "Debug_IndentLevel";
+            this.Run += Debug_IndentLevelFunction_Run;
+        }
+
+        private void Debug_IndentLevelFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.NUMBER)
+            {
+                Debug_IndentFunction.IndentLevel = e.Args[0].AsInt();
+            }
+            e.Return = new Variable(Debug_IndentFunction.IndentLevel);
+        }
+    }
+
+    internal class Debug_PrintFunction : FunctionBase
+    {
+        public Debug_PrintFunction(bool iswrite = false, bool isif = false)
+        {
+            string name = "Debug_";
+            if (iswrite)
+            {
+                name += "Write";
+            }
+            else
+            {
+                name += "Print";
+            }
+            if (isif)
+            {
+                name += "If";
+            }
+            if (isif)
+            {
+                this.MinimumArgCounts = 2;
+            }
+            else
+            {
+                this.MinimumArgCounts = 1;
+            }
+            m_isIf = isif;
+            m_isWrite = iswrite;
+            this.Name = name;
+            this.Run += PrintFunction_Run;
+        }
+        private bool m_isIf = false;
+        private bool m_isWrite = false;
+        private void PrintFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            if (!m_isIf || e.Args[0].AsBool())
+            {
+                int countnum = 0;
+                if (m_isIf) { countnum++; }
+                if (e.Args.Count == countnum)
+                {
+                    AddDebugOutput("", e.Script, !m_isWrite);
+                }
+                else if (e.Args.Count == countnum + 1)
+                {
+                    AddDebugOutput(e.Args[countnum].AsString(), e.Script, !m_isWrite);
+                }
+                else
+                {
+                    string format = e.Args[countnum].AsString();
+                    for (int i = 0; i < countnum + 1; i++)
+                    {
+                        e.Args.RemoveAt(0);
+                    }
+                    AddDebugOutput(StringFormatFunction.Format(format, e.Args), e.Script, !m_isWrite);
+                }
+            }
+        }
+
+        public static void AddDebugOutput(string text, ParsingScript script = null,
+                                     bool addLine = true, bool addSpace = true, string start = "", string indent = " ")
+        {
+            string indents = "";
+            for (int i = 0; i < Debug_IndentFunction.IndentLevel; i++)
+            {
+                indents += indent;
+            }
+            string output = indents + text + (addLine ? Environment.NewLine : string.Empty);
+            Interpreter.Instance.AppendDebug(output);
+        }
+    }
     class Process_StartFunc : FunctionBase
     {
         public Process_StartFunc()

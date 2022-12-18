@@ -42,17 +42,38 @@
             Name = name;
         }
 
+
+        public override string ToString()
+        {
+            var tsf = Functions.Keys.Where(x=>x.ToLower()=="tostring").FirstOrDefault();
+            if (tsf != null)
+            {
+                return Functions[tsf].Evaluate(new List<Variable>(),null,null).AsString();
+            }
+            else if (string.IsNullOrEmpty(this.Namespace))
+            {
+                return this.Name;
+            }
+            else
+            {
+                return this.Namespace + "." + this.Name;
+            }
+        }
+
         public virtual Variable GetImplementation(List<Variable> args, ParsingScript script)
         {
             if (m_constructor != null)
             {
                 var impl = m_constructor.Evaluate(args, script);
-                if (impl.Type == Variable.VarType.OBJECT)
+                if (impl.Type == Variable.VarType.OBJECT && impl.Object is ObjectBase  ob)
                 {
+                    ob.Namespace = this.Namespace;
                     return impl;
                 }
             }
-            return new Variable((ObjectBase)Activator.CreateInstance(this.GetType()));
+            var obase = (ObjectBase)Activator.CreateInstance(this.GetType());
+            obase.Namespace = this.Namespace;
+            return new Variable(obase);
         }
 
         public virtual List<string> GetProperties()

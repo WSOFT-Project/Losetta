@@ -771,15 +771,13 @@ namespace AliceScript
         {
             return m_byteArray;
         }
-        public virtual VarType AsType()
+        public virtual TypeObject AsType()
         {
-            /*
-            if (Type == VarType.TYPE)
+            if(Object != null && Object is AliceScriptClass c)
             {
-                return VariableType;
+                return new TypeObject(c);
             }
-            */
-            return Type;
+            return new TypeObject(Type);
         }
         public override string ToString()
         {
@@ -841,6 +839,7 @@ namespace AliceScript
             /*
             if (Type == VarType.TYPE)
             {
+                TODO:TypeToString
                 return Constants.TypeToString(VariableType);
             }
             */

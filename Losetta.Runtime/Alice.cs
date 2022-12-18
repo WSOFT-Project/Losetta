@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
     internal static class Alice_Initer
@@ -28,9 +26,6 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new SizeFunc());
             Variable.AddFunc(new LengthFunc());
             //複合関数(終わり)
-            //Type関数
-            Variable.AddFunc(new type_ActivateFunc());
-            //Type関数8(終わり)
             //String関数
             Variable.AddFunc(new string_TrimFunc(0), Constants.TRIM);
             Variable.AddFunc(new string_TrimFunc(1), Constants.TRIM_START);
@@ -107,6 +102,7 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new PrintFunction(true));
             FunctionBaseManerger.Add(new StringFormatFunction());
             FunctionBaseManerger.Add(new LockFunction());
+            FunctionBaseManerger.Add(new GetStringFunction());
         }
     }
 
@@ -185,7 +181,7 @@ namespace AliceScript.NameSpaces
 
         private void ConvertFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            
+
             if (e.Args[0].Type == Variable.VarType.OBJECT && e.Args[0].Object is TypeObject type)
             {
                 e.Return = e.CurentVariable.Convert(type.Type);
@@ -194,7 +190,7 @@ namespace AliceScript.NameSpaces
             {
                 ThrowErrorManerger.OnThrowError("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE);
             }
-            
+
         }
     }
 
@@ -598,7 +594,7 @@ namespace AliceScript.NameSpaces
     }
 
     //ここより下は変数(Variable)オブジェクトの関数です
-    
+
 
     internal class string_TrimFunc : FunctionBase
     {
@@ -1189,7 +1185,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-   
+
 
     internal class IncludeFile : FunctionBase
     {
@@ -1221,199 +1217,10 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class LockFunction : FunctionBase
-    {
-        public LockFunction()
-        {
-            this.Name = Constants.LOCK;
-            this.MinimumArgCounts = 1;
-            this.Run += LockFunction_Run;
-        }
-        private void LockFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-            ParsingScript parsingScript = e.Script.GetTempScript(body);
-            lock (e.Args[0])
-            {
-                parsingScript.ExecuteAll();
-            }
-        }
-    }
 
-    // Prints passed list of argumentsand
-    internal class PrintFunction : FunctionBase
-    {
-        public PrintFunction(bool isWrite = false)
-        {
-            if (isWrite)
-            {
-                this.Name = "write";
-                m_write = true;
-            }
-            else
-            {
-                this.Name = "print";
-            }
 
-            //AliceScript925から、Print関数は引数を持つ必要がなくなりました。
-            //this.MinimumArgCounts = 1;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.Run += PrintFunction_Run;
-        }
-        private bool m_write;
-        private void PrintFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count == 0)
-            {
-                AddOutput("", e.Script, !m_write);
-            }
-            else if (e.Args.Count == 1)
-            {
-                AddOutput(e.Args[0].AsString(), e.Script, !m_write);
-            }
-            else
-            {
-                string format = e.Args[0].AsString();
-                e.Args.RemoveAt(0);
-                AddOutput(StringFormatFunction.Format(format, e.Args), e.Script, !m_write);
-            }
-        }
 
-        public static void AddOutput(string text, ParsingScript script = null,
-                                     bool addLine = true, bool addSpace = true, string start = "")
-        {
 
-            string output = text + (addLine ? Environment.NewLine : string.Empty);
-            Interpreter.Instance.AppendOutput(output);
-
-        }
-    }
-    public class StringFormatFunction : FunctionBase
-    {
-        public StringFormatFunction()
-        {
-            this.Name = "string_format";
-            this.MinimumArgCounts = 1;
-            this.Run += StringFormatFunction_Run;
-        }
-
-        private void StringFormatFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string format = e.Args[0].AsString();
-            e.Args.RemoveAt(0);
-            e.Return = new Variable(Format(format, e.Args));
-        }
-
-        public static string Format(string format, List<Variable> args)
-        {
-            string text = format;
-            MatchCollection mc = Regex.Matches(format, @"{[0-9]+:?[a-z,A-Z]*}");
-            foreach (Match match in mc)
-            {
-                int mn = -1;
-                string indstr = match.Value.TrimStart('{').TrimEnd('}');
-                bool selectSubFormat = false;
-                string subFormat = "";
-                if (indstr.Contains(":"))
-                {
-                    string[] vs = indstr.Split(':');
-                    indstr = vs[0];
-                    if (!string.IsNullOrEmpty(vs[1]))
-                    {
-                        selectSubFormat = true;
-                        subFormat = vs[1];
-                    }
-                }
-                if (int.TryParse(indstr, out mn))
-                {
-                    if (args.Count > mn)
-                    {
-                        if (selectSubFormat)
-                        {
-                            switch (args[mn].Type)
-                            {
-                                case Variable.VarType.NUMBER:
-                                    {
-                                        switch (subFormat.ToLower())
-                                        {
-                                            case "c":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("c"));
-                                                    break;
-                                                }
-                                            case "d":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("d"));
-                                                    break;
-                                                }
-                                            case "e":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("e"));
-                                                    break;
-                                                }
-                                            case "f":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("f"));
-                                                    break;
-                                                }
-                                            case "g":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("g"));
-                                                    break;
-                                                }
-                                            case "n":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("n"));
-                                                    break;
-                                                }
-                                            case "p":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("p"));
-                                                    break;
-                                                }
-                                            case "r":
-                                                {
-                                                    text = text.Replace(match.Value, args[mn].Value.ToString("r"));
-                                                    break;
-                                                }
-                                            case "x":
-                                                {
-                                                    text = text.Replace(match.Value, ((int)args[mn].Value).ToString("x"));
-                                                    break;
-                                                }
-                                        }
-                                        break;
-                                    }
-                            }
-                        }
-                        else
-                        {
-                            if (args != null && args[mn] !=null)
-                            {
-                                text = text.Replace(match.Value, args[mn].AsString());
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //範囲外のためスキップ
-                        continue;
-                    }
-                }
-                else
-                {
-                    //数字ではないためスキップ
-                    continue;
-                }
-
-            }
-            return text;
-        }
-    }
- 
-
-    
     internal class list_ForeachFunc : FunctionBase
     {
         public list_ForeachFunc()

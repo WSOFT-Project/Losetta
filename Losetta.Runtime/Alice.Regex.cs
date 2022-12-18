@@ -20,25 +20,14 @@ namespace AliceScript.NameSpaces
                 space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Replace));
                 space.Add(new RegexSingleArgFunc(RegexSingleArgFunc.FuncMode.Split));
 
-                space.Loading += Space_Loading;
-                space.UnLoading += Space_UnLoading;
+                Variable.AddFunc(new str_IsMatchFunc());
+                Variable.AddFunc(new str_MatchesFunc());
 
                 NameSpaceManerger.Add(space);
             }
             catch { }
         }
 
-        private static void Space_UnLoading(object sender, ImportEventArgs e)
-        {
-            Variable.RemoveFunc(new str_IsMatchFunc());
-            Variable.AddFunc(new str_MatchesFunc());
-        }
-
-        private static void Space_Loading(object sender, ImportEventArgs e)
-        {
-            Variable.AddFunc(new str_IsMatchFunc());
-            Variable.AddFunc(new str_MatchesFunc());
-        }
     }
     class str_IsMatchFunc : FunctionBase
     {

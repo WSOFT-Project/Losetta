@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript
 {
     internal static class Alice_Interpreter_Initer
     {
@@ -31,13 +28,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new gc_gettotalmemoryFunc());
                 space.Add(new gc_collectafterexecuteFunc());
                 space.Add(new Function_ShowFunc());
-                space.Add(new Debug_PrintFunction());
-                space.Add(new Debug_PrintFunction(true));
-                space.Add(new Debug_PrintFunction(true, true));
-                space.Add(new Debug_PrintFunction(false, true));
-                space.Add(new Debug_IndentFunction());
-                space.Add(new Debug_IndentFunction(true));
-                space.Add(new Debug_IndentLevelFunction());
+                space.Add(new TypeObject());
 
                 NameSpaceManerger.Add(space);
             }
@@ -45,125 +36,6 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class Debug_IndentFunction : FunctionBase
-    {
-        public Debug_IndentFunction(bool unindent = false)
-        {
-            m_UnIndent = unindent;
-            if (this.m_UnIndent)
-            {
-                this.Name = "Debug_Unindent";
-            }
-            else
-            {
-                this.Name = "Debug_Indent";
-            }
-            this.Run += Debug_IndentFunction_Run;
-        }
-
-        private void Debug_IndentFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (m_UnIndent && IndentLevel > 0)
-            {
-                IndentLevel--;
-            }
-            else if (!m_UnIndent)
-            {
-                IndentLevel++;
-            }
-        }
-        public static int IndentLevel = 0;
-        private bool m_UnIndent = false;
-    }
-
-    internal class Debug_IndentLevelFunction : FunctionBase
-    {
-        public Debug_IndentLevelFunction()
-        {
-            this.Name = "Debug_IndentLevel";
-            this.Run += Debug_IndentLevelFunction_Run;
-        }
-
-        private void Debug_IndentLevelFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.NUMBER)
-            {
-                Debug_IndentFunction.IndentLevel = e.Args[0].AsInt();
-            }
-            e.Return = new Variable(Debug_IndentFunction.IndentLevel);
-        }
-    }
-
-    internal class Debug_PrintFunction : FunctionBase
-    {
-        public Debug_PrintFunction(bool iswrite = false, bool isif = false)
-        {
-            string name = "Debug_";
-            if (iswrite)
-            {
-                name += "Write";
-            }
-            else
-            {
-                name += "Print";
-            }
-            if (isif)
-            {
-                name += "If";
-            }
-            if (isif)
-            {
-                this.MinimumArgCounts = 2;
-            }
-            else
-            {
-                this.MinimumArgCounts = 1;
-            }
-            m_isIf = isif;
-            m_isWrite = iswrite;
-            this.Name = name;
-            this.Run += PrintFunction_Run;
-        }
-        private bool m_isIf = false;
-        private bool m_isWrite = false;
-        private void PrintFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (!m_isIf || e.Args[0].AsBool())
-            {
-                int countnum = 0;
-                if (m_isIf) { countnum++; }
-                if (e.Args.Count == countnum)
-                {
-                    AddDebugOutput("", e.Script, !m_isWrite);
-                }
-                else if (e.Args.Count == countnum + 1)
-                {
-                    AddDebugOutput(e.Args[countnum].AsString(), e.Script, !m_isWrite);
-                }
-                else
-                {
-                    string format = e.Args[countnum].AsString();
-                    for (int i = 0; i < countnum + 1; i++)
-                    {
-                        e.Args.RemoveAt(0);
-                    }
-                    AddDebugOutput(StringFormatFunction.Format(format, e.Args), e.Script, !m_isWrite);
-                }
-            }
-        }
-
-        public static void AddDebugOutput(string text, ParsingScript script = null,
-                                     bool addLine = true, bool addSpace = true, string start = "", string indent = " ")
-        {
-            string indents = "";
-            for (int i = 0; i < Debug_IndentFunction.IndentLevel; i++)
-            {
-                indents += indent;
-            }
-            string output = indents + text + (addLine ? Environment.NewLine : string.Empty);
-            Interpreter.Instance.AppendDebug(output);
-        }
-    }
 
     internal class Interpreter_NameExistsFunc : FunctionBase
     {
@@ -554,7 +426,7 @@ namespace AliceScript.NameSpaces
                 this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
                 this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
 
-                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this,AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadData));
+                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadData));
                 this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadText));
                 this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.Exists));
             }
@@ -660,10 +532,10 @@ namespace AliceScript.NameSpaces
                             }
                     }
                 }
-                
+
                 public enum AlicePackageObjectPropertyMode
                 {
-                    Name, Version, Description, Publisher,Target
+                    Name, Version, Description, Publisher, Target
                 }
                 public AlicePackageObjectPropertyMode Mode { get; set; }
                 public AlicePackageObject Host { get; set; }
@@ -729,7 +601,7 @@ namespace AliceScript.NameSpaces
             private void Interpreter_ScriptObject_GetVariable_Run(object sender, FunctionBaseEventArgs e)
             {
                 ParserFunction impl;
-                if(Host.Script.TryGetVariable(e.Args[0].AsString(),out impl)&&impl is GetVarFunction vf)
+                if (Host.Script.TryGetVariable(e.Args[0].AsString(), out impl) && impl is GetVarFunction vf)
                 {
                     e.Return = vf.Value;
                 }
@@ -819,7 +691,7 @@ namespace AliceScript.NameSpaces
             private Interpreter_ScriptObject Host;
             internal enum Interpreter_ScriptObject_Property_Mode
             {
-                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent,Package
+                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package
             }
             private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyGettingEventArgs e)
             {
@@ -948,4 +820,177 @@ namespace AliceScript.NameSpaces
         }
     }
 
+    public class TypeObject : ObjectBase
+    {
+        public TypeObject()
+        {
+            Init();
+        }
+        public TypeObject(Variable.VarType type)
+        {
+            Init();
+            Type = type;
+        }
+        public TypeObject(AliceScriptClass type)
+        {
+            Init();
+            this.ClassType = type;
+            foreach (var kvs in type.StaticFunctions)
+            {
+                this.Functions.Add(kvs.Key, kvs.Value);
+            }
+        }
+        private void Init()
+        {
+            this.Name = "Type";
+            this.Functions.Add("Activate", new ActivateFunction(this));
+            this.Functions.Add("ToString", new ToStringFunction(this));
+            this.Functions.Add("ToNativeProperty",new ToNativeProperty(this));
+            this.Properties.Add("IsObject",new IsObjectProperty(this));
+            this.Properties.Add("Namespace",new NamespaceProperty(this));
+            this.Properties.Add("Base",new BaseProperty(this));
+        }
+        public Variable.VarType Type { get; set; }
+        public AliceScriptClass ClassType { get; set; }
+        internal class NamespaceProperty : PropertyBase
+        {
+            public NamespaceProperty(TypeObject type)
+            {
+                this.Name = "Namespace";
+                this.HandleEvents = true;
+                this.CanSet = false;
+                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                {
+                    if (type.ClassType != null)
+                    {
+                        e.Value = new Variable(type.ClassType.Namespace);
+                    }
+                    else
+                    {
+                        e.Value = Variable.EmptyInstance;
+                    }
+                };
+            }
+        }
+        internal class BaseProperty : PropertyBase
+        {
+            public BaseProperty(TypeObject type)
+            {
+                this.Name = "Base";
+                this.HandleEvents = true;
+                this.CanSet = false;
+                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                {
+                    if (type.ClassType != null)
+                    {
+                        e.Value = new Variable(type.ClassType.BaseClasses);
+                    }
+                    else
+                    {
+                        e.Value = Variable.EmptyInstance;
+                    }
+                };
+            }
+        }
+        internal class IsObjectProperty : PropertyBase
+        {
+            public IsObjectProperty(TypeObject type)
+            {
+                this.Name = "IsObject";
+                this.HandleEvents = true;
+                this.CanSet = false;
+                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                {
+                    e.Value = new Variable(type.ClassType!=null);
+                };
+            }
+        }
+        internal class ToNativeProperty : FunctionBase
+        {
+            public ToNativeProperty(TypeObject type)
+            {
+                this.Name = "ToNativeProperty";
+                this.Run += delegate (object sender, FunctionBaseEventArgs e)
+                {
+                    if (type.ClassType != null)
+                    {
+                        e.Return = new Variable(Variable.VarType.OBJECT);
+                    }
+                    else
+                    {
+                        e.Return = new Variable(new TypeObject(type.Type));
+                    }
+                };
+            }
+        }
+        public bool Equals(TypeObject other)
+        {
+            if(this.ClassType!=null && other.ClassType != null)
+            {
+                return ClassType.ToString() == other.ClassType.ToString();
+            }
+            else if(this.ClassType != null || other.ClassType != null)
+            {
+                return false;
+            }
+            else
+            {
+                return this.Type==other.Type;
+            }
+        }
+        internal class ActivateFunction : FunctionBase
+        {
+            public ActivateFunction(TypeObject type)
+            {
+                this.Name = "Activate";
+                this.Run += Type_ActivateFunc_Run;
+                this.Type = type;
+            }
+            public TypeObject Type { get; set; }
+            private void Type_ActivateFunc_Run(object sender, FunctionBaseEventArgs e)
+            {
+                if (Type.ClassType != null)
+                {
+                    //TODO:非ObjectBaseのクラスのアクティベート
+                    ObjectBase csClass = Type.ClassType as ObjectBase;
+                    if (csClass != null)
+                    {
+                        Variable obj = csClass.GetImplementation(e.Args, e.Script);
+                        e.Return = obj;
+                        return;
+                    }
+                }
+                else
+                {
+                    e.Return = new Variable(Type.Type);
+                }
+            }
+        }
+        internal class ToStringFunction : FunctionBase
+        {
+            public ToStringFunction(TypeObject type)
+            {
+                this.Name = "ToString";
+                this.Run += ToStringFunction_Run;
+                this.Type = type;
+            }
+            public TypeObject Type { get; set; }
+            private void ToStringFunction_Run(object sender, FunctionBaseEventArgs e)
+            {
+                if(Type.ClassType !=null && Type.ClassType is TypeObject to)
+                {
+                    e.Return = new Variable("Alice.Interpreter.Type");
+                    return;
+                }
+                if (Type.ClassType != null)
+                {
+                    e.Return = new Variable(Type.ClassType.ToString());
+                }
+                else
+                {
+                    e.Return = new  Variable(Constants.TypeToString(Type.Type));
+                }
+            }
+        }
+    }
 }

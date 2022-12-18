@@ -101,6 +101,8 @@ namespace AliceScript
 
             RegisterFunctions();
             RegisterActions();
+
+            Alice_Interpreter_Initer.Init();
         }
 
         public void RegisterFunctions()
@@ -125,6 +127,7 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
 
             FunctionBaseManerger.Add(new FunctionCreator());
+
         }
 
 

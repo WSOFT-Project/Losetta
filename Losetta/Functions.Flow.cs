@@ -228,6 +228,8 @@ namespace AliceScript
             Name = className;
             RegisterClass(className, this);
 
+            this.BaseClasses = baseClasses;
+
             foreach (string baseClass in baseClasses)
             {
                 var bc = AliceScriptClass.GetClass(baseClass,script);
@@ -246,7 +248,13 @@ namespace AliceScript
                 }
             }
         }
-
+        /// <summary>
+        /// このクラスの継承元を表します。ない場合はnullとなります。
+        /// </summary>
+        public string[] BaseClasses
+        {
+            get;set;
+        }
         public Dictionary<string, FunctionBase> StaticFunctions
         {
             get { return m_static_customFunctions; }
@@ -375,7 +383,7 @@ namespace AliceScript
         public ParsingScript ParentScript = null;
         public int ParentOffset = 0;
 
-        public string Namespace { get; private set; }
+        public string Namespace { get; internal set; }
 
         public class ClassInstance : ScriptObject
         {

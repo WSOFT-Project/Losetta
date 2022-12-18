@@ -43,6 +43,7 @@ namespace AliceScript
         }
         public void Add(ObjectBase obj)
         {
+            obj.Namespace = this.Name;
             Classes.Add(obj);
         }
         public void Add(string name, string val)
@@ -53,12 +54,6 @@ namespace AliceScript
         {
             Functions.Remove(func);
         }
-        public void Clear()
-        {
-            Functions.Clear();
-        }
-        public event EventHandler<ImportEventArgs> Loading;
-        public event EventHandler<ImportEventArgs> UnLoading;
         
         public int Count
         {
@@ -69,12 +64,6 @@ namespace AliceScript
         }
 
     }
-    public class ImportEventArgs : EventArgs
-    {
-        public bool Cancel { get; set; }
-        public ParsingScript Script { get; set; }
-    }
-
    
 
 }

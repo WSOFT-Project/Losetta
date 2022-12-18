@@ -38,7 +38,10 @@ namespace AliceScript
             if (ex.Args == null) { ex.Args = new List<Variable>(); }
             ex.UseObjectResult = false;
             ex.ObjectResult = null;
-            ex.OriginalScript = script.OriginalScript;
+            if (script != null)
+            {
+                ex.OriginalScript = script.OriginalScript;
+            }
             ex.Return = Variable.EmptyInstance;
             ex.Script = script;
             ex.ClassInstance = instance;
