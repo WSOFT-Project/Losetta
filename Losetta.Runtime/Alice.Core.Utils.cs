@@ -234,6 +234,19 @@ namespace AliceScript.NameSpaces
 
         }
     }
+    public class ReadFunction : FunctionBase
+    {
+        public ReadFunction()
+        {
+            this.Name = "read";
+            this.Run += ReadFunction_Run;
+        }
+
+        private void ReadFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Interpreter.Instance.ReadInput());
+        }
+    }
     public class StringFormatFunction : FunctionBase
     {
         public StringFormatFunction()

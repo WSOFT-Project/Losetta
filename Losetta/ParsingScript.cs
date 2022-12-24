@@ -24,6 +24,13 @@ namespace AliceScript
         private List<NameSpace> m_namespace = new List<NameSpace>();
 
         /// <summary>
+        /// このスクリプトの現在の名前空間
+        /// </summary>
+        public NameSpace CurrentNamespace
+        {
+            get;set;
+        }
+        /// <summary>
         /// このスクリプトでusingされた名前空間の一覧
         /// </summary>
         public List<NameSpace> UsingNamespaces
@@ -214,6 +221,7 @@ namespace AliceScript
             Tag = other.Tag;
             Package = other.Package;
             Generation = other.Generation + 1;
+            CurrentNamespace = other.CurrentNamespace;
         }
 
         public int Size() { return m_data.Length; }

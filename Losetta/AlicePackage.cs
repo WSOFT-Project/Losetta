@@ -1,5 +1,7 @@
 ﻿using System.IO.Compression;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace AliceScript
 {
@@ -183,11 +185,11 @@ namespace AliceScript
         }
         public byte[] GetEntryData(string filename)
         {
-            return (GetEntryToData(archive.GetEntry(filename),filename));
+            return (GetEntryToData(archive.GetEntry(filename), filename));
         }
         public string GetEntryText(string filename)
         {
-            return GetEntryScript(archive.GetEntry(filename),filename);
+            return GetEntryScript(archive.GetEntry(filename), filename);
         }
         internal static byte[] GetEntryToData(ZipArchiveEntry e, string filename)
         {
@@ -225,8 +227,50 @@ namespace AliceScript
                 return null;
             }
         }
-        public static void CreateEncodingPackage(string filepath, string outfilepath, byte[] controlCode = null)
+        internal static byte[] GetByteArrayFromStream(Stream sm)
         {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                sm.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+        public static void CreateEncodingPackage(string filepath, string outfilepath, byte[] controlCode = null,bool minify=true)
+        {
+            //Zipファイルを開く
+            if (minify)
+            {
+                using (ZipArchive a = ZipFile.Open(filepath, ZipArchiveMode.Update))
+                {
+                    Dictionary<string, byte[]> scripts = new Dictionary<string, byte[]>();
+                    List<ZipArchiveEntry> deletes = new List<ZipArchiveEntry>();
+                    foreach (ZipArchiveEntry entry in a.Entries)
+                    {
+                        if (entry.Name.EndsWith(".alice"))
+                        {
+                            Stream sw = entry.Open();
+                            string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _);
+                            int old = script.Length;
+                            script = Utils.ConvertToScript(script, out _, entry.FullName);
+                            byte[] script_data = Encoding.UTF8.GetBytes(script);
+                            string fn = entry.FullName;
+                            sw.Close();
+                            deletes.Add(entry);
+                            scripts.Add(fn, script_data);
+                        }
+                    }
+                    foreach (var e in deletes)
+                    {
+                        e.Delete();
+                    }
+                    foreach (string raw in scripts.Keys)
+                    {
+                        var ne = a.CreateEntry(raw, CompressionLevel.NoCompression);
+                        ne.Open().Write(scripts[raw], 0, scripts[raw].Length);
+                    }
+                }
+            }
+
             int i, len;
             byte[] buffer = new byte[4096];
             byte[] data = File.ReadAllBytes(filepath);

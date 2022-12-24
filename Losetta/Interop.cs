@@ -8,7 +8,7 @@ namespace AliceScript.Interop
         {
             try
             {
-                byte[] raw=File.ReadAllBytes(path);
+                byte[] raw = File.ReadAllBytes(path);
                 LoadLibrary(raw);
             }
             catch (Exception ex) { ThrowErrorManerger.OnThrowError(ex.Message, Exceptions.FILE_NOT_FOUND); }
@@ -28,22 +28,19 @@ namespace AliceScript.Interop
                     {
                         //アセンブリ内のすべての型について、
                         //プラグインとして有効か調べる
-                        if (t.IsClass && t.IsPublic && !t.IsAbstract )
+                        if (t.IsClass && t.IsPublic && !t.IsAbstract)
                         {
                             if (t.GetInterface(ipluginName) != null)
                             {
-                                if (Loadeds.Contains(asm.GetHashCode()))
-                                {
-                                    ThrowErrorManerger.OnThrowError("そのライブラリはすでに読み込まれています", Exceptions.LIBRARY_ALREADY_LOADED);
-                                }
-                                else
+                                if (!Loadeds.Contains(asm.GetHashCode()))
                                 {
                                     Loadeds.Add(asm.GetHashCode());
                                     ((ILibrary)asm.CreateInstance(t.FullName)).Main();
                                 }
-                            }else if (t.IsSubclassOf(typeof(ObjectBase)) && t.GetCustomAttribute(typeof(ScriptClass))!=null)
+                            }
+                            else if (t.IsSubclassOf(typeof(ObjectBase)) && t.GetCustomAttribute(typeof(ScriptClass)) != null)
                             {
-                                
+
                             }
                         }
                     }

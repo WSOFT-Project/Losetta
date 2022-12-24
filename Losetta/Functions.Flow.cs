@@ -628,8 +628,6 @@ namespace AliceScript
             string namespaceName = Utils.GetToken(script, Constants.NEXT_OR_END_ARRAY);
             //Utils.CheckNotEnd(script, m_name);
             Variable result = null;
-
-            ParserFunction.AddNamespace(namespaceName);
             try
             {
                 script.MoveForwardIf(Constants.START_GROUP);
@@ -671,6 +669,8 @@ namespace AliceScript
             m_body = body;
             m_tag = tag;
             m_forceReturn = forceReturn;
+
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
 
             this.Run += CustomFunction_Run;
 
@@ -800,11 +800,11 @@ namespace AliceScript
                         trueArgs[i] = argName;
 
                     }
-
                     ArgMap[trueArgs[i]] = i;
                 }
                 m_args = RealArgs = trueArgs.ToArray();
             }
+
         }
 
         private void CustomFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -816,13 +816,13 @@ namespace AliceScript
 
             Utils.ExtractParameterNames(args, m_name, e.Script);
 
-            e.Script.MoveBackIf(Constants.START_GROUP);
             if (m_args == null)
             {
                 m_args = new string[0];
             }
             if (args.Count + m_defaultArgs.Count < m_args.Length)
             {
+                Console.WriteLine(args.Count+" "+m_args.Length);
                 ThrowErrorManerger.OnThrowError("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
 
                 return;

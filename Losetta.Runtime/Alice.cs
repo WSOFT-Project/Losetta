@@ -100,6 +100,7 @@
             FunctionBaseManerger.Add(new DelegateCreator(), "_");
             FunctionBaseManerger.Add(new PrintFunction());
             FunctionBaseManerger.Add(new PrintFunction(true));
+            FunctionBaseManerger.Add(new ReadFunction());
             FunctionBaseManerger.Add(new StringFormatFunction());
             FunctionBaseManerger.Add(new LockFunction());
             FunctionBaseManerger.Add(new GetStringFunction());

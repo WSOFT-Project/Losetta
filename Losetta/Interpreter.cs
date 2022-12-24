@@ -11,7 +11,10 @@ namespace AliceScript
         }
         public string Output { get; set; }
     }
-
+    public class ReadInputEventArgs : EventArgs
+    {
+        public string Input { get; set; }
+    }
 
     public partial class Interpreter
     {
@@ -54,7 +57,23 @@ namespace AliceScript
         public event EventHandler<OutputAvailableEventArgs> OnOutput;
         public event EventHandler<OutputAvailableEventArgs> OnData;
         public event EventHandler<OutputAvailableEventArgs> OnDebug;
+        public event EventHandler<ReadInputEventArgs> OnInput;
 
+        public string ReadInput()
+        {
+            var handler = OnInput;
+            if (handler != null)
+            {
+                var args = new ReadInputEventArgs();
+                handler(this, args);
+                return args.Input;
+            }
+            else
+            {
+                return Console.ReadLine();
+            }
+
+        }
         public void AppendOutput(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnOutput;

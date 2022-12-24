@@ -239,10 +239,6 @@ namespace AliceScript
         /// </summary>
         UNBALANCED_QUOTES=0x039,
         /// <summary>
-        /// ライブラリはすでに読み込まれています
-        /// </summary>
-        LIBRARY_ALREADY_LOADED=0x03a,
-        /// <summary>
         /// パッケージが存在しません
         /// </summary>
         COULDNT_FIND_PACKAGE=0x03b,
