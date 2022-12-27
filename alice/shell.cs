@@ -304,26 +304,30 @@ namespace alice
             contents.Add("Content");
             foreach (string s in dic.Keys)
             {
-                if (dic[s] is GetVarFunction vf)
+                try
                 {
-                    names.Add(s);
-                    if (s.Length > namemax)
+                    if (dic[s] is GetVarFunction vf)
                     {
-                        namemax = s.Length;
-                    }
-                    string type = vf.Value.Type.ToString();
-                    types.Add(type);
-                    if (type.Length > typemax)
-                    {
-                        typemax = type.Length;
-                    }
-                    string content = vf.Value.AsString();
-                    contents.Add(content);
-                    if (content.Length > contentmax)
-                    {
-                        contentmax = content.Length;
+                        names.Add(s);
+                        if (s.Length > namemax)
+                        {
+                            namemax = s.Length;
+                        }
+                        string type = vf.Value.Type.ToString();
+                        types.Add(type);
+                        if (type.Length > typemax)
+                        {
+                            typemax = type.Length;
+                        }
+                        string content = vf.Value.AsString();
+                        contents.Add(content);
+                        if (content.Length > contentmax)
+                        {
+                            contentmax = content.Length;
+                        }
                     }
                 }
+                catch { }
             }
             for (int i = 0; i < names.Count; i++)
             {

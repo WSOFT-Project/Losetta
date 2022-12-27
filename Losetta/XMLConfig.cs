@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -61,14 +60,8 @@ namespace AliceScript
         /// </summary>
         public string XMLText
         {
-            get
-            {
-                return xmlText;
-            }
-            set
-            {
-                xmlText = value;
-            }
+            get => xmlText;
+            set => xmlText = value;
         }
         private string[] CountSplit(string str, int count)
         {
@@ -104,8 +97,6 @@ namespace AliceScript
         {
             try
             {
-
-
                 if (path.EndsWith("/")) { path = path + "/default"; }
 
                 if (!Exists(path))
@@ -118,7 +109,7 @@ namespace AliceScript
                 if (xml.SelectSingleNode("package/" + path) != null)
                 {
                     string str = xml.SelectSingleNode("package/" + path).InnerText;
-                        return str;
+                    return str;
                 }
                 else
                 {
@@ -135,7 +126,7 @@ namespace AliceScript
         /// <param name="name">読み込みたい属性の名前</param>
         /// <param name="defaultText">読み込みに失敗した場合に返されるテキスト(省略可)</param>
         /// <returns>指定されたパスに存在する属性値</returns>
-        public string ReadAttribute(string path,string name,string defaultText = "")
+        public string ReadAttribute(string path, string name, string defaultText = "")
         {
             try
             {
@@ -173,7 +164,7 @@ namespace AliceScript
         /// <param name="path">存在を確認したいパス</param>
         /// <param name="name">存在を確認したい属性の名前</param>
         /// <returns>存在している場合はTrue、存在していない場合はFalseを返します</returns>
-        public bool ExistsAttribute(string path,string name)
+        public bool ExistsAttribute(string path, string name)
         {
             try
             {
@@ -188,7 +179,7 @@ namespace AliceScript
                 if (xml.SelectSingleNode("package/" + path) != null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
-                    return (ContainsAttribute(node, name)) ;
+                    return (ContainsAttribute(node, name));
                 }
                 else
                 {
