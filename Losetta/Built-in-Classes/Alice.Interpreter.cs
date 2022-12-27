@@ -13,6 +13,7 @@ namespace AliceScript
 
                 space.Add(new Interpreter_Reset_VariablesFunc());
                 space.Add(new Interpreter_Append_OutputOrDataFunc());
+                space.Add(new Interpreter_GetParentFunc());
                 space.Add(new Interpreter_Append_OutputOrDataFunc(true));
                 space.Add(new Interpreter_NameExistsFunc());
                 space.Add(new Interpreter_ProcessOrFileFunc());
@@ -24,8 +25,6 @@ namespace AliceScript
                 space.Add(new Interpreter_NameFunc());
                 space.Add(new GetPackageFunc());
                 space.Add(new Interpreter_ConstsFunc());
-                space.Add(new ScheduleRunFunction(true));
-                space.Add(new ScheduleRunFunction(false));
                 space.Add(new Interpreter_GetScriptFunc());
                 space.Add(new gc_collectFunc());
                 space.Add(new gc_gettotalmemoryFunc());
@@ -38,7 +37,27 @@ namespace AliceScript
         }
     }
 
+    internal class Interpreter_GetParentFunc : FunctionBase
+    {
+        public Interpreter_GetParentFunc()
+        {
+            this.Name = "Interpreter_GetParent";
+            this.MinimumArgCounts = 1;
+            this.Run += Interpreter_GetParentFunc_Run;
+        }
 
+        private void Interpreter_GetParentFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            if (e.Args[0].Type==Variable.VarType.OBJECT && e.Args[0].Object is Interpreter_ScriptObject o)
+            {
+                e.Return = new Variable(new Interpreter_ScriptObject(o.Script.ParentScript));
+            }
+            else if (e.Args[0].Parent!=null)
+            {
+                e.Return = new Variable(new Interpreter_ScriptObject(e.Args[0].Parent));
+            }
+        }
+    }
     internal class Interpreter_NameExistsFunc : FunctionBase
     {
         public Interpreter_NameExistsFunc()
@@ -280,70 +299,7 @@ namespace AliceScript
         }
     }
 
-    internal class ScheduleRunFunction : FunctionBase
-    {
-        private static Dictionary<string, System.Timers.Timer> m_timers =
-           new Dictionary<string, System.Timers.Timer>();
-        private bool m_startTimer;
-
-        public ScheduleRunFunction(bool startTimer)
-        {
-            if (startTimer)
-            {
-                this.Name = "Interpreter_Scadule";
-            }
-            else { this.Name = "Interpreter_Scadule_Cancel"; }
-            this.MinimumArgCounts = 4;
-            m_startTimer = startTimer;
-            this.Run += ScheduleRunFunction_Run;
-        }
-
-        private void ScheduleRunFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (!m_startTimer)
-            {
-                string cancelTimerId = Utils.GetSafeString(e.Args, 0);
-                System.Timers.Timer cancelTimer;
-                if (m_timers.TryGetValue(cancelTimerId, out cancelTimer))
-                {
-                    cancelTimer.Stop();
-                    cancelTimer.Dispose();
-                    m_timers.Remove(cancelTimerId);
-                }
-                e.Return = Variable.EmptyInstance;
-            }
-            int timeout = e.Args[0].AsInt();
-            DelegateObject delAction = e.Args[3].AsDelegate();
-            string timerId = Utils.GetSafeString(e.Args, 1);
-            bool autoReset = (Utils.GetSafeBool(e.Args, 2));
-
-            timerId = Utils.ProtectQuotes(timerId);
-            List<Variable> args = new List<Variable>();
-            if (e.Args.Count > 4)
-            {
-                //引数が登録されているとき
-                args = e.Args.GetRange(4, e.Args.Count - 4);
-            }
-
-            System.Timers.Timer pauseTimer = new System.Timers.Timer(timeout);
-            pauseTimer.Elapsed += (senders, ex) =>
-            {
-                if (!autoReset)
-                {
-                    pauseTimer.Stop();
-                    pauseTimer.Dispose();
-                    m_timers.Remove(timerId);
-                }
-                delAction.Invoke(args, e.Script);
-            };
-            pauseTimer.AutoReset = autoReset;
-            m_timers[timerId] = pauseTimer;
-
-            pauseTimer.Start();
-
-            e.Return = Variable.EmptyInstance;
-        }
-    }
+   
 
     internal class Interpreter_GetScriptFunc : FunctionBase
     {
@@ -566,7 +522,7 @@ namespace AliceScript
 
             Script = script;
         }
-        private ParsingScript Script;
+        internal ParsingScript Script;
         private class Interpreter_ScriptObject_GetVariable : FunctionBase
         {
             public Interpreter_ScriptObject_GetVariable(Interpreter_ScriptObject host)
