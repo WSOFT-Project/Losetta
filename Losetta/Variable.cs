@@ -1553,6 +1553,11 @@ namespace AliceScript
         public string CustomGet { get; set; }
         public string CustomSet { get; set; }
 
+        /// <summary>
+        /// この変数が定義された元のスクリプトを表します
+        /// </summary>
+        public ParsingScript Parent { get; set; }
+
         public List<Variable> StackVariables { get; set; }
 
         public static Variable EmptyInstance = new Variable();

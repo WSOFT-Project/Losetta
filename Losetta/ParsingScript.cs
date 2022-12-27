@@ -256,19 +256,22 @@ namespace AliceScript
             }
             return false;
         }
-        public bool ContainsVariable(string name)
+        public bool ContainsVariable(string name,out ParserFunction func)
         {
             if (Variables.ContainsKey(name))
             {
+                func = Variables[name];
                 return true;
             }
             else
             {
-                if (ParentScript != null && ParentScript.ContainsVariable(name))
+                if (ParentScript != null && ParentScript.ContainsVariable(name,out var f))
                 {
+                    func = f;
                     return true;
                 }
             }
+            func = null;
             return false;
         }
         public bool TryGetConst(string name, out ParserFunction function)

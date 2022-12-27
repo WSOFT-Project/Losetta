@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -376,7 +375,7 @@ namespace AliceScript
             }
 
             //定数に存在するか確認
-            if(script!=null&&script.TryGetConst(name,out impl)&&impl!=null)
+            if (script != null && script.TryGetConst(name, out impl) && impl != null)
             {
                 return impl.NewInstance();
             }
@@ -386,7 +385,7 @@ namespace AliceScript
             }
 
             //関数として取得を続行
-            return GetFunction(name, script,true);
+            return GetFunction(name, script, true);
         }
 
         public static Variable GetVariableValue(string name, ParsingScript script = null)
@@ -419,7 +418,7 @@ namespace AliceScript
             return null;
         }
 
-        public static ParserFunction GetFunction(string name, ParsingScript script,bool toDelegate=false)
+        public static ParserFunction GetFunction(string name, ParsingScript script, bool toDelegate = false)
         {
             //TODO:関数の取得部分
             name = Constants.ConvertName(name);
@@ -427,7 +426,7 @@ namespace AliceScript
             if (script.TryGetFunction(name, out impl))
             {
                 //ローカル関数として登録されている
-                if(toDelegate&&impl is CustomFunction cf)
+                if (toDelegate && impl is CustomFunction cf)
                 {
                     return new GetVarFunction(new Variable(cf));
                 }
@@ -451,7 +450,7 @@ namespace AliceScript
                 }
             }
 
-            var fc = GetFromNS(name,script);
+            var fc = GetFromNS(name, script);
             if (fc != null)
             {
                 return fc;
@@ -474,7 +473,7 @@ namespace AliceScript
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename+"."+x.Name.ToLower())).FirstOrDefault();
+                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower())).FirstOrDefault();
                     if (fc != null)
                     {
                         return fc;
@@ -489,7 +488,7 @@ namespace AliceScript
 
             return GetFromNamespace(name, script);
         }
-        private static ParserFunction GetFromNS(string name,ParsingScript script)
+        private static ParserFunction GetFromNS(string name, ParsingScript script)
         {
             foreach (var nm in script.UsingNamespaces)
             {
@@ -498,15 +497,15 @@ namespace AliceScript
                 {
                     return fc;
                 }
-                var cc = nm.Classes.Where((x)=>x.Name.ToLower()==name.ToLower()).FirstOrDefault();
-                if(cc != null)
+                var cc = nm.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                if (cc != null)
                 {
                     return new GetVarFunction(new Variable(new TypeObject(cc)));
                 }
             }
             if (script.ParentScript != null)
             {
-                return GetFromNS(name,script.ParentScript);
+                return GetFromNS(name, script.ParentScript);
             }
             return null;
         }
@@ -556,7 +555,7 @@ namespace AliceScript
         }
 
         public static void AddGlobalOrLocalVariable(string name, GetVarFunction function,
-            ParsingScript script, bool localIfPossible = false, bool registVar = false,bool globalOnly=false)
+            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false)
         {
             name = Constants.ConvertName(name);
             Utils.CheckLegalName(name, script);
@@ -574,6 +573,7 @@ namespace AliceScript
             {
                 script.StackLevel.Variables[name] = function;
             }
+
 
             if (globalOnly)
             {
@@ -680,7 +680,7 @@ namespace AliceScript
 
         public static bool LocalNameExists(string name, ParsingScript script)
         {
-            if (script != null && (script.ContainsVariable(name) || script.ContainsFunction(name) || script.ContainsConst(name)))
+            if (script != null && (script.ContainsVariable(name,out _) || script.ContainsFunction(name) || script.ContainsConst(name)))
             {
                 return true;
             }
@@ -696,10 +696,10 @@ namespace AliceScript
         public static bool GlobalNameExists(string name)
         {
             name = Constants.ConvertName(name);
-            return s_variables.ContainsKey(name) || s_functions.ContainsKey(name)||Constants.CONSTS.ContainsKey(name);
+            return s_variables.ContainsKey(name) || s_functions.ContainsKey(name) || Constants.CONSTS.ContainsKey(name);
         }
 
-        public static Variable RegisterEnum(string varName, string enumName,ParsingScript script=null)
+        public static Variable RegisterEnum(string varName, string enumName, ParsingScript script = null)
         {
             Variable enumVar = EnumFunction.UseExistingEnum(enumName);
             if (enumVar == Variable.EmptyInstance)
@@ -712,7 +712,7 @@ namespace AliceScript
             }
             else
             {
-                RegisterScriptFunction(varName,new GetVarFunction(enumVar),script);
+                RegisterScriptFunction(varName, new GetVarFunction(enumVar), script);
             }
             return enumVar;
         }
@@ -749,7 +749,7 @@ namespace AliceScript
                 ThrowErrorManerger.OnThrowError("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
             }
         }
-        public static void RegisterScriptFunction(string name,ParserFunction function,ParsingScript script,bool isNative=true,bool isLocal=true)
+        public static void RegisterScriptFunction(string name, ParserFunction function, ParsingScript script, bool isNative = true, bool isLocal = true)
         {
             name = Constants.ConvertName(name);
             function.Name = Constants.GetRealName(name);
@@ -764,8 +764,8 @@ namespace AliceScript
                     name = s_namespacePrefix + name;
                 }
             }
-            ParserFunction impl=null;
-            if(isLocal&&(!script.ContainsFunction(name)||(script.TryGetFunction(name,out impl) && impl.IsVirtual)))
+            ParserFunction impl = null;
+            if (isLocal && (!script.ContainsFunction(name) || (script.TryGetFunction(name, out impl) && impl.IsVirtual)))
             {
                 //ローカル関数でまだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 script.Functions[name] = function;
@@ -775,7 +775,7 @@ namespace AliceScript
                     impl.IsVirtual = true;
                 }
             }
-            else if (!isLocal&&(!s_functions.ContainsKey(name) || (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)))
+            else if (!isLocal && (!s_functions.ContainsKey(name) || (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)))
             {
                 //まだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 s_functions[name] = function;
@@ -791,7 +791,7 @@ namespace AliceScript
                 ThrowErrorManerger.OnThrowError("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
             }
         }
-        public static bool UnregisterScriptFunction(string name,ParsingScript script)
+        public static bool UnregisterScriptFunction(string name, ParsingScript script)
         {
             name = Constants.ConvertName(name);
             if (script != null && script.Functions.Remove(name))
@@ -987,61 +987,78 @@ namespace AliceScript
             }
         }
 
-        public static void AddLocalVariable(ParserFunction local, ParsingScript script, string varName = "", bool setScript = true,bool registVar=false)
+        public static void AddLocalVariable(ParserFunction local, ParsingScript script, string varName = "", bool setScript = true, bool registVar = false)
         {
             NormalizeValue(local);
-                local.m_isGlobal = false;
-                if (setScript)
+            local.m_isGlobal = false;
+            if (setScript)
+            {
+                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
+
+                local.Name = Constants.GetRealName(name);
+                if (local is GetVarFunction)
                 {
-                    var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
-                    
-                    local.Name = Constants.GetRealName(name);
-                    if (local is GetVarFunction)
+                    ((GetVarFunction)local).Value.ParamName = local.Name;
+                }
+                bool exists = script.ContainsVariable(name,out var func);
+                if (exists && registVar)
+                {
+                    ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
+                    return;
+                }
+                else if (!exists && !registVar && !string.IsNullOrEmpty(name))
+                {
+                    ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
+                    return;
+                }
+                if (func is GetVarFunction v)
+                {
+                    //代入の場合
+                    if (v.Value.Parent == null)
                     {
-                        ((GetVarFunction)local).Value.ParamName = local.Name;
+                        v.Value.Parent = script;
                     }
-                    bool exists = script.ContainsVariable(name);
-                    if (exists && registVar)
-                    {
-                        ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
-                        return;
-                    }
-                    else if (!exists && !registVar && !string.IsNullOrEmpty(name))
-                    {
-                        ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
-                        return;
-                    }
-                    script.Variables[name] = local;
+                    v.Value.Parent.Variables[name] = local;
                 }
                 else
                 {
-                    lock (s_variables)
+                    //変数定義の場合
+                    if(local is GetVarFunction v2)
                     {
-
-                        if (s_lastExecutionLevel == null)
-                        {
-                            s_lastExecutionLevel = new StackLevel();
-                            s_locals.Push(s_lastExecutionLevel);
-                        }
+                        v2.Value.Parent = script;
                     }
+                    script.Variables[name] = local;
+                }
+            }
+            else
+            {
+                lock (s_variables)
+                {
 
-                    var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
-                    local.Name = Constants.GetRealName(name);
-                    if (local is GetVarFunction)
+                    if (s_lastExecutionLevel == null)
                     {
-                        ((GetVarFunction)local).Value.ParamName = local.Name;
-                    }
-
-                    var handle = OnVariableChange;
-                    bool exists = handle != null && s_lastExecutionLevel.Variables.ContainsKey(name);
-
-                    s_lastExecutionLevel.Variables[name] = local;
-
-                    if (handle != null && local is GetVarFunction)
-                    {
-                        handle.Invoke(local.Name, ((GetVarFunction)local).Value, exists);
+                        s_lastExecutionLevel = new StackLevel();
+                        s_locals.Push(s_lastExecutionLevel);
                     }
                 }
+
+                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
+                local.Name = Constants.GetRealName(name);
+                if (local is GetVarFunction)
+                {
+                    ((GetVarFunction)local).Value.ParamName = local.Name;
+                }
+
+                var handle = OnVariableChange;
+                bool exists = handle != null && s_lastExecutionLevel.Variables.ContainsKey(name);
+
+                s_lastExecutionLevel.Variables[name] = local;
+
+                if (handle != null && local is GetVarFunction)
+                {
+                    handle.Invoke(local.Name, ((GetVarFunction)local).Value, exists);
+                }
+            }
         }
 
         public static void PopLocalVariables(int id)
@@ -1158,16 +1175,16 @@ namespace AliceScript
 
         public string Name
         {
-            get { return m_name; }
-            set { m_name = value; }
+            get => m_name;
+            set => m_name = value;
         }
         protected string m_name = "";
 
         protected bool m_isGlobal = true;
-        public bool isGlobal { get { return m_isGlobal; } set { m_isGlobal = value; } }
+        public bool isGlobal { get => m_isGlobal; set => m_isGlobal = value; }
 
         protected bool m_isNative = true;
-        public bool isNative { get { return m_isNative; } set { m_isNative = value; } }
+        public bool isNative { get => m_isNative; set => m_isNative = value; }
 
         private ParserFunction m_impl;
 
@@ -1214,14 +1231,14 @@ namespace AliceScript
         // Local variables:
         // Stack of the functions being executed:
         private static Stack<StackLevel> s_locals = new Stack<StackLevel>();
-        public static Stack<StackLevel> ExecutionStack { get { return s_locals; } }
+        public static Stack<StackLevel> ExecutionStack => s_locals;
 
         private static StackLevel s_lastExecutionLevel;
         private static Dictionary<string, StackLevel> s_namespaces = new Dictionary<string, StackLevel>();
         private static string s_namespace;
         private static string s_namespacePrefix;
 
-        public static string GetCurrentNamespace { get { return s_namespace; } }
+        public static string GetCurrentNamespace => s_namespace;
 
         private static StringOrNumberFunction s_strOrNumFunction =
           new StringOrNumberFunction();
@@ -1234,6 +1251,6 @@ namespace AliceScript
     public abstract class ActionFunction : ParserFunction
     {
         protected string m_action;
-        public string Action { set { m_action = value; } }
+        public string Action { set => m_action = value; }
     }
 }
