@@ -1,4 +1,7 @@
-﻿namespace AliceScript.NameSpaces
+﻿using System;
+using System.Collections.Generic;
+
+namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
     internal static class Alice_Initer

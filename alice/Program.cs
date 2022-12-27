@@ -1,19 +1,18 @@
-﻿using System;
+﻿using AliceScript;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using WSOFT.ConfigManerger;
-using AliceScript;
 using System.IO.Compression;
 
 namespace alice
 {
-    class Program
+    internal class Program
     {
         /// <summary>
         /// アプリケーションのメインエントリポイントです
         /// </summary>
         /// <param name="args"></param>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
@@ -22,7 +21,7 @@ namespace alice
                 //実行モード
                 if (pa.Values.ContainsKey("print"))
                 {
-                    if (pa.Values["print"].ToLower()=="off")
+                    if (pa.Values["print"].ToLower() == "off")
                     {
                         allow_print = false;
                     }
@@ -56,9 +55,10 @@ namespace alice
                 Interpreter.Instance.OnOutput += Instance_OnOutput;
                 foreach (string fn in pa.Files)
                 {
-                    Alice.ExecuteFile(fn,mainfile);
+                    Alice.ExecuteFile(fn, mainfile);
                 }
-            }else if (pa.Flags.Contains("p") || pa.Flags.Contains("pkg") || pa.Flags.Contains("package"))
+            }
+            else if (pa.Flags.Contains("p") || pa.Flags.Contains("pkg") || pa.Flags.Contains("package"))
             {
                 //パッケージ実行モード
                 if (pa.Values.ContainsKey("print"))
@@ -97,18 +97,19 @@ namespace alice
                 Interpreter.Instance.OnOutput += Instance_OnOutput;
                 foreach (string fn in pa.Files)
                 {
-                        AlicePackage.Load(Path.GetFileName(fn));
+                    AlicePackage.Load(Path.GetFileName(fn));
                 }
-            }else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
+            }
+            else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
             {
                 //パッケージ生成モード
                 string outfile;
-                if (pa.Values.TryGetValue("out",out outfile))
+                if (pa.Values.TryGetValue("out", out outfile))
                 {
                     int success = 0;
                     int error = 0;
                     int total = 1;
-                    foreach(string fn in pa.Files)
+                    foreach (string fn in pa.Files)
                     {
                         if (BuildPackage(fn, outfile, total))
                         {
@@ -119,16 +120,28 @@ namespace alice
                             error++;
                         }
                     }
-                    Console.WriteLine("ビルド: "+success+" 成功、"+error+" 失敗");
+                    Console.WriteLine("ビルド: " + success + " 成功、" + error + " 失敗");
                 }
                 else
                 {
                     Console.WriteLine("有効な出力先を指定してください");
                 }
             }
+            else if(pa.Flags.Contains("v") || pa.Flags.Contains("version"))
+            {
+                //バージョン表示
+                Console.WriteLine(VersionText);
+            }
             else
             {
                 Shell.Do(args);
+            }
+        }
+       internal static string VersionText
+        {
+            get
+            {
+                return "AliceScript バージョン " + Alice.Version.ToString() + " ("+Alice.ImplementationName+" v" + Alice.ImplementationVersion.ToString() + " on "+ Environment.OSVersion.Platform + ")";
             }
         }
         private static bool allow_print = true;
@@ -139,28 +152,28 @@ namespace alice
         {
             string s = "{";
             bool isFirst = true;
-            foreach(string v in list)
+            foreach (string v in list)
             {
                 if (isFirst)
                 {
-                    s += " "+v;
+                    s += " " + v;
                     isFirst = false;
                 }
                 else
                 {
-                    s += ","+v;
+                    s += "," + v;
                 }
             }
             s += " }";
             return s;
         }
-        internal static bool BuildPackage(string fn,string outfilename,int num=1)
+        internal static bool BuildPackage(string fn, string outfilename, int num = 1)
         {
             if (File.GetAttributes(fn).HasFlag(FileAttributes.Directory))
             {
                 //パスはディレクトリ
-                Console.WriteLine(num + "> ビルド開始: ソース:"+fn+"(ディレクトリ) 出力先: "+outfilename);
-                string manifestPath = Path.Combine(fn,Constants.PACKAGE_MANIFEST_FILENAME);
+                Console.WriteLine(num + "> ビルド開始: ソース:" + fn + "(ディレクトリ) 出力先: " + outfilename);
+                string manifestPath = Path.Combine(fn, Constants.PACKAGE_MANIFEST_FILENAME);
                 if (!File.Exists(manifestPath))
                 {
                     Console.WriteLine(num + "> エラー: パッケージマニフェストファイルが見つかりません");
@@ -176,24 +189,24 @@ namespace alice
                     return false;
                 }
                 string srcpath = manifest.UseInlineScript ? "マニフェストに埋め込み" : manifest.ScriptPath;
-                Console.WriteLine(num + "> パッケージ名: "+manifest.Name+" エントリポイント: "+srcpath);
+                Console.WriteLine(num + "> パッケージ名: " + manifest.Name + " エントリポイント: " + srcpath);
                 string target = manifest.Target == null ? "Any" : ListToString(manifest.Target);
-                Console.WriteLine(num + "> ターゲット: "+target);
+                Console.WriteLine(num + "> ターゲット: " + target);
                 string path = Path.GetTempFileName();
                 File.Delete(path);
-                Console.WriteLine(num + "> 圧縮: {0} -> {1}", fn,path);
-                ZipFile.CreateFromDirectory(fn,path);
-                Console.WriteLine(num + "> 変換: {0} -> {1}", path,outfilename);
+                Console.WriteLine(num + "> 圧縮: {0} -> {1}", fn, path);
+                ZipFile.CreateFromDirectory(fn, path);
+                Console.WriteLine(num + "> 変換: {0} -> {1}", path, outfilename);
                 try
                 {
-                    AlicePackage.CreateEncodingPackage(path, outfilename); 
+                    AlicePackage.CreateEncodingPackage(path, outfilename);
                     Console.WriteLine(num + "> パッケージ {0} のビルドが完了しました --成功", manifest.Name);
                     return true;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(num + "> エラー: AlicePackage形式に変換できません");
-                    Console.WriteLine(num + "> 詳細: "+ex.Message);
+                    Console.WriteLine(num + "> 詳細: " + ex.Message);
                     Console.WriteLine(num + "> パッケージ {0} のビルドが終了しました --失敗", manifest.Name);
                     return false;
                 }
@@ -205,11 +218,11 @@ namespace alice
                 try
                 {
                     AlicePackage.CreateEncodingPackage(fn, outfilename);
-                    Console.WriteLine(num + "> パッケージ {0} のビルドが完了しました --成功",Path.GetFileName(outfilename));
+                    Console.WriteLine(num + "> パッケージ {0} のビルドが完了しました --成功", Path.GetFileName(outfilename));
                     return true;
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(num + "> エラー: AlicePackage形式に変換できません");
                     Console.WriteLine(num + "> 詳細: " + ex.Message);
@@ -226,9 +239,9 @@ namespace alice
             }
             if (print_redirect_files.Count > 0)
             {
-                foreach(string fn in print_redirect_files)
+                foreach (string fn in print_redirect_files)
                 {
-                    File.AppendAllText(fn,e.Output);
+                    File.AppendAllText(fn, e.Output);
                 }
             }
         }

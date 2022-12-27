@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace alice
 {
-    class ParsedArguments
+    internal class ParsedArguments
     {
         public ParsedArguments(string[] args)
         {
@@ -66,40 +65,22 @@ namespace alice
         }
         private Dictionary<string, string> m_values = new Dictionary<string, string>();
         public List<string> Args = new List<string>();
-        public Dictionary<string,string> Values
+        public Dictionary<string, string> Values
         {
-            get
-            {
-                return m_values;
-            }
-            set
-            {
-                m_values = value;
-            }
+            get => m_values;
+            set => m_values = value;
         }
         private List<string> m_flags = new List<string>();
         public List<string> Flags
         {
-            get
-            {
-                return m_flags;
-            }
-            set
-            {
-                m_flags = value;
-            }
+            get => m_flags;
+            set => m_flags = value;
         }
         private List<string> m_files = new List<string>();
         public List<string> Files
         {
-            get
-            {
-                return m_files;
-            }
-            set
-            {
-                m_files = value;
-            }
+            get => m_files;
+            set => m_files = value;
         }
     }
 }

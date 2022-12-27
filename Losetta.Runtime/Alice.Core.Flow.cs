@@ -1,4 +1,7 @@
-﻿namespace AliceScript.NameSpaces
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace AliceScript.NameSpaces
 {
     internal class VarFunction : FunctionBase
     {

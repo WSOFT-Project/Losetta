@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using System;
+using System.Collections.Generic;
+
+namespace AliceScript
 {
     internal static class Alice_Interpreter_Initer
     {

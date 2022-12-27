@@ -1,4 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace AliceScript
 {
@@ -126,6 +131,12 @@ namespace AliceScript
                 }
             }
             funcName = Constants.ConvertName(funcName);
+
+            if (string.IsNullOrWhiteSpace(funcName))
+            {
+                ThrowErrorManerger.OnThrowError("関数名を空にすることはできません",Exceptions.ILLEGAL_VARIABLE_NAME);
+                return Variable.EmptyInstance;
+            }
 
             string[] args = Utils.GetFunctionSignature(script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
