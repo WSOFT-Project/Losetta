@@ -135,7 +135,7 @@ namespace AliceScript.NameSpaces
 
         private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Alice_Net_Initer.wc.DownloadData(e.Args[0].AsString()));
+            e.Return = new Variable(Alice_Net_Initer.wc.DownloadString(e.Args[0].AsString()));
         }
     }
     class web_htmldecodeFunc : FunctionBase
