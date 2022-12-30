@@ -20,6 +20,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new StopWatchObject());
                 space.Add(new ProcessObject());
                 space.Add(new ProcessStartInfoObject());
+                space.Add(new Process_StartFunc());
 
                 space.Add(new Debug_PrintFunction());
                 space.Add(new Debug_PrintFunction(true));
@@ -36,7 +37,6 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-
     internal class Debug_IndentFunction : FunctionBase
     {
         public Debug_IndentFunction(bool unindent = false)

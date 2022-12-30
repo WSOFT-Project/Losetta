@@ -120,12 +120,7 @@ namespace AliceScript
         {
             get
             {
-                string l=Assembly.GetExecutingAssembly().Location;
-                if (string.IsNullOrEmpty(l))
-                {
-                    l = AppContext.BaseDirectory;
-                }
-                return l;
+                return AppContext.BaseDirectory;
             }
         }
         /// <summary>

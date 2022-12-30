@@ -16,14 +16,8 @@ namespace AliceScript
         /// </summary>
         public FunctionAttribute Attribute
         {
-            get
-            {
-                return m_Attribute;
-            }
-            set
-            {
-                m_Attribute = value;
-            }
+            get => m_Attribute;
+            set => m_Attribute = value;
         }
         private FunctionAttribute m_Attribute = FunctionAttribute.GENERAL;
 
@@ -31,7 +25,7 @@ namespace AliceScript
         /// この関数が変数のプロパティとして呼び出される場合、その変数の種類を取得または設定します
         /// </summary>
         public Variable.VarType RequestType { get; set; }
-        public Variable Evaluate(List<Variable> args,ParsingScript script, AliceScriptClass.ClassInstance instance=null)
+        public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
             ex.Args = args;
@@ -68,14 +62,14 @@ namespace AliceScript
                     Utils.CheckArgs(args.Count, MinimumArgCounts, m_name);
                 }
             }
-            return Evaluate(args,script);
+            return Evaluate(args, script);
         }
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
             if (currentVariable == null) { return Variable.EmptyInstance; }
             if (this.RequestType != Variable.VarType.NONE)
             {
-                    if (!this.RequestType.HasFlag(currentVariable.Type)) { ThrowErrorManerger.OnThrowError("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); return Variable.EmptyInstance; }
+                if (!this.RequestType.HasFlag(currentVariable.Type)) { ThrowErrorManerger.OnThrowError("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); return Variable.EmptyInstance; }
             }
             List<Variable> args = null;
             if (!this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
@@ -173,7 +167,7 @@ namespace AliceScript
         /// <param name="func">登録される関数</param>
         /// <param name="name">登録される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
-        public static void Add(FunctionBase func, string name = "",ParsingScript script=null)
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null)
         {
 
             string fname = func.Name;
@@ -200,7 +194,7 @@ namespace AliceScript
             }
             else
             {
-                ParserFunction.RegisterScriptFunction(fname,func,script);
+                ParserFunction.RegisterScriptFunction(fname, func, script);
             }
             if (func.Attribute.HasFlag(FunctionAttribute.VIRTUAL))
             {
@@ -213,7 +207,7 @@ namespace AliceScript
         /// <param name="func">登録解除される関数</param>
         /// <param name="name">登録解除される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="name">登録解除される関数の場所(この項目を省略するとグローバルからのみ解除されます)</param>
-        public static void Remove(FunctionBase func, string name = "",ParsingScript script=null)
+        public static void Remove(FunctionBase func, string name = "", ParsingScript script = null)
         {
             string fname = name;
             if (!string.IsNullOrEmpty(name))
@@ -238,17 +232,14 @@ namespace AliceScript
             }
             else
             {
-                ParserFunction.UnregisterScriptFunction(fname,script);
+                ParserFunction.UnregisterScriptFunction(fname, script);
             }
 
         }
         /// <summary>
         /// 現在インタプリタに登録されている関数の名前の一覧を取得します
         /// </summary>
-        public static List<string> Functions
-        {
-            get { return new List<string>(ParserFunction.s_functions.Keys); }
-        }
+        public static List<string> Functions => new List<string>(ParserFunction.s_functions.Keys);
     }
     public delegate void FunctionBaseEventHandler(object sender, FunctionBaseEventArgs e);
     public class FunctionBaseEventArgs : EventArgs

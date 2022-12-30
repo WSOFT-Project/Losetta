@@ -7,7 +7,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces
 {
-    class Alice_IO_Intiter
+    internal class Alice_IO_Intiter
     {
         public static void Init()
         {
@@ -65,7 +65,8 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-    class zip_CreateFromDirectoryFunc : FunctionBase
+
+    internal class zip_CreateFromDirectoryFunc : FunctionBase
     {
         public zip_CreateFromDirectoryFunc()
         {
@@ -79,7 +80,8 @@ namespace AliceScript.NameSpaces
             ZipFile.CreateFromDirectory(e.Args[0].AsString(), e.Args[1].AsString());
         }
     }
-    class zip_ExtactToDirectoryFunc : FunctionBase
+
+    internal class zip_ExtactToDirectoryFunc : FunctionBase
     {
         public zip_ExtactToDirectoryFunc()
         {
@@ -93,10 +95,11 @@ namespace AliceScript.NameSpaces
             ZipFile.ExtractToDirectory(e.Args[0].AsString(), e.Args[1].AsString());
         }
     }
-    class path_ChangeExtensionFunc : FunctionBase
+
+    internal class path_ChangeExtensionFunc : FunctionBase
     {
         public path_ChangeExtensionFunc()
-        {
+        { 
             this.Name = "path_ChangeExtension";
             this.MinimumArgCounts = 2;
             this.Run += Path_ChangeExtensionFunc_Run;
@@ -104,10 +107,11 @@ namespace AliceScript.NameSpaces
 
         private void Path_ChangeExtensionFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Path.ChangeExtension(e.Args[0].AsString(),e.Args[1].AsString()));
+            e.Return = new Variable(Path.ChangeExtension(e.Args[0].AsString(), e.Args[1].AsString()));
         }
     }
-    class path_CombineFunc : FunctionBase
+
+    internal class path_CombineFunc : FunctionBase
     {
         public path_CombineFunc()
         {
@@ -119,14 +123,15 @@ namespace AliceScript.NameSpaces
         private void Path_CombineFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             List<string> vs = new List<string>();
-            foreach(Variable v in e.Args)
+            foreach (Variable v in e.Args)
             {
                 vs.Add(v.AsString());
             }
             e.Return = new Variable(Path.Combine(vs.ToArray()));
         }
     }
-    class path_EndsInDirectorySeparatorFunc : FunctionBase
+
+    internal class path_EndsInDirectorySeparatorFunc : FunctionBase
     {
         public path_EndsInDirectorySeparatorFunc()
         {
@@ -140,7 +145,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.EndsInDirectorySeparator(e.Args[0].AsString()));
         }
     }
-    class path_get_DirectoryNameFunc : FunctionBase
+
+    internal class path_get_DirectoryNameFunc : FunctionBase
     {
         public path_get_DirectoryNameFunc()
         {
@@ -154,7 +160,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetDirectoryName(e.Args[0].AsString()));
         }
     }
-    class path_get_ExtensionFunc : FunctionBase
+
+    internal class path_get_ExtensionFunc : FunctionBase
     {
         public path_get_ExtensionFunc()
         {
@@ -168,7 +175,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetExtension(e.Args[0].AsString()));
         }
     }
-    class path_get_FileNameFunc : FunctionBase
+
+    internal class path_get_FileNameFunc : FunctionBase
     {
         public path_get_FileNameFunc()
         {
@@ -182,7 +190,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetFileName(e.Args[0].AsString()));
         }
     }
-    class path_get_FileNameWithoutExtensionFunc : FunctionBase
+
+    internal class path_get_FileNameWithoutExtensionFunc : FunctionBase
     {
         public path_get_FileNameWithoutExtensionFunc()
         {
@@ -196,7 +205,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetFileNameWithoutExtension(e.Args[0].AsString()));
         }
     }
-    class path_get_FullPathFunc : FunctionBase
+
+    internal class path_get_FullPathFunc : FunctionBase
     {
         public path_get_FullPathFunc()
         {
@@ -209,7 +219,7 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count > 1)
             {
-                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString(),e.Args[1].AsString()));
+                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString(), e.Args[1].AsString()));
             }
             else
             {
@@ -217,7 +227,8 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class path_get_PathRootFunc : FunctionBase
+
+    internal class path_get_PathRootFunc : FunctionBase
     {
         public path_get_PathRootFunc()
         {
@@ -231,7 +242,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetPathRoot(e.Args[0].AsString()));
         }
     }
-    class path_get_RandomFileNameFunc : FunctionBase
+
+    internal class path_get_RandomFileNameFunc : FunctionBase
     {
         public path_get_RandomFileNameFunc()
         {
@@ -245,7 +257,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetRandomFileName());
         }
     }
-    class path_get_GetRelativePathFunc : FunctionBase
+
+    internal class path_get_GetRelativePathFunc : FunctionBase
     {
         public path_get_GetRelativePathFunc()
         {
@@ -256,10 +269,11 @@ namespace AliceScript.NameSpaces
 
         private void Path_get_GetRelativePathFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Path.GetRelativePath(e.Args[0].AsString(),e.Args[1].AsString()));
+            e.Return = new Variable(Path.GetRelativePath(e.Args[0].AsString(), e.Args[1].AsString()));
         }
     }
-    class path_get_TempFileNameFunc : FunctionBase
+
+    internal class path_get_TempFileNameFunc : FunctionBase
     {
         public path_get_TempFileNameFunc()
         {
@@ -272,7 +286,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetTempFileName());
         }
     }
-    class path_get_TempPathFunc : FunctionBase
+
+    internal class path_get_TempPathFunc : FunctionBase
     {
         public path_get_TempPathFunc()
         {
@@ -285,7 +300,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.GetTempPath());
         }
     }
-    class path_HasExtensionFunc : FunctionBase
+
+    internal class path_HasExtensionFunc : FunctionBase
     {
         public path_HasExtensionFunc()
         {
@@ -299,7 +315,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.HasExtension(e.Args[0].AsString()));
         }
     }
-    class path_IsPathFullyQualifiedFunc : FunctionBase
+
+    internal class path_IsPathFullyQualifiedFunc : FunctionBase
     {
         public path_IsPathFullyQualifiedFunc()
         {
@@ -313,7 +330,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.IsPathFullyQualified(e.Args[0].AsString()));
         }
     }
-    class path_IsPathRootedFunc : FunctionBase
+
+    internal class path_IsPathRootedFunc : FunctionBase
     {
         public path_IsPathRootedFunc()
         {
@@ -327,7 +345,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.IsPathRooted(e.Args[0].AsString()));
         }
     }
-    class path_JoinFunc : FunctionBase
+
+    internal class path_JoinFunc : FunctionBase
     {
         public path_JoinFunc()
         {
@@ -346,7 +365,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.Join(vs.ToArray()));
         }
     }
-    class path_TrimEndingDirectorySeparatorFunc : FunctionBase
+
+    internal class path_TrimEndingDirectorySeparatorFunc : FunctionBase
     {
         public path_TrimEndingDirectorySeparatorFunc()
         {
@@ -360,7 +380,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Path.TrimEndingDirectorySeparator(e.Args[0].AsString()));
         }
     }
-    class file_read_textFunc : FunctionBase
+
+    internal class file_read_textFunc : FunctionBase
     {
         public file_read_textFunc()
         {
@@ -373,7 +394,7 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count < 2)
             {
-                e.Return = new Variable(SafeReader.ReadAllText(e.Args[0].AsString(),out _));
+                e.Return = new Variable(SafeReader.ReadAllText(e.Args[0].AsString(), out _));
             }
             else
             {
@@ -381,14 +402,15 @@ namespace AliceScript.NameSpaces
                 {
                     e.Return = new Variable(File.ReadAllText(e.Args[0].AsString(), Encoding.GetEncoding(e.Args[1].AsString())));
                 }
-                else if(e.Args[1].Type==Variable.VarType.NUMBER)
+                else if (e.Args[1].Type == Variable.VarType.NUMBER)
                 {
                     e.Return = new Variable(File.ReadAllText(e.Args[0].AsString(), Encoding.GetEncoding(e.Args[1].AsInt())));
                 }
             }
         }
     }
-    class file_read_dataFunc : FunctionBase
+
+    internal class file_read_dataFunc : FunctionBase
     {
         public file_read_dataFunc()
         {
@@ -402,8 +424,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(File.ReadAllBytes(e.Args[0].AsString()));
         }
     }
-  
-    class file_write_textFunc : FunctionBase
+
+    internal class file_write_textFunc : FunctionBase
     {
         public file_write_textFunc()
         {
@@ -423,14 +445,16 @@ namespace AliceScript.NameSpaces
                 if (e.Args[1].Type == Variable.VarType.STRING)
                 {
                     File.WriteAllText(e.Args[0].AsString(), e.Args[1].AsString(), Encoding.GetEncoding(e.Args[2].AsString()));
-                }else if (e.Args[1].Type == Variable.VarType.NUMBER)
+                }
+                else if (e.Args[1].Type == Variable.VarType.NUMBER)
                 {
                     File.WriteAllText(e.Args[0].AsString(), e.Args[1].AsString(), Encoding.GetEncoding(e.Args[2].AsInt()));
                 }
             }
         }
     }
-    class file_append_textFunc : FunctionBase
+
+    internal class file_append_textFunc : FunctionBase
     {
         public file_append_textFunc()
         {
@@ -458,7 +482,8 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class file_write_dataFunc : FunctionBase
+
+    internal class file_write_dataFunc : FunctionBase
     {
         public file_write_dataFunc()
         {
@@ -472,7 +497,8 @@ namespace AliceScript.NameSpaces
             File.WriteAllBytes(e.Args[0].AsString(), e.Args[1].AsByteArray());
         }
     }
-    class file_copyFunc : FunctionBase
+
+    internal class file_copyFunc : FunctionBase
     {
         public file_copyFunc()
         {
@@ -485,15 +511,16 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count < 3)
             {
-                File.Copy(e.Args[0].AsString(),e.Args[1].AsString());
+                File.Copy(e.Args[0].AsString(), e.Args[1].AsString());
             }
             else
             {
-                File.Copy(e.Args[0].AsString(), e.Args[1].AsString(),e.Args[2].AsBool());
+                File.Copy(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsBool());
             }
         }
     }
-    class file_moveFunc : FunctionBase
+
+    internal class file_moveFunc : FunctionBase
     {
         public file_moveFunc()
         {
@@ -504,12 +531,11 @@ namespace AliceScript.NameSpaces
 
         private void File_copyFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            
-                File.Move(e.Args[0].AsString(), e.Args[1].AsString());
-           
+            File.Move(e.Args[0].AsString(), e.Args[1].AsString());
         }
     }
-    class file_existsFunc : FunctionBase
+
+    internal class file_existsFunc : FunctionBase
     {
         public file_existsFunc()
         {
@@ -523,7 +549,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(File.Exists(e.Args[0].AsString()));
         }
     }
-    class file_deleteFunc : FunctionBase
+
+    internal class file_deleteFunc : FunctionBase
     {
         public file_deleteFunc()
         {
@@ -534,13 +561,14 @@ namespace AliceScript.NameSpaces
 
         private void File_copyFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            
-                File.Delete(e.Args[0].AsString());
-            
-           
+
+            File.Delete(e.Args[0].AsString());
+
+
         }
     }
-    class file_encryptFunc:FunctionBase
+
+    internal class file_encryptFunc : FunctionBase
     {
         public file_encryptFunc()
         {
@@ -551,10 +579,11 @@ namespace AliceScript.NameSpaces
 
         private void File_encrypt_Run(object sender, FunctionBaseEventArgs e)
         {
-            FileEncrypter.FileEncrypt(e.Args[0].AsString(),e.Args[1].AsString(),e.Args[2].AsString());
+            FileEncrypter.FileEncrypt(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString());
         }
     }
-    class file_decrypt : FunctionBase
+
+    internal class file_decrypt : FunctionBase
     {
         public file_decrypt()
         {
@@ -568,7 +597,8 @@ namespace AliceScript.NameSpaces
             FileEncrypter.FileDecrypt(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString());
         }
     }
-    class file_encrypt_dataFunc : FunctionBase
+
+    internal class file_encrypt_dataFunc : FunctionBase
     {
         public file_encrypt_dataFunc()
         {
@@ -579,10 +609,11 @@ namespace AliceScript.NameSpaces
 
         private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return=new Variable(FileEncrypter.Encrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
+            e.Return = new Variable(FileEncrypter.Encrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
         }
     }
-    class file_decrypt_dataFunc : FunctionBase
+
+    internal class file_decrypt_dataFunc : FunctionBase
     {
         public file_decrypt_dataFunc()
         {
@@ -593,17 +624,17 @@ namespace AliceScript.NameSpaces
 
         private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return=new Variable(FileEncrypter.Decrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
+            e.Return = new Variable(FileEncrypter.Decrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
         }
     }
     internal static class FileEncrypter
     {
-        internal static bool FileDecrypt(string FilePath,string OutFilePath, string Password)
+        internal static bool FileDecrypt(string FilePath, string OutFilePath, string Password)
         {
             int len;
             byte[] buffer = new byte[4096];
 
-           
+
 
             using (FileStream outfs = new FileStream(OutFilePath, FileMode.Create, FileAccess.Write))
             {
@@ -662,7 +693,7 @@ namespace AliceScript.NameSpaces
                     }
                 }
             }
-           
+
             return (true);
         }
 
@@ -737,7 +768,7 @@ namespace AliceScript.NameSpaces
             return (true);
         }
 
-        internal static byte[] Encrypt(byte[] data,string Password)
+        internal static byte[] Encrypt(byte[] data, string Password)
         {
 
             int len;
@@ -809,16 +840,16 @@ namespace AliceScript.NameSpaces
 
         }
 
-        internal static byte[] Decrypt(byte[] data , string Password)
+        internal static byte[] Decrypt(byte[] data, string Password)
         {
             int len;
             byte[] buffer = new byte[4096];
 
 
 
-            using (MemoryStream outfs=new MemoryStream())
+            using (MemoryStream outfs = new MemoryStream())
             {
-                using (MemoryStream fs=new MemoryStream())
+                using (MemoryStream fs = new MemoryStream())
                 {
                     using (AesManaged aes = new AesManaged())
                     {
@@ -880,8 +911,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-  
-class directory_createFunc : FunctionBase
+    internal class directory_createFunc : FunctionBase
     {
         public directory_createFunc()
         {
@@ -895,7 +925,8 @@ class directory_createFunc : FunctionBase
             Directory.CreateDirectory(e.Args[0].AsString());
         }
     }
-    class directory_deleteFunc : FunctionBase
+
+    internal class directory_deleteFunc : FunctionBase
     {
         public directory_deleteFunc()
         {
@@ -908,7 +939,7 @@ class directory_createFunc : FunctionBase
         {
             if (e.Args.Count > 1)
             {
-                Directory.Delete(e.Args[0].AsString(),e.Args[1].AsBool());
+                Directory.Delete(e.Args[0].AsString(), e.Args[1].AsBool());
             }
             else
             {
@@ -916,7 +947,8 @@ class directory_createFunc : FunctionBase
             }
         }
     }
-    class directory_moveFunc : FunctionBase
+
+    internal class directory_moveFunc : FunctionBase
     {
         public directory_moveFunc()
         {
@@ -927,12 +959,13 @@ class directory_createFunc : FunctionBase
 
         private void File_copyFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-           
-                Directory.Move(e.Args[0].AsString(), e.Args[1].AsString());
-           
+
+            Directory.Move(e.Args[0].AsString(), e.Args[1].AsString());
+
         }
     }
-    class directory_existsFunc : FunctionBase
+
+    internal class directory_existsFunc : FunctionBase
     {
         public directory_existsFunc()
         {
@@ -946,7 +979,8 @@ class directory_createFunc : FunctionBase
             e.Return = new Variable(Directory.Exists(e.Args[0].AsString()));
         }
     }
-    class directory_currentdirectoryFunc : FunctionBase
+
+    internal class directory_currentdirectoryFunc : FunctionBase
     {
         public directory_currentdirectoryFunc()
         {
@@ -964,7 +998,8 @@ class directory_createFunc : FunctionBase
             e.Return = new Variable(e.Script.PWD);
         }
     }
-    class directory_getdirectoriesFunc : FunctionBase
+
+    internal class directory_getdirectoriesFunc : FunctionBase
     {
         public directory_getdirectoriesFunc()
         {
@@ -978,15 +1013,16 @@ class directory_createFunc : FunctionBase
             if (e.Args.Count == 1)
             {
                 Variable vb = new Variable(Variable.VarType.ARRAY_STR);
-                foreach(string dn in Directory.GetDirectories(e.Args[0].AsString()))
+                foreach (string dn in Directory.GetDirectories(e.Args[0].AsString()))
                 {
                     vb.Tuple.Add(new Variable(dn));
                 }
                 e.Return = vb;
-            }else if (e.Args.Count == 2)
+            }
+            else if (e.Args.Count == 2)
             {
                 Variable vb = new Variable(Variable.VarType.ARRAY_STR);
-                foreach (string dn in Directory.GetDirectories(e.Args[0].AsString(),e.Args[1].AsString()))
+                foreach (string dn in Directory.GetDirectories(e.Args[0].AsString(), e.Args[1].AsString()))
                 {
                     vb.Tuple.Add(new Variable(dn));
                 }
@@ -1000,7 +1036,7 @@ class directory_createFunc : FunctionBase
                 {
                     so = SearchOption.AllDirectories;
                 }
-                foreach (string dn in Directory.GetDirectories(e.Args[0].AsString(), e.Args[1].AsString(),so))
+                foreach (string dn in Directory.GetDirectories(e.Args[0].AsString(), e.Args[1].AsString(), so))
                 {
                     vb.Tuple.Add(new Variable(dn));
                 }
@@ -1008,7 +1044,8 @@ class directory_createFunc : FunctionBase
             }
         }
     }
-    class directory_getfilesFunc : FunctionBase
+
+    internal class directory_getfilesFunc : FunctionBase
     {
         public directory_getfilesFunc()
         {
@@ -1053,7 +1090,8 @@ class directory_createFunc : FunctionBase
             }
         }
     }
-    class directory_getdirectoryrootFunc : FunctionBase
+
+    internal class directory_getdirectoryrootFunc : FunctionBase
     {
         public directory_getdirectoryrootFunc()
         {
@@ -1064,11 +1102,12 @@ class directory_createFunc : FunctionBase
 
         private void File_exists_Run(object sender, FunctionBaseEventArgs e)
         {
-           
+
             e.Return = new Variable(Directory.GetDirectoryRoot(e.Args[0].AsString()));
         }
     }
-    class directory_copyFunc : FunctionBase
+
+    internal class directory_copyFunc : FunctionBase
     {
         public directory_copyFunc()
         {
@@ -1079,7 +1118,7 @@ class directory_createFunc : FunctionBase
 
         private void Directory_copyFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            DirectoryCopy(e.Args[0].AsString(),e.Args[1].AsString(),(Utils.GetSafeInt(e.Args,2,1)==1));
+            DirectoryCopy(e.Args[0].AsString(), e.Args[1].AsString(), (Utils.GetSafeInt(e.Args, 2, 1) == 1));
         }
 
         private void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs = true)

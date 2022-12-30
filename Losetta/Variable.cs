@@ -12,41 +12,29 @@ namespace AliceScript
         [Flags]
         public enum VarType
         {
-            NONE      = 0b0, 
+            NONE = 0b0,
             UNDEFINED = 0b1,
-            NUMBER    = 0b10, 
-            STRING    = 0b100, 
-            ARRAY     = 0b1000,
-            ARRAY_NUM = 0b100000, 
-            ARRAY_STR = 0b1000000, 
-            MAP_NUM   = 0b10000000, 
-            MAP_STR   = 0b100000000, 
-            BYTES     = 0b1000000000,
-            BREAK     = 0b10000000000, 
-            CONTINUE  = 0b100000000000, 
-            OBJECT    = 0b1000000000000, 
-            ENUM      = 0b10000000000000, 
-            VARIABLE  = 0b100000000000000, 
-            CUSTOM    = 0b1000000000000000, 
-            POINTER   = 0b10000000000000000, 
-            DELEGATE  = 0b100000000000000000, 
-            BOOLEAN   = 0b1000000000000000000
+            NUMBER = 0b10,
+            STRING = 0b100,
+            ARRAY = 0b1000,
+            ARRAY_NUM = 0b100000,
+            ARRAY_STR = 0b1000000,
+            MAP_NUM = 0b10000000,
+            MAP_STR = 0b100000000,
+            BYTES = 0b1000000000,
+            BREAK = 0b10000000000,
+            CONTINUE = 0b100000000000,
+            OBJECT = 0b1000000000000,
+            ENUM = 0b10000000000000,
+            VARIABLE = 0b100000000000000,
+            CUSTOM = 0b1000000000000000,
+            POINTER = 0b10000000000000000,
+            DELEGATE = 0b100000000000000000,
+            BOOLEAN = 0b1000000000000000000
         };
 
-        public static Variable True
-        {
-            get
-            {
-                return new Variable(true);
-            }
-        }
-        public static Variable False
-        {
-            get
-            {
-                return new Variable(false);
-            }
-        }
+        public static Variable True => new Variable(true);
+        public static Variable False => new Variable(false);
         public static Variable FromText(string text)
         {
             return new Variable(text);
@@ -316,30 +304,30 @@ namespace AliceScript
             switch (Type)
             {
                 case VarType.NONE: return true;
-                default:return false;
+                default: return false;
                 case VarType.ARRAY:
                     {
-                        return (Tuple==null);
+                        return (Tuple == null);
                     }
                 case VarType.DELEGATE:
                     {
-                        return (Delegate==null);
+                        return (Delegate == null);
                     }
                 case VarType.BYTES:
                     {
-                        return (ByteArray==null);
+                        return (ByteArray == null);
                     }
                 case VarType.STRING:
                     {
-                        return (String==null);
+                        return (String == null);
                     }
                 case VarType.POINTER:
                     {
-                        return (Pointer==null);
+                        return (Pointer == null);
                     }
                 case VarType.OBJECT:
                     {
-                        return (Object==null);
+                        return (Object == null);
                     }
             }
         }
@@ -383,7 +371,7 @@ namespace AliceScript
             {
                 return EqualsArray(Tuple, other.Tuple);
             }
-            if (Type == VarType.OBJECT && Object is  ObjectBase o && other.Type==VarType.OBJECT && other.Object is ObjectBase o2)
+            if (Type == VarType.OBJECT && Object is ObjectBase o && other.Type == VarType.OBJECT && other.Object is ObjectBase o2)
             {
                 return o.Equals(o2);
             }
@@ -773,7 +761,7 @@ namespace AliceScript
         }
         public virtual TypeObject AsType()
         {
-            if(Object != null && Object is AliceScriptClass c)
+            if (Object != null && Object is AliceScriptClass c)
             {
                 return new TypeObject(c);
             }
@@ -1004,14 +992,8 @@ namespace AliceScript
             }
         }
 
-        public int Count
-        {
-            get
-            {
-                return Type == VarType.ARRAY ? m_tuple.Count :
+        public int Count => Type == VarType.ARRAY ? m_tuple.Count :
                        Type == VarType.NONE ? 0 : 1;
-            }
-        }
 
 
         public Variable SetProperty(string propName, Variable value, ParsingScript script, string baseName = "")
@@ -1262,7 +1244,7 @@ namespace AliceScript
             return result;
         }
 
-       
+
 
         public List<Variable> GetProperties()
         {
@@ -1286,10 +1268,10 @@ namespace AliceScript
                 allSet.Add(key.ToLower());
                 all.Add(key);
             }
-            foreach(string name in Functions.Keys)
+            foreach (string name in Functions.Keys)
             {
                 FunctionBase fb = Functions[name];
-                if (fb.RequestType == VarType.NONE || fb.RequestType == Type)
+                if (fb.RequestType == VarType.NONE || fb.RequestType.HasFlag(Type))
                 {
                     all.Add(name);
                 }
@@ -1462,28 +1444,28 @@ namespace AliceScript
 
         public virtual double Value
         {
-            get { return m_value; }
+            get => m_value;
             set { m_value = value; Type = VarType.NUMBER; }
         }
         public virtual bool Bool
         {
-            get { return m_bool; }
-            set { m_bool = value; }
+            get => m_bool;
+            set => m_bool = value;
         }
         public virtual string String
         {
-            get { return m_string; }
+            get => m_string;
             set { m_string = value; Type = VarType.STRING; }
         }
 
         public object Object
         {
-            get { return m_object; }
+            get => m_object;
             set { m_object = value; Type = VarType.OBJECT; }
         }
         public DelegateObject Delegate
         {
-            get { return m_delegate; }
+            get => m_delegate;
             set
             {
                 m_delegate = value;
@@ -1493,7 +1475,7 @@ namespace AliceScript
 
         public byte[] ByteArray
         {
-            get { return m_byteArray; }
+            get => m_byteArray;
             set { m_byteArray = value; Type = VarType.BYTES; }
         }
 
@@ -1505,32 +1487,26 @@ namespace AliceScript
 
         public CustomFunction CustomFunctionGet
         {
-            get { return m_customFunctionGet; }
-            set { m_customFunctionGet = value; }
+            get => m_customFunctionGet;
+            set => m_customFunctionGet = value;
         }
         public CustomFunction CustomFunctionSet
         {
-            get { return m_customFunctionSet; }
-            set { m_customFunctionSet = value; }
+            get => m_customFunctionSet;
+            set => m_customFunctionSet = value;
         }
 
         public List<Variable> Tuple
         {
-            get { return m_tuple; }
+            get => m_tuple;
             set { m_tuple = value; Type = VarType.ARRAY; }
         }
 
         public string Action { get; set; }
         public VarType Type
         {
-            get
-            {
-                return m_type;
-            }
-            set
-            {
-                m_type = value;
-            }
+            get => m_type;
+            set => m_type = value;
         }
         /// <summary>
         /// タイプ型の表すタイプです。変数の型ではないことに注意してください

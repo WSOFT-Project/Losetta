@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AliceScript.NameSpaces
 {
@@ -440,7 +441,8 @@ namespace AliceScript.NameSpaces
                     }
                 case Variable.VarType.ARRAY:
                     {
-                        e.Return = new Variable(e.CurentVariable.Tuple.Contains(e.Args[0]));
+                        bool contains = e.CurentVariable.Tuple.Where(x => x.Equals(e.Args[0])).FirstOrDefault() != null;
+                        e.Return = new Variable(contains);
                         break;
                     }
                 case Variable.VarType.DELEGATE:
