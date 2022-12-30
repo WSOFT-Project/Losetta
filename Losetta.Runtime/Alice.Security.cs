@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace AliceScript.NameSpaces
@@ -17,6 +19,9 @@ namespace AliceScript.NameSpaces
                 space.Add(new Password_HashData());
                 space.Add(new Password_VerifyData()) ;
 
+                space.Add(new sha256_gethash());
+                space.Add(new sha512_gethash());
+
                 NameSpaceManerger.Add(space);
             }
             catch { }
@@ -29,7 +34,38 @@ namespace AliceScript.NameSpaces
 
         public static int STRETCH_COUNT = 1000;
     }
+    internal class sha256_gethash : FunctionBase
+    {
+        public sha256_gethash()
+        {
+            this.Name = "sha256_gethash";
+            this.MinimumArgCounts = 1;
+            this.Run += Sha256_gethash_Run;
+        }
 
+        private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
+        {
+            var crypto = new SHA256CryptoServiceProvider();
+            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            e.Return = new Variable(hashValue);
+        }
+    }
+    internal class sha512_gethash : FunctionBase
+    {
+        public sha512_gethash()
+        {
+            this.Name = "sha512_gethash";
+            this.MinimumArgCounts = 1;
+            this.Run += Sha256_gethash_Run;
+        }
+
+        private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
+        {
+            var crypto = new SHA512CryptoServiceProvider();
+            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            e.Return = new Variable(hashValue);
+        }
+    }
     internal class Password_Hash : FunctionBase
     {
 

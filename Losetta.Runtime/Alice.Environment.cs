@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AliceScript;
@@ -22,6 +23,7 @@ namespace AliceScript.NameSpaces
             space.Add(new env_HasShutdownStartedFunc());
             space.Add(new env_impl_nameFunc());
             space.Add(new env_impl_versionFunc());
+            space.Add(new env_impl_locationFunc());
             space.Add(new env_Is64BitOperatingSystemFunc());
             space.Add(new env_Is64BitProcessFunc());
             space.Add(new env_MachineNameFunc());
@@ -352,6 +354,19 @@ namespace AliceScript.NameSpaces
 			e.Return = new Variable(Alice.ImplementationName);
 		}
 	}
+    internal class env_impl_locationFunc : FunctionBase
+    {
+        public env_impl_locationFunc()
+        {
+            this.Name = "env_impl_location";
+            this.Run += Env_impl_locationFunc_Run;
+        }
+
+        private void Env_impl_locationFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Alice.ImplementationLocation);
+        }
+    }
 	internal class env_clr_versionFunc : FunctionBase
 	{
 		public env_clr_versionFunc()

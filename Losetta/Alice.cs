@@ -116,6 +116,18 @@ namespace AliceScript
                 return Interpreter.Instance.Name;
             }
         }
+        public static string ImplementationLocation
+        {
+            get
+            {
+                string l=Assembly.GetExecutingAssembly().Location;
+                if (string.IsNullOrEmpty(l))
+                {
+                    l = AppContext.BaseDirectory;
+                }
+                return l;
+            }
+        }
         /// <summary>
         /// このAliceScriptが実行されているアプリケーションの名前
         /// </summary>
