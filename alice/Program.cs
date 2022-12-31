@@ -16,132 +16,116 @@ namespace alice
         {
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
-            if (pa.Flags.Contains("r") || pa.Flags.Contains("run"))
-            {
-                //実行モード
-                if (pa.Values.ContainsKey("print"))
-                {
-                    if (pa.Values["print"].ToLower() == "off")
-                    {
-                        allow_print = false;
-                    }
-                    else
-                    {
-                        print_redirect_files.Add(pa.Values["print"]);
-                    }
-                }
-                if (pa.Values.ContainsKey("throw"))
-                {
-                    if (pa.Values["throw"].ToLower() == "off")
-                    {
-                        allow_throw = false;
-                    }
-                    else
-                    {
-                        throw_redirect_files.Add(pa.Values["throw"]);
-                    }
-                }
-                if (pa.Values.ContainsKey("runtime") && (pa.Values["runtime"].ToLower() == "disable"))
-                {
-                    //ランタイムを初期化しない
-                }
-                else
-                {
-                    new AliceScript.NameSpaces.Alice_Runtime().Main();
-                }
-                bool mainfile = pa.Flags.Contains("mainfile");
-                ThrowErrorManerger.HandleError = true;
-                ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
-                Interpreter.Instance.OnOutput += Instance_OnOutput;
-                foreach (string fn in pa.Files)
-                {
-                    Alice.ExecuteFile(fn, mainfile);
-                }
-            }
-            else if (pa.Flags.Contains("p") || pa.Flags.Contains("pkg") || pa.Flags.Contains("package"))
-            {
-                //パッケージ実行モード
-                if (pa.Values.ContainsKey("print"))
-                {
-                    if (pa.Values["print"].ToLower() == "off")
-                    {
-                        allow_print = false;
-                    }
-                    else
-                    {
-                        print_redirect_files.Add(pa.Values["print"]);
-                    }
-                }
-                if (pa.Values.ContainsKey("throw"))
-                {
-                    if (pa.Values["throw"].ToLower() == "off")
-                    {
-                        allow_throw = false;
-                    }
-                    else
-                    {
-                        throw_redirect_files.Add(pa.Values["throw"]);
-                    }
-                }
-                if (pa.Values.ContainsKey("runtime") && (pa.Values["runtime"].ToLower() == "disable"))
-                {
-                    //ランタイムを初期化しない
-                }
-                else
-                {
-                    new AliceScript.NameSpaces.Alice_Runtime().Main();
-                }
-                bool mainfile = pa.Flags.Contains("mainfile");
-                ThrowErrorManerger.HandleError = true;
-                ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
-                Interpreter.Instance.OnOutput += Instance_OnOutput;
-                foreach (string fn in pa.Files)
-                {
-                    AlicePackage.Load(Path.GetFileName(fn));
-                }
-            }
-            else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
-            {
-                //パッケージ生成モード
-                string outfile;
-                if (pa.Values.TryGetValue("out", out outfile))
-                {
-                    int success = 0;
-                    int error = 0;
-                    int total = 1;
-                    foreach (string fn in pa.Files)
-                    {
-                        if (BuildPackage(fn, outfile, total))
-                        {
-                            success++;
-                        }
-                        else
-                        {
-                            error++;
-                        }
-                    }
-                    Console.WriteLine("ビルド: " + success + " 成功、" + error + " 失敗");
-                }
-                else
-                {
-                    Console.WriteLine("有効な出力先を指定してください");
-                }
-            }
-            else if(pa.Flags.Contains("v") || pa.Flags.Contains("version"))
+
+            if (pa.Flags.Contains("v") || pa.Flags.Contains("version"))
             {
                 //バージョン表示
                 Console.WriteLine(VersionText);
+                return;
             }
-            else if (pa.Files.Count > 0)
+            if (pa.Values.ContainsKey("print"))
             {
-                foreach(string fn in pa.Files)
+                if (pa.Values["print"].ToLower() == "off")
                 {
-                    Alice.ExecuteFile(fn,true);
+                    allow_print = false;
                 }
+                else
+                {
+                    print_redirect_files.Add(pa.Values["print"]);
+                }
+            }
+            if (pa.Values.ContainsKey("throw"))
+            {
+                if (pa.Values["throw"].ToLower() == "off")
+                {
+                    allow_throw = false;
+                }
+                else
+                {
+                    throw_redirect_files.Add(pa.Values["throw"]);
+                }
+            }
+            if (pa.Values.ContainsKey("runtime") && (pa.Values["runtime"].ToLower() == "disable"))
+            {
+                //ランタイムを初期化しない
             }
             else
             {
-                Shell.Do(args);
+                new AliceScript.NameSpaces.Alice_Runtime().Main();
+            }
+            if (!pa.Flags.Contains("noconfig"))
+            {
+                string filename = Path.Combine(AppContext.BaseDirectory, "config.alice");
+                if (pa.Values.ContainsKey("config"))
+                {
+                    filename = pa.Values["config"];
+                }
+                if (File.Exists(filename))
+                {
+                    Alice.ExecuteFile(filename);
+                }
+                if (pa.Flags.Contains("r") || pa.Flags.Contains("run"))
+                {
+                    //実行モード
+                    bool mainfile = pa.Flags.Contains("mainfile");
+                    ThrowErrorManerger.HandleError = true;
+                    ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
+                    Interpreter.Instance.OnOutput += Instance_OnOutput;
+                    foreach (string fn in pa.Files)
+                    {
+                        Alice.ExecuteFile(fn, mainfile);
+                    }
+                }
+                else if (pa.Flags.Contains("p") || pa.Flags.Contains("pkg") || pa.Flags.Contains("package"))
+                {
+                    //パッケージ実行モード
+                    bool mainfile = pa.Flags.Contains("mainfile");
+                    ThrowErrorManerger.HandleError = true;
+                    ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
+                    Interpreter.Instance.OnOutput += Instance_OnOutput;
+                    foreach (string fn in pa.Files)
+                    {
+                        AlicePackage.Load(Path.GetFileName(fn));
+                    }
+                }
+                else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
+                {
+                    //パッケージ生成モード
+                    string outfile;
+                    if (pa.Values.TryGetValue("out", out outfile))
+                    {
+                        int success = 0;
+                        int error = 0;
+                        int total = 1;
+                        foreach (string fn in pa.Files)
+                        {
+                            if (BuildPackage(fn, outfile, total))
+                            {
+                                success++;
+                            }
+                            else
+                            {
+                                error++;
+                            }
+                        }
+                        Console.WriteLine("ビルド: " + success + " 成功、" + error + " 失敗");
+                    }
+                    else
+                    {
+                        Console.WriteLine("有効な出力先を指定してください");
+                    }
+                }
+                else if (pa.Files.Count > 0)
+                {
+                    foreach (string fn in pa.Files)
+                    {
+                        Alice.ExecuteFile(fn, true);
+                    }
+                }
+                else
+                {
+                    Shell.Do(args);
+                }
             }
         }
        internal static string VersionText
