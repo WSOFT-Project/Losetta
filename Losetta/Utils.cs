@@ -581,15 +581,7 @@ namespace AliceScript
         }
         public static string GetFileContents(string filename)
         {
-            if (string.IsNullOrWhiteSpace(filename))
-            {
-                return "";
-            }
-            if (!File.Exists(filename))
-            {
-                ThrowErrorManerger.OnThrowError("ファイルが存在しません",Exceptions.FILE_NOT_FOUND);
-                return "";
-            }
+            
             try
             {
                 return Utils.GetFileLines(filename).Replace(Environment.NewLine,Constants.END_LINE.ToString());

@@ -132,6 +132,13 @@ namespace alice
                 //バージョン表示
                 Console.WriteLine(VersionText);
             }
+            else if (pa.Files.Count > 0)
+            {
+                foreach(string fn in pa.Files)
+                {
+                    Alice.ExecuteFile(fn,true);
+                }
+            }
             else
             {
                 Shell.Do(args);

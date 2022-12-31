@@ -1,5 +1,8 @@
-﻿using System;
+﻿using AliceScript.Interop;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -168,10 +171,35 @@ namespace AliceScript
 
         public Variable ProcessFile(string filename, bool mainFile = false)
         {
+            if (!File.Exists(filename))
+            {
+                ThrowErrorManerger.OnThrowError("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
+                return Variable.EmptyInstance;
+            }
+            byte[] data = File.ReadAllBytes(filename);
+            if (IsEqualMagicnumber(data,Constants.PACKAGE_MAGIC_NUMBER))
+            {
+                AlicePackage.LoadEncodingPackage(data, filename);
+                return Variable.EmptyInstance;
+            }
+            else if (IsEqualMagicnumber(data, Constants.DLL_MAGIC_NUMBER))
+            {
+                NetLibraryLoader.LoadLibrary(data);
+                return Variable.EmptyInstance;
+            }
+            else if (IsEqualMagicnumber(data, Constants.ZIP_MAGIC_NUMBER))
+            {
+                AlicePackage.LoadArchive(new ZipArchive(new MemoryStream(data)), filename);
+                return Variable.EmptyInstance;
+            }
             string script = Utils.GetFileContents(filename);
             return Process(script, filename, mainFile);
         }
-
+        private bool IsEqualMagicnumber(byte[] data, byte[] magicnumber)
+        {
+            byte[] magic = data.Take(data.Length).ToArray();
+            return (magic.SequenceEqual(data));
+        }
         public async Task<Variable> ProcessFileAsync(string filename, bool mainFile = false)
         {
             string script = Utils.GetFileContents(filename);

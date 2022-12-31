@@ -25,8 +25,7 @@ namespace alice
         [STAThread]
         public static void Do(string[] args)
         {
-            Alice.Exiting += Alice_Exiting;
-            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+            Console.CancelKeyPress += delegate (object? sender, ConsoleCancelEventArgs e)
             {
                 if (e.SpecialKey.HasFlag(ConsoleSpecialKey.ControlBreak))
                 {
@@ -39,7 +38,7 @@ namespace alice
                 Console.WriteLine("スペースキーを押すと、画面がクリアされます");
                 Console.WriteLine("Bacmspaceキーを押した後、終了コードを入力するとそのコードで終了します");
                 Console.WriteLine("その他のキーを押すと、終了します");
-                switch (Console.ReadKey().Key)
+                switch (Console.ReadKey(true).Key)
                 {
                     case ConsoleKey.Escape:
                         {
@@ -166,19 +165,6 @@ namespace alice
             RunLoop();
         }
         static bool mainfile = false;
-
-        private static void Alice_Exiting(object sender, ExitingEventArgs e)
-        {
-            Console.WriteLine("スクリプトによってシェルが終了されようとしています。");
-            Console.WriteLine("Enterキーを押すとシェルに戻ります。そのほかのキーを押すと終了します。");
-
-            if (Console.ReadKey().Key == ConsoleKey.Enter)
-            {
-                e.Cancel = true;
-            }
-        }
-
-
         private static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (e.Message != "")

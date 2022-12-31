@@ -184,6 +184,10 @@ namespace AliceScript
 
         // ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
         public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45,0x01 };
+        // DLLファイルのマーク(ASCIIでM,Z)
+        public static byte[] DLL_MAGIC_NUMBER = { 0x4d,0x5a};
+        // ZIPファイルのマーク(ASCIIでP,K)
+        public static byte[] ZIP_MAGIC_NUMBER = { 0x50,0x4b };
         // パッケージマニフェストファイルの名前
         public const string PACKAGE_MANIFEST_FILENAME = "manifest.xml";
 

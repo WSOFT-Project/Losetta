@@ -102,7 +102,7 @@ namespace AliceScript
                 return null;
             }
         }
-        private static void LoadArchive(ZipArchive a, string filename = "")
+        internal static void LoadArchive(ZipArchive a, string filename = "")
         {
             try
             {
