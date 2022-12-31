@@ -23,6 +23,38 @@ namespace alice
                 Console.WriteLine(VersionText);
                 return;
             }
+            if (pa.Flags.Contains("logo"))
+            {
+                Console.WriteLine(@"
+                 ...(J&aa&JJ.-..
+            .._(J9=:~~~~~((JJdMaJJ--.
+         .((g#9=7<<?7TMWm-~~~~~~?9e7Ya,.
+       .JT=(9~~~~~~(7<~~~?Ya-~~~~~(W,~?9e-
+     .J5~~J:~~~~~(C~~~~~~~~~dm-J++JJdp~~(U,.
+    (#<~((gVY""77vTTT6+,~((<<~_4/~~~~~d2Tu,?m_
+   (@_(Y5F~~~~~(:~~~~~_?6,~~~~~w/~~~~~H~~(Tdp~.
+  ~dj8<~(<~~~~~>~~~~~~~~~~7,~:~_4(_~~~Jc~~~_W,~.
+ ~(#:~~~J~~(JJTTC<<<<?7C+.~(G_~~Jc~_?1(l~~~~J#p~
+.(Mt~~~~(gY:~~_~~~((gMMMMKMNgG_~($~~~~J?3,~~(FJ[_
+~djr~~(J51~~~~~(v:jMBBw9UjUJMWp~(l~~~(D~~(O-(t~N_
+(F~h~(@~~_>~~(3~~(@#4J<~~~?O(BM[J~~:(Z~~~~~z#~~Jr.
+Jt~/a@~~~~~1J~~~Jd#4fc~~~~~?JmMN3~~(f<~~:~_dv/~Jt_
+Jr~(Mx~~:~(f~~~(tJMdvZ-_~_(1kWdt~(J=~~1~~(d<~h~d<`
+(E~($(G-~~d~~~~J~~dNN7kTQ+aJdM5Jv:~~~~~GJ5~~~J(@~
+_J2g>~~?zJF~~~~J~~(6TMNgNNN#57<~~_~~_(J4_~~~~J#~_
+ ~dd[~~~~J$1--~J/~~_G_~?71JJJ((JJJvT>~~(l~~:(M<~`
+  ~?R_~~~Jr~~~~~b~~~~?&_~~~~~~~~~<~~~~~(>~(d4F~`
+   ~dfG-~(E~~~~~/p~~~~~?4J<~~~:~(<~~~:~JJT=(K~`
+    ~Ux(TuJp~:~~~/h__((<~~?TTuJJaJJJwT4t~~(B~`
+     _?m-~~de777777TJ~~~~~~~~(J~~~~~~(5~(J5_
+       _Vm,~?h-~~~~~_TQJ~~:(J:~~~~~(J3(Y3_
+         `?ThJdm,~~~~~_(dBN&JJJJJJgH9=_`
+            `_~?7TMHVC<~~~~~_(Jd9:~_`
+                ``__~?T""""""""TC~_``
+");
+                Console.WriteLine(VersionText);
+                return;
+            }
             if (pa.Values.ContainsKey("print"))
             {
                 if (pa.Values["print"].ToLower() == "off")
@@ -224,7 +256,6 @@ namespace alice
         }
         private static void Instance_OnOutput(object sender, OutputAvailableEventArgs e)
         {
-            Console.WriteLine("OUT:");
             if (allow_print)
             {
                 Console.Write(e.Output);
@@ -237,7 +268,6 @@ namespace alice
                 }
             }
         }
-
         private static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (e.Message != "")

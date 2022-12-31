@@ -37,7 +37,7 @@ namespace alice
                 }
                 else if (src)
                 {
-                    Script += arg+AliceScript.Constants.END_STATEMENT;
+                    Script += arg + AliceScript.Constants.END_STATEMENT;
                 }
                 else
                 {
