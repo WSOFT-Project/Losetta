@@ -15,17 +15,29 @@ namespace alice
         }
         private void m_init(string[] args)
         {
+            Script = "";
             bool aarg = false;
+            bool src = false;
             foreach (string arg in args)
             {
-                if (arg.ToLower() == "--arg" && arg.ToLower() == "--args")
+                if (arg.ToLower() == "--arg" || arg.ToLower() == "--args")
                 {
                     aarg = true;
+                    continue;
+                }
+                if (arg.ToLower() == "-s" || arg.ToLower() == "-script")
+                {
+                    src = true;
+                    Flags.Add("s");
                     continue;
                 }
                 if (aarg)
                 {
                     Args.Add(arg);
+                }
+                else if (src)
+                {
+                    Script += arg+AliceScript.Constants.END_STATEMENT;
                 }
                 else
                 {
@@ -82,5 +94,6 @@ namespace alice
             get => m_files;
             set => m_files = value;
         }
+        public string Script { get; set; }
     }
 }

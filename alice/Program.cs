@@ -53,6 +53,9 @@ namespace alice
             {
                 new AliceScript.NameSpaces.Alice_Runtime().Main();
             }
+
+            ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
+            Interpreter.Instance.OnOutput += Instance_OnOutput;
             if (!pa.Flags.Contains("noconfig"))
             {
                 string filename = Path.Combine(AppContext.BaseDirectory, "config.alice");
@@ -64,77 +67,74 @@ namespace alice
                 {
                     Alice.ExecuteFile(filename);
                 }
+            }
+            if (pa.Flags.Contains("s"))
+            {
+                Alice.Execute(pa.Script);
+            }
+            else
                 if (pa.Flags.Contains("r") || pa.Flags.Contains("run"))
+            {
+                //実行モード
+                bool mainfile = pa.Flags.Contains("mainfile");
+                ThrowErrorManerger.HandleError = true;
+                foreach (string fn in pa.Files)
                 {
-                    //実行モード
-                    bool mainfile = pa.Flags.Contains("mainfile");
-                    ThrowErrorManerger.HandleError = true;
-                    ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
-                    Interpreter.Instance.OnOutput += Instance_OnOutput;
+                    Alice.ExecuteFile(fn, mainfile);
+                }
+            }
+            else if (pa.Flags.Contains("p") || pa.Flags.Contains("pkg") || pa.Flags.Contains("package"))
+            {
+                //パッケージ実行モード
+                bool mainfile = pa.Flags.Contains("mainfile");
+                ThrowErrorManerger.HandleError = true;
+                foreach (string fn in pa.Files)
+                {
+                    AlicePackage.Load(Path.GetFileName(fn));
+                }
+            }
+            else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
+            {
+                //パッケージ生成モード
+                string outfile;
+                if (pa.Values.TryGetValue("out", out outfile))
+                {
+                    int success = 0;
+                    int error = 0;
+                    int total = 1;
                     foreach (string fn in pa.Files)
                     {
-                        Alice.ExecuteFile(fn, mainfile);
-                    }
-                }
-                else if (pa.Flags.Contains("p") || pa.Flags.Contains("pkg") || pa.Flags.Contains("package"))
-                {
-                    //パッケージ実行モード
-                    bool mainfile = pa.Flags.Contains("mainfile");
-                    ThrowErrorManerger.HandleError = true;
-                    ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
-                    Interpreter.Instance.OnOutput += Instance_OnOutput;
-                    foreach (string fn in pa.Files)
-                    {
-                        AlicePackage.Load(Path.GetFileName(fn));
-                    }
-                }
-                else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
-                {
-                    //パッケージ生成モード
-                    string outfile;
-                    if (pa.Values.TryGetValue("out", out outfile))
-                    {
-                        int success = 0;
-                        int error = 0;
-                        int total = 1;
-                        foreach (string fn in pa.Files)
+                        if (BuildPackage(fn, outfile, total))
                         {
-                            if (BuildPackage(fn, outfile, total))
-                            {
-                                success++;
-                            }
-                            else
-                            {
-                                error++;
-                            }
+                            success++;
                         }
-                        Console.WriteLine("ビルド: " + success + " 成功、" + error + " 失敗");
+                        else
+                        {
+                            error++;
+                        }
                     }
-                    else
-                    {
-                        Console.WriteLine("有効な出力先を指定してください");
-                    }
-                }
-                else if (pa.Files.Count > 0)
-                {
-                    foreach (string fn in pa.Files)
-                    {
-                        Alice.ExecuteFile(fn, true);
-                    }
+                    Console.WriteLine("ビルド: " + success + " 成功、" + error + " 失敗");
                 }
                 else
                 {
-                    Shell.Do(args);
+                    Console.WriteLine("有効な出力先を指定してください");
                 }
             }
-        }
-       internal static string VersionText
-        {
-            get
+            else if (pa.Files.Count > 0)
             {
-                return "AliceScript バージョン " + Alice.Version.ToString() + " ("+Alice.ImplementationName+" v" + Alice.ImplementationVersion.ToString() + " on "+ Environment.OSVersion.Platform + ")";
+                foreach (string fn in pa.Files)
+                {
+                    Alice.ExecuteFile(fn, true);
+                }
+            }
+            else
+            {
+                ThrowErrorManerger.ThrowError -= ThrowErrorManerger_ThrowError;
+                Interpreter.Instance.OnOutput -= Instance_OnOutput;
+                Shell.Do(args);
             }
         }
+        internal static string VersionText => "AliceScript バージョン " + Alice.Version.ToString() + " (" + Alice.ImplementationName + " v" + Alice.ImplementationVersion.ToString() + " on " + Environment.OSVersion.Platform + ")";
         private static bool allow_print = true;
         private static List<string> print_redirect_files = new List<string>();
         private static bool allow_throw = true;
@@ -224,6 +224,7 @@ namespace alice
         }
         private static void Instance_OnOutput(object sender, OutputAvailableEventArgs e)
         {
+            Console.WriteLine("OUT:");
             if (allow_print)
             {
                 Console.Write(e.Output);

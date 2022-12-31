@@ -14,7 +14,8 @@ namespace alice
         private static List<string> debug_print_redirect_files = new List<string>();
         private static bool allow_throw = true;
         private static List<string> throw_redirect_files = new List<string>();
-        enum NEXT_CMD
+
+        private enum NEXT_CMD
         {
             NONE = 0,
             PREV = -1,
@@ -63,25 +64,26 @@ namespace alice
             }
 
             Console.WriteLine(welcome_mes);
-            Console.WriteLine("(c) "+DateTime.Now.Year+" WSOFT All rights reserved.");
+            Console.WriteLine("(c) " + DateTime.Now.Year + " WSOFT All rights reserved.");
 
             Console.WriteLine();
-            
+
             RunLoop();
         }
-        static bool mainfile = false;
+
+        private static bool mainfile = false;
         private static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (e.Message != "")
             {
-                string throwmsg = "エラー0x"+((int)e.ErrorCode).ToString("x3")+": ";
+                string throwmsg = "エラー0x" + ((int)e.ErrorCode).ToString("x3") + ": ";
                 if (!string.IsNullOrEmpty(e.Message))
                 {
-                    throwmsg +=e.Message;
+                    throwmsg += e.Message;
                 }
                 if (e.Script != null)
                 {
-                    throwmsg += " "+e.Script.OriginalLineNumber+"行 コード:"+e.Script.OriginalLine+" ファイル名:"+e.Script.Filename;
+                    throwmsg += " " + e.Script.OriginalLineNumber + "行 コード:" + e.Script.OriginalLine + " ファイル名:" + e.Script.Filename;
                 }
                 throwmsg += "\r\n";
                 if (allow_throw)
@@ -94,9 +96,9 @@ namespace alice
                 {
                     foreach (string fn in throw_redirect_files)
                     {
-                        File.AppendAllText(fn,throwmsg);
+                        File.AppendAllText(fn, throwmsg);
                     }
-                   
+
                 }
                 s_PrintingCompleted = true;
             }
@@ -116,22 +118,22 @@ namespace alice
                 return s.Substring(-space / 2).Remove(width);
             }
         }
-        private static void AddDictionaryScriptVariables(ParsingScript script,ref Dictionary<string,ParserFunction> dic)
+        private static void AddDictionaryScriptVariables(ParsingScript script, ref Dictionary<string, ParserFunction> dic)
         {
-            foreach(string s in script.Variables.Keys)
+            foreach (string s in script.Variables.Keys)
             {
-                dic.Add(s,script.Variables[s]);
+                dic.Add(s, script.Variables[s]);
             }
             if (script.ParentScript != null)
             {
-                AddDictionaryScriptVariables(script.ParentScript,ref dic);
+                AddDictionaryScriptVariables(script.ParentScript, ref dic);
             }
         }
         public static void DumpLocalVariables(ParsingScript script)
         {
             if (script == null) { return; }
-            Dictionary<string,ParserFunction> dic = new Dictionary<string,ParserFunction>();
-            AddDictionaryScriptVariables(script,ref dic);
+            Dictionary<string, ParserFunction> dic = new Dictionary<string, ParserFunction>();
+            AddDictionaryScriptVariables(script, ref dic);
             if (dic.Count <= 0)
             {
                 return;
@@ -223,7 +225,7 @@ namespace alice
             for (int i = 0; i < names.Count; i++)
             {
                 string print = "|Global|";
-                print += Centering(names[i],namemax+2)+"|";
+                print += Centering(names[i], namemax + 2) + "|";
                 print += Centering(types[i], typemax + 2) + "|";
                 print += Centering(contents[i], contentmax + 2) + "|";
                 Console.WriteLine(print);
@@ -257,7 +259,8 @@ namespace alice
             result = result.Length == 0 ? startsWith : result;
             return start + baseStr + result;
         }
-        static bool exit = false;
+
+        private static bool exit = false;
         private static void RunLoop()
         {
             List<string> commands = new List<string>();
@@ -320,13 +323,13 @@ namespace alice
                 {
                     script += Constants.END_STATEMENT;
                 }
-                
+
                 ProcessScript(script);
                 cmdPtr = commands.Count - 1;
             }
         }
 
-        static string GetConsoleLine(ref NEXT_CMD cmd, string init = "",
+        private static string GetConsoleLine(ref NEXT_CMD cmd, string init = "",
                                              bool enhancedMode = true)
         {
             //string line = init;
@@ -413,7 +416,7 @@ namespace alice
                 SetCursor(prompt, sb.ToString(), delta + 1);
             }
         }
-        private static ParsingScript CurrentScript=null;
+        private static ParsingScript CurrentScript = null;
         private static void ProcessScript(string script, string filename = "")
         {
             s_PrintingCompleted = false;
@@ -430,15 +433,15 @@ namespace alice
                 }
                 else
                 {
-                        //Interpreter.Instance.ProcessAsync(script, filename)).Result;
-                        if (CurrentScript == null)
-                        {
-                            CurrentScript = Alice.GetScript(script, filename, true);
-                        }
-                        else
-                        {
-                            CurrentScript=CurrentScript.GetTempScript(script);
-                        }
+                    //Interpreter.Instance.ProcessAsync(script, filename)).Result;
+                    if (CurrentScript == null)
+                    {
+                        CurrentScript = Alice.GetScript(script, filename, true);
+                    }
+                    else
+                    {
+                        CurrentScript = CurrentScript.GetTempScript(script);
+                    }
                     result = CurrentScript.Process();
                 }
             }
@@ -491,7 +494,7 @@ namespace alice
               prompt, line, prompt, line.Substring(0, pos));
         }
 
-        static void Print(object sender, OutputAvailableEventArgs e)
+        private static void Print(object sender, OutputAvailableEventArgs e)
         {
             if (allow_print)
             {
@@ -506,7 +509,8 @@ namespace alice
             }
             s_PrintingCompleted = true;
         }
-        static void Debug_Print(object sender, OutputAvailableEventArgs e)
+
+        private static void Debug_Print(object sender, OutputAvailableEventArgs e)
         {
             if (allow_debug_print)
             {
@@ -521,6 +525,7 @@ namespace alice
             }
             s_PrintingCompleted = true;
         }
-        static bool s_PrintingCompleted = false;
+
+        private static bool s_PrintingCompleted = false;
     }
 }

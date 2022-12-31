@@ -197,8 +197,8 @@ namespace AliceScript
         }
         private bool IsEqualMagicnumber(byte[] data, byte[] magicnumber)
         {
-            byte[] magic = data.Take(data.Length).ToArray();
-            return (magic.SequenceEqual(data));
+            byte[] magic = data.Take(magicnumber.Length).ToArray();
+            return (magic.SequenceEqual(magicnumber));
         }
         public async Task<Variable> ProcessFileAsync(string filename, bool mainFile = false)
         {
