@@ -18,7 +18,7 @@ namespace alice
             bool aarg = false;
             foreach (string arg in args)
             {
-                if (arg.ToLower() == "--arg")
+                if (arg.ToLower() == "--arg" && arg.ToLower() == "--args")
                 {
                     aarg = true;
                     continue;
