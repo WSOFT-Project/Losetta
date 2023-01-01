@@ -15,7 +15,7 @@ namespace AliceScript
             if (args < expected || (exactMatch && args != expected))
             {
                 //引数の不足
-                ThrowErrorManerger.OnThrowError(msg+"には引数が"+expected+"個必要ですが、"+args+"個しか指定されていません",Exceptions.INSUFFICIENT_ARGUMETS);
+                ThrowErrorManerger.OnThrowError(msg + "には引数が" + expected + "個必要ですが、" + args + "個しか指定されていません", Exceptions.INSUFFICIENT_ARGUMETS);
             }
         }
 
@@ -25,7 +25,7 @@ namespace AliceScript
             if (variable.Value < 0)
             {
                 ThrowErrorMsg("次の数の代わりに負でない整数である必要があります [" +
-                              variable.Value + "]",Exceptions.EXPECTED_NON_NEGATIVE_INTEGER, script, script.Current.ToString());
+                              variable.Value + "]", Exceptions.EXPECTED_NON_NEGATIVE_INTEGER, script, script.Current.ToString());
             }
         }
         public static void CheckInteger(Variable variable, ParsingScript script)
@@ -34,7 +34,7 @@ namespace AliceScript
             if (variable.Value % 1 != 0.0)
             {
                 ThrowErrorMsg("次の数の代わりに整数である必要があります  [" +
-                              variable.Value + "]",Exceptions.EXPECTED_INTEGER, script, script.Current.ToString());
+                              variable.Value + "]", Exceptions.EXPECTED_INTEGER, script, script.Current.ToString());
             }
         }
         public static void CheckNumber(Variable variable, ParsingScript script)
@@ -42,7 +42,7 @@ namespace AliceScript
             if (variable.Type != Variable.VarType.NUMBER)
             {
                 ThrowErrorMsg("次の代わりに数値型である必要があります  [" +
-                              variable.AsString() + "]",Exceptions.WRONG_TYPE_VARIABLE, script, script.Current.ToString());
+                              variable.AsString() + "]", Exceptions.WRONG_TYPE_VARIABLE, script, script.Current.ToString());
             }
         }
         public static void CheckNotNull(string name, ParserFunction func, ParsingScript script)
@@ -50,7 +50,7 @@ namespace AliceScript
             if (func == null)
             {
                 string realName = Constants.GetRealName(name);
-                ThrowErrorMsg("次の変数または関数は存在しません [" + realName + "]",Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script, name);
+                ThrowErrorMsg("次の変数または関数は存在しません [" + realName + "]", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script, name);
             }
         }
         public static bool CheckNotNull(object obj, string name, ParsingScript script)
@@ -58,7 +58,7 @@ namespace AliceScript
             if (obj == null)
             {
                 string realName = Constants.GetRealName(name);
-                ThrowErrorMsg("次のオブジェクトは存在しません [" + realName + "]",Exceptions.OBJECT_DOESNT_EXIST, script, name);
+                ThrowErrorMsg("次のオブジェクトは存在しません [" + realName + "]", Exceptions.OBJECT_DOESNT_EXIST, script, name);
                 return false;
             }
             return true;
@@ -68,14 +68,14 @@ namespace AliceScript
         {
             if (!script.StillValid())
             {
-                ThrowErrorMsg("関数の定義が不完全です", Exceptions.INCOMPLETE_FUNCTION_DEFINITION,script, script.Prev.ToString());
+                ThrowErrorMsg("関数の定義が不完全です", Exceptions.INCOMPLETE_FUNCTION_DEFINITION, script, script.Prev.ToString());
             }
         }
         public static void CheckForValidName(string name, ParsingScript script)
         {
             if (string.IsNullOrWhiteSpace(name) || (!Char.IsLetter(name[0]) && name[0] != '_'))
             {
-                ThrowErrorMsg("変数名として次の名前は使用できません: [" + name + "]",Exceptions.ILLEGAL_VARIABLE_NAME,
+                ThrowErrorMsg("変数名として次の名前は使用できません: [" + name + "]", Exceptions.ILLEGAL_VARIABLE_NAME,
                               script, name);
             }
 
@@ -91,7 +91,7 @@ namespace AliceScript
                         char ch = illegals[i];
                         if (name.Contains(ch))
                         {
-                            ThrowErrorMsg("[" + name + "]のうち、変数名として [" + ch + "]は使用できません",Exceptions.CONTAINS_ILLEGAL_CHARACTER,
+                            ThrowErrorMsg("[" + name + "]のうち、変数名として [" + ch + "]は使用できません", Exceptions.CONTAINS_ILLEGAL_CHARACTER,
                                           script, name);
                         }
                     }
@@ -99,7 +99,7 @@ namespace AliceScript
             }
         }
 
-        public static void ThrowErrorMsg(string msg,Exceptions errorcode, ParsingScript script, string token)
+        public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script, string token)
         {
             /*
              * TODO:ThrowErrorMSGの引継ぎ等
@@ -110,12 +110,12 @@ namespace AliceScript
 
             ThrowErrorMsg(msg, code, lineNumber, filename, minLines);
             */
-            ThrowErrorManerger.OnThrowError(msg,errorcode,script);
+            ThrowErrorManerger.OnThrowError(msg, errorcode, script);
         }
 
-        static void ThrowErrorMsg(string msg, string script,Exceptions ecode, int lineNumber, string filename = "", int minLines = 1)
+        static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "", int minLines = 1)
         {
-            string [] lines = script.Split('\n');
+            string[] lines = script.Split('\n');
             lineNumber = lines.Length <= lineNumber ? -1 : lineNumber;
             System.Diagnostics.Debug.WriteLine(msg);
             if (lineNumber < 0)
@@ -146,13 +146,13 @@ namespace AliceScript
             stack.AppendLine("" + currentLineNumber);
             stack.AppendLine(filename);
             stack.AppendLine(line);
-            ThrowErrorManerger.OnThrowError(msg+stack.ToString(),ecode,null);
+            ThrowErrorManerger.OnThrowError(msg + stack.ToString(), ecode, null);
         }
 
-        static void ThrowErrorMsg(string msg, string code, Exceptions ecode,int level, int lineStart, int lineEnd, string filename)
+        static void ThrowErrorMsg(string msg, string code, Exceptions ecode, int level, int lineStart, int lineEnd, string filename)
         {
             var lineNumber = level > 0 ? lineStart : lineEnd;
-            ThrowErrorMsg(msg, code,ecode, lineNumber, filename);
+            ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
         }
 
         public static bool CheckLegalName(string name, ParsingScript script = null, bool throwError = true)
@@ -161,22 +161,22 @@ namespace AliceScript
             {
                 return false;
             }
-                if (Constants.CheckReserved(name))
+            if (Constants.CheckReserved(name))
+            {
+                if (!throwError)
                 {
-                    if (!throwError)
-                    {
-                        return false;
-                    }
-                    Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, script, name);
+                    return false;
                 }
-                if (Char.IsDigit(name[0]) || name[0] == '-')
+                Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, script, name);
+            }
+            if (Char.IsDigit(name[0]) || name[0] == '-')
+            {
+                if (!throwError)
                 {
-                    if (!throwError)
-                    {
-                        return false;
-                    }
-                    Utils.ThrowErrorMsg(name + "として定義されていますが、[" + name[0] + "]を変数名の先端に使用することはできません", Exceptions.ITHAS_ILLEGAL_FIRST_CHARACTER, null, name);
+                    return false;
                 }
+                Utils.ThrowErrorMsg(name + "として定義されていますが、[" + name[0] + "]を変数名の先端に使用することはできません", Exceptions.ITHAS_ILLEGAL_FIRST_CHARACTER, null, name);
+            }
             return true;
         }
 
@@ -227,11 +227,11 @@ namespace AliceScript
             string fileContents = string.Empty;
             if (File.Exists(filename))
             {
-                fileContents= SafeReader.ReadAllText(filename, out _);
+                fileContents = SafeReader.ReadAllText(filename, out _);
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("ファイルが存在しません",Exceptions.FILE_NOT_FOUND);
+                ThrowErrorManerger.OnThrowError("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
                 return fileContents;
             }
             return fileContents;
@@ -270,12 +270,20 @@ namespace AliceScript
 
         public static string GetFileLines(string filename)
         {
-                string lines = SafeReader.ReadAllText(filename,out _);
-                return lines;
+            string lines = SafeReader.ReadAllText(filename, out var v);
+            if (lines == null)
+            {
+                lines = string.Empty;
+            }
+            return lines;
         }
         public static string GetFileLines(byte[] data)
         {
             string lines = SafeReader.ReadAllText(data, out _);
+            if (lines == null)
+            {
+                lines = string.Empty;
+            }
             return lines;
         }
 
@@ -291,7 +299,7 @@ namespace AliceScript
             return new GetVarFunction(result);
         }
 
-    
+
 
         public static void PrintList(List<Variable> list, int from)
         {
@@ -354,7 +362,7 @@ namespace AliceScript
             }
             return args[index].AsString();
         }
-        public static bool GetSafeBool(List<Variable> args,int index,bool defaultValue = false)
+        public static bool GetSafeBool(List<Variable> args, int index, bool defaultValue = false)
         {
             if (args.Count <= index)
             {
@@ -420,7 +428,7 @@ namespace AliceScript
         {
             string str = obj.ToString().ToLower();
             double num = 0;
-            if(script.Tag is string s && s == "DELEGATE") { return 0; }
+            if (script.Tag is string s && s == "DELEGATE") { return 0; }
             if (!CanConvertToDouble(str, out num) &&
                 script != null)
             {
@@ -443,7 +451,7 @@ namespace AliceScript
                 try
                 {
                     //16進表現では浮動小数点型の表現ができないためdoubleと最も近い精度である整数値型long(Int64)を使用します
-                    num = long.Parse(m.Value.Substring(2),NumberStyles.HexNumber);
+                    num = long.Parse(m.Value.Substring(2), NumberStyles.HexNumber);
                     return true;
                 }
                 catch
@@ -459,7 +467,7 @@ namespace AliceScript
                 try
                 {
                     //2進表現では浮動小数点型の表現ができないためdoubleと最も近い精度である整数値型long(Int64)を使用します
-                    num = Convert.ToInt64(m.Value.Substring(2),2);
+                    num = Convert.ToInt64(m.Value.Substring(2), 2);
                     return true;
                 }
                 catch
@@ -585,7 +593,6 @@ namespace AliceScript
         }
         public static string GetFileContents(byte[] data)
         {
-
             try
             {
                 return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
@@ -637,9 +644,9 @@ namespace AliceScript
             {
                 path = Path.GetFullPath(path);
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
-                ThrowErrorManerger.OnThrowError(path+"のフルパスの取得に失敗しました\r\n詳細:"+exc,Exceptions.NONE);
+                ThrowErrorManerger.OnThrowError(path + "のフルパスの取得に失敗しました\r\n詳細:" + exc, Exceptions.NONE);
             }
             return path;
         }
@@ -656,7 +663,7 @@ namespace AliceScript
             }
             catch (Exception exc)
             {
-                ThrowErrorManerger.OnThrowError(path+"のディレクトリの取得に失敗しました\r\n詳細:"+exc,Exceptions.NONE);
+                ThrowErrorManerger.OnThrowError(path + "のディレクトリの取得に失敗しました\r\n詳細:" + exc, Exceptions.NONE);
             }
             return GetCurrentDirectory();
         }
@@ -669,7 +676,7 @@ namespace AliceScript
             }
             catch (Exception exc)
             {
-                ThrowErrorManerger.OnThrowError("カレントディレクトリの取得に失敗しました\r\n詳細:"+exc,Exceptions.NONE);
+                ThrowErrorManerger.OnThrowError("カレントディレクトリの取得に失敗しました\r\n詳細:" + exc, Exceptions.NONE);
             }
             return "";
         }

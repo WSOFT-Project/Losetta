@@ -49,25 +49,11 @@ namespace alice
             //例外出力
             ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
 
-            string welcome_mes = Program.VersionText;
-            if (!allow_print)
+            string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
+            if (File.Exists(filename))
             {
-                welcome_mes += " [標準出力無効]";
+                Alice.ExecuteFile(filename);
             }
-            if (!allow_debug_print)
-            {
-                welcome_mes += " [デバッグ出力無効]";
-            }
-            if (!allow_throw)
-            {
-                welcome_mes += " [例外出力無効]";
-            }
-
-            Console.WriteLine(welcome_mes);
-            Console.WriteLine("(c) " + DateTime.Now.Year + " WSOFT All rights reserved.");
-
-            Console.WriteLine();
-
             RunLoop();
         }
 
