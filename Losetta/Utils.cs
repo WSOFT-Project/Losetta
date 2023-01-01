@@ -273,8 +273,12 @@ namespace AliceScript
                 string lines = SafeReader.ReadAllText(filename,out _);
                 return lines;
         }
+        public static string GetFileLines(byte[] data)
+        {
+            string lines = SafeReader.ReadAllText(data, out _);
+            return lines;
+        }
 
-        
         public static GetVarFunction ExtractArrayElement(string token)
         {
             if (!token.Contains(Constants.START_ARRAY))
@@ -579,20 +583,19 @@ namespace AliceScript
                 val3 = val2 = val1;
             }
         }
-        public static string GetFileContents(string filename)
+        public static string GetFileContents(byte[] data)
         {
-            
+
             try
             {
-                return Utils.GetFileLines(filename).Replace(Environment.NewLine,Constants.END_LINE.ToString());
+                return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
             }
             catch (Exception exc)
             {
-                ThrowErrorManerger.OnThrowError("ファイルの読み込みに失敗しました\r\n詳細:"+exc.Message,Exceptions.COULDNT_READ_FILE);
+                ThrowErrorManerger.OnThrowError("ファイルの読み込みに失敗しました\r\n詳細:" + exc.Message, Exceptions.COULDNT_READ_FILE);
                 return "";
             }
         }
-
         public static string RemovePrefix(string text)
         {
             string candidate = text.Trim().ToLower();

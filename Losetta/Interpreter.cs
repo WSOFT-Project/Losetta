@@ -177,6 +177,10 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             byte[] data = File.ReadAllBytes(filename);
+            return ProcessData(data,filename,mainFile);
+        }
+        public Variable ProcessData(byte[] data,string filename="",bool mainFile = false)
+        {
             if (IsEqualMagicnumber(data, Constants.PACKAGE_MAGIC_NUMBER))
             {
                 AlicePackage.LoadEncodingPackage(data, filename);
@@ -192,8 +196,29 @@ namespace AliceScript
                 AlicePackage.LoadArchive(new ZipArchive(new MemoryStream(data)), filename);
                 return Variable.EmptyInstance;
             }
-            string script = Utils.GetFileContents(filename);
+            string script = Utils.GetFileContents(data);
             return Process(script, filename, mainFile);
+        }
+        public async Task<Variable> ProcessDataAsync(byte[] data, string filename = "", bool mainFile = false)
+        {
+            if (IsEqualMagicnumber(data, Constants.PACKAGE_MAGIC_NUMBER))
+            {
+                AlicePackage.LoadEncodingPackage(data, filename);
+                return Variable.EmptyInstance;
+            }
+            else if (IsEqualMagicnumber(data, Constants.DLL_MAGIC_NUMBER))
+            {
+                NetLibraryLoader.LoadLibrary(data);
+                return Variable.EmptyInstance;
+            }
+            else if (IsEqualMagicnumber(data, Constants.ZIP_MAGIC_NUMBER))
+            {
+                AlicePackage.LoadArchive(new ZipArchive(new MemoryStream(data)), filename);
+                return Variable.EmptyInstance;
+            }
+            string script = Utils.GetFileContents(data);
+            Variable result = await ProcessAsync(script, filename, mainFile);
+            return result;
         }
         private bool IsEqualMagicnumber(byte[] data, byte[] magicnumber)
         {
@@ -202,9 +227,13 @@ namespace AliceScript
         }
         public async Task<Variable> ProcessFileAsync(string filename, bool mainFile = false)
         {
-            string script = Utils.GetFileContents(filename);
-            Variable result = await ProcessAsync(script, filename, mainFile);
-            return result;
+            if (!File.Exists(filename))
+            {
+                ThrowErrorManerger.OnThrowError("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
+                return Variable.EmptyInstance;
+            }
+            byte[] data = File.ReadAllBytes(filename);
+            return await ProcessDataAsync(data, filename, mainFile);
         }
         public ParsingScript GetScript(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {

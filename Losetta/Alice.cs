@@ -22,14 +22,25 @@ namespace AliceScript
            return Interpreter.Instance.Process(code,filename,mainFile);
         }
         /// <summary>
-        /// AliceScriptファイルを実行します
+        /// このインタプリタで実行可能なファイルを読み込みます
         /// </summary>
-        /// <param name="filename">スクリプトのファイル名</param>
+        /// <param name="filename">ファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>スクリプトから返される戻り値</returns>
         public static Variable ExecuteFile(string filename,bool mainFile=false)
         {
             return Interpreter.Instance.ProcessFile(filename,mainFile);
+        }
+        /// <summary>
+        /// このインタプリタで実行可能なファイルを読み込みます
+        /// </summary>
+        /// <param name="data">ファイル</param>
+        /// <param name="filename">ファイル名</param>
+        /// <param name="mainFile">メインファイルとして処理するか否か</param>
+        /// <returns>スクリプトから返される戻り値</returns>
+        public static Variable ExecuteFile(byte[] data,string filename="",bool mainFile = false)
+        {
+            return Interpreter.Instance.ProcessData(data,filename,mainFile);
         }
         /// <summary>
         /// AliceScriptのコードを非同期で実行します
