@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace AliceScript
@@ -28,7 +27,7 @@ namespace AliceScript
 
             if (listToMerge.Count == 0)
             {
-                ThrowErrorManerger.OnThrowError(script.Rest+"を解析できません",Exceptions.COULDNT_PARSE,script);
+                ThrowErrorManerger.OnThrowError(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
             }
 
             // Second step: merge list of cells to get the result of an expression.
@@ -51,7 +50,7 @@ namespace AliceScript
             return result;
         }
 
-        static List<Variable> Split(ParsingScript script, char[] to)
+        private static List<Variable> Split(ParsingScript script, char[] to)
         {
             List<Variable> listToMerge = new List<Variable>(16);
 
@@ -98,7 +97,7 @@ namespace AliceScript
             return listToMerge;
         }
 
-        static async Task<List<Variable>> SplitAsync(ParsingScript script, char[] to)
+        private static async Task<List<Variable>> SplitAsync(ParsingScript script, char[] to)
         {
             List<Variable> listToMerge = new List<Variable>(16);
 
@@ -198,13 +197,13 @@ namespace AliceScript
                 Utils.IsAction(script.Prev) && Utils.IsAction(script.PrevPrev))
             {
                 Utils.ThrowErrorMsg("次のトークンを実行できませんでした [" + script.PrevPrev + script.Prev + script.Current +
-                                    "].",Exceptions.INVALID_TOKEN, script, script.Current.ToString());
+                                    "].", Exceptions.INVALID_TOKEN, script, script.Current.ToString());
             }
 
             return result;
         }
-        
-        static bool UpdateResult(ParsingScript script, char[] to, List<Variable> listToMerge, string token, bool negSign,
+
+        private static bool UpdateResult(ParsingScript script, char[] to, List<Variable> listToMerge, string token, bool negSign,
                                  ref Variable current, ref int negated, ref string action)
         {
             if (current == null)
@@ -253,14 +252,14 @@ namespace AliceScript
             char next = script.TryCurrent(); // 前進済み
             bool done = listToMerge.Count == 0 &&
                         (next == Constants.END_STATEMENT ||
-                        ((action == Constants.NULL_ACTION) && (current!=null && current.Type != Variable.VarType.BOOLEAN)) ||
-                         (current!=null&&current.IsReturn));
+                        ((action == Constants.NULL_ACTION) && (current != null && current.Type != Variable.VarType.BOOLEAN)) ||
+                         (current != null && current.IsReturn));
             if (done)
             {
 
                 if (action != null && action != Constants.END_ARG_STR && token != Constants.DEFAULT)
                 {
-                    ThrowErrorManerger.OnThrowError("次のアクションで引数が不完全です。["+action+"]",Exceptions.INSUFFICIENT_ARGUMETS);
+                    ThrowErrorManerger.OnThrowError("次のアクションで引数が不完全です。[" + action + "]", Exceptions.INSUFFICIENT_ARGUMETS);
                     return false;
                 }
 
@@ -278,7 +277,8 @@ namespace AliceScript
             }
             return false;
         }
-        static bool CheckConsistencyAndSign(ParsingScript script, List<Variable> listToMerge, string action, ref string token)
+
+        private static bool CheckConsistencyAndSign(ParsingScript script, List<Variable> listToMerge, string action, ref string token)
         {
             if (Constants.CONTROL_FLOW.Contains(token) && listToMerge.Count > 0)
             {//&&
@@ -301,8 +301,7 @@ namespace AliceScript
             return negSign;
         }
 
-
-        static void CheckQuotesIndices(ParsingScript script,
+        private static void CheckQuotesIndices(ParsingScript script,
                             char ch, ref bool inQuotes, ref int arrayIndexDepth)
         {
             switch (ch)
@@ -333,7 +332,7 @@ namespace AliceScript
             }
         }
 
-        static bool CheckNegativeSign(ref string token)
+        private static bool CheckNegativeSign(ref string token)
         {
             if (token.Length < 2 || token[0] != '-' || token[1] == Constants.QUOTE)
             {
@@ -352,7 +351,7 @@ namespace AliceScript
             return true;
         }
 
-        static void AppendIfNecessary(StringBuilder item, char ch, char[] to)
+        private static void AppendIfNecessary(StringBuilder item, char ch, char[] to)
         {
             if (ch == Constants.END_ARRAY && to.Length == 1 && to[0] == Constants.END_ARRAY &&
                 item.Length > 0 && item[item.Length - 1] != Constants.END_ARRAY)
@@ -376,7 +375,7 @@ namespace AliceScript
             return false;
         }
 
-        static bool StillCollecting(string item, char[] to, ParsingScript script,
+        private static bool StillCollecting(string item, char[] to, ParsingScript script,
                                     ref string action)
         {
             char prev = script.TryPrevPrev();
@@ -422,7 +421,7 @@ namespace AliceScript
             return true;
         }
 
-        static bool UpdateIfTernary(ParsingScript script, string token, char ch, List<Variable> listInput, Action<List<Variable>> listToMerge)
+        private static bool UpdateIfTernary(ParsingScript script, string token, char ch, List<Variable> listInput, Action<List<Variable>> listToMerge)
         {
             if (listInput.Count < 1 || ch != Constants.TERNARY_OPERATOR || token.Length > 0)
             {
@@ -453,7 +452,7 @@ namespace AliceScript
             return true;
         }
 
-        static bool UpdateIfBool(ParsingScript script, Variable current, Action<Variable> updateCurrent, List<Variable> listInput, Action<List<Variable>> listToMerge)
+        private static bool UpdateIfBool(ParsingScript script, Variable current, Action<Variable> updateCurrent, List<Variable> listInput, Action<List<Variable>> listToMerge)
         {
             // 演算のショートカット:これ以上演算する必要がないかどうかを判定
             bool needToAdd = true;
@@ -577,9 +576,10 @@ namespace AliceScript
                 if (rightCell.Object != null && rightCell.Object is TypeObject to)
                 {
                     leftCell = new Variable(leftCell.AsType().Equals(to));
-                }else
+                }
+                else
                 {
-                    ThrowErrorManerger.OnThrowError("is式の右辺はAlice.Interpreter.Typeオブジェクトである必要があります。",Exceptions.INVALID_OPERAND);
+                    ThrowErrorManerger.OnThrowError("is式の右辺はAlice.Interpreter.Typeオブジェクトである必要があります。", Exceptions.INVALID_OPERAND);
                     return Variable.EmptyInstance;
                 }
             }
@@ -587,7 +587,7 @@ namespace AliceScript
             else if (leftCell.Action == " as " && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
-            //[??]演算子、Null合体演算子ですべての型に適応できます
+                //[??]演算子、Null合体演算子ですべての型に適応できます
             }
             else if (leftCell.Action == "??")
             {
@@ -595,9 +595,9 @@ namespace AliceScript
                 {
                     leftCell = rightCell;
                 }
-            //[==]または[===]演算子、右辺がNullを表す型でかつ左辺がNullの場合、Trueを返す
+                //[==]または[===]演算子、右辺がNullを表す型でかつ左辺がNullの場合、Trueを返す
             }
-            else if ((leftCell.Action=="=="||leftCell.Action=="===")&&rightCell.Type == Variable.VarType.NONE && leftCell.IsNull())
+            else if ((leftCell.Action == "==" || leftCell.Action == "===") && rightCell.Type == Variable.VarType.NONE && leftCell.IsNull())
             {
                 leftCell = Variable.True;
             }
@@ -613,19 +613,19 @@ namespace AliceScript
             }
             else if (leftCell.Type == Variable.VarType.STRING || rightCell.Type == Variable.VarType.STRING)
             {
-                leftCell=MergeStrings(leftCell, rightCell, script);
+                leftCell = MergeStrings(leftCell, rightCell, script);
             }
             else if (leftCell.Type == Variable.VarType.ARRAY)
             {
                 leftCell = MergeArray(leftCell, rightCell, script);
             }
-            else if(leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE)
+            else if (leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE)
             {
-                leftCell = MergeDelegate(leftCell,rightCell,script);
+                leftCell = MergeDelegate(leftCell, rightCell, script);
             }
-            else if(leftCell.Type==Variable.VarType.OBJECT&&leftCell.Object is ObjectBase obj && obj.HandleOperator)
+            else if (leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator)
             {
-                leftCell=obj.Operator(leftCell,rightCell,leftCell.Action,script);
+                leftCell = obj.Operator(leftCell, rightCell, leftCell.Action, script);
             }
             else
             {
@@ -660,7 +660,7 @@ namespace AliceScript
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]",Exceptions.INVALID_OPERAND,
+                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
                          script, leftCell.Action);
                     return leftCell;
             }
@@ -717,13 +717,13 @@ namespace AliceScript
                     //      script, script.Current.ToString());
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]",Exceptions.INVALID_OPERAND,
+                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
                          script, leftCell.Action);
                     return leftCell;
             }
         }
 
-        static Variable MergeStrings(Variable leftCell, Variable rightCell, ParsingScript script)
+        private static Variable MergeStrings(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             switch (leftCell.Action)
             {
@@ -766,8 +766,8 @@ namespace AliceScript
                 case ")":
                     break;
                 default:
-                    Utils.ThrowErrorMsg("String型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]",Exceptions.INVALID_OPERAND
-                         ,script, leftCell.Action);
+                    Utils.ThrowErrorMsg("String型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND
+                         , script, leftCell.Action);
                     break;
             }
             return leftCell;
@@ -817,7 +817,7 @@ namespace AliceScript
                         }
                         else
                         {
-                            Utils.ThrowErrorMsg("配列に対象の変数が見つかりませんでした",Exceptions.COULDNT_FIND_ITEM,
+                            Utils.ThrowErrorMsg("配列に対象の変数が見つかりませんでした", Exceptions.COULDNT_FIND_ITEM,
                          script, leftCell.Action);
                             return leftCell;
                         }
@@ -825,16 +825,16 @@ namespace AliceScript
                 case "-":
                     {
                         Variable v = new Variable(Variable.VarType.ARRAY);
-                        
-                            v.Tuple.AddRange(leftCell.Tuple);
-                            v.Tuple.Remove(rightCell);
-                        
+
+                        v.Tuple.AddRange(leftCell.Tuple);
+                        v.Tuple.Remove(rightCell);
+
                         return v;
                     }
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]",Exceptions.INVALID_OPERAND,
+                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
                          script, leftCell.Action);
                     return leftCell;
             }
@@ -870,7 +870,7 @@ namespace AliceScript
                         }
                         else
                         {
-                            Utils.ThrowErrorMsg("デリゲートにに対象の変数が見つかりませんでした",Exceptions.COULDNT_FIND_ITEM,
+                            Utils.ThrowErrorMsg("デリゲートにに対象の変数が見つかりませんでした", Exceptions.COULDNT_FIND_ITEM,
                          script, leftCell.Action);
                             return leftCell;
                         }
@@ -886,7 +886,7 @@ namespace AliceScript
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]",Exceptions.INVALID_OPERAND,
+                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
                          script, leftCell.Action);
                     return leftCell;
             }
@@ -908,17 +908,18 @@ namespace AliceScript
                 case ">":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]",Exceptions.INVALID_OPERAND,
+                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
                          script, leftCell.Action);
                     return leftCell;
             }
         }
-        static bool CanMergeCells(Variable leftCell, Variable rightCell)
+
+        private static bool CanMergeCells(Variable leftCell, Variable rightCell)
         {
             return GetPriority(leftCell.Action) >= GetPriority(rightCell.Action);
         }
 
-        static int GetPriority(string action)
+        private static int GetPriority(string action)
         {
             switch (action)
             {

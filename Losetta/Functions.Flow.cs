@@ -1254,8 +1254,6 @@ namespace AliceScript
 
         }
     }
-
-
     internal class IdentityFunction : ParserFunction
     {
         protected override Variable Evaluate(ParsingScript script)
@@ -1275,8 +1273,6 @@ namespace AliceScript
             return new Variable(m_name);
         }
     }
-
-
 
     // Get a value of a variable or of an array element
     public class GetVarFunction : ParserFunction

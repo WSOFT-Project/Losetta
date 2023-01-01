@@ -48,7 +48,7 @@ namespace AliceScript
 
         public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
-        private int MAX_LOOPS;
+        private int MAX_LOOPS = 0;
 
         private StringBuilder m_output = new StringBuilder();
         public string Output
@@ -177,7 +177,7 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             byte[] data = File.ReadAllBytes(filename);
-            if (IsEqualMagicnumber(data,Constants.PACKAGE_MAGIC_NUMBER))
+            if (IsEqualMagicnumber(data, Constants.PACKAGE_MAGIC_NUMBER))
             {
                 AlicePackage.LoadEncodingPackage(data, filename);
                 return Variable.EmptyInstance;

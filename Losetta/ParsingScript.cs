@@ -28,135 +28,105 @@ namespace AliceScript
         /// </summary>
         public NameSpace CurrentNamespace
         {
-            get;set;
+            get; set;
         }
         /// <summary>
         /// このスクリプトでusingされた名前空間の一覧
         /// </summary>
         public List<NameSpace> UsingNamespaces
         {
-            get { return m_namespace; }
-            set { m_namespace = value; }
+            get => m_namespace;
+            set => m_namespace = value;
         }
         /// <summary>
         /// このスクリプトに関連付けられたオブジェクトです
         /// </summary>
         public object Tag
         {
-            get
-            {
-                return m_tag;
-            }
-            set
-            {
-                m_tag = value;
-            }
+            get => m_tag;
+            set => m_tag = value;
         }
         /// <summary>
         /// これが実行されているパッケージを表します
         /// </summary>
         public AlicePackage Package
         {
-            get { return m_package; }
-            set { m_package = value; }
+            get => m_package;
+            set => m_package = value;
         }
         /// <summary>
         /// 現在のスクリプトの世代数を取得または設定します
         /// </summary>
         public int Generation
         {
-            get { return m_generation; }
-            set { m_generation = value; }
+            get => m_generation;
+            set => m_generation = value;
         }
         /// <summary>
         /// 現在のスクリプトのポインタを取得または設定します
         /// </summary>
         public int Pointer
         {
-            get { return m_from; }
-            set { m_from = value; }
+            get => m_from;
+            set => m_from = value;
         }
         /// <summary>
         /// 現在のスクリプト全体を取得または設定します
         /// </summary>
         public string String
         {
-            get { return m_data; }
-            set { m_data = value; }
+            get => m_data;
+            set => m_data = value;
         }
         /// <summary>
         /// 現在のスクリプト内で定義された変数
         /// </summary>
-        public Dictionary<string,ParserFunction> Variables
+        public Dictionary<string, ParserFunction> Variables
         {
-            get { return m_variables; }
-            set { m_variables = value; }
+            get => m_variables;
+            set => m_variables = value;
         }
         /// <summary>
         /// 現在のスクリプト内で定義された関数
         /// </summary>
-        public Dictionary <string, ParserFunction> Functions
+        public Dictionary<string, ParserFunction> Functions
         {
-            get { return m_functions; }
-            set { m_functions = value; }
+            get => m_functions;
+            set => m_functions = value;
         }
         /// <summary>
         /// 現在のスクリプト内で定義された定数
         /// </summary>
-        public Dictionary<string,ParserFunction> Consts
+        public Dictionary<string, ParserFunction> Consts
         {
-            get { return m_consts; }
-            set { m_consts = value; }
+            get => m_consts;
+            set => m_consts = value;
         }
-        public string Rest
-        {
-            get { return Substr(m_from, Constants.MAX_CHARS_TO_SHOW); }
-        }
-        public char Current
-        {
-            get { return m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY; }
-        }
-        public char Prev
-        {
-            get { return m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY; }
-        }
-        public char PrevPrev
-        {
-            get { return m_from >= 2 ? m_data[m_from - 2] : Constants.EMPTY; }
-        }
-        public char Next
-        {
-            get { return m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY; }
-        }
+        public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
+        public char Current => m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
+        public char Prev => m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
+        public char PrevPrev => m_from >= 2 ? m_data[m_from - 2] : Constants.EMPTY;
+        public char Next => m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
         public Dictionary<int, int> Char2Line
         {
-            get { return m_char2Line; }
-            set { m_char2Line = value; }
+            get => m_char2Line;
+            set => m_char2Line = value;
         }
         public int ScriptOffset
         {
-            get { return m_scriptOffset; }
-            set { m_scriptOffset = value; }
+            get => m_scriptOffset;
+            set => m_scriptOffset = value;
         }
         public string Filename
         {
-            get { return m_filename; }
-            set
-            {
-                m_filename = Utils.GetFullPath(value);
-            }
+            get => m_filename;
+            set => m_filename = Utils.GetFullPath(value);
         }
-        public string PWD
-        {
-            get
-            {
-                return Utils.GetDirectoryName(m_filename);
-            }
-        }
+        public string PWD => Utils.GetDirectoryName(m_filename);
         public string OriginalScript
         {
-            get { return m_originalScript; }
-            set { m_originalScript = value; }
+            get => m_originalScript;
+            set => m_originalScript = value;
         }
 
         public string CurrentAssign { get; set; }
@@ -178,8 +148,8 @@ namespace AliceScript
         private string m_functionName = "";
         public string FunctionName
         {
-            get { return m_functionName; }
-            set { m_functionName = value.ToLower(); }
+            get => m_functionName;
+            set => m_functionName = value.ToLower();
         }
 
         public ParserFunction.StackLevel StackLevel { get; set; }
@@ -241,22 +211,22 @@ namespace AliceScript
             }
             return path;
         }
-        public bool TryGetVariable(string name,out ParserFunction function)
+        public bool TryGetVariable(string name, out ParserFunction function)
         {
-            if(Variables.TryGetValue(name,out function))
+            if (Variables.TryGetValue(name, out function))
             {
                 return true;
             }
             else
             {
-                if (ParentScript != null&&ParentScript.TryGetVariable(name,out function))
+                if (ParentScript != null && ParentScript.TryGetVariable(name, out function))
                 {
                     return true;
                 }
             }
             return false;
         }
-        public bool ContainsVariable(string name,out ParserFunction func)
+        public bool ContainsVariable(string name, out ParserFunction func)
         {
             if (Variables.ContainsKey(name))
             {
@@ -265,7 +235,7 @@ namespace AliceScript
             }
             else
             {
-                if (ParentScript != null && ParentScript.ContainsVariable(name,out var f))
+                if (ParentScript != null && ParentScript.ContainsVariable(name, out var f))
                 {
                     func = f;
                     return true;
@@ -411,7 +381,7 @@ namespace AliceScript
             return "";
         }
 
-        public int OriginalLineNumber { get { return GetOriginalLineNumber(); } }
+        public int OriginalLineNumber => GetOriginalLineNumber();
         public string OriginalLine
         {
             get
@@ -771,7 +741,7 @@ namespace AliceScript
             while (this.Pointer < m_data.Length)
             {
                 result = this.Execute();
-                if (result.IsReturn||result.Type == Variable.VarType.BREAK)
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     return result;
                 }
@@ -784,7 +754,7 @@ namespace AliceScript
             Variable result = null;
             while (this.Pointer < m_data.Length)
             {
-                result =await this.ExecuteAsync();
+                result = await this.ExecuteAsync();
                 this.GoToNextStatement();
             }
             return result;
@@ -826,8 +796,8 @@ namespace AliceScript
 
         public ParsingScript GetIncludeFileScript(string filename)
         {
-            string pathname = "";bool isPackageFile;
-            string includeFile = GetIncludeFileLine(filename,out pathname,out isPackageFile);
+            string pathname = ""; bool isPackageFile;
+            string includeFile = GetIncludeFileLine(filename, out pathname, out isPackageFile);
             Dictionary<int, int> char2Line;
             var includeScript = Utils.ConvertToScript(includeFile, out char2Line, pathname);
             ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
@@ -844,13 +814,13 @@ namespace AliceScript
 
             return tempScript;
         }
-        private string GetIncludeFileLine(string filename,out string pathname,out bool isPackageFile)
+        private string GetIncludeFileLine(string filename, out string pathname, out bool isPackageFile)
         {
             pathname = filename;
-            if (Package != null&&Package.ExistsEntry(pathname))
+            if (Package != null && Package.ExistsEntry(pathname))
             {
                 isPackageFile = true;
-                return AlicePackage.GetEntryScript(Package.archive.GetEntry(pathname),pathname);
+                return AlicePackage.GetEntryScript(Package.archive.GetEntry(pathname), pathname);
             }
             isPackageFile = false;
             pathname = GetFilePath(filename);

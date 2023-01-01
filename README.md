@@ -5,7 +5,7 @@
 
 Losettaは、オープンソースのSAIM（標準AliceScript実装）の実装です。.NET6.0で開発されているため、WindowsをはじめmacOSやLinuxなどでも使用でき、さらにAliceScriptをあなたの.NETアプリに埋め込むこともできます。
 
-LosettaはMITライセンスで公開されているため、無料勝つ無保証で使用できます。詳細については[LICENCE](/LICENSE.txt)を参照してください。
+LosettaはMITライセンスで公開されているため、無料かつ無保証で使用できます。詳細については[LICENCE](/LICENSE.txt)を参照してください。
 
 Losettaは、[CSCS](https://github.com/vassilych/cscs)に触発され開発されました。
 
