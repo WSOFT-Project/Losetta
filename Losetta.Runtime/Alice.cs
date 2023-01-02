@@ -90,8 +90,6 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new ThrowFunction());
             FunctionBaseManerger.Add(new TryBlock());
 
-            FunctionBaseManerger.Add(new VarFunction(true));
-            FunctionBaseManerger.Add(new VarFunction(false));
             FunctionBaseManerger.Add(new NewObjectFunction());
 
             FunctionBaseManerger.Add(new SingletonFunction());

@@ -24,21 +24,10 @@ namespace alice
         };
         public static bool canDebug = false;
         [STAThread]
-        public static void Do(string[] args)
+        public static void Do()
         {
-            ParsedArguments pa = new ParsedArguments(args);
-            mainfile = pa.Flags.Contains("mainfile");
-            foreach (string fn in pa.Files)
-            {
-                Alice.ExecuteFile(Path.GetFileName(fn), mainfile);
-            }
-
             ClearLine();
 
-            //ShellFunctions登録
-            FunctionBaseManerger.Add(new shell_dumpFunc());
-            FunctionBaseManerger.Add(new buildpkgFunc());
-            FunctionBaseManerger.Add(new testpkgFunc());
 
             //標準出力
             Interpreter.Instance.OnOutput += Print;

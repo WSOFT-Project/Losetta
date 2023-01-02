@@ -92,14 +92,12 @@ namespace AliceScript
         public const string ADD_ALL_TO_HASH = "AddAllToHash";
         public const string CANCEL_RUN = "CancelRun";
         public const string CHECK_LOADER_MAIN = "LoaderMain";
-        public const string CONST = "const";
         public const string CONTAINS = "contains";
         public const string CURRENT_PATH = "CurrentPath";
         public const string CLONE = "Clone";
         public const string DEEP_CLONE = "DeepClone";
         public const string DEFINE_LOCAL = "DefineLocal";
         public const string EXIT = "exit";
-        public const string FIND_INDEX = "FindIndex";
         public const string FLOOR = "floor";
         public const string GET_COLUMN = "GetColumn";
         public const string GET_PROPERTIES = "GetPropertyStrings";
@@ -118,7 +116,6 @@ namespace AliceScript
         public const string REMOVE_AT = "RemoveAt";
         public const string REMOVE_RANGE = "RemoveRange";
         public const string SET_PROPERTY = "SetProperty";
-        public const string SHOW = "show";
         public const string SIGNAL = "signal";
         public const string SINGLETON = "singleton";
         public const string SIZE = "Size";
@@ -126,7 +123,6 @@ namespace AliceScript
         public const string TOKENIZE_LINES = "TokenizeLines";
         public const string TOKEN_COUNTER = "CountTokens";
         public const string TO_STRING = "string";
-        public const string VAR = "var";
         public const string WAIT = "wait";
 
         public const string ADD_DATA = "AddDataToCollection";
@@ -162,6 +158,7 @@ namespace AliceScript
         public const string UPPER = "Upper";
         public const string INSERT = "Insert";
         public const string INSERT_RANGE = "InsertRange";
+
 
         public const string LABEL_OPERATOR = ":";
         public const string GOTO = "goto";
@@ -209,16 +206,30 @@ namespace AliceScript
         public static char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
         public static char[] TOKENS_SEPARATION = ",;)".ToCharArray();
 
+
+        // キーワード
+        public const string GLOBAL = "global";
+        public const string VAR = "var";
+        public const string CONST = "const";
+        public const string VIRTUAL = "virtual";
+        public const string OVERRIDE = "override";
+        public const string COMMAND = "command";
+
+        public static List<string> KEYWORD=new List<string>
+        {
+            GLOBAL,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND
+        };
+
         // 関数呼び出し時に丸括弧が不要な関数
         public static List<string> FUNCT_WITH_SPACE = new List<string>
         {
             CLASS,
-            FUNCTION, NAMESPACE, NEW, PRINT,SHOW,
+            FUNCTION, NAMESPACE, NEW, PRINT
         };
         //関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
         public static List<string> FUNCT_WITH_SPACE_ONCE = new List<string>
         {
-            CASE, RETURN, THROW, TYPE_OF, VAR,CONST
+            CASE, RETURN, THROW, TYPE_OF
         };
 
         // 言語構造の予約。これらを演算したり返すことは無意味

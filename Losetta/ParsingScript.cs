@@ -1,6 +1,8 @@
-﻿using System;
+﻿using AliceScript.Interop;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,11 +19,23 @@ namespace AliceScript
         private int m_generation = 1;   // スクリプトの世代
         private object m_tag;           // 現在のスクリプトに関連付けられたオブジェクト。これは多用途で使用されます
         private AlicePackage m_package = null;//現在のスクリプトが実行されているパッケージ
+        private static ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private List<NameSpace> m_namespace = new List<NameSpace>();
+
+        /// <summary>
+        /// 最上位のスクリプトです
+        /// </summary>
+        public static ParsingScript TopLevelScript
+        {
+            get
+            {
+                return m_toplevel_script;
+            }
+        }
 
         /// <summary>
         /// このスクリプトの現在の名前空間
@@ -159,7 +173,7 @@ namespace AliceScript
         public bool InTryBlock;
         public string MainFilename;
 
-        public ParsingScript ParentScript;
+        public ParsingScript ParentScript = TopLevelScript;
 
         public AliceScriptClass CurrentClass { get; set; }
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
@@ -167,6 +181,7 @@ namespace AliceScript
         public ParsingScript(string data, int from = 0,
                              Dictionary<int, int> char2Line = null)
         {
+            
             m_data = data;
             m_from = from;
             m_char2Line = char2Line;
@@ -793,7 +808,6 @@ namespace AliceScript
 
             return tempScript;
         }
-
         public ParsingScript GetIncludeFileScript(string filename)
         {
             string pathname = ""; bool isPackageFile;

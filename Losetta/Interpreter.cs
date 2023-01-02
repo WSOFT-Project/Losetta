@@ -241,7 +241,7 @@ namespace AliceScript
             string data = Utils.ConvertToScript(script, out char2Line, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
-                return null;
+                data = ";";
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);

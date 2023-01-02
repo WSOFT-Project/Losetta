@@ -16,14 +16,26 @@ namespace AliceScript
         /// </summary>
         public bool IsVirtual { get; set; }
 
+        public List<string> Keywords
+        {
+            get { return m_keywords; }
+            set { m_keywords = value;}
+        }
+
+        private List<string> m_keywords = new List<string>();
+
         public ParserFunction()
         {
             m_impl = this;
         }
 
         // "仮想"コントラクスタ
-        public ParserFunction(ParsingScript script, string item, char ch, ref string action)
+        public ParserFunction(ParsingScript script, string item, char ch, ref string action, List<string> keywords = null)
         {
+            if (keywords == null)
+            {
+                keywords = new List<string>();
+            }
             if (item.Length == 0 && (ch == Constants.START_ARG || !script.StillValid()))
             {
                 bool isLambda = false;
@@ -76,7 +88,7 @@ namespace AliceScript
 
             m_impl = CheckString(script, item, ch);
             if (m_impl != null)
-            {
+            {m_impl.Keywords = keywords;
                 return;
             }
 
@@ -85,26 +97,30 @@ namespace AliceScript
             m_impl = GetRegisteredAction(item, script, ref action);
             if (m_impl != null)
             {
+                m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = GetArrayFunction(item, script, action);
             if (m_impl != null)
             {
+                m_impl.Keywords = keywords;
                 return;
             }
 
-            m_impl = GetObjectFunction(item, script);
+            m_impl = GetObjectFunction(item, script,keywords);
             if (m_impl != null)
             {
+                m_impl.Keywords = keywords;
                 return;
             }
 
 
 
-            m_impl = GetVariable(item, script);
+            m_impl = GetVariable(item, script,false,keywords);
             if (m_impl != null)
             {
+                m_impl.Keywords = keywords;
                 return;
             }
 
@@ -181,7 +197,7 @@ namespace AliceScript
             return varFunc;
         }
 
-        public static ParserFunction GetObjectFunction(string name, ParsingScript script)
+        public static ParserFunction GetObjectFunction(string name, ParsingScript script,List<string> keywords)
         {
             if (script.CurrentClass != null && script.CurrentClass.Name == name)
             {
@@ -215,6 +231,7 @@ namespace AliceScript
             ParserFunction pf = ParserFunction.GetFromNamespace(prop, baseName, script);
             if (pf != null)
             {
+                pf.Keywords = keywords;
                 return pf;
             }
 
@@ -235,6 +252,7 @@ namespace AliceScript
             }
 
             varFunc.PropertyName = prop;
+            varFunc.Keywords = keywords;
             return varFunc;
         }
 
@@ -337,13 +355,12 @@ namespace AliceScript
             return impl;
         }
 
-        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false)
+        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false,List<string> keywords=null)
         {
             if (!force && script != null && script.TryPrev() == Constants.START_ARG)
             {
                 return GetFunction(name, script);
             }
-
 
             name = Constants.ConvertName(name);
 
@@ -385,7 +402,12 @@ namespace AliceScript
             }
 
             //関数として取得を続行
-            return GetFunction(name, script, true);
+            var pfx= GetFunction(name, script, true);
+            if (pfx != null)
+            {
+                pfx.Keywords = keywords;
+            }
+            return pfx;
         }
 
         public static Variable GetVariableValue(string name, ParsingScript script = null)
@@ -577,7 +599,7 @@ namespace AliceScript
 
             if (globalOnly)
             {
-                AddGlobal(name, function, false /* not native */, registVar);
+                AddLocalVariable(function,ParsingScript.TopLevelScript, "", true, registVar);
             }
             else
             {
@@ -856,41 +878,7 @@ namespace AliceScript
             return vars;
         }
 
-        public static void AddGlobal(string name, ParserFunction function,
-                                     bool isNative = true, bool registVar = false)
-        {
-            if (Utils.CheckLegalName(name))
-            {
-                name = Constants.ConvertName(name);
-                NormalizeValue(function);
-                function.isNative = isNative;
-                if (Constants.CONSTS.ContainsKey(name))
-                {
-                    ThrowErrorManerger.OnThrowError("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT);
-                    return;
-                }
-                var handle = OnVariableChange;
-                bool exists = s_variables.ContainsKey(name);
-                if (exists && registVar)
-                {
-                    ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
-                    return;
-                }
-                else if (!exists && !registVar)
-                {
-                    ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
-                    return;
-                }
-                s_variables[name] = function;
-
-                function.Name = Constants.GetRealName(name);
-                if (handle != null && function is GetVarFunction)
-                {
-                    handle.Invoke(function.Name, ((GetVarFunction)function).Value, exists);
-                }
-            }
-        }
-
+     
         public static void AddLocalScopeVariable(string name, string scopeName, ParserFunction variable)
         {
             name = Constants.ConvertName(name);

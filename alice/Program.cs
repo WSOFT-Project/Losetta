@@ -47,14 +47,16 @@ namespace alice
             {
                 new AliceScript.NameSpaces.Alice_Runtime().Main();
             }
+            //ShellFunctions登録
+            ShellFunctions.Init();
 
             ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
-            string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "config.alice");
-            if (pa.Values.ContainsKey("config"))
+            string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
+            if (pa.Values.ContainsKey("init"))
             {
-                filename = pa.Values["config"];
+                filename = pa.Values["init"];
             }
             if (File.Exists(filename))
             {
@@ -124,7 +126,7 @@ namespace alice
             {
                 ThrowErrorManerger.ThrowError -= ThrowErrorManerger_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
-                Shell.Do(args);
+                Shell.Do();
             }
         }
         private static bool allow_print = true;
@@ -150,7 +152,7 @@ namespace alice
             s += " }";
             return s;
         }
-        private static string GetScriptPath(string path)
+        internal static string GetScriptPath(string path)
         {
             if (Path.IsPathRooted(path) || File.Exists(path))
             {
@@ -192,7 +194,8 @@ web_download_file(url,fn);
 print(""完了。"");
 }");
 
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), @"include(""version"");
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), @"global using Alice.Shell;
+include(""version"");
 print(""Copyright (c) WSOFT. All Rights Reserved.\r\n"");");
             }
         }

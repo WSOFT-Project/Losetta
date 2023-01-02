@@ -3,55 +3,7 @@ using System.Threading.Tasks;
 
 namespace AliceScript.NameSpaces
 {
-    internal class VarFunction : FunctionBase
-    {
-        private bool m_Const = false;
-        public VarFunction(bool isConst = false)
-        {
-            m_Const = isConst;
-            if (m_Const)
-            {
-                this.Name = Constants.CONST;
-            }
-            else
-            {
-                this.Name = Constants.VAR;
-            }
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += VarFunction_Run;
-        }
-
-        private void VarFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            var args = Utils.GetTokens(e.Script);
-            Variable result = Variable.EmptyInstance;
-            foreach (var arg in args)
-            {
-                string a = arg;
-                bool isGlobal = a.StartsWith("global ");
-                if (isGlobal)
-                {
-                    a = a.Substring(6).TrimStart();
-                }
-                var ind = a.IndexOf('=');
-                if (ind <= 0)
-                {
-                    if (!FunctionExists(a, e.Script) && !m_Const)
-                    {
-                        AddGlobalOrLocalVariable(a, new GetVarFunction(new Variable(Variable.VarType.NONE)), e.Script, false, true, isGlobal);
-                    }
-                    continue;
-                }
-                var varName = a.Substring(0, ind);
-                ParsingScript tempScript = e.Script.GetTempScript(a.Substring(ind + 1));
-                AssignFunction assign = new AssignFunction();
-                result = assign.Assign(tempScript, varName, false, true, m_Const, e.Script, isGlobal);
-            }
-            e.Return = result;
-        }
-
-
-    }
+   
 
     internal class NewObjectFunction : FunctionBase
     {

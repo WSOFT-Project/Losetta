@@ -167,7 +167,7 @@ namespace AliceScript
         /// <param name="func">登録される関数</param>
         /// <param name="name">登録される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
-        public static void Add(FunctionBase func, string name = "", ParsingScript script = null)
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false)
         {
 
             string fname = func.Name;
@@ -175,26 +175,22 @@ namespace AliceScript
             {
                 fname = name;
             }
-            if (script == null)
+            if (script == null || isGlobal)
             {
-                //グローバルに登録
-                ParserFunction.RegisterFunction(fname, func);
-                if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
-                {
-                    Constants.FUNCT_WITH_SPACE_ONCE.Add(fname);
-                }
-                else if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE))
-                {
-                    Constants.FUNCT_WITH_SPACE.Add(fname);
-                }
-                if (func.Attribute.HasFlag(FunctionAttribute.CONTROL_FLOW))
-                {
-                    Constants.CONTROL_FLOW.Add(fname);
-                }
+                script = ParsingScript.TopLevelScript;
             }
-            else
+            ParserFunction.RegisterScriptFunction(fname, func, script);
+            if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
             {
-                ParserFunction.RegisterScriptFunction(fname, func, script);
+                Constants.FUNCT_WITH_SPACE_ONCE.Add(fname);
+            }
+            else if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE))
+            {
+                Constants.FUNCT_WITH_SPACE.Add(fname);
+            }
+            if (func.Attribute.HasFlag(FunctionAttribute.CONTROL_FLOW))
+            {
+                Constants.CONTROL_FLOW.Add(fname);
             }
             if (func.Attribute.HasFlag(FunctionAttribute.VIRTUAL))
             {

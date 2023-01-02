@@ -55,11 +55,16 @@ namespace AliceScript.NameSpaces
 
         private void UsingStatement_Run(object sender, FunctionBaseEventArgs e)
         {
+            bool isGlobal = this.Keywords.Contains(Constants.GLOBAL);
             string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             if (NameSpaceManerger.Contains(file))
             {
-
-                e.Script.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[file]);
+                var script = ParsingScript.TopLevelScript;
+                if (!isGlobal)
+                {
+                    script = e.Script;
+                }
+                script.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[file]);
             }
             else
             {

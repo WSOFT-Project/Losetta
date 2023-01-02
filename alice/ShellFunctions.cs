@@ -2,11 +2,24 @@
 
 namespace alice
 {
+    internal class ShellFunctions
+    {
+        public static void Init()
+        {
+            var space = new NameSpace("Alice.Shell");
+            space.Add(new shell_dumpFunc());
+            space.Add(new shell_execFunc());
+            space.Add(new buildpkgFunc());
+            space.Add(new testpkgFunc());
+
+            NameSpaceManerger.Add(space);
+        }
+    }
     internal class shell_dumpFunc : FunctionBase
     {
         public shell_dumpFunc()
         {
-            this.Name = "shell_dump";
+            this.Name = "dump";
             this.Run += Shell_dumpFunc_Run;
         }
 
@@ -14,6 +27,21 @@ namespace alice
         {
             Shell.DumpLocalVariables(e.Script);
             Shell.DumpGlobalVariables();
+        }
+    }
+    internal class shell_execFunc : FunctionBase
+    {
+        public shell_execFunc()
+        {
+            this.Name = "exec";
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += Shell_execFunc_Run;
+        }
+
+        private void Shell_execFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
+            e.Return=Alice.ExecuteFile(Program.GetScriptPath(file));
         }
     }
     internal class buildpkgFunc : FunctionBase
