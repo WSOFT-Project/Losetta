@@ -16,7 +16,7 @@ namespace alice
         {
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
-            CreateAliceDirectory();
+            CreateAliceDirectory(false);
             if (pa.Values.ContainsKey("print"))
             {
                 if (pa.Values["print"].ToLower() == "off")
@@ -65,7 +65,13 @@ namespace alice
 
             if (pa.Flags.Contains("s"))
             {
+                string f = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
+                if (File.Exists(f))
+                {
+                    Alice.ExecuteFile(f);
+                }
                 Alice.Execute(pa.Script);
+                return;
             }
             else
                 if (pa.Flags.Contains("r") || pa.Flags.Contains("run"))
@@ -158,37 +164,57 @@ namespace alice
             {
                 return path;
             }
-            string fpath = Path.Combine(AppContext.BaseDirectory,".alice",path);
+            string fpath = Path.Combine(AppContext.BaseDirectory, ".alice", path);
             if (File.Exists(fpath))
             {
                 return fpath;
             }
             return path;
         }
-        private static void CreateAliceDirectory()
+        internal static void CreateAliceDirectory(bool force)
         {
             string path = Path.Combine(AppContext.BaseDirectory, ".alice");
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
-
+                force = true;
+            }
+            if (force)
+            {
                 var directoryInfo = new DirectoryInfo(path);
                 directoryInfo.Attributes |= System.IO.FileAttributes.Hidden;
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "version"), @"using Alice.Environment;
 
-print(""AliceScript Version {0} ({1} v{2} on {3})"",env_version(),env_impl_name(),env_impl_version(),env_os_platform());");
+print(""AliceScript Version {0} ({1} v{2} on {3}-{4})"",env_version(),env_impl_name(),env_impl_version(),env_impl_target(),env_impl_architecture());");
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "install"), @"using Alice.IO;
 using Alice.Net;
 using Alice.Console;
 using Alice.Environment;
 
-foreach(url in env_commandLineArgs())
-{
-var fn=env_impl_location();var f=path_get_filename(url);
+var args=env_commandLineArgs();
+if((args.Length)>0){
+var url=args[0];
+var fn=env_impl_location();
+if((args.Length)>2){
+fn=args[2];
+}
+var f=path_get_filename(url);
+if((args.Length)>1){
+f=args[1];
+}
 fn=(path_combine(fn,"".alice""));
 fn=(path_combine(fn,f));
+if(file_exists(fn)){
+console_write(""{0}には、既にファイルが存在しています。これを上書きしてダウンロードしますか？(Y/N)>>"",fn);
+if(Console_ReadKey()!=""y""){
+print();
+print(""要求はユーザーによってキャンセルされました。"");
+exit;
+}
+print();
+}
 print(""{0} から {1}へファイルを取得しています..."",url,fn);
 web_download_file(url,fn);
 print(""完了。"");
@@ -197,6 +223,101 @@ print(""完了。"");
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), @"global using Alice.Shell;
 include(""version"");
 print(""Copyright (c) WSOFT. All Rights Reserved.\r\n"");");
+
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "update"), @"// 実行ファイルのファイル名
+// ファイル名が異なる場合はこの部分を編集してください。{0}には現在の実行ファイルのディレクトリが代入されます。また、Windowsの場合でも末尾の.exeは不要です
+var target_filename = ""{0}alice"";
+
+using Alice.IO;
+using Alice.Net;
+using Alice.Console;
+using Alice.Environment;
+using Alice.Diagnostics;
+
+const version_get_api = ""https://api.wsoft.ws/download/detail?id={0}&feature=version"";
+const download_url = ""https://download.wsoft.ws/{0}/Download"";
+
+var download_id="""";
+var isWin=false;
+
+var platform = env_impl_target();
+var arch = env_impl_architecture();
+
+if(platform==""Windows""){
+isWin=true;
+if(arch==""x64""){
+download_id=""WS148"";
+}
+if(arch==""x86""){
+download_id=""WS149"";
+}
+if(arch==""ARM32""){
+download_id=""WS151"";
+}
+if(arch==""ARM64""){
+download_id=""WS150"";
+}
+}
+
+if(platform==""OSX""){
+download_id=""WS147"";
+}
+
+if(platform==""Linux""){
+if(arch==""x64""){
+download_id=""WS144"";
+}
+if(arch==""ARM32""){
+download_id=""WS145"";
+}
+if(arch==""ARM64""){
+download_id=""WS146"";
+}
+}
+if(download_id==""""){
+print(""このプラットフォームでは更新はサポートされていません"");
+exit;
+}
+
+if(isWin){
+target_filename+="".exe"";
+}
+print(""環境の判定: OS:{0},アーキテクチャ:{1}"",platform,arch);
+var version_url = version_get_api.format(download_id);
+print(""{0} から最新バージョンを取得しています..."",version_url);
+var new_version = web_download_text(version_url);
+print(""最新バージョン : {0}"",new_version);
+var force=env_commandLineArgs().Contains(""force"");
+var check=env_commandLineArgs().Contains(""check"");
+if(check)
+{
+     print(""この実装のバージョン : {0}"",env_impl_version());
+    if(new_version != env_impl_version())
+     {
+      print(""AliceScriptの実装の更新があります"");
+      }
+     exit;
+}
+if(new_version != env_impl_version() || force){
+print(""この実装よりも新しい実装が公開されています。"");
+Console_Write(""更新を実行しますか？(Y/N)>>"");
+if(Console_ReadKey()==""y""){
+print();
+var path=target_filename.format(env_impl_location());
+var tmp =path+"".old"";
+file_delete(tmp);
+file_move(path,tmp);
+
+var url = download_url.format(download_id);
+print(""{0} から最新バイナリをダウンロードしています..."",url);
+web_download_file(url,path);
+print(""ダウンロードが完了しました。"");
+print(""{0} に更新しました"",new_version);
+}else{
+print();
+print(""更新はユーザーによって取り消されました"");
+}
+}");
             }
         }
         internal static bool BuildPackage(string fn, string outfilename, int num = 1)

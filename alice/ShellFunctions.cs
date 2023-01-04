@@ -11,6 +11,7 @@ namespace alice
             space.Add(new shell_execFunc());
             space.Add(new buildpkgFunc());
             space.Add(new testpkgFunc());
+            space.Add(new shell_reinitFunc());
 
             NameSpaceManerger.Add(space);
         }
@@ -27,6 +28,19 @@ namespace alice
         {
             Shell.DumpLocalVariables(e.Script);
             Shell.DumpGlobalVariables();
+        }
+    }
+    internal class shell_reinitFunc : FunctionBase
+    {
+        public shell_reinitFunc()
+        {
+            this.Name = "init";
+            this.Run += Shell_reinitFunc_Run;
+        }
+
+        private void Shell_reinitFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            Program.CreateAliceDirectory(true);
         }
     }
     internal class shell_execFunc : FunctionBase

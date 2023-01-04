@@ -24,6 +24,8 @@ namespace AliceScript.NameSpaces
             space.Add(new env_impl_nameFunc());
             space.Add(new env_impl_versionFunc());
             space.Add(new env_impl_locationFunc());
+            space.Add(new env_impl_architectureFunc());
+            space.Add(new env_impl_targetFunc());
             space.Add(new env_Is64BitOperatingSystemFunc());
             space.Add(new env_Is64BitProcessFunc());
             space.Add(new env_MachineNameFunc());
@@ -367,7 +369,55 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Alice.ImplementationLocation);
         }
     }
-	internal class env_clr_versionFunc : FunctionBase
+    internal class env_impl_architectureFunc : FunctionBase
+    {
+        public env_impl_architectureFunc()
+        {
+            this.Name = "env_impl_architecture";
+            this.Run += Env_impl_architectureFunc_Run;
+        }
+
+        private void Env_impl_architectureFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string arch_name = string.Empty;
+
+#if RELEASE_WIN_X64 || RELEASE_LINUX_X64 || RELEASE_OSX_X64
+            arch_name = "x64";
+#elif RELEASE_WIN_X86
+            arch_name = "x86";
+#elif RELEASE_WIN_ARM || RELEASE_LINUX_ARM
+            arch_name = "ARM32";
+#elif RELEASE_WIN_ARM64 || RELEASE_LINUX_ARM64
+            arch_name = "ARM64";
+#endif
+
+            e.Return = new Variable(arch_name);
+        }
+    }
+    internal class env_impl_targetFunc : FunctionBase
+    {
+        public env_impl_targetFunc()
+        {
+            this.Name = "env_impl_target";
+            this.Run += Env_impl_architectureFunc_Run;
+        }
+
+        private void Env_impl_architectureFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string arch_name = string.Empty;
+
+#if RELEASE_WIN_X64 || RELEASE_WIN_X86 || RELEASE_WIN_ARM || RELEASE_WIN_ARM64
+            arch_name = "Windows";
+#elif RELEASE_OSX_X64
+            arch_name = "OSX";
+#elif RELEASE_LINUX_X64 || RELEASE_LINUX_ARM || RELEASE_LINUX_ARM64
+            arch_name = "Linux";
+#endif
+
+            e.Return = new Variable(arch_name);
+        }
+    }
+    internal class env_clr_versionFunc : FunctionBase
 	{
 		public env_clr_versionFunc()
 		{

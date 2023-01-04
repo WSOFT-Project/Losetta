@@ -1152,6 +1152,25 @@ namespace AliceScript
             {
                 bool sq = (Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1);
                 bool dq = (Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE);
+                if (dq)
+                {
+                    int index = 0;
+                    string split_string = "";
+
+                    while (Item[index] == '\"')
+                    {
+                        split_string += '\"';
+                        index++;
+                    }
+                    if(split_string.Length > 1)
+                    {
+                        MatchCollection mc = Regex.Matches(Item, "(?<="+split_string+@")[^\(\)]+(?="+split_string+")");
+                        foreach (Match match in mc)
+                        {
+                            return new Variable(match.Value);
+                        }
+                    }
+                }
                 if (dq || sq)
                 {
                     //文字列型
