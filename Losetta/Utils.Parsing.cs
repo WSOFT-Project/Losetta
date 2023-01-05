@@ -920,6 +920,7 @@ namespace AliceScript
                     continue;
                 }
 
+
                 switch (ch)
                 {
                     case '/':
@@ -929,6 +930,10 @@ namespace AliceScript
                             simpleComments = simpleComments || next == '/';
                             continue;
                         }
+                        break;
+                    case '#':
+                        inComments = true;
+                        simpleComments = true;
                         break;
                     case '*':
                         if (!inQuotes && (inComments && next == '/'))

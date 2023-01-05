@@ -1157,12 +1157,12 @@ namespace AliceScript
                     int index = 0;
                     string split_string = "";
 
-                    while (Item[index] == '\"')
+                    while (Item.Length > index && Item[index] == '\"')
                     {
                         split_string += '\"';
                         index++;
                     }
-                    if(split_string.Length > 1)
+                    if(split_string.Length > 2)
                     {
                         MatchCollection mc = Regex.Matches(Item, "(?<="+split_string+@")[^\(\)]+(?="+split_string+")");
                         foreach (Match match in mc)
