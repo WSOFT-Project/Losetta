@@ -523,6 +523,8 @@ namespace AliceScript
             Script = script;
         }
         internal ParsingScript Script;
+
+
         private class Interpreter_ScriptObject_GetVariable : FunctionBase
         {
             public Interpreter_ScriptObject_GetVariable(Interpreter_ScriptObject host)

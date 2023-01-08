@@ -657,7 +657,7 @@ namespace AliceScript
                         return result;
                     }
                     if (this.InTryBlock) { return result; }
-                    ThrowError?.Invoke(ex.Script, ex);
+                    ThrowErrorManerger.OnThrowError(ex.Script, ex);
                 }
             }
             return result;

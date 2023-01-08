@@ -15,6 +15,10 @@ namespace AliceScript
     {
         public static event ThrowErrorEventhandler ThrowError;
         public static bool HandleError = false;
+        public static void OnThrowError(object sender,ThrowErrorEventArgs e)
+        {
+            ThrowError?.Invoke(sender, e);
+        }
     }
     public class ScriptException : Exception
     {
