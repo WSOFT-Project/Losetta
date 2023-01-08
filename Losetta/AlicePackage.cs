@@ -4,7 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace AliceScript
@@ -25,8 +24,7 @@ namespace AliceScript
         {
             if (!File.Exists(path))
             {
-                ThrowErrorManerger.OnThrowError("パッケージが見つかりません", Exceptions.FILE_NOT_FOUND);
-                return;
+                throw new ScriptException("パッケージが見つかりません", Exceptions.FILE_NOT_FOUND);
             }
             byte[] file = File.ReadAllBytes(path);
             LoadData(file, path);
@@ -104,74 +102,62 @@ namespace AliceScript
         }
         internal static void LoadArchive(ZipArchive a, string filename = "")
         {
-            try
+            if (a == null)
             {
-                if (a == null)
+                throw new ScriptException("パッケージを展開できません", Exceptions.BAD_PACKAGE);
+            }
+            ZipArchiveEntry e = a.GetEntry(Constants.PACKAGE_MANIFEST_FILENAME);
+            if (e == null)
+            {
+                throw new ScriptException("パッケージ設定ファイル:[" + Constants.PACKAGE_MANIFEST_FILENAME + "]が見つかりません", Exceptions.BAD_PACKAGE);
+            }
+            else
+            {
+                //見つかった時は開く
+                AlicePackage package = new AlicePackage();
+                package.archive = a;
+                string xml = GetEntryScript(e, Constants.PACKAGE_MANIFEST_FILENAME);
+                if (xml == null)
                 {
-                    ThrowErrorManerger.OnThrowError("パッケージを展開できません", Exceptions.BAD_PACKAGE);
                     return;
                 }
-                ZipArchiveEntry e = a.GetEntry(Constants.PACKAGE_MANIFEST_FILENAME);
-                if (e == null)
+                package.Manifest = GetManifest(xml);
+                if (package.Manifest != null)
                 {
-                    ThrowErrorManerger.OnThrowError("パッケージ設定ファイル:[manifest.xml]が見つかりません", Exceptions.BAD_PACKAGE);
+                    if (package.Manifest.Target != null)
+                    {
+                        if (!package.Manifest.Target.Contains(Interpreter.Instance.Name))
+                        {
+                            throw new ScriptException("そのパッケージをこのインタプリタで実行することはできません", Exceptions.NOT_COMPATIBLE_PACKAGES);
+                        }
+                    }
+                    if (package.Manifest.TargetApp != null)
+                    {
+                        if (!package.Manifest.TargetApp.Contains(Alice.AppName))
+                        {
+                            throw new ScriptException("そのパッケージをこのアプリケーションで実行することはできません", Exceptions.NOT_COMPATIBLE_PACKAGES);
+                        }
+                    }
+                    string srcname = string.IsNullOrEmpty(package.Manifest.ScriptPath) ? Constants.PACKAGE_MANIFEST_FILENAME : package.Manifest.ScriptPath;
+                    if (!package.Manifest.UseInlineScript)
+                    {
+                        ZipArchiveEntry entry = a.GetEntry(srcname);
+                        if (entry == null)
+                        {
+                            throw new ScriptException("エントリポイント:[" + srcname + "]が見つかりません", Exceptions.BAD_PACKAGE);
+                        }
+                        else
+                        {
+                            package.Manifest.Script = GetEntryScript(entry, srcname);
+                        }
+                    }
+                    Interpreter.Instance.Process(package.Manifest.Script, filename + "\\" + srcname, true, null, package);
                 }
                 else
                 {
-                    //見つかった時は開く
-                    AlicePackage package = new AlicePackage();
-                    package.archive = a;
-                    string xml = GetEntryScript(e, Constants.PACKAGE_MANIFEST_FILENAME);
-                    if (xml == null)
-                    {
-                        return;
-                    }
-                    package.Manifest = GetManifest(xml);
-                    if (package.Manifest != null)
-                    {
-                        if (package.Manifest.Target != null)
-                        {
-                            if (!package.Manifest.Target.Contains(Interpreter.Instance.Name))
-                            {
-                                ThrowErrorManerger.OnThrowError("そのパッケージをこのインタプリタで実行することはできません", Exceptions.NOT_COMPATIBLE_PACKAGES);
-                                return;
-                            }
-                        }
-                        if (package.Manifest.TargetApp != null)
-                        {
-                            if (!package.Manifest.TargetApp.Contains(Alice.AppName))
-                            {
-                                ThrowErrorManerger.OnThrowError("そのパッケージをこのアプリケーションで実行することはできません", Exceptions.NOT_COMPATIBLE_PACKAGES);
-                                return;
-                            }
-                        }
-                        string srcname = string.IsNullOrEmpty(package.Manifest.ScriptPath) ? Constants.PACKAGE_MANIFEST_FILENAME : package.Manifest.ScriptPath;
-                        if (!package.Manifest.UseInlineScript)
-                        {
-                            ZipArchiveEntry entry = a.GetEntry(srcname);
-                            if (entry == null)
-                            {
-                                ThrowErrorManerger.OnThrowError("エントリポイント:[" + srcname + "]が見つかりません", Exceptions.BAD_PACKAGE);
-                                return;
-                            }
-                            else
-                            {
-                                package.Manifest.Script = GetEntryScript(entry, srcname);
-                            }
-                        }
-                        Interpreter.Instance.Process(package.Manifest.Script, filename + "\\" + srcname, true, null, package);
-                    }
-                    else
-                    {
-                        ThrowErrorManerger.OnThrowError("パッケージマニフェストファイルが不正です", Exceptions.BAD_PACKAGE);
-                        return;
-                    }
-
+                    throw new ScriptException("パッケージマニフェストファイルが不正です", Exceptions.BAD_PACKAGE);
                 }
-            }
-            catch (Exception ex)
-            {
-                ThrowErrorManerger.OnThrowError(ex.Message, Exceptions.BAD_PACKAGE);
+
             }
         }
         public Variable ExecuteEntry(string filename)
@@ -201,8 +187,7 @@ namespace AliceScript
             {
                 if (e == null)
                 {
-                    ThrowErrorManerger.OnThrowError("パッケージ内のファイル[" + filename + "]が見つかりません", Exceptions.FILE_NOT_FOUND);
-                    return null;
+                    throw new ScriptException("パッケージ内のファイル[" + filename + "]が見つかりません", Exceptions.FILE_NOT_FOUND);
                 }
                 var stream = e.Open();
                 byte[] bytes;
@@ -215,21 +200,12 @@ namespace AliceScript
             }
             catch (Exception ex)
             {
-                ThrowErrorManerger.OnThrowError("パッケージ内のファイル[" + filename + "]を読み込めません。詳細:" + ex.Message, Exceptions.BAD_PACKAGE);
-                return null;
+                throw new ScriptException("パッケージ内のファイル[" + filename + "]を読み込めません。詳細:" + ex.Message, Exceptions.BAD_PACKAGE);
             }
         }
         internal static string GetEntryScript(ZipArchiveEntry e, string filename)
         {
-            try
-            {
-                return SafeReader.ReadAllText(GetEntryToData(e, filename), out _);
-            }
-            catch (Exception ex)
-            {
-                ThrowErrorManerger.OnThrowError("パッケージ内のファイル[" + filename + "]を読み込めません。詳細:" + ex.Message, Exceptions.BAD_PACKAGE);
-                return null;
-            }
+            return SafeReader.ReadAllText(GetEntryToData(e, filename), out _);
         }
         internal static byte[] GetByteArrayFromStream(Stream sm)
         {
@@ -239,7 +215,7 @@ namespace AliceScript
                 return ms.ToArray();
             }
         }
-        public static void CreateEncodingPackage(string filepath, string outfilepath, byte[] controlCode = null,bool minify=true)
+        public static void CreateEncodingPackage(string filepath, string outfilepath, byte[] controlCode = null, bool minify = true)
         {
             //Zipファイルを開く
             if (minify)
@@ -365,8 +341,7 @@ namespace AliceScript
                         fs.Read(mark, 0, ml);
                         if (!mark.SequenceEqual(Constants.PACKAGE_MAGIC_NUMBER))
                         {
-                            ThrowErrorManerger.OnThrowError("エラー:有効なAlicePackageファイルではありません", Exceptions.BAD_PACKAGE);
-                            return;
+                            throw new ScriptException("エラー:有効なAlicePackageファイルではありません", Exceptions.BAD_PACKAGE);
                         }
                         fs.Seek(16, SeekOrigin.Current);//制御コード分シーク
                         // Key
@@ -393,7 +368,7 @@ namespace AliceScript
                                 }
                                 if (outfs.Length != size)
                                 {
-                                    ThrowErrorManerger.OnThrowError("エラー:AlicePackageが壊れています", Exceptions.BAD_PACKAGE);
+                                    throw new ScriptException("エラー:AlicePackageが壊れています", Exceptions.BAD_PACKAGE);
                                     return;
                                 }
                             }
@@ -407,8 +382,7 @@ namespace AliceScript
                 }
                 catch
                 {
-                    ThrowErrorManerger.OnThrowError("エラー:AlicePackageが壊れています", Exceptions.BAD_PACKAGE);
-                    return;
+                    throw new ScriptException("エラー:AlicePackageが壊れています", Exceptions.BAD_PACKAGE);
                 }
             }
         }

@@ -68,7 +68,7 @@ namespace AliceScript.NameSpaces
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, e.Script);
+                throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, e.Script);
             }
         }
     }
@@ -98,7 +98,7 @@ namespace AliceScript.NameSpaces
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
+                    throw new ScriptException("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
                 }
             }
             else

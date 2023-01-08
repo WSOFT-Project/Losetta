@@ -173,13 +173,12 @@ namespace AliceScript
         {
             if (!File.Exists(filename))
             {
-                ThrowErrorManerger.OnThrowError("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
-                return Variable.EmptyInstance;
+                throw new ScriptException("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
             }
             byte[] data = File.ReadAllBytes(filename);
-            return ProcessData(data,filename,mainFile);
+            return ProcessData(data, filename, mainFile);
         }
-        public Variable ProcessData(byte[] data,string filename="",bool mainFile = false)
+        public Variable ProcessData(byte[] data, string filename = "", bool mainFile = false)
         {
             if (IsEqualMagicnumber(data, Constants.PACKAGE_MAGIC_NUMBER))
             {
@@ -229,8 +228,7 @@ namespace AliceScript
         {
             if (!File.Exists(filename))
             {
-                ThrowErrorManerger.OnThrowError("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
-                return Variable.EmptyInstance;
+                throw new ScriptException("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
             }
             byte[] data = File.ReadAllBytes(filename);
             return await ProcessDataAsync(data, filename, mainFile);
@@ -503,8 +501,7 @@ namespace AliceScript
 
                 if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
                 {
-                    ThrowErrorManerger.OnThrowError("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
-                    return;
+                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
                 }
 
                 script.Pointer = startForCondition;
@@ -556,8 +553,7 @@ namespace AliceScript
 
                 if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
                 {
-                    ThrowErrorManerger.OnThrowError("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
-                    return;
+                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
                 }
 
                 script.Pointer = startForCondition;
@@ -605,8 +601,7 @@ namespace AliceScript
                 // 無限ループを抑制するための判定
                 if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
                 {
-                    ThrowErrorManerger.OnThrowError("このインタプリタでは" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
-                    return Variable.EmptyInstance;
+                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
                 }
 
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
@@ -648,7 +643,7 @@ namespace AliceScript
                 // Check for an infinite loop if we are comparing same values:
                 if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
                 {
-                    ThrowErrorManerger.OnThrowError("繰り返しの回数が多すぎます", Exceptions.TOO_MANY_REPETITIONS);
+                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
                 }
 
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
@@ -891,134 +886,47 @@ namespace AliceScript
 
             Variable result = null;
 
-            try
-            {
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                mainScript.InTryBlock = true;
-                result = mainScript.Process();
-            }
-            catch (Exception exc)
-            {
-                exception = exc;
-            }
-            finally
-            {
+            // tryブロック内のスクリプト
+            string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
+                                                   Constants.END_GROUP);
+            ParsingScript mainScript = script.GetTempScript(body);
+            mainScript.InTryBlock = true;
 
-            }
-
-            if (exception != null || (result != null && (result.IsReturn ||
-                result.Type == Variable.VarType.BREAK ||
-                result.Type == Variable.VarType.CONTINUE)))
-            {
-                // We are here from the middle of the try-block either because
-                // an exception was thrown or because of a Break/Continue. Skip it.
-                script.Pointer = startTryCondition;
-                SkipBlock(script);
-            }
-
+            // catchブロック内のスクリプト
+            getCatch:
             string catchToken = Utils.GetNextToken(script);
             script.Forward(); // skip opening parenthesis
                               // The next token after the try block must be a catch.
-            if (Constants.CATCH != catchToken)
+            if (Constants.CATCH != catchToken && script.StillValid())
             {
-                ThrowErrorManerger.OnThrowError("Catchステートメントがありません", Exceptions.MISSING_CATCH_STATEMENT, script);
+                goto getCatch;
+            }
+            else if (Constants.CATCH != catchToken)
+            {
+                throw new ScriptException("Catchステートメントがありません", Exceptions.MISSING_CATCH_STATEMENT, script);
             }
 
             string exceptionName = Utils.GetNextToken(script);
             script.Forward(); // skip closing parenthesis
+            string body2 = Utils.GetBodyBetween(script, Constants.START_GROUP,
+                                                   Constants.END_GROUP);
+            ParsingScript catchScript = script.GetTempScript(body2);
 
-            if (exception != null)
+            mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
             {
-                string excStack = CreateExceptionStack(exceptionName, currentStackLevel);
-                ParserFunction.InvalidateStacksAfterLevel(currentStackLevel);
+                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message,e.ErrorCode)));
+                catchScript.Variables.Add(exceptionName, excMsgFunc);
+                result = catchScript.Process();
+                e.Handled= true;
+            };
 
-                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(exception.Message));
-                GetVarFunction excStackFunc = new GetVarFunction(new Variable(excStack));
-
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                mainScript.Variables.Add(exceptionName, excMsgFunc);
-                mainScript.Variables.Add(exceptionName + ".Stack", excStackFunc);
-                result = mainScript.Process();
-            }
-            else
-            {
-                SkipBlock(script);
-            }
-
-            SkipRestBlocks(script);
-            return result;
-        }
-        public async Task<Variable> ProcessTryAsync(ParsingScript script)
-        {
-            int startTryCondition = script.Pointer - 1;
-            int currentStackLevel = ParserFunction.GetCurrentStackLevel();
-            Exception exception = null;
-
-            Variable result = null;
-            try
-            {
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                        Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                mainScript.InTryBlock = true;
-                result = await mainScript.ProcessAsync();
-            }
-            catch (Exception exc)
-            {
-                exception = exc;
-            }
-            finally
-            {
-            }
-
-            if (exception != null || result.IsReturn ||
-                result.Type == Variable.VarType.BREAK ||
-                result.Type == Variable.VarType.CONTINUE)
-            {
-                // We are here from the middle of the try-block either because
-                // an exception was thrown or because of a Break/Continue. Skip it.
-                script.Pointer = startTryCondition;
-                SkipBlock(script);
-            }
-
-            string catchToken = Utils.GetNextToken(script);
-            script.Forward(); // skip opening parenthesis
-                              // The next token after the try block must be a catch.
-            if (Constants.CATCH != catchToken)
-            {
-                ThrowErrorManerger.OnThrowError("Catchステートメントがありません", Exceptions.MISSING_CATCH_STATEMENT, script);
-            }
-
-            string exceptionName = Utils.GetNextToken(script);
-            script.Forward(); // skip closing parenthesis
-
-            if (exception != null)
-            {
-                string excStack = CreateExceptionStack(exceptionName, currentStackLevel);
-                ParserFunction.InvalidateStacksAfterLevel(currentStackLevel);
-
-                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(exception.Message));
-                GetVarFunction excStackFunc = new GetVarFunction(new Variable(excStack));
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                mainScript.Variables.Add(exceptionName, excMsgFunc);
-                mainScript.Variables.Add(exceptionName + ".Stack", excStackFunc);
-                result = await mainScript.ProcessAsync();
-            }
-            else
-            {
-                SkipBlock(script);
-            }
+            result = mainScript.Process();
 
             SkipRestBlocks(script);
             return result;
         }
 
+       
         private static string CreateExceptionStack(string exceptionName, int lowestStackLevel)
         {
             string result = "";
@@ -1079,7 +987,7 @@ namespace AliceScript
             {
                 if (!script.StillValid())
                 {
-                    ThrowErrorManerger.OnThrowError("次のブロックを実行できませんでした [" +
+                    throw new ScriptException("次のブロックを実行できませんでした [" +
                     script.Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, script);
                 }
                 char currentChar = script.CurrentAndForward();
@@ -1115,11 +1023,11 @@ namespace AliceScript
             }
             if (startCount > endCount)
             {
-                ThrowErrorManerger.OnThrowError("波括弧が必要です", Exceptions.NEED_BRACKETS, script);
+                throw new ScriptException("波括弧が必要です", Exceptions.NEED_BRACKETS, script);
             }
             else if (startCount < endCount)
             {
-                ThrowErrorManerger.OnThrowError("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, script);
+                throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, script);
             }
         }
 

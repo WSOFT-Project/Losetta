@@ -94,8 +94,7 @@ namespace AliceScript
 
             if (string.IsNullOrWhiteSpace(funcName))
             {
-                ThrowErrorManerger.OnThrowError("関数名を空にすることはできません",Exceptions.ILLEGAL_VARIABLE_NAME);
-                return Variable.EmptyInstance;
+                throw new ScriptException("関数名を空にすることはできません", Exceptions.ILLEGAL_VARIABLE_NAME,script);
             }
 
             string[] args = Utils.GetFunctionSignature(script);
@@ -140,12 +139,12 @@ namespace AliceScript
                     }
                     else
                     {
-                        ThrowErrorManerger.OnThrowError("指定されたメソッドはすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                        throw new ScriptException("指定されたメソッドはすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
                     }
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL);
+                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL,script);
                 }
             }
             else
@@ -161,7 +160,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED,script);
                 }
             }
 
@@ -663,7 +662,7 @@ namespace AliceScript
                 List<string> options = new List<string>();
                 if (parms)
                 {
-                    ThrowErrorManerger.OnThrowError("parmsキーワードより後にパラメータを追加することはできません", Exceptions.COULDNT_ADD_PARAMETERS_AFTER_PARMS_KEYWORD, script);
+                    throw new ScriptException("parmsキーワードより後にパラメータを追加することはできません", Exceptions.COULDNT_ADD_PARAMETERS_AFTER_PARMS_KEYWORD, script);
                     break;
                 }
                 if (arg.Contains(" "))
@@ -721,7 +720,7 @@ namespace AliceScript
                         }
                         else
                         {
-                            ThrowErrorManerger.OnThrowError("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION);
+                            throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
                         }
                         foreach (string opt in options)
                         {
@@ -734,7 +733,7 @@ namespace AliceScript
                                 }
                                 else
                                 {
-                                    ThrowErrorManerger.OnThrowError("複数の型を指定することはできません", Exceptions.WRONG_TYPE_VARIABLE, script);
+                                    throw new ScriptException("複数の型を指定することはできません", Exceptions.WRONG_TYPE_VARIABLE, script);
                                 }
                             }
                         }
@@ -756,7 +755,7 @@ namespace AliceScript
 
                         if (defVariable.Type != reqType)
                         {
-                            ThrowErrorManerger.OnThrowError("この引数は" + Constants.TypeToString(reqType) + "型である必要があります", Exceptions.WRONG_TYPE_VARIABLE, script);
+                            throw new ScriptException("この引数は" + Constants.TypeToString(reqType) + "型である必要があります", Exceptions.WRONG_TYPE_VARIABLE, script);
                         }
 
                         m_defArgMap[i] = m_defaultArgs.Count;
@@ -797,10 +796,7 @@ namespace AliceScript
             }
             if (args.Count + m_defaultArgs.Count < m_args.Length)
             {
-                Console.WriteLine(args.Count+" "+m_args.Length);
-                ThrowErrorManerger.OnThrowError("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
-
-                return;
+                throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(args, e.Script);
             //このCustomFunctionに子があればそれも実行する
@@ -839,7 +835,7 @@ namespace AliceScript
                 int argIndex = -1;
                 if (m_typArgMap.ContainsKey(i) && m_typArgMap[i] != arg.Type)
                 {
-                    ThrowErrorManerger.OnThrowError("この引数は" + Constants.TypeToString(m_typArgMap[i]) + "型である必要があります", Exceptions.WRONG_TYPE_VARIABLE);
+                    throw new ScriptException("この引数は" + Constants.TypeToString(m_typArgMap[i]) + "型である必要があります", Exceptions.WRONG_TYPE_VARIABLE);
                 }
                 else
                 {
@@ -971,8 +967,7 @@ namespace AliceScript
             //これはメソッドで呼び出される。そのため[this]代入分として1を足す。
             if (args.Count + m_defaultArgs.Count + 1 < m_args.Length)
             {
-                ThrowErrorManerger.OnThrowError("この関数は、最大で" + (args.Count + m_defaultArgs.Count + 1) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script);
-                return Variable.EmptyInstance;
+                throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count + 1) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script);
             }
 
             Variable result = ARun(args, script, null, current);
@@ -1860,9 +1855,8 @@ namespace AliceScript
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT, script);
+                    throw new ScriptException("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT, script);
                 }
-                return Variable.EmptyInstance;
             }
             else
             {
@@ -1960,9 +1954,8 @@ namespace AliceScript
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT, script);
+                    throw new ScriptException("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT, script);
                 }
-                return Variable.EmptyInstance;
             }
             else
             {

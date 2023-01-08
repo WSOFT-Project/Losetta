@@ -768,7 +768,7 @@ namespace AliceScript
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                throw new ScriptException("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
             }
         }
         public static void RegisterScriptFunction(string name, ParserFunction function, ParsingScript script, bool isNative = true, bool isLocal = true)
@@ -810,7 +810,7 @@ namespace AliceScript
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                throw new ScriptException("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
             }
         }
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
@@ -991,12 +991,11 @@ namespace AliceScript
                 bool exists = script.ContainsVariable(name,out var func);
                 if (exists && registVar)
                 {
-                    ThrowErrorManerger.OnThrowError("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED);
-                    return;
+                    throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED,script);
                 }
                 else if (!exists && !registVar && !string.IsNullOrEmpty(name))
                 {
-                    ThrowErrorManerger.OnThrowError("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE);
+                    throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
                     return;
                 }
                 if (func is GetVarFunction v)

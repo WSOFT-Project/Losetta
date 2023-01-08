@@ -932,8 +932,11 @@ namespace AliceScript
                         }
                         break;
                     case '#':
-                        inComments = true;
-                        simpleComments = true;
+                        if (!inQuotes)
+                        {
+                            inComments = true;
+                            simpleComments = true;
+                        }
                         break;
                     case '*':
                         if (!inQuotes && (inComments && next == '/'))

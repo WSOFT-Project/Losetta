@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -486,9 +487,8 @@ namespace AliceScript
                                     }
                                     else
                                     {
-                                        ThrowErrorManerger.OnThrowError("引数である" + String + "は有効な数値の形式ではありません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
+                                        throw new ScriptException("引数である" + String + "は有効な数値の形式ではありません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
                                     }
-                                    break;
                                 }
 
                         }
@@ -509,7 +509,7 @@ namespace AliceScript
             //変換に失敗または非対応
             if (throwError)
             {
-                ThrowErrorManerger.OnThrowError(Constants.TypeToString(Type) + "型を" + Constants.TypeToString(type) + "型に変換することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
+                throw new ScriptException(Constants.TypeToString(Type) + "型を" + Constants.TypeToString(type) + "型に変換することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
             }
             return Variable.EmptyInstance;
         }
@@ -884,7 +884,7 @@ namespace AliceScript
                     }
                     else
                     {
-                        ThrowErrorManerger.OnThrowError("インデックス: [" + entry.Value +
+                        throw new ScriptException("インデックス: [" + entry.Value +
                                   "] は配列の長さ[" + m_tuple.Count + "]を超えています", Exceptions.INDEX_OUT_OF_RANGE);
                     }
                 }

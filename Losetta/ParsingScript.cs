@@ -1,8 +1,6 @@
-﻿using AliceScript.Interop;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,13 +27,7 @@ namespace AliceScript
         /// <summary>
         /// 最上位のスクリプトです
         /// </summary>
-        public static ParsingScript TopLevelScript
-        {
-            get
-            {
-                return m_toplevel_script;
-            }
-        }
+        public static ParsingScript TopLevelScript => m_toplevel_script;
 
         /// <summary>
         /// このスクリプトの現在の名前空間
@@ -116,6 +108,10 @@ namespace AliceScript
             get => m_consts;
             set => m_consts = value;
         }
+        /// <summary>
+        /// このスクリプトで例外が発生したときに通知するイベントです
+        /// </summary>
+        public event ThrowErrorEventhandler ThrowError;
         public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
         public char Current => m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
         public char Prev => m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
@@ -145,6 +141,10 @@ namespace AliceScript
 
         public string CurrentAssign { get; set; }
 
+        internal void OnThrowError(object sender, ThrowErrorEventArgs e)
+        {
+            ThrowError?.Invoke(sender, e);
+        }
 
         public Dictionary<string, Dictionary<string, int>> AllLabels
         {
@@ -181,7 +181,7 @@ namespace AliceScript
         public ParsingScript(string data, int from = 0,
                              Dictionary<int, int> char2Line = null)
         {
-            
+
             m_data = data;
             m_from = from;
             m_char2Line = char2Line;
@@ -207,6 +207,7 @@ namespace AliceScript
             Package = other.Package;
             Generation = other.Generation + 1;
             CurrentNamespace = other.CurrentNamespace;
+            ThrowError = other.ThrowError;
         }
 
         public int Size() { return m_data.Length; }
@@ -622,10 +623,7 @@ namespace AliceScript
 
             if (InTryBlock)
             {
-                bool before = ThrowErrorManerger.InTryBlock;
-                ThrowErrorManerger.InTryBlock = true;
                 result = Parser.AliceScript(this, toArray);
-                ThrowErrorManerger.InTryBlock = before;
             }
             else
             {
@@ -633,39 +631,33 @@ namespace AliceScript
                 {
                     result = Parser.AliceScript(this, toArray);
                 }
-                catch (HandledErrorException)
+                catch (Exception e)
                 {
+                    ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
+                    ex.Message = e.Message;
+                    ex.Script = this;
 
-                }
-                catch (ParsingException parseExc)
-                {
-                    if (!this.InTryBlock)
+                    if (e is ScriptException scriptExc)
                     {
-
-                        if (ThrowErrorManerger.HandleError)
+                        ex.ErrorCode = scriptExc.ErrorCode;
+                        ex.Exception = scriptExc.Exception;
+                        if (scriptExc.Script != null)
                         {
-                            ThrowErrorManerger.OnThrowError(parseExc.Message, Exceptions.NONE, this, parseExc);
-                        }
-                        else
-                        {
-                            throw;
+                            ex.Script = scriptExc.Script;
                         }
                     }
-                }
-                catch (Exception exc)
-                {
-                    if (!this.InTryBlock)
+                    else if(e is ParsingException parseExc)
                     {
-                        ParsingException parseExc = new ParsingException(exc.Message, this, exc);
-                        if (ThrowErrorManerger.HandleError)
-                        {
-                            ThrowErrorManerger.OnThrowError(parseExc.Message, Exceptions.NONE, this, parseExc);
-                        }
-                        else
-                        {
-                            throw parseExc;
-                        }
+                        ex.ErrorCode = Exceptions.COULDNT_PARSE;
+                        ex.Exception = parseExc;
                     }
+                    ex.Script.OnThrowError(ex.Script, ex);
+                    if (ex.Handled)
+                    {
+                        return result;
+                    }
+                    if (this.InTryBlock) { return result; }
+                    ThrowError?.Invoke(ex.Script, ex);
                 }
             }
             return result;
@@ -694,39 +686,33 @@ namespace AliceScript
                 {
                     result = await Parser.AliceScriptAsync(this, toArray);
                 }
-                catch (HandledErrorException)
+                catch (Exception e)
                 {
+                    ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
+                    ex.Message = e.Message;
+                    ex.Script = this;
 
-                }
-                catch (ParsingException parseExc)
-                {
-                    if (!this.InTryBlock)
+                    if (e is ScriptException scriptExc)
                     {
-
-                        if (ThrowErrorManerger.HandleError)
+                        ex.ErrorCode = scriptExc.ErrorCode;
+                        ex.Exception = scriptExc.Exception;
+                        if (scriptExc.Script != null)
                         {
-                            ThrowErrorManerger.OnThrowError(parseExc.Message, Exceptions.NONE, this, parseExc);
-                        }
-                        else
-                        {
-                            throw;
+                            ex.Script = scriptExc.Script;
                         }
                     }
-                }
-                catch (Exception exc)
-                {
-                    if (!this.InTryBlock)
+                    else if (e is ParsingException parseExc)
                     {
-                        ParsingException parseExc = new ParsingException(exc.Message, this, exc);
-                        if (ThrowErrorManerger.HandleError)
-                        {
-                            ThrowErrorManerger.OnThrowError(parseExc.Message, Exceptions.NONE, this, parseExc);
-                        }
-                        else
-                        {
-                            throw parseExc;
-                        }
+                        ex.ErrorCode = Exceptions.COULDNT_PARSE;
+                        ex.Exception = parseExc;
                     }
+                    ex.Script.OnThrowError(ex.Script, ex);
+                    if (ex.Handled)
+                    {
+                        return result;
+                    }
+                    if (this.InTryBlock) { return result; }
+                    ThrowError?.Invoke(ex.Script, ex);
                 }
             }
             return result;
@@ -805,6 +791,7 @@ namespace AliceScript
             tempScript.Tag = this.Tag;
             tempScript.Package = this.Package;
             tempScript.Generation = this.Generation + 1;
+            tempScript.ThrowError = this.ThrowError;
 
             return tempScript;
         }
@@ -821,6 +808,7 @@ namespace AliceScript
             tempScript.InTryBlock = InTryBlock;
             tempScript.Tag = this.Tag;
             tempScript.Generation = this.Generation + 1;
+            tempScript.ThrowError = this.ThrowError;
             if (isPackageFile)
             {
                 tempScript.Package = this.Package;

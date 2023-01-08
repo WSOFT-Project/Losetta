@@ -294,7 +294,7 @@ namespace AliceScript
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("指定された名前の変数は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, e.Script);
+                throw new ScriptException("指定された名前の変数は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, e.Script);
             }
         }
     }

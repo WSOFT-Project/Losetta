@@ -14,7 +14,7 @@ namespace AliceScript.Interop
                 byte[] raw = File.ReadAllBytes(path);
                 LoadLibrary(raw);
             }
-            catch (Exception ex) { ThrowErrorManerger.OnThrowError(ex.Message, Exceptions.FILE_NOT_FOUND); }
+            catch (Exception ex) { throw new ScriptException(ex.Message, Exceptions.FILE_NOT_FOUND); }
 
         }
         public static void LoadLibrary(byte[] rawassembly)
@@ -47,10 +47,10 @@ namespace AliceScript.Interop
                             }
                         }
                     }
-                    catch (Exception ex) { ThrowErrorManerger.OnThrowError(ex.Message, Exceptions.LIBRARY_EXCEPTION); }
+                    catch (Exception ex) { throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION); }
                 }
             }
-            catch (Exception ex) { ThrowErrorManerger.OnThrowError(ex.Message, Exceptions.LIBRARY_EXCEPTION); }
+            catch (Exception ex) { throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION); }
 
         }
         private static List<int> Loadeds = new List<int>();

@@ -81,8 +81,7 @@ namespace AliceScript.NameSpaces
             //引数チェック
             if (e.Args[0].Type != Variable.VarType.STRING || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null)
             {
-                ThrowErrorManerger.OnThrowError("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-                return;
+                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
             }
             string password = e.Args[0].ToString();
 
@@ -112,8 +111,7 @@ namespace AliceScript.NameSpaces
             //引数チェック
             if (e.Args[0].Type != Variable.VarType.BYTES || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null)
             {
-                ThrowErrorManerger.OnThrowError("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-                return;
+                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
             }
            byte[] password = e.Args[0].AsByteArray();
 
@@ -159,8 +157,7 @@ namespace AliceScript.NameSpaces
             //引数チェック
             if (e.Args[0].Type != Variable.VarType.STRING || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null || e.Args[2].Type != Variable.VarType.BYTES || e.Args[2].ByteArray == null)
             {
-                ThrowErrorManerger.OnThrowError("引数が不正です",Exceptions.COULDNT_CONVERT_VARIABLE,e.Script);
-                return;
+                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
             }
             string password = e.Args[0].AsString();
 
@@ -192,8 +189,7 @@ namespace AliceScript.NameSpaces
             //引数チェック
             if (e.Args[0].Type != Variable.VarType.BYTES || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null || e.Args[2].Type != Variable.VarType.BYTES || e.Args[2].ByteArray == null)
             {
-                ThrowErrorManerger.OnThrowError("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-                return;
+                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
             }
             byte[] password = e.Args[0].AsByteArray();
 

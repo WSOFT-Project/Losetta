@@ -130,8 +130,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("指定されたプロパティまたはメソッドまたはイベントは存在しません。", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
-                    return Task.FromResult(Variable.EmptyInstance);
+                    throw new ScriptException("指定されたプロパティまたはメソッドまたはイベントは存在しません。", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
                 }
             }
         }
@@ -166,7 +165,7 @@ namespace AliceScript
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("指定されたプロパティまたはデリゲートは存在しません", Exceptions.COULDNT_FIND_VARIABLE);
+                throw new ScriptException("指定されたプロパティまたはデリゲートは存在しません", Exceptions.COULDNT_FIND_VARIABLE);
             }
 
             return Task.FromResult(Variable.EmptyInstance);
@@ -302,7 +301,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("このプロパティに代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
+                    throw new ScriptException("このプロパティに代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
                 }
             }
         }

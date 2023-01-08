@@ -27,7 +27,7 @@ namespace AliceScript
 
             if (listToMerge.Count == 0)
             {
-                ThrowErrorManerger.OnThrowError(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
+                throw new ScriptException(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
             }
 
             // Second step: merge list of cells to get the result of an expression.
@@ -42,7 +42,7 @@ namespace AliceScript
 
             if (listToMerge.Count == 0)
             {
-                ThrowErrorManerger.OnThrowError(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
+                throw new ScriptException(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
             }
 
             // Second step: merge list of cells to get the result of an expression.
@@ -271,8 +271,7 @@ namespace AliceScript
 
                 if (action != null && action != Constants.END_ARG_STR && token != Constants.DEFAULT)
                 {
-                    ThrowErrorManerger.OnThrowError("次のアクションで引数が不完全です。[" + action + "]", Exceptions.INSUFFICIENT_ARGUMETS);
-                    return false;
+                    throw new ScriptException("次のアクションで引数が不完全です。[" + action + "]", Exceptions.INSUFFICIENT_ARGUMETS, script);
                 }
 
                 // 数値結果がない場合は、数式ではありません
@@ -591,8 +590,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    ThrowErrorManerger.OnThrowError("is式の右辺はAlice.Interpreter.Typeオブジェクトである必要があります。", Exceptions.INVALID_OPERAND);
-                    return Variable.EmptyInstance;
+                    throw new ScriptException("is式の右辺はAlice.Interpreter.Typeオブジェクトである必要があります。", Exceptions.INVALID_OPERAND, script);
                 }
             }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます

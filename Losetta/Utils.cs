@@ -15,7 +15,7 @@ namespace AliceScript
             if (args < expected || (exactMatch && args != expected))
             {
                 //引数の不足
-                ThrowErrorManerger.OnThrowError(msg + "には引数が" + expected + "個必要ですが、" + args + "個しか指定されていません", Exceptions.INSUFFICIENT_ARGUMETS);
+                throw new ScriptException(msg + "には引数が" + expected + "個必要ですが、" + args + "個しか指定されていません", Exceptions.INSUFFICIENT_ARGUMETS);
             }
         }
 
@@ -110,10 +110,10 @@ namespace AliceScript
 
             ThrowErrorMsg(msg, code, lineNumber, filename, minLines);
             */
-            ThrowErrorManerger.OnThrowError(msg, errorcode, script);
+            throw new ScriptException(msg, errorcode, script);
         }
 
-        static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "", int minLines = 1)
+        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "", int minLines = 1)
         {
             string[] lines = script.Split('\n');
             lineNumber = lines.Length <= lineNumber ? -1 : lineNumber;
@@ -146,10 +146,10 @@ namespace AliceScript
             stack.AppendLine("" + currentLineNumber);
             stack.AppendLine(filename);
             stack.AppendLine(line);
-            ThrowErrorManerger.OnThrowError(msg + stack.ToString(), ecode, null);
+            throw new ScriptException(msg + stack.ToString(), ecode);
         }
 
-        static void ThrowErrorMsg(string msg, string code, Exceptions ecode, int level, int lineStart, int lineEnd, string filename)
+        private static void ThrowErrorMsg(string msg, string code, Exceptions ecode, int level, int lineStart, int lineEnd, string filename)
         {
             var lineNumber = level > 0 ? lineStart : lineEnd;
             ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
@@ -231,8 +231,7 @@ namespace AliceScript
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
-                return fileContents;
+                throw new ScriptException("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
             }
             return fileContents;
         }
@@ -597,10 +596,9 @@ namespace AliceScript
             {
                 return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
             }
-            catch (Exception exc)
+            catch (Exception)
             {
-                ThrowErrorManerger.OnThrowError("ファイルの読み込みに失敗しました\r\n詳細:" + exc.Message, Exceptions.COULDNT_READ_FILE);
-                return "";
+                throw new ScriptException("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
             }
         }
         public static string RemovePrefix(string text)
@@ -640,14 +638,7 @@ namespace AliceScript
             {
                 return path;
             }
-            try
-            {
-                path = Path.GetFullPath(path);
-            }
-            catch (Exception exc)
-            {
-                ThrowErrorManerger.OnThrowError(path + "のフルパスの取得に失敗しました\r\n詳細:" + exc, Exceptions.NONE);
-            }
+            path = Path.GetFullPath(path);
             return path;
         }
 
@@ -657,28 +648,12 @@ namespace AliceScript
             {
                 return GetCurrentDirectory();
             }
-            try
-            {
-                return Path.GetDirectoryName(path);
-            }
-            catch (Exception exc)
-            {
-                ThrowErrorManerger.OnThrowError(path + "のディレクトリの取得に失敗しました\r\n詳細:" + exc, Exceptions.NONE);
-            }
-            return GetCurrentDirectory();
+            return Path.GetDirectoryName(path);
         }
 
         public static string GetCurrentDirectory()
         {
-            try
-            {
-                return Directory.GetCurrentDirectory();
-            }
-            catch (Exception exc)
-            {
-                ThrowErrorManerger.OnThrowError("カレントディレクトリの取得に失敗しました\r\n詳細:" + exc, Exceptions.NONE);
-            }
-            return "";
+            return Directory.GetCurrentDirectory();
         }
     }
 }

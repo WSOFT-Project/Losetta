@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace AliceScript.NameSpaces
 {
@@ -191,7 +192,7 @@ namespace AliceScript.NameSpaces
             }
             else
             {
-                ThrowErrorManerger.OnThrowError("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE);
+                throw new ScriptException("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
             }
 
         }
@@ -262,8 +263,7 @@ namespace AliceScript.NameSpaces
                                 }
                                 else
                                 {
-                                    ThrowErrorManerger.OnThrowError("アイテムが配列内に存在しません", Exceptions.COULDNT_FIND_ITEM, e.Script);
-                                    return;
+                                    throw new ScriptException("アイテムが配列内に存在しません", Exceptions.COULDNT_FIND_ITEM, e.Script);
                                 }
                             }
                         }
@@ -1116,13 +1116,11 @@ namespace AliceScript.NameSpaces
             {
                 case Variable.VarType.STRING:
                     {
-                        ThrowErrorManerger.OnThrowError(e.Args[0].AsString(), Exceptions.USER_DEFINED, e.Script);
-                        break;
+                        throw new ScriptException(e.Args[0].AsString(), Exceptions.USER_DEFINED, e.Script);
                     }
                 case Variable.VarType.NUMBER:
                     {
-                        ThrowErrorManerger.OnThrowError(Utils.GetSafeString(e.Args, 1), (Exceptions)e.Args[0].AsInt(), e.Script);
-                        break;
+                        throw new ScriptException(Utils.GetSafeString(e.Args, 1), (Exceptions)e.Args[0].AsInt(), e.Script);
                     }
             }
         }
@@ -1220,11 +1218,6 @@ namespace AliceScript.NameSpaces
         }
 
     }
-
-
-
-
-
     internal class list_ForeachFunc : FunctionBase
     {
         public list_ForeachFunc()
