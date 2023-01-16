@@ -70,7 +70,7 @@ namespace AliceScript
             do
             { // Main processing cycle of the first part.
                 List<string> keywords = new List<string>();
-                ExtractNextToken:
+            ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
 
                 if (Constants.KEYWORD.Contains(token.Trim()) && !keywords.Contains(token.Trim()))
@@ -94,7 +94,7 @@ namespace AliceScript
                 // We are done getting the next token. The GetValue() call below may
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
-                ParserFunction func = new ParserFunction(script, token, ch, ref action,keywords);
+                ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
                 Variable current = func.GetValue(script);
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {

@@ -18,8 +18,8 @@ namespace AliceScript
 
         public List<string> Keywords
         {
-            get { return m_keywords; }
-            set { m_keywords = value;}
+            get => m_keywords;
+            set => m_keywords = value;
         }
 
         private List<string> m_keywords = new List<string>();
@@ -88,7 +88,8 @@ namespace AliceScript
 
             m_impl = CheckString(script, item, ch);
             if (m_impl != null)
-            {m_impl.Keywords = keywords;
+            {
+                m_impl.Keywords = keywords;
                 return;
             }
 
@@ -108,7 +109,7 @@ namespace AliceScript
                 return;
             }
 
-            m_impl = GetObjectFunction(item, script,keywords);
+            m_impl = GetObjectFunction(item, script, keywords);
             if (m_impl != null)
             {
                 m_impl.Keywords = keywords;
@@ -117,7 +118,7 @@ namespace AliceScript
 
 
 
-            m_impl = GetVariable(item, script,false,keywords);
+            m_impl = GetVariable(item, script, false, keywords);
             if (m_impl != null)
             {
                 m_impl.Keywords = keywords;
@@ -197,7 +198,7 @@ namespace AliceScript
             return varFunc;
         }
 
-        public static ParserFunction GetObjectFunction(string name, ParsingScript script,List<string> keywords)
+        public static ParserFunction GetObjectFunction(string name, ParsingScript script, List<string> keywords)
         {
             if (script.CurrentClass != null && script.CurrentClass.Name == name)
             {
@@ -355,7 +356,7 @@ namespace AliceScript
             return impl;
         }
 
-        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false,List<string> keywords=null)
+        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false, List<string> keywords = null)
         {
             if (!force && script != null && script.TryPrev() == Constants.START_ARG)
             {
@@ -402,7 +403,7 @@ namespace AliceScript
             }
 
             //関数として取得を続行
-            var pfx= GetFunction(name, script, true);
+            var pfx = GetFunction(name, script, true);
             if (pfx != null)
             {
                 pfx.Keywords = keywords;
@@ -599,7 +600,7 @@ namespace AliceScript
 
             if (globalOnly)
             {
-                AddLocalVariable(function,ParsingScript.TopLevelScript, "", true, registVar);
+                AddLocalVariable(function, ParsingScript.TopLevelScript, "", true, registVar);
             }
             else
             {
@@ -702,7 +703,7 @@ namespace AliceScript
 
         public static bool LocalNameExists(string name, ParsingScript script)
         {
-            if (script != null && (script.ContainsVariable(name,out _) || script.ContainsFunction(name) || script.ContainsConst(name)))
+            if (script != null && (script.ContainsVariable(name, out _) || script.ContainsFunction(name) || script.ContainsConst(name)))
             {
                 return true;
             }
@@ -878,7 +879,7 @@ namespace AliceScript
             return vars;
         }
 
-     
+
         public static void AddLocalScopeVariable(string name, string scopeName, ParserFunction variable)
         {
             name = Constants.ConvertName(name);
@@ -988,10 +989,10 @@ namespace AliceScript
                 {
                     ((GetVarFunction)local).Value.ParamName = local.Name;
                 }
-                bool exists = script.ContainsVariable(name,out var func);
+                bool exists = script.ContainsVariable(name, out var func);
                 if (exists && registVar)
                 {
-                    throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED,script);
+                    throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
                 }
                 else if (!exists && !registVar && !string.IsNullOrEmpty(name))
                 {
@@ -1010,7 +1011,7 @@ namespace AliceScript
                 else
                 {
                     //変数定義の場合
-                    if(local is GetVarFunction v2)
+                    if (local is GetVarFunction v2)
                     {
                         v2.Value.Parent = script;
                     }

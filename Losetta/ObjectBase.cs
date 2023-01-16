@@ -14,13 +14,13 @@ namespace AliceScript
 
         public Dictionary<string, PropertyBase> Properties
         {
-            get { return m_classProperties; }
-            set { m_classProperties = value; }
+            get => m_classProperties;
+            set => m_classProperties = value;
         }
         public Dictionary<string, FunctionBase> Functions
         {
-            get { return m_customFunctions; }
-            set { m_customFunctions = value; }
+            get => m_customFunctions;
+            set => m_customFunctions = value;
         }
         public Dictionary<string, Variable> Events = new Dictionary<string, Variable>();
 
@@ -50,10 +50,10 @@ namespace AliceScript
 
         public override string ToString()
         {
-            var tsf = Functions.Keys.Where(x=>x.ToLower()=="tostring").FirstOrDefault();
+            var tsf = Functions.Keys.Where(x => x.ToLower() == "tostring").FirstOrDefault();
             if (tsf != null)
             {
-                return Functions[tsf].Evaluate(new List<Variable>(),null,null).AsString();
+                return Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString();
             }
             else if (string.IsNullOrEmpty(this.Namespace))
             {
@@ -70,7 +70,7 @@ namespace AliceScript
             if (m_constructor != null)
             {
                 var impl = m_constructor.Evaluate(args, script);
-                if (impl.Type == Variable.VarType.OBJECT && impl.Object is ObjectBase  ob)
+                if (impl.Type == Variable.VarType.OBJECT && impl.Object is ObjectBase ob)
                 {
                     ob.Namespace = this.Namespace;
                     return impl;
@@ -92,7 +92,7 @@ namespace AliceScript
         public static List<Variable> LaskVariable;
         public virtual bool Equals(ObjectBase other)
         {
-            return (other==this);
+            return (other == this);
         }
         public virtual Variable Operator(Variable left, Variable right, string action, ParsingScript script)
         {
@@ -262,7 +262,7 @@ namespace AliceScript
         private bool m_CanSet = true;
         public PropertyBase(Variable value)
         {
-            this.Value= value;
+            this.Value = value;
         }
         public PropertyBase()
         {

@@ -389,6 +389,10 @@ namespace AliceScript.NameSpaces
             arch_name = "ARM32";
 #elif RELEASE_WIN_ARM64 || RELEASE_LINUX_ARM64
             arch_name = "ARM64";
+#elif DEBUG
+            arch_name = "Debug";
+#else
+            arch_name = "Release";
 #endif
 
             e.Return = new Variable(arch_name);
@@ -412,6 +416,8 @@ namespace AliceScript.NameSpaces
             arch_name = "OSX";
 #elif RELEASE_LINUX_X64 || RELEASE_LINUX_ARM || RELEASE_LINUX_ARM64
             arch_name = "Linux";
+#else
+            arch_name = "NET6.0";
 #endif
 
             e.Return = new Variable(arch_name);

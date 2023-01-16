@@ -18,3 +18,5 @@ Losettaは以下の方針で開発されています。
 
 ## 使用法
 LosettaはSAIMに準拠しているため、使用方法については[AliceScriptDocs](https://docs.wsoft.ws/products/alice)が参考になります。以前のバージョンの情報をお求めの方は[AliceScriptWiki](https://alice.wsoft.ws/)が役立つ可能性があります。
+
+また、WebAssemblyへコンパイルした[AliceScriptWeb環境](https://try.alice.wsoft.ws/)もあります。

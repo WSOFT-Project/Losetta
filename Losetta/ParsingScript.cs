@@ -647,7 +647,7 @@ namespace AliceScript
                             ex.Script = scriptExc.Script;
                         }
                     }
-                    else if(e is ParsingException parseExc)
+                    else if (e is ParsingException parseExc)
                     {
                         ex.ErrorCode = Exceptions.COULDNT_PARSE;
                         ex.Exception = parseExc;
