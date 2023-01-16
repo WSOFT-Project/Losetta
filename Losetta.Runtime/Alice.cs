@@ -106,7 +106,6 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new ReadFunction());
             FunctionBaseManerger.Add(new StringFormatFunction());
             FunctionBaseManerger.Add(new LockFunction());
-            FunctionBaseManerger.Add(new GetStringFunction());
         }
     }
 

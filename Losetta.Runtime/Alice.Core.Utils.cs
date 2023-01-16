@@ -156,23 +156,6 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class GetStringFunction : FunctionBase
-    {
-        public GetStringFunction()
-        {
-            this.Name = "GetString";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += GetStringFunction_Run;
-        }
-
-        private void GetStringFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Script != null)
-            {
-                e.Return = new Variable(Utils.GetBodyBetween(e.Script));
-            }
-        }
-    }
     internal class LockFunction : FunctionBase
     {
         public LockFunction()
