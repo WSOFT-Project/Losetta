@@ -130,8 +130,8 @@ namespace AliceScript
         public const string GET_DATA = "GetCollectedData";
 
         // プロパティ
-        public const string EMPTY_NULL = "EmptyOrNull";
-        public const string EMPTY_WHITE = "EmptyOrWhite";
+        public const string EMPTY_NULL = "IsEmptyOrNull";
+        public const string EMPTY_WHITE = "IsEmptyOrWhite";
         public const string ENDS_WITH = "EndsWith";
         public const string EQUALS = "Equals";
         public const string FIRST = "First";
@@ -141,7 +141,7 @@ namespace AliceScript
         public const string KEYS = "Keys";
         public const string LAST = "Last";
         public const string LENGTH = "Length";
-        public const string LOWER = "Lower";
+        public const string LOWER = "ToLower";
         public const string REMOVE_ITEM = "Remove";
         public const string REPLACE = "Replace";
         public const string REPLACE_TRIM = "ReplaceAndTrim";
@@ -155,7 +155,7 @@ namespace AliceScript
         public const string TRIM = "Trim";
         public const string TRIM_START = "TrimStart";
         public const string TRIM_END = "TrimEnd";
-        public const string UPPER = "Upper";
+        public const string UPPER = "ToUpper";
         public const string INSERT = "Insert";
         public const string INSERT_RANGE = "InsertRange";
 
@@ -208,7 +208,7 @@ namespace AliceScript
 
 
         // キーワード
-        public const string GLOBAL = "global";
+        public const string PUBLIC = "public";
         public const string VAR = "var";
         public const string CONST = "const";
         public const string VIRTUAL = "virtual";
@@ -217,7 +217,7 @@ namespace AliceScript
 
         public static List<string> KEYWORD=new List<string>
         {
-            GLOBAL,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND
         };
 
         // 関数呼び出し時に丸括弧が不要な関数

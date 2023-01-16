@@ -1245,7 +1245,7 @@ namespace AliceScript.NameSpaces
         public str_ToLowerUpperInvariantFunc(bool upper = false)
         {
             Upper = upper;
-            if (upper) { this.Name = "UpperInvariant"; } else { this.Name = "LowerInvariant"; }
+            if (upper) { this.Name = "ToUpperInvariant"; } else { this.Name = "ToLowerInvariant"; }
             this.RequestType = Variable.VarType.STRING;
             this.Run += Str_ToLowerUpperFunc_Run;
         }

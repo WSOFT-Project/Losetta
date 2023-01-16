@@ -79,7 +79,7 @@ namespace AliceScript
         {
             string funcName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             bool? mode = null;
-            bool isGlobal = this.Keywords.Contains(Constants.GLOBAL);
+            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
             bool isCommand = this.Keywords.Contains(Constants.COMMAND);
             if (this.Keywords.Contains(Constants.OVERRIDE))
             {
@@ -166,6 +166,7 @@ namespace AliceScript
 
             return Variable.EmptyInstance;
         }
+        
         private bool FunctionIsVirtual(string name, ParsingScript script)
         {
             ParserFunction impl;
@@ -1799,7 +1800,7 @@ namespace AliceScript
 
             bool registVar = this.Keywords.Contains(Constants.VAR);
             bool registConst=this.Keywords.Contains(Constants.CONST);
-            bool isGlobal = this.Keywords.Contains(Constants.GLOBAL);
+            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
 
             script.MoveBackIfPrevious(Constants.END_ARG);
             if (varValue == null)

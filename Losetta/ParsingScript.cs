@@ -112,6 +112,7 @@ namespace AliceScript
         /// このスクリプトで例外が発生したときに通知するイベントです
         /// </summary>
         public event ThrowErrorEventhandler ThrowError;
+
         public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
         public char Current => m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
         public char Prev => m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;

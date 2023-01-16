@@ -196,7 +196,7 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             string script = Utils.GetFileContents(data);
-            return Process(script, filename, mainFile);
+            return Process(script, filename, mainFile,null,null);
         }
         public async Task<Variable> ProcessDataAsync(byte[] data, string filename = "", bool mainFile = false)
         {
@@ -769,7 +769,11 @@ namespace AliceScript
             int startIfCondition = script.Pointer;
 
             Variable result = script.Execute(Constants.END_ARG_ARRAY);
-            bool isTrue = result.AsBool();
+            bool isTrue = false;
+            if (result != null)
+            {
+                isTrue = result.AsBool();
+            }
 
             if (isTrue)
             {

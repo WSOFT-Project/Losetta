@@ -90,7 +90,7 @@ namespace alice
             if (Program.BuildPackage(e.Args[0].AsString(), path))
             {
                 Interpreter.Instance.AppendOutput("ビルド成功...開始しています", true);
-                AlicePackage.Load(path);
+                AlicePackage.Load(path,true);
             }
             else
             {

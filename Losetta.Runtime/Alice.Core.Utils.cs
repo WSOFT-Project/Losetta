@@ -55,7 +55,7 @@ namespace AliceScript.NameSpaces
 
         private void UsingStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            bool isGlobal = this.Keywords.Contains(Constants.GLOBAL);
+            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
             string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             if (NameSpaceManerger.Contains(file))
             {
@@ -105,10 +105,10 @@ namespace AliceScript.NameSpaces
             {
                 if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
                 {
-                    AlicePackage.LoadData(e.Script.Package.GetEntryData(filename));
+                    AlicePackage.LoadData(e.Script.Package.GetEntryData(filename),filename,true);
                     return;
                 }
-                AlicePackage.Load(filename);
+                AlicePackage.Load(filename,true);
             }
         }
     }

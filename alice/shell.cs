@@ -58,7 +58,7 @@ namespace alice
                 }
                 if (e.Script != null)
                 {
-                    throwmsg += " " + e.Script.OriginalLineNumber + "行 コード:" + e.Script.OriginalLine + " ファイル名:" + e.Script.Filename;
+                    throwmsg += " " + e.Script.OriginalLineNumber + "行  ファイル名:" + e.Script.Filename;
                 }
                 throwmsg += "\r\n";
                 if (allow_throw)

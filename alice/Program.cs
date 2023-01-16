@@ -220,7 +220,7 @@ web_download_file(url,fn);
 print(""完了。"");
 }");
 
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), @"global using Alice.Shell;
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), @"public using Alice.Shell;
 include(""version"");
 print(""Copyright (c) WSOFT. All Rights Reserved.\r\n"");");
 
@@ -409,7 +409,7 @@ print(""更新はユーザーによって取り消されました"");
                 }
                 if (e.Script != null)
                 {
-                    throwmsg += " " + e.Script.OriginalLineNumber + "行 コード:" + e.Script.OriginalLine + " ファイル名:" + e.Script.Filename;
+                    throwmsg += " " + e.Script.OriginalLineNumber + "行 ファイル名:" + e.Script.Filename;
                 }
                 throwmsg += "\r\n";
                 if (allow_throw)
