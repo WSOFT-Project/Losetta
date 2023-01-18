@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace AliceScript
 {
@@ -94,7 +93,7 @@ namespace AliceScript
 
             if (string.IsNullOrWhiteSpace(funcName))
             {
-                throw new ScriptException("関数名を空にすることはできません", Exceptions.ILLEGAL_VARIABLE_NAME,script);
+                throw new ScriptException("関数名を空にすることはできません", Exceptions.ILLEGAL_VARIABLE_NAME, script);
             }
 
             string[] args = Utils.GetFunctionSignature(script);
@@ -144,7 +143,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL,script);
+                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL, script);
                 }
             }
             else
@@ -156,17 +155,17 @@ namespace AliceScript
             {
                 if (!FunctionExists(funcName, script) || (mode == true && FunctionIsVirtual(funcName, script)))
                 {
-                    FunctionBaseManerger.Add( customFunc,funcName, script, isGlobal);
+                    FunctionBaseManerger.Add(customFunc, funcName, script, isGlobal);
                 }
                 else
                 {
-                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED,script);
+                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, script);
                 }
             }
 
             return Variable.EmptyInstance;
         }
-        
+
         private bool FunctionIsVirtual(string name, ParsingScript script)
         {
             ParserFunction impl;
@@ -198,7 +197,7 @@ namespace AliceScript
             RegisterClass(className, this);
         }
 
-        public AliceScriptClass(string className, string[] baseClasses,ParsingScript script)
+        public AliceScriptClass(string className, string[] baseClasses, ParsingScript script)
         {
             Name = className;
             RegisterClass(className, this);
@@ -207,15 +206,15 @@ namespace AliceScript
 
             foreach (string baseClass in baseClasses)
             {
-                var bc = AliceScriptClass.GetClass(baseClass,script);
+                var bc = AliceScriptClass.GetClass(baseClass, script);
                 if (bc == null)
                 {
                     throw new ArgumentException("継承元クラスである [" + baseClass + "] が存在しません");
                 }
-                
+
                 foreach (var entry in bc.m_classProperties)
                 {
-                    m_classProperties[entry.Key]=entry.Value;
+                    m_classProperties[entry.Key] = entry.Value;
                 }
                 foreach (var entry in bc.m_customFunctions)
                 {
@@ -228,7 +227,7 @@ namespace AliceScript
         /// </summary>
         public string[] BaseClasses
         {
-            get;set;
+            get; set;
         }
         public Dictionary<string, FunctionBase> StaticFunctions
         {
@@ -277,7 +276,7 @@ namespace AliceScript
             m_classProperties[name] = new PropertyBase(property);
         }
 
-        public static AliceScriptClass GetClass(string name,ParsingScript script)
+        public static AliceScriptClass GetClass(string name, ParsingScript script)
         {
             string currNamespace = ParserFunction.GetCurrentNamespace;
             if (!string.IsNullOrWhiteSpace(currNamespace))
@@ -294,7 +293,7 @@ namespace AliceScript
             {
                 return theClass;
             }
-            var cls = GetFromNS(name,script);
+            var cls = GetFromNS(name, script);
             if (cls != null)
             {
                 return cls;
@@ -348,9 +347,9 @@ namespace AliceScript
             new Dictionary<string, AliceScriptClass>();
         private Dictionary<int, CustomFunction> m_constructors =
             new Dictionary<int, CustomFunction>();
-        protected Dictionary<string,FunctionBase> m_customFunctions =
+        protected Dictionary<string, FunctionBase> m_customFunctions =
             new Dictionary<string, FunctionBase>();
-        protected Dictionary<string,PropertyBase> m_classProperties =
+        protected Dictionary<string, PropertyBase> m_classProperties =
             new Dictionary<string, PropertyBase>();
         protected Dictionary<string, FunctionBase> m_static_customFunctions =
             new Dictionary<string, FunctionBase>();
@@ -366,7 +365,7 @@ namespace AliceScript
                                  ParsingScript script = null)
             {
                 InstanceName = instanceName;
-                m_cscsClass = AliceScriptClass.GetClass(className,script);
+                m_cscsClass = AliceScriptClass.GetClass(className, script);
                 if (m_cscsClass == null)
                 {
                     throw new ArgumentException("継承元クラスである [" + className + "] が存在しません");
@@ -375,7 +374,7 @@ namespace AliceScript
                 // Copy over all the properties defined for this class.
                 foreach (var entry in m_cscsClass.m_classProperties)
                 {
-                    SetProperty(entry.Key,entry.Value.Value);
+                    SetProperty(entry.Key, entry.Value.Value);
                 }
 
                 // Run "constructor" if any is defined for this number of args.
@@ -402,7 +401,7 @@ namespace AliceScript
                     return m_cscsClass.Name + "." + InstanceName;
                 }
 
-                Variable result = customFunction.Evaluate(new List<Variable>(),null);
+                Variable result = customFunction.Evaluate(new List<Variable>(), null);
                 return result.ToString();
             }
 
@@ -565,7 +564,7 @@ namespace AliceScript
             string className = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             className = Constants.ConvertName(className);
             string[] baseClasses = Utils.GetBaseClasses(script);
-            AliceScriptClass newClass = new AliceScriptClass(className, baseClasses,script);
+            AliceScriptClass newClass = new AliceScriptClass(className, baseClasses, script);
 
             script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
 
@@ -638,7 +637,7 @@ namespace AliceScript
     public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
-                                string body, string[] args, ParsingScript script, object tag = null,bool forceReturn=false)
+                                string body, string[] args, ParsingScript script, object tag = null, bool forceReturn = false)
         {
             Name = funcName;
             m_body = body;
@@ -1158,9 +1157,9 @@ namespace AliceScript
                         split_string += '\"';
                         index++;
                     }
-                    if(split_string.Length > 2)
+                    if (split_string.Length > 2)
                     {
-                        MatchCollection mc = Regex.Matches(Item, "(?<="+split_string+@")[^\(\)]+(?="+split_string+")");
+                        MatchCollection mc = Regex.Matches(Item, "(?<=" + split_string + @")[^\(\)]+(?=" + split_string + ")");
                         foreach (Match match in mc)
                         {
                             return new Variable(match.Value);
@@ -1780,7 +1779,6 @@ namespace AliceScript
             return new OperatorAssignFunction();
         }
     }
-
     public class AssignFunction : ActionFunction
     {
         protected override Variable Evaluate(ParsingScript script)
@@ -1799,7 +1797,7 @@ namespace AliceScript
             }
 
             bool registVar = this.Keywords.Contains(Constants.VAR);
-            bool registConst=this.Keywords.Contains(Constants.CONST);
+            bool registConst = this.Keywords.Contains(Constants.CONST);
             bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
 
             script.MoveBackIfPrevious(Constants.END_ARG);
@@ -1840,7 +1838,7 @@ namespace AliceScript
 
                     Variable array;
 
-                    ParserFunction pf = ParserFunction.GetVariable(m_name, script,false,this.Keywords);
+                    ParserFunction pf = ParserFunction.GetVariable(m_name, script, false, this.Keywords);
                     array = pf != null ? (pf.GetValue(script)) : new Variable();
 
                     ExtendArray(array, arrayIndices, 0, varValue);
@@ -1867,8 +1865,8 @@ namespace AliceScript
                 {
                     if (script.CurrentClass == null && script.ClassInstance == null)
                     {
-                      //TODO:これ無効化したけど大丈夫そ？
-                      //  ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(result), baseScript, localIfPossible, registVar, isGlobal);
+                        //TODO:これ無効化したけど大丈夫そ？
+                        //  ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(result), baseScript, localIfPossible, registVar, isGlobal);
                     }
                     return result;
                 }
@@ -2131,6 +2129,23 @@ namespace AliceScript
             return arrayIndex;
         }
     }
+    public class LambdaFunction : ActionFunction
+    {
+        protected override Variable Evaluate(ParsingScript script)
+        {
+            return Lambda(script, m_name);
+        }
+
+        public Variable Lambda(ParsingScript script, string varName, bool localIfPossible = false, ParsingScript baseScript = null)
+        {
+            m_name = Constants.GetRealName(varName);
+            script.CurrentAssign = m_name;
+            Console.WriteLine(m_name);
+            Variable varValue = Utils.GetItem(script);
+            return varValue;
+        }
+
+    }
 
     internal class AddVariablesToHashFunction : ParserFunction
     {
@@ -2388,7 +2403,7 @@ namespace AliceScript
             return new Variable(Canceled);
         }
     }
- 
+
 
     internal class GetColumnFunction : ParserFunction, IArrayFunction
     {

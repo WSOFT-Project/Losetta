@@ -608,7 +608,7 @@ namespace AliceScript
             return args;
         }
 
-        public static string[] GetFunctionSignature(ParsingScript script)
+        public static string[] GetFunctionSignature(ParsingScript script,bool isLambda=false)
         {
             script.MoveForwardIf(Constants.START_ARG, Constants.SPACE);
 
@@ -618,7 +618,7 @@ namespace AliceScript
                 endArgs = script.FindFirstOf(Constants.END_STATEMENT.ToString());
             }
 
-            if (endArgs < 0)
+            if (endArgs < 0 && !isLambda)
             {
                 throw new ArgumentException("Couldn't extract function signature");
             }
@@ -1394,8 +1394,8 @@ namespace AliceScript
         /// <param name="close2">ステートメント形式ラムダ終了文字</param>
         /// <param name="end">パース終了文字</param>
         /// <returns>ラムダ式の本文</returns>
-        public static string GetBodyLambdaBetween(ParsingScript script, char open = Constants.START_ARG, char open2 = Constants.START_GROUP,
-                                            char close = Constants.END_ARG, char close2 = Constants.END_GROUP, char end = Constants.END_STATEMENT)
+        public static string GetBodyLambdaBetween(ParsingScript script, char open = '>', char open2 = Constants.START_GROUP,
+                                            char close = Constants.EMPTY, char close2 = Constants.END_GROUP, char end = Constants.END_STATEMENT)
         {
             // We are supposed to be one char after the beginning of the string, i.e.
             // we must not have the opening char as the first one.
@@ -1484,12 +1484,7 @@ namespace AliceScript
                 //波括弧が存在しなかった場合(=式形式ラムダ)
                 //まず、(input-parameters) => expression;の形では、=>expression;のようになっている場合がある
                 string s = sb.ToString();
-                int len = Constants.ARROW.Length;
-                if (s.Length > len && s.StartsWith(Constants.ARROW))
-                {
-                    //その場合、実際のコード部分を切り出す
-                    s = s.Substring(len);
-                }
+                s = s.TrimStart(Constants.ARROW[1]);
                 return s;
             }
             else
