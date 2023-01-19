@@ -1779,6 +1779,7 @@ namespace AliceScript
             return new OperatorAssignFunction();
         }
     }
+  
     public class AssignFunction : ActionFunction
     {
         protected override Variable Evaluate(ParsingScript script)
@@ -2129,24 +2130,6 @@ namespace AliceScript
             return arrayIndex;
         }
     }
-    public class LambdaFunction : ActionFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return Lambda(script, m_name);
-        }
-
-        public Variable Lambda(ParsingScript script, string varName, bool localIfPossible = false, ParsingScript baseScript = null)
-        {
-            m_name = Constants.GetRealName(varName);
-            script.CurrentAssign = m_name;
-            Console.WriteLine(m_name);
-            Variable varValue = Utils.GetItem(script);
-            return varValue;
-        }
-
-    }
-
     internal class AddVariablesToHashFunction : ParserFunction
     {
         protected override Variable Evaluate(ParsingScript script)

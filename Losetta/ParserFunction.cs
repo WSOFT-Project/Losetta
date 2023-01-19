@@ -45,6 +45,13 @@ namespace AliceScript
                 return;
             }
 
+            m_impl = GetLambdaFunction(script, item, ch,ref action);
+            if (m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
+
             item = Constants.ConvertName(item);
 
             m_impl = GetRegisteredAction(item, script, ref action);
@@ -212,7 +219,26 @@ namespace AliceScript
         {
             return !string.IsNullOrWhiteSpace(action) && action.EndsWith("=") && action.Length > 1;
         }
+        public static ParserFunction GetLambdaFunction(ParsingScript script, string item, char ch,ref string action)
+        {
+            if (action==Constants.ARROW)
+            {
+                string[] args = Utils.GetFunctionSignature(script.GetTempScript(item),true);
+                string body = Utils.GetToken(script, Constants.TOKENS_SEPARATION);
+                int parentOffset = script.Pointer;
 
+                if (script.CurrentClass != null)
+                {
+                    parentOffset += script.CurrentClass.ParentOffset;
+                }
+                CustomFunction customFunc = new CustomFunction("", body, args, script, "DELEGATE", true);
+                customFunc.ParentScript = script;
+                customFunc.ParentOffset = parentOffset;
+                action = null;
+                return new GetVarFunction(new Variable(customFunc));
+            }
+            return null;
+        }
         public static ParserFunction GetRegisteredAction(string name, ParsingScript script, ref string action)
         {
             if (Constants.CheckReserved(name))

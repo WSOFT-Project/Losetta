@@ -207,7 +207,7 @@ namespace AliceScript.NameSpaces
             {
                 AddOutput(e.Args[0].AsString(), e.Script, !m_write);
             }
-            else
+            else if(e.Args.Count>0)
             {
                 string format = e.Args[0].AsString();
                 e.Args.RemoveAt(0);

@@ -100,7 +100,6 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new UsingStatement());
             FunctionBaseManerger.Add(new ImportFunc());
             FunctionBaseManerger.Add(new DelegateCreator());
-            FunctionBaseManerger.Add(new DelegateCreator(), "_");
             FunctionBaseManerger.Add(new PrintFunction());
             FunctionBaseManerger.Add(new PrintFunction(true));
             FunctionBaseManerger.Add(new ReadFunction());
