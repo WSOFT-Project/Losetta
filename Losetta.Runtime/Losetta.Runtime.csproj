@@ -5,7 +5,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-    <Version>0.9.15</Version>
+    <Version>0.9.16</Version>
     <Company>WSOFT</Company>
     <Product>Losetta</Product>
     <Title>Alice.Runtime</Title>

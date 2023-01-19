@@ -163,8 +163,6 @@ namespace AliceScript.NameSpaces
         }
         protected override Variable Evaluate(ParsingScript script)
         {
-
-
             string[] args = Utils.GetFunctionSignature(script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
