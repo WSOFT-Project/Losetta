@@ -50,6 +50,11 @@ namespace alice
             //ShellFunctions登録
             ShellFunctions.Init();
 
+#if DEBUG
+            // デバッグ時には例外をそのままスロー
+            ThrowErrorManerger.NotCatch = true;
+#endif
+
             ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
