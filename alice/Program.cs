@@ -78,7 +78,6 @@ namespace alice
             {
                 //実行モード
                 bool mainfile = pa.Flags.Contains("mainfile");
-                ThrowErrorManerger.HandleError = true;
                 foreach (string fn in pa.Files)
                 {
                     Alice.ExecuteFile(GetScriptPath(fn), mainfile);
@@ -88,7 +87,6 @@ namespace alice
             {
                 //パッケージ実行モード
                 bool mainfile = pa.Flags.Contains("mainfile");
-                ThrowErrorManerger.HandleError = true;
                 foreach (string fn in pa.Files)
                 {
                     AlicePackage.Load(GetScriptPath(fn));

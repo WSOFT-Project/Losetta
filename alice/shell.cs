@@ -33,8 +33,6 @@ namespace alice
             Interpreter.Instance.OnOutput += Print;
             //デバッグ出力
             Interpreter.Instance.OnDebug += Debug_Print;
-            //例外のハンドル
-            ThrowErrorManerger.HandleError = true;
             //例外出力
             ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
 

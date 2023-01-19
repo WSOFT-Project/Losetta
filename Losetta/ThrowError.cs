@@ -14,7 +14,11 @@ namespace AliceScript
     public static class ThrowErrorManerger
     {
         public static event ThrowErrorEventhandler ThrowError;
-        public static bool HandleError = false;
+
+        /// <summary>
+        /// スクリプトの実行時に生じた例外を、ThrowErrorManergerでキャッチせずそのままスローする場合はTrue、それ以外の場合はFalse。
+        /// </summary>
+        public static bool NotCatch { get; set; }
         public static void OnThrowError(object sender,ThrowErrorEventArgs e)
         {
             ThrowError?.Invoke(sender, e);
