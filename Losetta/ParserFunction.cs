@@ -231,7 +231,7 @@ namespace AliceScript
                 {
                     parentOffset += script.CurrentClass.ParentOffset;
                 }
-                CustomFunction customFunc = new CustomFunction("", body, args, script, "DELEGATE", true);
+                CustomFunction customFunc = new CustomFunction("", body, args, script,true);
                 customFunc.ParentScript = script;
                 customFunc.ParentOffset = parentOffset;
                 action = null;

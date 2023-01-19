@@ -634,10 +634,6 @@ namespace AliceScript
                 }
                 catch (Exception e)
                 {
-                    if (ThrowErrorManerger.NotCatch)
-                    {
-                        throw;
-                    }
                     ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
                     ex.Message = e.Message;
                     ex.Script = this;

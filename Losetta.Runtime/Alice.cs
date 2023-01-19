@@ -128,6 +128,10 @@ namespace AliceScript.NameSpaces
 
             // Returnに到達したら終了
             e.Script.SetDone();
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
+            }
             result.IsReturn = true;
 
             e.Return = result;

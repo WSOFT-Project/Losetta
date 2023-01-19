@@ -185,7 +185,7 @@ namespace AliceScript.NameSpaces
             string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
 
             script.MoveForwardIf(Constants.END_GROUP);
-            CustomFunction customFunc = new CustomFunction("", body, args, script, "DELEGATE");
+            CustomFunction customFunc = new CustomFunction("", body, args, script);
             customFunc.ParentScript = script;
             customFunc.ParentOffset = parentOffset;
             return new Variable(customFunc);

@@ -637,11 +637,10 @@ namespace AliceScript
     public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
-                                string body, string[] args, ParsingScript script, object tag = null, bool forceReturn = false)
+                                string body, string[] args, ParsingScript script,  bool forceReturn = false)
         {
             Name = funcName;
             m_body = body;
-            m_tag = tag;
             m_forceReturn = forceReturn;
 
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
