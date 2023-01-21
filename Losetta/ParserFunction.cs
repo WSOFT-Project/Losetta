@@ -224,6 +224,10 @@ namespace AliceScript
             if (action==Constants.ARROW)
             {
                 string[] args = Utils.GetFunctionSignature(script.GetTempScript(item),true);
+                if(args.Length>0 && args[0].Trim() == Constants.DESTRUCTION.ToString())
+                {
+                    args = new string[] { };
+                }
                 string body = Utils.GetToken(script, Constants.TOKENS_SEPARATION);
                 int parentOffset = script.Pointer;
 

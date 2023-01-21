@@ -24,6 +24,7 @@ namespace AliceScript
         public const char END_STATEMENT = ';';
         public const char CONTINUE_LINE = '\\';
         public const char EMPTY = '\0';
+        public const char DESTRUCTION = '_';
         public const char TERNARY_OPERATOR = '?';
 
         public const string FOR_EACH = ":";
