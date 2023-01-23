@@ -1,0 +1,126 @@
+// 実行ファイルのファイル名
+// ファイル名が異なる場合はこの部分を編集してください。{0}には現在の実行ファイルのディレクトリが代入されます。また、Windowsの場合でも末尾の.exeは不要です
+var target_filename = "{0}alice";
+
+using Alice.IO;
+using Alice.Net;
+using Alice.Console;
+using Alice.Environment;
+using Alice.Diagnostics;
+
+const version_get_api = "https://api.wsoft.ws/download/detail?id={0}&feature=version";
+const download_url = "https://download.wsoft.ws/{0}/Download";
+
+var download_id="";
+var isWin=false;
+
+var platform= env_impl_target();
+var arch= env_impl_architecture();
+
+// プラットフォームの識別
+if(platform=="Windows")
+{
+    isWin=true;
+    if(arch=="x64")
+    {
+        download_id="WS148";
+    }
+    if(arch=="x86")
+    {
+        download_id="WS149";
+    }
+    if(arch=="ARM32")
+    {
+        download_id="WS151";
+    }
+    if(arch=="ARM64")
+    {
+        download_id="WS150";
+    }
+}
+if(platform=="OSX")
+{
+    download_id="WS147";
+}
+if(platform=="Linux")
+{
+    if(arch=="x64")
+    {
+        download_id="WS144";
+    }
+    if(arch=="ARM32")
+    {
+        download_id="WS145";
+    }
+    if(arch=="ARM64")
+    {
+        download_id="WS146";
+    }
+}
+
+
+if(download_id=="")
+{
+    print("このプラットフォームでは更新はサポートされていません");
+    return;
+}
+
+// Windowsの場合はファイル名に.exeを挿入
+if(isWin&& !target_filename.EndsWith(".exe"))
+{
+    target_filename+=".exe";
+}
+
+print("環境の判定: OS:{0},アーキテクチャ:{1}",platform,arch);
+
+var version_url = version_get_api.format(download_id);
+print("{0} から最新バージョンを取得しています...",version_url);
+var new_version = web_download_text(version_url);
+print("最新バージョン : {0}",new_version);
+
+var force=env_commandLineArgs().Contains("force");
+var check=env_commandLineArgs().Contains("check");
+
+if(check)
+{
+    print("この実装のバージョン : {0}",env_impl_version());
+    if(new_version != env_impl_version())
+    {
+        print("AliceScriptの実装の更新があります");
+    }
+    return;
+}
+
+if(new_version != env_impl_version() || force)
+{
+    print("この実装よりも新しい実装が公開されています。");
+    Console_Write("更新を実行しますか？(Y/N)>>");
+    if(Console_ReadKey()=="y")
+    {
+        print();
+        var path=target_filename.format(env_impl_location());
+        var tmp =path+".old";
+        file_delete(tmp);
+        file_move(path,tmp);
+        
+        var url = download_url.format(download_id);
+        print("{0} から最新バイナリをダウンロードしています...",url);
+        web_download_file(url,path);
+        print("ダウンロードが完了しました。");
+
+        if(!isWin)
+        {
+            print("ファイル : {0} に実行権限を付与しています...",path);
+            process_start("chmod","+x "+path).WaitForreturn();
+        }
+
+        print("{0} に更新しました",new_version);
+        return;
+    }
+
+    print();
+    print("更新はユーザーによって取り消されました");
+    return;
+}
+print();
+print("現在利用できる更新はありません");

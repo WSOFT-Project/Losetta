@@ -1,0 +1,3 @@
+using Alice.Environment;
+
+print("AliceScript Version {0} ({1} v{2} on {3}-{4})",env_version(),env_impl_name(),env_impl_version(),env_impl_target(),env_impl_architecture());

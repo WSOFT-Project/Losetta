@@ -1,0 +1,31 @@
+using Alice.IO;
+using Alice.Net;
+using Alice.Console;
+using Alice.Environment;
+
+var args=env_commandLineArgs();
+if((args.Length)>0){
+var url=args[0];
+var fn=env_impl_location();
+if((args.Length)>2){
+fn=args[2];
+}
+var f=path_get_filename(url);
+if((args.Length)>1){
+f=args[1];
+}
+fn=(path_combine(fn,".alice"));
+fn=(path_combine(fn,f));
+if(file_exists(fn)){
+console_write("{0}には、既にファイルが存在しています。これを上書きしてダウンロードしますか？(Y/N)>>",fn);
+if(Console_ReadKey()!="y"){
+print();
+print("要求はユーザーによってキャンセルされました。");
+exit;
+}
+print();
+}
+print("{0} から {1}へファイルを取得しています...",url,fn);
+web_download_file(url,fn);
+print("完了。");
+}

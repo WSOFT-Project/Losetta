@@ -55,6 +55,7 @@ namespace alice
         private void Shell_execFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
+            file = file.Trim('"');
             e.Return=Alice.ExecuteFile(Program.GetScriptPath(file));
         }
     }
