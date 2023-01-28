@@ -1,5 +1,5 @@
-// å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ•ã‚¡ã‚¤ãƒ«å
-// ãƒ•ã‚¡ã‚¤ãƒ«åãŒç•°ãªã‚‹å ´åˆã¯ã“ã®éƒ¨åˆ†ã‚’ç·¨é›†ã—ã¦ãã ã•ã„ã€‚{0}ã«ã¯ç¾åœ¨ã®å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãŒä»£å…¥ã•ã‚Œã¾ã™ã€‚ã¾ãŸã€Windowsã®å ´åˆã§ã‚‚æœ«å°¾ã®.exeã¯ä¸è¦ã§ã™
+// Àsƒtƒ@ƒCƒ‹‚Ìƒtƒ@ƒCƒ‹–¼
+// ƒtƒ@ƒCƒ‹–¼‚ªˆÙ‚È‚éê‡‚Í‚±‚Ì•”•ª‚ğ•ÒW‚µ‚Ä‚­‚¾‚³‚¢B{0}‚É‚ÍŒ»İ‚ÌÀsƒtƒ@ƒCƒ‹‚ÌƒfƒBƒŒƒNƒgƒŠ‚ª‘ã“ü‚³‚ê‚Ü‚·B‚Ü‚½AWindows‚Ìê‡‚Å‚à––”ö‚Ì.exe‚Í•s—v‚Å‚·
 var target_filename = "{0}alice";
 
 using Alice.IO;
@@ -17,7 +17,7 @@ var isWin=false;
 var platform= env_impl_target();
 var arch= env_impl_architecture();
 
-// ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã®è­˜åˆ¥
+// ƒvƒ‰ƒbƒgƒtƒH[ƒ€‚Ì¯•Ê
 if(platform=="Windows")
 {
     isWin=true;
@@ -58,43 +58,39 @@ if(platform=="Linux")
     }
 }
 
-
-if(download_id=="")
+if(download_id!="")
 {
-    print("ã“ã®ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã§ã¯æ›´æ–°ã¯ã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã¾ã›ã‚“");
-    return;
-}
 
-// Windowsã®å ´åˆã¯ãƒ•ã‚¡ã‚¤ãƒ«åã«.exeã‚’æŒ¿å…¥
+// Windows‚Ìê‡‚Íƒtƒ@ƒCƒ‹–¼‚É.exe‚ğ‘}“ü
 if(isWin&& !target_filename.EndsWith(".exe"))
 {
     target_filename+=".exe";
 }
 
-print("ç’°å¢ƒã®åˆ¤å®š: OS:{0},ã‚¢ãƒ¼ã‚­ãƒ†ã‚¯ãƒãƒ£:{1}",platform,arch);
+print("ŠÂ‹«‚Ì”»’è: OS:{0},ƒA[ƒLƒeƒNƒ`ƒƒ:{1}",platform,arch);
 
 var version_url = version_get_api.format(download_id);
-print("{0} ã‹ã‚‰æœ€æ–°ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‚’å–å¾—ã—ã¦ã„ã¾ã™...",version_url);
+print("{0} ‚©‚çÅVƒo[ƒWƒ‡ƒ“‚ğæ“¾‚µ‚Ä‚¢‚Ü‚·...",version_url);
 var new_version = web_download_text(version_url);
-print("æœ€æ–°ãƒãƒ¼ã‚¸ãƒ§ãƒ³ : {0}",new_version);
+print("ÅVƒo[ƒWƒ‡ƒ“ : {0}",new_version);
 
 var force=env_commandLineArgs().Contains("force");
 var check=env_commandLineArgs().Contains("check");
 
 if(check)
 {
-    print("ã“ã®å®Ÿè£…ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ : {0}",env_impl_version());
+    print("‚±‚ÌÀ‘•‚Ìƒo[ƒWƒ‡ƒ“ : {0}",env_impl_version());
     if(new_version != env_impl_version())
     {
-        print("AliceScriptã®å®Ÿè£…ã®æ›´æ–°ãŒã‚ã‚Šã¾ã™");
+        print("AliceScript‚ÌÀ‘•‚ÌXV‚ª‚ ‚è‚Ü‚·");
     }
     return;
 }
 
 if(new_version != env_impl_version() || force)
 {
-    print("ã“ã®å®Ÿè£…ã‚ˆã‚Šã‚‚æ–°ã—ã„å®Ÿè£…ãŒå…¬é–‹ã•ã‚Œã¦ã„ã¾ã™ã€‚");
-    Console_Write("æ›´æ–°ã‚’å®Ÿè¡Œã—ã¾ã™ã‹ï¼Ÿ(Y/N)>>");
+    print("‚±‚ÌÀ‘•‚æ‚è‚àV‚µ‚¢À‘•‚ªŒöŠJ‚³‚ê‚Ä‚¢‚Ü‚·B");
+    Console_Write("XV‚ğÀs‚µ‚Ü‚·‚©H(Y/N)>>");
     if(Console_ReadKey()=="y")
     {
         print();
@@ -104,23 +100,27 @@ if(new_version != env_impl_version() || force)
         file_move(path,tmp);
         
         var url = download_url.format(download_id);
-        print("{0} ã‹ã‚‰æœ€æ–°ãƒã‚¤ãƒŠãƒªã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ã¦ã„ã¾ã™...",url);
+        print("{0} ‚©‚çÅVƒoƒCƒiƒŠ‚ğƒ_ƒEƒ“ƒ[ƒh‚µ‚Ä‚¢‚Ü‚·...",url);
         web_download_file(url,path);
-        print("ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ãŒå®Œäº†ã—ã¾ã—ãŸã€‚");
+        print("ƒ_ƒEƒ“ƒ[ƒh‚ªŠ®—¹‚µ‚Ü‚µ‚½B");
 
         if(!isWin)
         {
-            print("ãƒ•ã‚¡ã‚¤ãƒ« : {0} ã«å®Ÿè¡Œæ¨©é™ã‚’ä»˜ä¸ã—ã¦ã„ã¾ã™...",path);
+            print("ƒtƒ@ƒCƒ‹ : {0} ‚ÉÀsŒ ŒÀ‚ğ•t—^‚µ‚Ä‚¢‚Ü‚·...",path);
             process_start("chmod","+x "+path).WaitForExit();
         }
 
-        print("{0} ã«æ›´æ–°ã—ã¾ã—ãŸ",new_version);
+        print("{0} ‚ÉXV‚µ‚Ü‚µ‚½",new_version);
         return;
     }
 
     print();
-    print("æ›´æ–°ã¯ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚ˆã£ã¦å–ã‚Šæ¶ˆã•ã‚Œã¾ã—ãŸ");
+    print("XV‚Íƒ†[ƒU[‚É‚æ‚Á‚Äæ‚èÁ‚³‚ê‚Ü‚µ‚½");
     return;
 }
 print();
-print("ç¾åœ¨åˆ©ç”¨ã§ãã‚‹æ›´æ–°ã¯ã‚ã‚Šã¾ã›ã‚“");
+print("Œ»İ—˜—p‚Å‚«‚éXV‚Í‚ ‚è‚Ü‚¹‚ñ");
+}
+
+print("‚±‚Ìƒvƒ‰ƒbƒgƒtƒH[ƒ€‚Å‚ÍXV‚ÍƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ");
+return;

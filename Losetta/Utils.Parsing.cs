@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -235,7 +236,7 @@ namespace AliceScript
             return customFunc;
         }
 
-        static void SetPropertyFromStr(string token, Variable result, ParsingScript script,
+        private static void SetPropertyFromStr(string token, Variable result, ParsingScript script,
             string funcName, CustomFunction customFunc)
         {
             if (string.IsNullOrWhiteSpace(token) || (token[0] == '"' && token[token.Length - 1] != '"'))
@@ -608,7 +609,7 @@ namespace AliceScript
             return args;
         }
 
-        public static string[] GetFunctionSignature(ParsingScript script,bool isLambda=false)
+        public static string[] GetFunctionSignature(ParsingScript script, bool isLambda = false)
         {
             script.MoveForwardIf(Constants.START_ARG, Constants.SPACE);
 
@@ -808,22 +809,46 @@ namespace AliceScript
                         }
                         break;
                     case '<':
-                        if (!inQuotes) angleBrackets++;
+                        if (!inQuotes)
+                        {
+                            angleBrackets++;
+                        }
+
                         break;
                     case '>':
-                        if (!inQuotes) angleBrackets--;
+                        if (!inQuotes)
+                        {
+                            angleBrackets--;
+                        }
+
                         break;
                     case '{':
-                        if (!inQuotes) curlyBrackets++;
+                        if (!inQuotes)
+                        {
+                            curlyBrackets++;
+                        }
+
                         break;
                     case '}':
-                        if (!inQuotes) curlyBrackets--;
+                        if (!inQuotes)
+                        {
+                            curlyBrackets--;
+                        }
+
                         break;
                     case '[':
-                        if (!inQuotes) squareBrackets++;
+                        if (!inQuotes)
+                        {
+                            squareBrackets++;
+                        }
+
                         break;
                     case ']':
-                        if (!inQuotes) squareBrackets--;
+                        if (!inQuotes)
+                        {
+                            squareBrackets--;
+                        }
+
                         break;
                     case ',':
                         if (inQuotes || angleBrackets > 0 || curlyBrackets > 0 || squareBrackets > 0)
@@ -846,7 +871,6 @@ namespace AliceScript
             }
             return args;
         }
-
         public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, string filename = "")
         {
             string curlyErrorMsg = "波括弧が不均等です";
@@ -855,8 +879,19 @@ namespace AliceScript
             string quoteErrorMsg = "クオーテーションが不均等です";
 
             StringBuilder sb = new StringBuilder(source.Length);
+
+            var pragmaCommand = new StringBuilder();
+            var pragmaArgs = new StringBuilder();
+
+            var defines = new List<string>();
+
             char2Line = new Dictionary<int, int>();
 
+            bool inPragma = false;
+            bool inPragmaCommand = false;
+            bool inPragmaArgs = false;
+            bool inIf = false;
+            bool If = false;
             bool inQuotes = false;
             bool inQuotes1 = false;
             bool inQuotes2 = false;
@@ -897,21 +932,30 @@ namespace AliceScript
                     lastToken.Clear();
                 }
 
+
                 if (ch == '\n')
                 {
-                    if (sb.Length > lastScriptLength)
+                    if (inPragma)
                     {
-                        char2Line[sb.Length - 1] = lineNumber;
-                        lastScriptLength = sb.Length;
+                        inPragmaCommand = false;
+                        inPragmaArgs = false;
                     }
-                    lineNumber++;
-                    if (simpleComments)
+                    else
                     {
-                        inComments = simpleComments = false;
+                        if (sb.Length > lastScriptLength)
+                        {
+                            char2Line[sb.Length - 1] = lineNumber;
+                            lastScriptLength = sb.Length;
+                        }
+                        lineNumber++;
+                        if (simpleComments)
+                        {
+                            inComments = simpleComments = false;
+                        }
+                        spaceOK = precompiledPart;
+                        lastToken.Clear();
+                        continue;
                     }
-                    spaceOK = precompiledPart;
-                    lastToken.Clear();
-                    continue;
                 }
 
                 if (inComments && ((simpleComments && ch != '\n') ||
@@ -924,7 +968,7 @@ namespace AliceScript
                 switch (ch)
                 {
                     case '/':
-                        if (!inQuotes && (inComments || next == '/' || next == '*'))
+                        if (!inQuotes && (!inIf || If) && (inComments || next == '/' || next == '*'))
                         {
                             inComments = true;
                             simpleComments = simpleComments || next == '/';
@@ -932,10 +976,11 @@ namespace AliceScript
                         }
                         break;
                     case '#':
-                        if (!inQuotes)
+                        if (!inPragma && !inComments && !inQuotes)
                         {
-                            inComments = true;
-                            simpleComments = true;
+                            inPragma = true;
+                            inPragmaCommand = true;
+                            continue;
                         }
                         break;
                     case '*':
@@ -947,7 +992,7 @@ namespace AliceScript
                         }
                         break;
                     case '\'':
-                        if (!inComments && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                        if (!inComments && (!inIf || If) && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
                         {
                             ch = '"';
                             inQuotes = inQuotes1 = !inQuotes1;
@@ -962,7 +1007,7 @@ namespace AliceScript
                     case '„':
                     case '"':
                         ch = '"';
-                        if (!inComments && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                        if (!inComments && (!inIf || If) && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
                         {
                             inQuotes = inQuotes2 = !inQuotes2;
                             if (inQuotes && (prev == '"' && lineNumberQuote == 0))
@@ -980,6 +1025,11 @@ namespace AliceScript
                         {
                             sb.Append(ch);
                         }
+                        else if (inPragmaCommand)
+                        {
+                            inPragmaCommand = false;
+                            inPragmaArgs = true;
+                        }
                         else
                         {
                             bool keepSpace = KeepSpace(sb, next);
@@ -995,10 +1045,14 @@ namespace AliceScript
                         continue;
                     case '\t':
                     case '\r':
-                        if (inQuotes) sb.Append(ch);
+                        if (inQuotes)
+                        {
+                            sb.Append(ch);
+                        }
+
                         continue;
                     case Constants.START_ARG:
-                        if (!inQuotes && !inComments)
+                        if (!inQuotes && !inComments && (!inIf || If))
                         {
                             if (levelParentheses == 0)
                             {
@@ -1008,18 +1062,18 @@ namespace AliceScript
                         }
                         break;
                     case Constants.END_ARG:
-                        if (!inQuotes && !inComments)
+                        if (!inQuotes && !inComments && (!inIf || If))
                         {
                             levelParentheses--;
                             spaceOK = false;
                             if (levelParentheses < 0)
                             {
-                                ThrowErrorMsg(parenthErrorMsg, source, Exceptions.UNBALANCED_QUOTES,levelParentheses, lineNumberPar, lineNumber, filename);
+                                ThrowErrorMsg(parenthErrorMsg, source, Exceptions.UNBALANCED_QUOTES, levelParentheses, lineNumberPar, lineNumber, filename);
                             }
                         }
                         break;
                     case Constants.START_GROUP:
-                        if (!inQuotes && !inComments)
+                        if (!inQuotes && !inComments && (!inIf || If))
                         {
                             if (levelCurly == 0)
                             {
@@ -1030,13 +1084,13 @@ namespace AliceScript
                         }
                         break;
                     case Constants.END_GROUP:
-                        if (!inQuotes && !inComments)
+                        if (!inQuotes && !inComments && (!inIf || If))
                         {
                             levelCurly--;
                             spaceOK = false;
                             if (levelCurly < 0)
                             {
-                                ThrowErrorMsg(curlyErrorMsg, source,Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
+                                ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
                             }
                             if (precompiledPart && --precompiledCounter <= 0)
                             {
@@ -1046,7 +1100,7 @@ namespace AliceScript
                         }
                         break;
                     case Constants.START_ARRAY:
-                        if (!inQuotes && !inComments)
+                        if (!inQuotes && !inComments && (!inIf || If))
                         {
                             if (levelBrackets == 0)
                             {
@@ -1056,12 +1110,12 @@ namespace AliceScript
                         }
                         break;
                     case Constants.END_ARRAY:
-                        if (!inQuotes && !inComments)
+                        if (!inQuotes && !inComments && (!inIf || If))
                         {
                             levelBrackets--;
                             if (levelBrackets < 0)
                             {
-                                ThrowErrorMsg(bracketErrorMsg, source, Exceptions.UNBALANCED_SQUARE_BLACKETS,levelBrackets, lineNumberBrack, lineNumber, filename);
+                                ThrowErrorMsg(bracketErrorMsg, source, Exceptions.UNBALANCED_SQUARE_BLACKETS, levelBrackets, lineNumberBrack, lineNumber, filename);
                             }
                         }
                         break;
@@ -1070,15 +1124,85 @@ namespace AliceScript
                         {
                             spaceOK = false;
                         }
+                        if (inPragma)
+                        {
+                            inPragmaCommand = false;
+                            inPragmaArgs = false;
+                        }
                         break;
                     default:
                         break;
                 }
-                if (!inComments)
+                if (!inComments && (!inIf || If) && !inPragma)
                 {
                     sb.Append(ch);
                     lastToken.Append(ch);
                 }
+
+                if (inPragmaCommand)
+                {
+                    pragmaCommand.Append(ch);
+                }
+                else if (inPragmaArgs)
+                {
+                    pragmaArgs.Append(ch);
+                }
+                else if (inPragma)
+                {
+                    inPragma = false;
+
+                    string command = pragmaCommand.ToString().ToLower();
+                    string arg = pragmaArgs.ToString();
+
+                    Console.WriteLine("指令 : {0} {1}", command, arg);
+
+                    switch (command)
+                    {
+                        case "include":
+                            {
+                                string str = SafeReader.ReadAllText(arg, out _);
+                                str = ConvertToScript(str, out _, Path.GetFileName(arg));
+                                sb.Append(str);
+                                break;
+                            }
+                        case "define":
+                            {
+                                defines.Add(arg);
+                                break;
+                            }
+                        case "undef":
+                            {
+                                defines.Remove(arg);
+                                break;
+                            }
+                        case "if":
+                            {
+                                inIf = true;
+                                if (arg.StartsWith("!"))
+                                {
+                                    If = !defines.Contains(arg.TrimStart('!'));
+                                }
+                                If = defines.Contains(arg);
+                                break;
+                            }
+                        case "else":
+                            {
+                                inIf = true;
+                                If = !If;
+                                break;
+                            }
+                        case "endif":
+                            {
+                                inIf = false;
+                                If = false;
+                                break;
+                            }
+                    }
+
+                    pragmaCommand.Clear();
+                    pragmaArgs.Clear();
+                }
+
                 prevprev = prev;
                 prev = ch;
             }
@@ -1096,21 +1220,22 @@ namespace AliceScript
             {
                 if (inQuotes)
                 {
-                    ThrowErrorMsg(quoteErrorMsg, source, Exceptions.UNBALANCED_QUOTES,1, lineNumberQuote, lineNumber, filename);
+                    ThrowErrorMsg(quoteErrorMsg, source, Exceptions.UNBALANCED_QUOTES, 1, lineNumberQuote, lineNumber, filename);
                 }
                 else if (levelBrackets != 0)
                 {
-                    ThrowErrorMsg(bracketErrorMsg, source, Exceptions.UNBALANCED_SQUARE_BLACKETS,levelBrackets, lineNumberBrack, lineNumber, filename);
+                    ThrowErrorMsg(bracketErrorMsg, source, Exceptions.UNBALANCED_SQUARE_BLACKETS, levelBrackets, lineNumberBrack, lineNumber, filename);
                 }
                 else if (levelParentheses != 0)
                 {
-                    ThrowErrorMsg(parenthErrorMsg, source,Exceptions.UNBALANCED_PARENTHESES, levelParentheses, lineNumberPar, lineNumber, filename);
+                    ThrowErrorMsg(parenthErrorMsg, source, Exceptions.UNBALANCED_PARENTHESES, levelParentheses, lineNumberPar, lineNumber, filename);
                 }
                 else if (levelCurly != 0)
                 {
-                    ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES,levelCurly, lineNumberCurly, lineNumber, filename);
+                    ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
                 }
             }
+
 
             return sb.ToString().Trim();
         }
@@ -1305,7 +1430,7 @@ namespace AliceScript
 
             return sb.ToString();
         }
-        
+
         public static string IsNotSign(string data)
         {
             //return data.StartsWith(Constants.NOT) ? Constants.NOT : null;

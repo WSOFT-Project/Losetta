@@ -821,6 +821,7 @@ namespace AliceScript
                 result = mainScript.Process();
             }
 
+
             return result.IsReturn ||
                    result.Type == Variable.VarType.BREAK ||
                    result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;

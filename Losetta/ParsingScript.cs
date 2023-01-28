@@ -777,6 +777,7 @@ namespace AliceScript
 
         public ParsingScript GetTempScript(string str, int startIndex = 0)
         {
+            str = Utils.ConvertToScript(str, out _);
             ParsingScript tempScript = new ParsingScript(str, startIndex);
             tempScript.Filename = this.Filename;
             tempScript.InTryBlock = this.InTryBlock;
