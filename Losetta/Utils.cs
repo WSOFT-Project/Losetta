@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AliceScript
 {
@@ -222,50 +220,7 @@ namespace AliceScript
             return true;
         }
 
-        public static string GetFileText(string filename)
-        {
-            string fileContents = string.Empty;
-            if (File.Exists(filename))
-            {
-                fileContents = SafeReader.ReadAllText(filename, out _);
-            }
-            else
-            {
-                throw new ScriptException("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
-            }
-            return fileContents;
-        }
 
-        public static void PrintScript(string script, ParsingScript parentSript)
-        {
-            StringBuilder item = new StringBuilder();
-
-            bool inQuotes = false;
-
-            for (int i = 0; i < script.Length; i++)
-            {
-                char ch = script[i];
-                inQuotes = ch == Constants.QUOTE ? !inQuotes : inQuotes;
-
-                if (inQuotes)
-                {
-                    Interpreter.Instance.AppendOutput(ch.ToString());
-                    continue;
-                }
-                if (!Constants.TOKEN_SEPARATION.Contains(ch))
-                {
-                    item.Append(ch);
-                    continue;
-                }
-                if (item.Length > 0)
-                {
-                    string token = item.ToString();
-                    Interpreter.Instance.AppendOutput(token);
-                    item.Clear();
-                }
-                Interpreter.Instance.AppendOutput(ch.ToString());
-            }
-        }
 
         /// <summary>
         /// 現在のパッケージまたはローカルからファイルを取得します
@@ -274,15 +229,15 @@ namespace AliceScript
         /// <param name="fromPackage">パッケージからのみファイルを取得する場合はTrue、それ以外の場合はFalse。</param>
         /// <param name="script">現在のパッケージを表すスクリプト</param>
         /// <returns></returns>
-        public static byte[] GetFileFromPackageOrLocal(string filename,bool fromPackage = false,ParsingScript script=null)
+        public static byte[] GetFileFromPackageOrLocal(string filename, bool fromPackage = false, ParsingScript script = null)
         {
-            if(script!=null && script.Package != null && script.Package.ExistsEntry(filename))
+            if (script != null && script.Package != null && script.Package.ExistsEntry(filename))
             {
                 return script.Package.GetEntryData(filename);
             }
             if (fromPackage || !File.Exists(filename))
             {
-                throw new ScriptException("ファイル名:["+filename+"]は存在しません",Exceptions.FILE_NOT_FOUND);
+                throw new ScriptException("ファイル名:[" + filename + "]は存在しません", Exceptions.FILE_NOT_FOUND);
             }
             return File.ReadAllBytes(filename);
         }
@@ -376,19 +331,6 @@ namespace AliceScript
                 return defaultValue;
             }
             return args[index];
-        }
-
-        public static string GetSafeToken(List<Variable> args, int index, string defaultValue = "")
-        {
-            if (args.Count <= index)
-            {
-                return defaultValue;
-            }
-
-            Variable var = args[index];
-            string token = var.ParsingToken;
-
-            return token;
         }
 
         public static Variable GetVariable(string varName, ParsingScript script = null, bool testNull = true)
@@ -490,47 +432,6 @@ namespace AliceScript
 
         }
 
-        public static bool ConvertToBool(object obj)
-        {
-            string str = obj.ToString();
-            double dRes = 0;
-            if (CanConvertToDouble(str, out dRes))
-            {
-                return dRes != 0;
-            }
-            bool res = false;
-
-            Boolean.TryParse(str, out res);
-            return res;
-        }
-        public static int ConvertToInt(object obj, ParsingScript script = null)
-        {
-            double num = ConvertToDouble(obj, script);
-            return (int)num;
-        }
-
-        public static void Extract(string data, ref string str1, ref string str2,
-                                   ref string str3, ref string str4, ref string str5)
-        {
-            string[] vals = data.Split(new char[] { ',', ':' });
-            str1 = vals[0];
-            if (vals.Length > 1)
-            {
-                str2 = vals[1];
-                if (vals.Length > 2)
-                {
-                    str3 = vals[2];
-                    if (vals.Length > 3)
-                    {
-                        str4 = vals[3];
-                        if (vals.Length > 4)
-                        {
-                            str5 = vals[4];
-                        }
-                    }
-                }
-            }
-        }
         public static int GetNumberOfDigits(string data, int itemNumber = -1)
         {
             if (itemNumber >= 0)
@@ -555,63 +456,11 @@ namespace AliceScript
             }
             return data.Length - index - 1;
         }
-        public static void Extract(string data, ref double val1, ref double val2,
-                                                ref double val3, ref double val4)
-        {
-            string[] vals = data.Split(new char[] { ',', ':' });
-            val1 = ConvertToDouble(vals[0].Trim());
-
-            if (vals.Length > 1)
-            {
-                val2 = ConvertToDouble(vals[1].Trim());
-                if (vals.Length > 2)
-                {
-                    val3 = ConvertToDouble(vals[2].Trim());
-                }
-                if (vals.Length > 3)
-                {
-                    val4 = ConvertToDouble(vals[3].Trim());
-                }
-            }
-            else
-            {
-                val3 = val2 = val1;
-            }
-        }
         public static string GetFileContents(byte[] data)
         {
-                return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
+            return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
         }
-        public static string RemovePrefix(string text)
-        {
-            string candidate = text.Trim().ToLower();
-            if (candidate.Length > 2 && candidate.StartsWith("l'",
-                          StringComparison.OrdinalIgnoreCase))
-            {
-                return candidate.Substring(2).Trim();
-            }
 
-            int firstSpace = candidate.IndexOf(' ');
-            if (firstSpace <= 0)
-            {
-                return candidate;
-            }
-
-            string prefix = candidate.Substring(0, firstSpace);
-            if (prefix.Length == 3 && candidate.Length > 4 &&
-               (prefix == "der" || prefix == "die" || prefix == "das" ||
-                prefix == "los" || prefix == "las" || prefix == "les"))
-            {
-                return candidate.Substring(firstSpace + 1);
-            }
-            if (prefix.Length == 2 && candidate.Length > 3 &&
-               (prefix == "el" || prefix == "la" || prefix == "le" ||
-                prefix == "il" || prefix == "lo"))
-            {
-                return candidate.Substring(firstSpace + 1);
-            }
-            return candidate;
-        }
 
         public static string GetFullPath(string path)
         {

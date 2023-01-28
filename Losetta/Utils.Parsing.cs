@@ -409,84 +409,8 @@ namespace AliceScript
             }
         }
 
-        public static bool IsCompareSign(char ch)
-        {
-            return ch == '<' || ch == '>' || ch == '=';
-        }
 
-        public static bool IsAndOrSign(char ch)
-        {
-            return ch == '&' || ch == '|';
-        }
-
-        // Checks whether there is an argument separator (e.g.  ',') before the end of the
-        // function call. E.g. returns true for "a,b)" and "a(b,c),d)" and false for "b),c".
-        public static bool SeparatorExists(ParsingScript script)
-        {
-            if (!script.StillValid())
-            {
-                return false;
-            }
-
-            int argumentList = 0;
-            for (int i = script.Pointer; i < script.Size(); i++)
-            {
-                char ch = script.At(i);
-                switch (ch)
-                {
-                    case Constants.NEXT_ARG:
-                        return true;
-                    case Constants.START_ARG:
-                        argumentList++;
-                        break;
-                    case Constants.END_STATEMENT:
-                    case Constants.END_GROUP:
-                    case Constants.END_ARG:
-                        if (--argumentList < 0)
-                        {
-                            return false;
-                        }
-                        break;
-                }
-            }
-
-            return false;
-        }
-
-        public static void GetCompiledArgs(ParsingScript script, out string funcReturn, out string funcName)
-        {
-            string body = Utils.GetBodyBetween(script, Constants.END_ARG, Constants.START_ARG);
-            var parts = body.Split();
-            funcReturn = parts.Length > 1 ? parts[0] : "void";
-            funcName = parts.Last();
-        }
-
-        public static List<string> GetFunctionArgs(ParsingScript script)
-        {
-            bool isList;
-            List<Variable> args = Utils.GetArgs(script,
-                Constants.START_ARG, Constants.END_ARG, (outList) => { isList = outList; });
-
-            List<string> result = new List<string>();
-            for (int i = 0; i < args.Count; i++)
-            {
-                result.Add(args[i].AsString());
-            }
-            return result;
-        }
-        public static async Task<List<string>> GetFunctionArgsAsync(ParsingScript script)
-        {
-            bool isList;
-            List<Variable> args = await Utils.GetArgsAsync(script,
-                Constants.START_ARG, Constants.END_ARG, (outList) => { isList = outList; });
-
-            List<string> result = new List<string>();
-            for (int i = 0; i < args.Count; i++)
-            {
-                result.Add(args[i].AsString());
-            }
-            return result;
-        }
+        
 
         public static List<Variable> GetArgs(ParsingScript script,
             char start, char end, Action<bool> outList)
@@ -700,35 +624,7 @@ namespace AliceScript
             return args;
         }
 
-        public static string[] GetCompiledFunctionSignature(ParsingScript script, out Dictionary<string, Variable> dict)
-        {
-            script.MoveForwardIf(Constants.START_ARG, Constants.SPACE);
-
-            int endArgs = script.FindFirstOf(Constants.END_ARG.ToString());
-            if (endArgs < 0)
-            {
-                throw new ArgumentException("Couldn't extract function signature");
-            }
-
-            string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
-            List<string> args = GetCompiledArgs(argStr);
-            //string[] args = argStr.Split(Constants.NEXT_ARG_ARRAY, StringSplitOptions.RemoveEmptyEntries);
-
-            dict = new Dictionary<string, Variable>(args.Count);
-            var sep = new char[] { ' ' };
-            for (int i = 0; i < args.Count; i++)
-            {
-                string[] pair = args[i].ToLower().Trim().Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                Variable.VarType type = pair.Length > 1 ? Constants.StringToType(pair[0]) : Variable.VarType.STRING;
-                dict.Add(pair[pair.Length - 1], new Variable(type));
-                args[i] = pair[pair.Length - 1];
-            }
-
-            string[] result = args.Select(element => element.Trim()).ToArray();
-            script.Pointer = endArgs + 1;
-
-            return result;
-        }
+   
 
         public static bool EndsWithFunction(string buffer, List<string> functions)
         {
@@ -1542,20 +1438,6 @@ namespace AliceScript
                 }
             }
             return currLevel;
-        }
-        public static async Task<Variable> GetVar(string paramName, ParsingScript script)
-        {
-            if (script == null)
-            {
-                script = new ParsingScript("");
-            }
-            ParserFunction function = ParserFunction.GetVariable(paramName, script);
-            if (function == null)
-            {
-                throw new ArgumentException("Variable [" + paramName + "] not found.");
-            }
-            Variable result = await function.GetValueAsync(script);
-            return result;
         }
     }
 }
