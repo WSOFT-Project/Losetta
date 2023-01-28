@@ -9,6 +9,8 @@
             space.Add(new Package_CreateFromZipFileFunc());
             space.Add(new Package_GetManifestFromXmlFunc());
 
+            space.Add(new PackageManifestObject());
+
             NameSpaceManerger.Add(space);
         }
     }
@@ -59,6 +61,19 @@
         {
             this.Name = "PackageManifest";
             Manifest = manifest;
+            this.Constructor = new AlicePackageObjectConstractor();
+            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
+            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
+            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
+            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
+            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
+            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
+        }
+        public PackageManifestObject()
+        {
+            this.Name = "PackageManifest";
+            this.Constructor = new AlicePackageObjectConstractor();
             this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
             this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
             this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
@@ -68,6 +83,23 @@
             this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
         }
         public PackageManifest Manifest { get; set; }
+        private class AlicePackageObjectConstractor : FunctionBase
+        {
+            public AlicePackageObjectConstractor()
+            {
+                this.MinimumArgCounts = 1;
+                this.Run += AlicePackageObjectConstractor_Run;
+            }
+
+            private void AlicePackageObjectConstractor_Run(object sender, FunctionBaseEventArgs e)
+            {
+                var m = AlicePackage.GetManifest(e.Args[0].AsString());
+                if (m != null)
+                {
+                    e.Return = new Variable(new PackageManifestObject(m));
+                }
+            }
+        }
         private class AlicePackageObjectProperty : PropertyBase
         {
             public AlicePackageObjectProperty(PackageManifestObject host, AlicePackageObjectPropertyMode mode)

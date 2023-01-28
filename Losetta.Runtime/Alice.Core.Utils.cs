@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AliceScript.NameSpaces
 
@@ -85,30 +81,14 @@ namespace AliceScript.NameSpaces
         private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             string filename = e.Args[0].AsString();
+            var data = Utils.GetFileFromPackageOrLocal(filename,Utils.GetSafeBool(e.Args,1),e.Script);
             if (Utils.GetSafeBool(e.Args, 1))
             {
-                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(e.Script.Package.GetEntryData(filename));
-                    return;
-                }
-                if (File.Exists(filename))
-                {
-                    Interop.NetLibraryLoader.LoadLibrary(filename);
-                }
-                else
-                {
-                    throw new ScriptException("ファイルが見つかりません", Exceptions.FILE_NOT_FOUND, e.Script);
-                }
+                Interop.NetLibraryLoader.LoadLibrary(data);
             }
             else
             {
-                if (e.Script.Package != null && e.Script.Package.ExistsEntry(filename))
-                {
-                    AlicePackage.LoadData(e.Script.Package.GetEntryData(filename),filename,true);
-                    return;
-                }
-                AlicePackage.Load(filename,true);
+                AlicePackage.LoadData(data, filename, true);
             }
         }
     }
@@ -207,7 +187,7 @@ namespace AliceScript.NameSpaces
             {
                 AddOutput(e.Args[0].AsString(), e.Script, !m_write);
             }
-            else if(e.Args.Count>0)
+            else if (e.Args.Count > 0)
             {
                 string format = e.Args[0].AsString();
                 e.Args.RemoveAt(0);

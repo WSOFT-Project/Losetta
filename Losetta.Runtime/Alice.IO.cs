@@ -23,6 +23,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new file_decrypt());
                 space.Add(new file_read_dataFunc());
                 space.Add(new file_read_textFunc());
+                space.Add(new file_read_charcodeFunc());
                 space.Add(new file_write_dataFunc());
                 space.Add(new file_write_textFunc());
                 space.Add(new file_append_textFunc());
@@ -97,7 +98,7 @@ namespace AliceScript.NameSpaces
     internal class path_ChangeExtensionFunc : FunctionBase
     {
         public path_ChangeExtensionFunc()
-        { 
+        {
             this.Name = "path_ChangeExtension";
             this.MinimumArgCounts = 2;
             this.Run += Path_ChangeExtensionFunc_Run;
@@ -390,21 +391,47 @@ namespace AliceScript.NameSpaces
 
         private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args.Count < 2)
+            var data = Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script);
+            Encoding encode = null;
+            if (e.Args.Count < 3)
             {
-                e.Return = new Variable(SafeReader.ReadAllText(e.Args[0].AsString(), out _));
+                if (e.Args[2].Type == Variable.VarType.NUMBER)
+                {
+                    encode = Encoding.GetEncoding(e.Args[2].AsInt());
+                }
+                else if (e.Args[2].Type == Variable.VarType.STRING)
+                {
+                    encode = Encoding.GetEncoding(e.Args[2].AsString());
+                }
+            }
+            if (encode != null)
+            {
+                e.Return = new Variable(encode.GetString(data));
+                return;
             }
             else
             {
-                if (e.Args[1].Type == Variable.VarType.STRING)
-                {
-                    e.Return = new Variable(File.ReadAllText(e.Args[0].AsString(), Encoding.GetEncoding(e.Args[1].AsString())));
-                }
-                else if (e.Args[1].Type == Variable.VarType.NUMBER)
-                {
-                    e.Return = new Variable(File.ReadAllText(e.Args[0].AsString(), Encoding.GetEncoding(e.Args[1].AsInt())));
-                }
+                e.Return = new Variable(SafeReader.ReadAllText(data, out _));
+                return;
             }
+        }
+    }
+
+    internal class file_read_charcodeFunc : FunctionBase
+    {
+        public file_read_charcodeFunc()
+        {
+            this.Name = "file_read_charcode";
+            this.MinimumArgCounts = 1;
+            this.Run += File_read_textFunc_Run;
+        }
+
+        private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            var data = Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script);
+            string charcode;
+            SafeReader.ReadAllText(data, out charcode);
+            e.Return = new Variable(charcode);
         }
     }
 
@@ -419,7 +446,7 @@ namespace AliceScript.NameSpaces
 
         private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(File.ReadAllBytes(e.Args[0].AsString()));
+            e.Return = new Variable(Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script));
         }
     }
 
@@ -596,7 +623,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-  
+
     internal static class FileEncrypter
     {
         internal static bool FileDecrypt(string FilePath, string OutFilePath, string Password)

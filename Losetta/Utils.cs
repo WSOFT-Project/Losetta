@@ -267,6 +267,25 @@ namespace AliceScript
             }
         }
 
+        /// <summary>
+        /// 現在のパッケージまたはローカルからファイルを取得します
+        /// </summary>
+        /// <param name="filename">ファイル名</param>
+        /// <param name="fromPackage">パッケージからのみファイルを取得する場合はTrue、それ以外の場合はFalse。</param>
+        /// <param name="script">現在のパッケージを表すスクリプト</param>
+        /// <returns></returns>
+        public static byte[] GetFileFromPackageOrLocal(string filename,bool fromPackage = false,ParsingScript script=null)
+        {
+            if(script!=null && script.Package != null && script.Package.ExistsEntry(filename))
+            {
+                return script.Package.GetEntryData(filename);
+            }
+            if (fromPackage || !File.Exists(filename))
+            {
+                throw new ScriptException("ファイル名:["+filename+"]は存在しません",Exceptions.FILE_NOT_FOUND);
+            }
+            return File.ReadAllBytes(filename);
+        }
         public static string GetFileLines(string filename)
         {
             string lines = SafeReader.ReadAllText(filename, out var v);
@@ -333,25 +352,6 @@ namespace AliceScript
             }
             return numberVar.AsInt();
         }
-        public static double GetSafeDouble(List<Variable> args, int index, double defaultValue = 0.0)
-        {
-            if (args.Count <= index)
-            {
-                return defaultValue;
-            }
-
-            Variable numberVar = args[index];
-            if (numberVar.Type != Variable.VarType.NUMBER)
-            {
-                double num;
-                if (!CanConvertToDouble(numberVar.String, out num))
-                {
-                    throw new ArgumentException("Expected a double instead of [" + numberVar.AsString() + "]");
-                }
-                return num;
-            }
-            return numberVar.AsDouble();
-        }
 
         public static string GetSafeString(List<Variable> args, int index, string defaultValue = "")
         {
@@ -410,18 +410,6 @@ namespace AliceScript
             return varValue;
         }
 
-        public static async Task<Variable> GetVariableAsync(string varName, ParsingScript script, bool testNull = true)
-        {
-            ParserFunction func = ParserFunction.GetVariable(varName, script);
-            if (!testNull && func == null)
-            {
-                return null;
-            }
-            Utils.CheckNotNull(varName, func, script);
-            Variable varValue = await func.GetValueAsync(script);
-            Utils.CheckNotNull(varValue, varName, script);
-            return varValue;
-        }
 
         public static double ConvertToDouble(object obj, ParsingScript script = null)
         {
@@ -592,14 +580,7 @@ namespace AliceScript
         }
         public static string GetFileContents(byte[] data)
         {
-            try
-            {
                 return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
-            }
-            catch (Exception)
-            {
-                throw new ScriptException("ファイルが存在しません", Exceptions.FILE_NOT_FOUND);
-            }
         }
         public static string RemovePrefix(string text)
         {
