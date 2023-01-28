@@ -971,14 +971,16 @@ namespace AliceScript
                     ((GetVarFunction)local).Value.ParamName = local.Name;
                 }
                 bool exists = script.ContainsVariable(name, out var func);
-                if (exists && registVar)
+                if (!script.ContainsSymbol(Constants.UNNEED_VAR))
                 {
-                    throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
-                }
-                else if (!exists && !registVar && !string.IsNullOrEmpty(name))
-                {
-                    throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
-                    return;
+                    if (exists && registVar)
+                    {
+                        throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
+                    }
+                    else if (!exists && !registVar && !string.IsNullOrEmpty(name))
+                    {
+                        throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
+                    }
                 }
                 if (func is GetVarFunction v)
                 {

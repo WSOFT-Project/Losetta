@@ -577,10 +577,11 @@ namespace AliceScript
                                                      Constants.END_GROUP);
             script.MoveForwardIf(Constants.END_GROUP);
 
-            string body = Utils.ConvertToScript(scriptExpr, out _);
+            string body = Utils.ConvertToScript(scriptExpr, out _,out var def);
 
             Variable result = null;
             ParsingScript tempScript = script.GetTempScript(body);
+            tempScript.Defines = def;
             tempScript.CurrentClass = newClass;
             tempScript.DisableBreakpoints = true;
 
@@ -610,9 +611,10 @@ namespace AliceScript
                 script.MoveForwardIf(Constants.END_GROUP);
 
                 Dictionary<int, int> char2Line;
-                string body = Utils.ConvertToScript(scriptExpr, out char2Line);
+                string body = Utils.ConvertToScript(scriptExpr, out char2Line,out var def);
 
                 ParsingScript tempScript = script.GetTempScript(body);
+                tempScript.Defines = def;
                 tempScript.DisableBreakpoints = true;
                 tempScript.MoveForwardIf(Constants.START_GROUP);
 

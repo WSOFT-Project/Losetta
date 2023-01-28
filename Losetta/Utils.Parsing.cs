@@ -871,7 +871,7 @@ namespace AliceScript
             }
             return args;
         }
-        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, string filename = "")
+        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line,out List<string> defines, string filename = "")
         {
             string curlyErrorMsg = "波括弧が不均等です";
             string bracketErrorMsg = "角括弧が不均等です";
@@ -883,7 +883,7 @@ namespace AliceScript
             var pragmaCommand = new StringBuilder();
             var pragmaArgs = new StringBuilder();
 
-            var defines = new List<string>();
+            defines = new List<string>();
 
             char2Line = new Dictionary<int, int>();
 
@@ -1152,16 +1152,16 @@ namespace AliceScript
                     inPragma = false;
 
                     string command = pragmaCommand.ToString().ToLower();
-                    string arg = pragmaArgs.ToString();
+                    string arg = pragmaArgs.ToString().ToLower();
 
-                    Console.WriteLine("指令 : {0} {1}", command, arg);
 
                     switch (command)
                     {
                         case "include":
                             {
                                 string str = SafeReader.ReadAllText(arg, out _);
-                                str = ConvertToScript(str, out _, Path.GetFileName(arg));
+                                str = ConvertToScript(str, out _, out var def, Path.GetFileName(arg));
+                                defines.AddRange(def);
                                 sb.Append(str);
                                 break;
                             }
@@ -1195,6 +1195,15 @@ namespace AliceScript
                             {
                                 inIf = false;
                                 If = false;
+                                break;
+                            }
+                        case "error":
+                            {
+                                throw new ScriptException(arg,Exceptions.USER_DEFINED);
+                            }
+                        case "print":
+                            {
+                                Interpreter.Instance.AppendOutput(arg,true);
                                 break;
                             }
                     }
@@ -1240,68 +1249,7 @@ namespace AliceScript
             return sb.ToString().Trim();
         }
 
-        public static string BeautifyScript(string script, string header)
-        {
-            StringBuilder result = new StringBuilder();
-            char[] extraSpace = ("<>=&|+-*/%").ToCharArray();
-
-            int indent = Constants.INDENT;
-            result.AppendLine(header);
-
-            bool inQuotes = false;
-            bool lineStart = true;
-
-            for (int i = 0; i < script.Length; i++)
-            {
-                char ch = script[i];
-                inQuotes = ch == Constants.QUOTE ? !inQuotes : inQuotes;
-
-                if (inQuotes)
-                {
-                    result.Append(ch);
-                    continue;
-                }
-
-                bool needExtra = extraSpace.Contains(ch) && i > 0 && i < script.Length - 1;
-                if (needExtra && !extraSpace.Contains(script[i - 1]))
-                {
-                    result.Append(" ");
-                }
-
-                switch (ch)
-                {
-                    case Constants.START_GROUP:
-                        result.AppendLine(" " + Constants.START_GROUP);
-                        indent += Constants.INDENT;
-                        lineStart = true;
-                        break;
-                    case Constants.END_GROUP:
-                        indent -= Constants.INDENT;
-                        result.AppendLine(new String(' ', indent) + Constants.END_GROUP);
-                        lineStart = true;
-                        break;
-                    case Constants.END_STATEMENT:
-                        result.AppendLine(ch.ToString());
-                        lineStart = true;
-                        break;
-                    default:
-                        if (lineStart)
-                        {
-                            result.Append(new String(' ', indent));
-                            lineStart = false;
-                        }
-                        result.Append(ch.ToString());
-                        break;
-                }
-                if (needExtra && !extraSpace.Contains(script[i + 1]))
-                {
-                    result.Append(" ");
-                }
-            }
-
-            result.AppendLine(Constants.END_GROUP.ToString());
-            return result.ToString();
-        }
+     
         public static string GetBodySize(ParsingScript script, string endToken1, string endToken2 = null)
         {
             int start = script.Pointer;

@@ -237,13 +237,14 @@ namespace AliceScript
         public ParsingScript GetScript(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
             Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, filename);
+            string data = Utils.ConvertToScript(script, out char2Line,out var def, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 data = ";";
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
+            toParse.Defines = def;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
             toParse.Tag = tag;
@@ -258,13 +259,14 @@ namespace AliceScript
         public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
             Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, filename);
+            string data = Utils.ConvertToScript(script, out char2Line, out var def,filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
+            toParse.Defines = def;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
             toParse.Tag = tag;
@@ -291,13 +293,14 @@ namespace AliceScript
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
         {
             Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, filename);
+            string data = Utils.ConvertToScript(script, out char2Line, out var def,filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
+            toParse.Defines = def;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
 

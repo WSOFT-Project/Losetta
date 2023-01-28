@@ -23,7 +23,7 @@ namespace AliceScript.NameSpaces
 
             string expr = e.Args[0].AsString();
             Dictionary<int, int> char2Line;
-            expr = Utils.ConvertToScript(expr, out char2Line);
+            expr = Utils.ConvertToScript(expr, out char2Line,out var def);
 
             Variable result;
             if (m_singletons.TryGetValue(expr, out result))
@@ -33,6 +33,7 @@ namespace AliceScript.NameSpaces
             }
 
             ParsingScript tempScript = new ParsingScript(expr);
+            tempScript.Defines = def;
             result = tempScript.Execute();
 
             m_singletons[expr] = result;

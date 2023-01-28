@@ -231,7 +231,7 @@ namespace AliceScript
                             Stream sw = entry.Open();
                             string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _);
                             int old = script.Length;
-                            script = Utils.ConvertToScript(script, out _, entry.FullName);
+                            script = Utils.ConvertToScript(script, out _, out _,entry.FullName);
                             byte[] script_data = Encoding.UTF8.GetBytes(script);
                             string fn = entry.FullName;
                             sw.Close();

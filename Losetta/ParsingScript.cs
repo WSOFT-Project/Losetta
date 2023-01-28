@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,7 @@ namespace AliceScript
         private int m_generation = 1;   // スクリプトの世代
         private object m_tag;           // 現在のスクリプトに関連付けられたオブジェクト。これは多用途で使用されます
         private AlicePackage m_package = null;//現在のスクリプトが実行されているパッケージ
+        private List<string> m_defines = new List<string>();// 現在のスクリプトで宣言されたシンボル
         private static ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
@@ -29,6 +31,14 @@ namespace AliceScript
         /// </summary>
         public static ParsingScript TopLevelScript => m_toplevel_script;
 
+        /// <summary>
+        /// このスクリプトで宣言されたシンボル
+        /// </summary>
+        public List<string> Defines
+        {
+            get { return m_defines; }
+            set { m_defines = value; }
+        }
         /// <summary>
         /// このスクリプトの現在の名前空間
         /// </summary>
@@ -551,6 +561,16 @@ namespace AliceScript
             }
         }
 
+        public bool ContainsSymbol(string symbol)
+        {
+            bool b = m_defines.Contains(symbol);
+            if (!b && m_defines.Contains(Constants.FOLLOW_PARENT))
+            {
+                b = ContainsSymbol(symbol);
+            }
+            return b;
+        }
+
         public List<Variable> GetFunctionArgs(char start = Constants.START_ARG,
                                       char end = Constants.END_ARG)
         {
@@ -777,8 +797,9 @@ namespace AliceScript
 
         public ParsingScript GetTempScript(string str, int startIndex = 0)
         {
-            str = Utils.ConvertToScript(str, out _);
+            str = Utils.ConvertToScript(str, out _,out var def);
             ParsingScript tempScript = new ParsingScript(str, startIndex);
+            tempScript.Defines = def;
             tempScript.Filename = this.Filename;
             tempScript.InTryBlock = this.InTryBlock;
             tempScript.ParentScript = this;
@@ -801,8 +822,9 @@ namespace AliceScript
             string pathname = ""; bool isPackageFile;
             string includeFile = GetIncludeFileLine(filename, out pathname, out isPackageFile);
             Dictionary<int, int> char2Line;
-            var includeScript = Utils.ConvertToScript(includeFile, out char2Line, pathname);
+            var includeScript = Utils.ConvertToScript(includeFile, out char2Line, out var def, pathname);
             ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
+            tempScript.Defines = def;
             tempScript.Filename = pathname;
             tempScript.OriginalScript = includeFile.Replace(Environment.NewLine, Constants.END_LINE.ToString());
             tempScript.ParentScript = this;

@@ -216,6 +216,10 @@ namespace AliceScript
         public const string OVERRIDE = "override";
         public const string COMMAND = "command";
 
+        // シンボル
+        public const string UNNEED_VAR = "unneed_var";
+        public const string FOLLOW_PARENT = "follow_parent";
+
         public static List<string> KEYWORD=new List<string>
         {
             PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND
