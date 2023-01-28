@@ -26,8 +26,6 @@ namespace AliceScript.NameSpaces
                 space.Add(new file_write_dataFunc());
                 space.Add(new file_write_textFunc());
                 space.Add(new file_append_textFunc());
-                space.Add(new file_encrypt_dataFunc());
-                space.Add(new file_decrypt_dataFunc());
 
                 space.Add(new directory_copyFunc());
                 space.Add(new directory_moveFunc());
@@ -598,35 +596,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_encrypt_dataFunc : FunctionBase
-    {
-        public file_encrypt_dataFunc()
-        {
-            this.Name = "file_encrypt_data";
-            this.MinimumArgCounts = 2;
-            this.Run += File_encrypt_dataFunc_Run;
-        }
-
-        private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(FileEncrypter.Encrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
-        }
-    }
-
-    internal class file_decrypt_dataFunc : FunctionBase
-    {
-        public file_decrypt_dataFunc()
-        {
-            this.Name = "file_decrypt_data";
-            this.MinimumArgCounts = 2;
-            this.Run += File_encrypt_dataFunc_Run;
-        }
-
-        private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(FileEncrypter.Decrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
-        }
-    }
+  
     internal static class FileEncrypter
     {
         internal static bool FileDecrypt(string FilePath, string OutFilePath, string Password)
