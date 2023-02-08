@@ -334,25 +334,6 @@ namespace AliceScript
             e.Return = new Variable(e.CurentVariable.Tuple.Select(item => filter.Invoke(new List<Variable> { item }, e.Script)).ToList());
         }
     }
-    internal class list_ConcatFunc : FunctionBase
-    {
-        public list_ConcatFunc()
-        {
-            this.Name = "Concat";
-            this.RequestType = Variable.VarType.ARRAY;
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
-        }
-
-        private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.CurentVariable.Tuple == null || e.Args[0].Type != Variable.VarType.ARRAY)
-            {
-                throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
-            }
-            e.Return = new Variable(e.CurentVariable.Tuple.Concat(e.Args[0].Tuple).ToList());
-        }
-    }
     internal class list_OrderByFunc : FunctionBase
     {
         public list_OrderByFunc()
