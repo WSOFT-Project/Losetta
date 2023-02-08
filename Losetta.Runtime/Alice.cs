@@ -69,7 +69,6 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new list_takeFunc());
             Variable.AddFunc(new list_takeWhileFunc());
             Variable.AddFunc(new list_SelectFunc());
-            Variable.AddFunc(new list_ConcatFunc());
             Variable.AddFunc(new list_OrderByFunc());
             Variable.AddFunc(new list_OrderByDescendingFunc());
             Variable.AddFunc(new list_UnionFunc());

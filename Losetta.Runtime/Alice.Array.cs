@@ -234,7 +234,6 @@ namespace AliceScript
                 }
             }
             e.Return = new Variable(list);
-            //e.Return = new Variable(e.CurentVariable.Tuple.Distinct().ToList());
         }
     }
     internal class list_skipFunc : FunctionBase
