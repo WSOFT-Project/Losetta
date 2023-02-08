@@ -9,8 +9,6 @@ namespace AliceScript
 {
     public class Parser
     {
-        public static bool Verbose { get; set; }
-
         public static Variable AliceScript(ParsingScript script)
         {
             return AliceScript(script, Constants.END_PARSE_ARRAY);
@@ -540,10 +538,6 @@ namespace AliceScript
         private static Variable Merge(Variable current, ref int index, List<Variable> listToMerge,
                                       ParsingScript script, bool mergeOneOnly = false)
         {
-            if (Verbose)
-            {
-                Utils.PrintList(listToMerge, index - 1);
-            }
 
             while (index < listToMerge.Count)
             {
@@ -564,11 +558,6 @@ namespace AliceScript
                 }
             }
 
-            if (Verbose)
-            {
-                Console.WriteLine("Calculated: {0} {1}",
-                                current.Value, current.String);
-            }
             return current;
         }
 

@@ -273,17 +273,6 @@ namespace AliceScript
         }
 
 
-
-        public static void PrintList(List<Variable> list, int from)
-        {
-            Console.Write("Merging list:");
-            for (int i = from; i < list.Count; i++)
-            {
-                Console.Write(" ({0}, '{1}')", list[i].Value, list[i].Action);
-            }
-            Console.WriteLine();
-        }
-
         public static int GetSafeInt(List<Variable> args, int index, int defaultValue = 0)
         {
             if (args.Count <= index)

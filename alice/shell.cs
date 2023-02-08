@@ -433,7 +433,7 @@ namespace alice
                 }
                 else if (result != null)
                 {
-                    output = result.AsString(false, false);
+                    output = result.AsString();
                     if (!string.IsNullOrWhiteSpace(output))
                     {
                         Console.WriteLine(output);
