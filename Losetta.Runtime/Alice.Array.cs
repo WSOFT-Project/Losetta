@@ -225,7 +225,16 @@ namespace AliceScript
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.Distinct().ToList());
+            var list = new List<Variable>();
+            foreach(var v in e.CurentVariable.Tuple)
+            {
+                if (!list.Contains(v))
+                {
+                    list.Add(v);
+                }
+            }
+            e.Return = new Variable(list);
+            //e.Return = new Variable(e.CurentVariable.Tuple.Distinct().ToList());
         }
     }
     internal class list_skipFunc : FunctionBase
