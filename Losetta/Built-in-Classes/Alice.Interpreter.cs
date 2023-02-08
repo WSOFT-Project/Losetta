@@ -860,6 +860,11 @@ namespace AliceScript
                 };
             }
         }
+        /// <summary>
+        /// このオブジェクトの表す型がもう一方の型と等しいかどうかを表す値を取得します
+        /// </summary>
+        /// <param name="other">比較する型</param>
+        /// <returns>もう一方の型と等しければTrue、それ以外の場合はFalse</returns>
         public bool Equals(TypeObject other)
         {
             if(this.ClassType!=null && other.ClassType != null)

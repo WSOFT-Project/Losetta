@@ -22,6 +22,7 @@
 	  <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
 	  <Description>AliceScriptの実行環境です</Description>
 	  <PackAsTool>True</PackAsTool>
+	  <PackageId>alice-repl</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

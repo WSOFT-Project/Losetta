@@ -58,6 +58,23 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new list_addRangeFunc());
             Variable.AddFunc(new list_InsertRangeFunc());
             Variable.AddFunc(new list_RemoveRangeFunc());
+            Variable.AddFunc(new list_allFunc());
+            Variable.AddFunc(new list_anyFunc());
+            Variable.AddFunc(new list_secenceEqualFunc());
+            Variable.AddFunc(new list_ofTypeFunc());
+            Variable.AddFunc(new list_whereFunc());
+            Variable.AddFunc(new list_DistinctFunc());
+            Variable.AddFunc(new list_skipFunc());
+            Variable.AddFunc(new list_skipWhileFunc());
+            Variable.AddFunc(new list_takeFunc());
+            Variable.AddFunc(new list_takeWhileFunc());
+            Variable.AddFunc(new list_SelectFunc());
+            Variable.AddFunc(new list_ConcatFunc());
+            Variable.AddFunc(new list_OrderByFunc());
+            Variable.AddFunc(new list_OrderByDescendingFunc());
+            Variable.AddFunc(new list_UnionFunc());
+            Variable.AddFunc(new list_ExceptFunc());
+            Variable.AddFunc(new list_IntersectFunc());
             //List関数(終わり)
             //DELEGATE系(Delegate.csに本体あり)
             Variable.AddFunc(new InvokeFunc());
@@ -997,111 +1014,7 @@ namespace AliceScript.NameSpaces
         private bool Right = false;
     }
 
-    internal class list_addFunc : FunctionBase
-    {
-        public list_addFunc()
-        {
-            this.Name = Constants.ADD;
-            this.RequestType = Variable.VarType.ARRAY;
-            this.MinimumArgCounts = 1;
-            this.Run += List_addFunc_Run;
-        }
-
-        private void List_addFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.CurentVariable.Tuple != null)
-            {
-                foreach (Variable a in e.Args)
-                {
-                    e.CurentVariable.Tuple.Add(a);
-                }
-            }
-        }
-    }
-
-    internal class list_addRangeFunc : FunctionBase
-    {
-        public list_addRangeFunc()
-        {
-            this.Name = Constants.ADD_RANGE;
-            this.RequestType = Variable.VarType.ARRAY;
-            this.MinimumArgCounts = 1;
-            this.Run += List_addFunc_Run;
-        }
-
-        private void List_addFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.CurentVariable.Tuple != null)
-            {
-                foreach (Variable a in e.Args)
-                {
-                    if (a.Type == Variable.VarType.ARRAY && a.Tuple != null)
-                    {
-                        e.CurentVariable.Tuple.AddRange(a.Tuple);
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    internal class list_InsertFunc : FunctionBase
-    {
-        public list_InsertFunc()
-        {
-            this.Name = Constants.INSERT;
-            this.RequestType = Variable.VarType.ARRAY | Variable.VarType.STRING;
-            this.MinimumArgCounts = 2;
-            this.Run += List_InsertFunc_Run;
-        }
-
-        private void List_InsertFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            switch (e.CurentVariable.Type)
-            {
-                case Variable.VarType.ARRAY:
-                    {
-                        if (e.CurentVariable.Tuple != null && e.Args[0].Type == Variable.VarType.NUMBER)
-                        {
-                            e.CurentVariable.Tuple.Insert(e.Args[0].AsInt(), e.Args[1]);
-                        }
-                        break;
-                    }
-                case Variable.VarType.STRING:
-                    {
-                        if (e.Args[0].Type == Variable.VarType.NUMBER && e.Args[1].Type == Variable.VarType.STRING)
-                        {
-                            e.Return = new Variable(e.CurentVariable.AsString().Insert(e.Args[0].AsInt(), e.Args[1].AsString()));
-                        }
-                        break;
-                    }
-            }
-
-        }
-    }
-
-    internal class list_InsertRangeFunc : FunctionBase
-    {
-        public list_InsertRangeFunc()
-        {
-            this.Name = Constants.INSERT_RANGE;
-            this.RequestType = Variable.VarType.ARRAY;
-            this.MinimumArgCounts = 2;
-            this.Run += List_InsertFunc_Run;
-        }
-
-        private void List_InsertFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.CurentVariable.Tuple != null && e.Args[0].Type == Variable.VarType.NUMBER && e.Args[1].Type == Variable.VarType.ARRAY && e.Args[1].Tuple != null)
-            {
-                e.CurentVariable.Tuple.InsertRange(e.Args[0].AsInt(), e.Args[1].Tuple);
-            }
-        }
-    }
-
+   
     internal class ThrowFunction : FunctionBase
     {
         public ThrowFunction()

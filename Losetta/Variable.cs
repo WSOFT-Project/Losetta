@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AliceScript
 {
 
-    public class Variable : ScriptObject
+    public class Variable : ScriptObject, IComparable<Variable>
     {
         [Flags]
         public enum VarType
@@ -299,6 +299,10 @@ namespace AliceScript
             m_propertyMap.Clear();
             m_propertyStringMap.Clear();
         }
+        /// <summary>
+        /// この変数またはそれが表す値がnullであるかどうかを取得します
+        /// </summary>
+        /// <returns>nullであればtrue、それ以外の場合はfalse</returns>
         public bool IsNull()
         {
             switch (Type)
@@ -330,81 +334,6 @@ namespace AliceScript
                         return (Object == null);
                     }
             }
-        }
-        public bool Equals(Variable other)
-        {
-            if (Type != other.Type)
-            {
-                return false;
-            }
-
-            if (Type == VarType.NUMBER && Value == other.Value)
-            {
-                return true;
-            }
-            bool stringsEqual = String.Equals(this.String, other.String, StringComparison.Ordinal);
-            if (Type == VarType.STRING && stringsEqual)
-            {
-                return true;
-            }
-            if (Type == VarType.OBJECT)
-            {
-                return Object == other.Object;
-            }
-            if (Type == VarType.BYTES)
-            {
-                return ByteArray == other.ByteArray;
-            }
-            if (Type == VarType.BOOLEAN)
-            {
-                return Bool == other.Bool;
-            }
-            if (Type == VarType.DELEGATE)
-            {
-                return Delegate.Equals(other.Delegate);
-            }
-            if (Type == VarType.BOOLEAN)
-            {
-                return Bool == other.Bool;
-            }
-            if (Type == VarType.ARRAY)
-            {
-                return EqualsArray(Tuple, other.Tuple);
-            }
-            if (Type == VarType.OBJECT && Object is ObjectBase o && other.Type == VarType.OBJECT && other.Object is ObjectBase o2)
-            {
-                return o.Equals(o2);
-            }
-            if (Type == VarType.NONE)
-            {
-                return other.Type == VarType.NONE;
-            }
-            if (Double.IsNaN(Value) != Double.IsNaN(other.Value) ||
-              (!Double.IsNaN(Value) && Value != other.Value))
-            {
-                return false;
-            }
-            if (!String.Equals(this.Action, other.Action, StringComparison.Ordinal))
-            {
-                return false;
-            }
-            if ((this.Tuple == null) != (other.Tuple == null))
-            {
-                return false;
-            }
-            if (this.Tuple != null && !this.Tuple.Equals(other.Tuple))
-            {
-                return false;
-            }
-            if (!m_propertyMap.Equals(other.m_propertyMap))
-            {
-                return false;
-            }
-            if (!stringsEqual)
-            {
-                return false;
-            }
-            return AsString() == other.AsString();
         }
         /// <summary>
         /// 明示的キャスト(as)を実行する時に呼ばれます。この変換は最も広範囲の型変換をサポートします
@@ -758,6 +687,10 @@ namespace AliceScript
         {
             return m_byteArray;
         }
+        /// <summary>
+        /// この変数の種類を表すTypeオブジェクトを返します
+        /// </summary>
+        /// <returns>この変数の種類を表すTypeオブジェクト</returns>
         public virtual TypeObject AsType()
         {
             if (Object != null && Object is AliceScriptClass c)
@@ -771,6 +704,113 @@ namespace AliceScript
             return AsString();
         }
 
+        /// <summary>
+        /// この変数と指定されたオブジェクトまたはVariableが等価かどうかを評価します
+        /// </summary>
+        /// <param name="obj">評価する対象のオブジェクト</param>
+        /// <returns>二つのオブジェクトが等しければTrue、それ以外の場合はFalse</returns>
+        public override bool Equals(object? obj)
+        {
+            if (obj == null)
+            {
+                return this.IsNull();
+            }
+            if (obj is Variable item)
+            {
+
+                if (item.Type != this.Type)
+                {
+                    return false;
+                }
+                if (item.Type == VarType.NUMBER)
+                {
+                    return ValueEquals(item.Value);
+                }
+                if (item.Type == VarType.STRING)
+                {
+                    return ValueEquals(item.String);
+                }
+                if (item.Type == VarType.BOOLEAN)
+                {
+                    return ValueEquals(item.Bool);
+                }
+                if (item.Type == VarType.ARRAY)
+                {
+                    return ValueEquals(item.Tuple);
+                }
+                if (item.Type == VarType.DELEGATE)
+                {
+                    return ValueEquals(item.Delegate);
+                }
+                if (item.Type == VarType.BYTES)
+                {
+                    return ValueEquals(item.ByteArray);
+                }
+            }
+            return ValueEquals(obj);
+        }
+
+        /// <summary>
+        /// この変数と指定されたオブジェクトが等価かどうかを評価します
+        /// </summary>
+        /// <param name="obj">評価する対象のオブジェクト</param>
+        /// <returns>二つのオブジェクトが等しければTrue、それ以外の場合はFalse</returns>
+        private bool ValueEquals(object obj)
+        {
+            if (obj is double || obj is int || obj is decimal || obj is float)
+            {
+                return this.Value == (double)obj;
+            }
+            if (obj is string str)
+            {
+                return string.Equals(this.String, str, StringComparison.Ordinal);
+            }
+            if (obj is bool bol)
+            {
+                return this.Bool == bol;
+            }
+            if (obj is List<Variable> tup)
+            {
+                return this.Tuple == tup;
+            }
+            if (obj is DelegateObject del)
+            {
+                return this.Delegate == del;
+            }
+            if (obj is byte[] data)
+            {
+                return this.ByteArray == data;
+            }
+            if (obj is ObjectBase ob && this.Object is ObjectBase ob2)
+            {
+                return ob.Equals(ob2);
+            }
+            return obj.Equals(this.Object);
+        }
+        public int CompareTo(Variable? other)
+        {
+            if (other == null)
+            {
+                return 0;
+            }
+            if (other.Type != this.Type)
+            {
+                return 0;
+            }
+            if (other.Type == VarType.NUMBER)
+            {
+                return this.Value.CompareTo(other.Value);
+            }
+            if (other.Type == VarType.STRING)
+            {
+                return this.String.CompareTo(other.String);
+            }
+            if (other.Type == VarType.BOOLEAN)
+            {
+                return this.Bool.CompareTo(other.Bool);
+            }
+            return 0;
+        }
         public object AsObject()
         {
             switch (Type)
@@ -1542,6 +1582,8 @@ namespace AliceScript
         {
             return EmptyInstance;
         }
+
+
 
         protected double m_value;
         protected string m_string;

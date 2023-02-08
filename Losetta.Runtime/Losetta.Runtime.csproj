@@ -20,6 +20,7 @@
     <Platforms>AnyCPU;ARM32;ARM64;x64</Platforms>
     <Description>Losettaの基本的な関数を含むランタイム</Description>
     <PackageTags>Scripting</PackageTags>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">

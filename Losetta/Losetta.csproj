@@ -21,6 +21,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64</Configurations>
     <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">

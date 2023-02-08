@@ -597,19 +597,24 @@ namespace AliceScript
             else if (leftCell.Action == " as " && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
-                //[??]演算子、Null合体演算子ですべての型に適応できます
             }
+            //[??]演算子、Null合体演算子ですべての型に適応できます
             else if (leftCell.Action == "??")
             {
                 if (leftCell.IsNull())
                 {
                     leftCell = rightCell;
                 }
-                //[==]または[===]演算子、右辺がNullを表す型でかつ左辺がNullの場合、Trueを返す
             }
-            else if ((leftCell.Action == "==" || leftCell.Action == "===") && rightCell.Type == Variable.VarType.NONE && leftCell.IsNull())
+            // [==]または[===]つまり、等値演算子の場合はそれぞれのEqualsメソッドを呼び出す
+            else if(leftCell.Action == "==" || leftCell.Action == "===")
             {
-                leftCell = Variable.True;
+                leftCell = new Variable(leftCell.Equals(rightCell));
+            }
+            // [!=]または[!==]つまり、非等値演算子の場合はそれぞれのEqualsメソッドを呼び出しそれを反転する
+            else if (leftCell.Action == "!=" || leftCell.Action == "!==")
+            {
+                leftCell = new Variable(!leftCell.Equals(rightCell));
             }
             else if (leftCell.Type == Variable.VarType.NUMBER &&
                 rightCell.Type == Variable.VarType.NUMBER)
@@ -652,12 +657,6 @@ namespace AliceScript
             }
             switch (leftCell.Action)
             {
-                case "==":
-                case "===":
-                    return new Variable(leftCell.Bool == rightCell.Bool);
-                case "!=":
-                case "!==":
-                    return new Variable(leftCell.Bool != rightCell.Bool);
                 case "&&":
                     return new Variable(
                         leftCell.Bool && rightCell.Bool);
@@ -708,12 +707,6 @@ namespace AliceScript
                     return new Variable(leftCell.Value <= rightCell.Value);
                 case ">=":
                     return new Variable(leftCell.Value >= rightCell.Value);
-                case "==":
-                case "===":
-                    return new Variable(leftCell.Value == rightCell.Value);
-                case "!=":
-                case "!==":
-                    return new Variable(leftCell.Value != rightCell.Value);
                 case "&":
                     return new Variable((int)leftCell.Value & (int)rightCell.Value);
                 case "^":
@@ -752,24 +745,6 @@ namespace AliceScript
                 case ">=":
                     return new Variable(
                       string.Compare(leftCell.AsString(), rightCell.AsString()) >= 0);
-                case "===":
-                    return new Variable(
-                        (leftCell.Type == rightCell.Type &&
-                         leftCell.AsString() == rightCell.AsString()) ||
-                        (leftCell.Type == Variable.VarType.UNDEFINED &&
-                         rightCell.AsString() == Constants.UNDEFINED) ||
-                        (rightCell.Type == Variable.VarType.UNDEFINED &&
-                         leftCell.AsString() == Constants.UNDEFINED));
-                case "!==":
-                    return new Variable(
-                        leftCell.Type != rightCell.Type ||
-                        leftCell.AsString() != rightCell.AsString());
-                case "==":
-                    return new Variable(
-                     string.Compare(leftCell.AsString(), rightCell.AsString()) == 0);
-                case "!=":
-                    return new Variable(
-                      string.Compare(leftCell.AsString(), rightCell.AsString()) != 0);
                 case ":":
                     leftCell.SetHashVariable(leftCell.AsString(), rightCell);
                     break;
@@ -786,12 +761,6 @@ namespace AliceScript
         {
             switch (leftCell.Action)
             {
-                case "==":
-                case "===":
-                    return new Variable(leftCell.Equals(rightCell));
-                case "!=":
-                case "!==":
-                    return new Variable(!leftCell.Equals(rightCell));
                 case "+=":
                     {
                         if (rightCell.Type == Variable.VarType.ARRAY)
@@ -854,12 +823,6 @@ namespace AliceScript
         {
             switch (leftCell.Action)
             {
-                case "==":
-                case "===":
-                    return new Variable(leftCell.Equals(rightCell));
-                case "!=":
-                case "!==":
-                    return new Variable(!leftCell.Equals(rightCell));
                 case "+=":
                     {
                         leftCell.Delegate.Add(rightCell.Delegate);
@@ -907,12 +870,6 @@ namespace AliceScript
         {
             switch (leftCell.Action)
             {
-                case "==":
-                case "===":
-                    return new Variable(leftCell.Equals(rightCell));
-                case "!=":
-                case "!==":
-                    return new Variable(!leftCell.Equals(rightCell));
                 case ")":
                     return leftCell;
                 case ">":
