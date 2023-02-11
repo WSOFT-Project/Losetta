@@ -208,6 +208,7 @@ namespace AliceScript
         public static string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
         public static char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
         public static char[] TOKENS_SEPARATION = ",;)".ToCharArray();
+        public static string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
 
         // キーワード

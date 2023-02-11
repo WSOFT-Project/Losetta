@@ -121,7 +121,7 @@ namespace AliceScript
             }
             else
             {
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.END_STATEMENT);
+                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.END_STATEMENT.ToString() );
                 result = GetCompiledArgs(body);
             }
             return result;
@@ -164,6 +164,7 @@ namespace AliceScript
 
             int end = script.FindFirstOf(to);
             end = end < 0 ? script.Size() : end;
+
 
             // Skip found characters that have a backslash before.
             while (end > 0 && end + 1 < script.Size() &&
@@ -1211,7 +1212,7 @@ namespace AliceScript
         }
 
         public static string GetBodyBetween(ParsingScript script, char open = Constants.START_ARG,
-                                            char close = Constants.END_ARG, char end = '\0')
+                                            char close = Constants.END_ARG, string end = "\0")
         {
             // We are supposed to be one char after the beginning of the string, i.e.
             // we must not have the opening char as the first one.
@@ -1228,7 +1229,7 @@ namespace AliceScript
             {
                 char ch = script.Current;
 
-                if (ch == end && !inQuotes)
+                if (end.Contains(ch) && !inQuotes)
                 {
                     break;
                 }
@@ -1271,7 +1272,6 @@ namespace AliceScript
                     break;
                 }
             }
-
             return sb.ToString();
         }
 

@@ -45,7 +45,7 @@ namespace AliceScript
                 return;
             }
 
-            m_impl = GetLambdaFunction(script, item, ch,ref action);
+            m_impl = GetLambdaFunction(script, item, ch, ref action);
             if (m_impl != null)
             {
                 m_impl.Keywords = keywords;
@@ -219,23 +219,24 @@ namespace AliceScript
         {
             return !string.IsNullOrWhiteSpace(action) && action.EndsWith("=") && action.Length > 1;
         }
-        public static ParserFunction GetLambdaFunction(ParsingScript script, string item, char ch,ref string action)
+        public static ParserFunction GetLambdaFunction(ParsingScript script, string item, char ch, ref string action)
         {
-            if (action==Constants.ARROW)
+            if (action == Constants.ARROW)
             {
-                string[] args = Utils.GetFunctionSignature(script.GetTempScript(item),true);
-                if(args.Length>0 && args[0].Trim() == Constants.DESTRUCTION.ToString())
+                string[] args = Utils.GetFunctionSignature(script.GetTempScript(item), true);
+                if (args.Length > 0 && args[0].Trim() == Constants.DESTRUCTION.ToString())
                 {
                     args = new string[] { };
                 }
-                string body = Utils.GetToken(script, Constants.TOKENS_SEPARATION);
+                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG,Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+
                 int parentOffset = script.Pointer;
 
                 if (script.CurrentClass != null)
                 {
                     parentOffset += script.CurrentClass.ParentOffset;
                 }
-                CustomFunction customFunc = new CustomFunction("", body, args, script,true);
+                CustomFunction customFunc = new CustomFunction("", body, args, script, true);
                 customFunc.ParentScript = script;
                 customFunc.ParentOffset = parentOffset;
                 action = null;
