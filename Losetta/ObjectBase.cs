@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static AliceScript.Variable;
 
 namespace AliceScript
 {
-    public class ObjectBase : AliceScriptClass, ScriptObject
+    public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
         /// <summary>
         /// このオブジェクトの名前
@@ -98,6 +100,10 @@ namespace AliceScript
         {
             //継承先によって定義されます
             throw new NotImplementedException();
+        }
+        public virtual int CompareTo(object? other)
+        {
+            return 0;
         }
         public virtual Task<Variable> GetProperty(string sPropertyName, List<Variable> args = null, ParsingScript script = null)
         {
@@ -192,6 +198,7 @@ namespace AliceScript
             this.Functions.Remove(function.Name);
         }
 
+        
     }
 
 

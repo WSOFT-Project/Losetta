@@ -7,7 +7,8 @@ using System.Xml;
 
 namespace AliceScript
 {
-    //This code using WSOFTConfigManerger.Allrights reserved WSOFT 2020.
+    //The code from WSOFTConfigManerger and WebSailing.
+    //Allrights reserved WSOFT 2020.
 
     /// <summary>
     /// XMLファイルを管理するクラスです

@@ -343,6 +343,10 @@ namespace AliceScript
         /// <returns>変換された型</returns>
         public Variable Convert(VarType type, bool throwError = false)
         {
+            if (Type == type)
+            {
+                return this;
+            }
             switch (type)
             {
                 case Variable.VarType.ARRAY:
@@ -808,6 +812,10 @@ namespace AliceScript
             if (other.Type == VarType.BOOLEAN)
             {
                 return this.Bool.CompareTo(other.Bool);
+            }
+            if (other.Type == VarType.OBJECT && this.Object is ObjectBase ob)
+            {
+                return ob.CompareTo(other.Object);
             }
             return 0;
         }
