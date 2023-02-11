@@ -27,6 +27,8 @@ namespace AliceScript
         public const char DESTRUCTION = '_';
         public const char TERNARY_OPERATOR = '?';
 
+        public const string AS = "as ";
+        public const string IS = "is ";
         public const string FOR_EACH = ":";
         public const string FOR_IN = "in";
         public const string FOR_OF = "of";
@@ -174,7 +176,7 @@ namespace AliceScript
         public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=","=>"};
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","is ","as ","??"};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS};
 
         public static string[] ACTIONS = (OPER_ACTIONS.Union(MATH_ACTIONS)).ToArray();
 

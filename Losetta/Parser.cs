@@ -572,7 +572,7 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             //[is]演算子、型テスト演算子ですべての型に適応できます
-            if (leftCell.Action == "is ")
+            if (leftCell.Action == Constants.IS)
             {
                 if (rightCell.Object != null && rightCell.Object is TypeObject to)
                 {
@@ -584,7 +584,7 @@ namespace AliceScript
                 }
             }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
-            else if (leftCell.Action == "as " && rightCell.Object is TypeObject type)
+            else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
             }
