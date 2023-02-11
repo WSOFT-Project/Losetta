@@ -174,7 +174,7 @@ namespace AliceScript
         public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=","=>"};
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "="," is "," as ","??"};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","is ","as ","??"};
 
         public static string[] ACTIONS = (OPER_ACTIONS.Union(MATH_ACTIONS)).ToArray();
 

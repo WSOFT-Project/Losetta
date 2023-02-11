@@ -224,13 +224,14 @@ namespace AliceScript
 
             if (negSign)
             {
+                // -マークがついている場合は数値が0未満
                 current = new Variable(-1 * current.Value);
             }
 
             if (negated > 0 && current.Type == Variable.VarType.BOOLEAN)
             {
-                // If there has been a NOT sign, this is a boolean.
-                // Use XOR (true if exactly one of the arguments is true).
+                // !マークがついている場合は真理値否定
+                // 排他的論理和を使用して評価
                 bool neg = !((negated % 2 == 0) ^ current.AsBool());
                 current = new Variable(neg);
                 negated = 0;
@@ -571,7 +572,7 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             //[is]演算子、型テスト演算子ですべての型に適応できます
-            if (leftCell.Action == " is ")
+            if (leftCell.Action == "is ")
             {
                 if (rightCell.Object != null && rightCell.Object is TypeObject to)
                 {
@@ -583,7 +584,7 @@ namespace AliceScript
                 }
             }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
-            else if (leftCell.Action == " as " && rightCell.Object is TypeObject type)
+            else if (leftCell.Action == "as " && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
             }
