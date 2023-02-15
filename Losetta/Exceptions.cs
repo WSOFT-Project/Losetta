@@ -265,6 +265,10 @@ namespace AliceScript
         /// <summary>
         /// 引数が要求された個数よりも多いです
         /// </summary>
-        TOO_MANY_ARGUREMENTS=0x041
+        TOO_MANY_ARGUREMENTS=0x041,
+        /// <summary>
+        /// その操作は禁止されています
+        /// </summary>
+        FORBIDDEN_OPERATION=0x042
     }
 }

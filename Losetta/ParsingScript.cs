@@ -190,15 +190,18 @@ namespace AliceScript
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
 
         public ParsingScript(string data, int from = 0,
-                             Dictionary<int, int> char2Line = null)
+                             Dictionary<int, int> char2Line = null,bool usingAlice=true)
         {
-
             m_data = data;
             m_from = from;
             m_char2Line = char2Line;
+            if (usingAlice)
+            {
+                Using(Constants.TOP_NAMESPACE);
+            }
         }
 
-        public ParsingScript(ParsingScript other)
+        public ParsingScript(ParsingScript other, bool usingAlice = true)
         {
             m_data = other.String;
             m_from = other.Pointer;
@@ -219,6 +222,26 @@ namespace AliceScript
             Generation = other.Generation + 1;
             CurrentNamespace = other.CurrentNamespace;
             ThrowError = other.ThrowError;
+            if (usingAlice)
+            {
+                Using(Constants.TOP_NAMESPACE);
+            }
+        }
+
+        /// <summary>
+        /// 現在のスクリプトで名前空間を参照します
+        /// </summary>
+        /// <param name="name"></param>
+        public void Using(string name)
+        {
+            if (NameSpaceManerger.Contains(name))
+            {
+                this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
+            }
+            else
+            {
+                throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
+            }
         }
 
         public int Size() { return m_data.Length; }
@@ -561,13 +584,14 @@ namespace AliceScript
             }
         }
 
+        /// <summary>
+        /// シンボルがこのスクリプトで定義されているかどうかを判定します
+        /// </summary>
+        /// <param name="symbol">シンボル</param>
+        /// <returns>定義されている場合はTrue、それ以外の場合はFalse。</returns>
         public bool ContainsSymbol(string symbol)
         {
             bool b = m_defines.Contains(symbol);
-            if (!b && m_defines.Contains(Constants.FOLLOW_PARENT))
-            {
-                b = ContainsSymbol(symbol);
-            }
             return b;
         }
 
@@ -810,25 +834,36 @@ namespace AliceScript
         }
         public ParsingScript GetIncludeFileScript(string filename)
         {
-            string pathname = ""; bool isPackageFile;
-            string includeFile = GetIncludeFileLine(filename, out pathname, out isPackageFile);
-            Dictionary<int, int> char2Line;
-            var includeScript = Utils.ConvertToScript(includeFile, out char2Line, out var def, pathname);
-            ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
-            tempScript.Defines = def;
-            tempScript.Filename = pathname;
-            tempScript.OriginalScript = includeFile.Replace(Environment.NewLine, Constants.END_LINE.ToString());
-            tempScript.ParentScript = this;
-            tempScript.InTryBlock = InTryBlock;
-            tempScript.Tag = this.Tag;
-            tempScript.Generation = this.Generation + 1;
-            tempScript.ThrowError = this.ThrowError;
-            if (isPackageFile)
+            string pathname;
+            if (!this.ContainsSymbol(Constants.DISABLE_USING))
             {
-                tempScript.Package = this.Package;
-            }
+                bool isPackageFile;
+                string includeFile = GetIncludeFileLine(filename, out pathname, out isPackageFile);
+                Dictionary<int, int> char2Line;
+                var includeScript = Utils.ConvertToScript(includeFile, out char2Line, out var def, pathname);
+                ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
+                if (this.ContainsSymbol(Constants.FOLLOW_INCLUDE))
+                {
+                    tempScript.Defines = def;
+                }
+                tempScript.Filename = pathname;
+                tempScript.OriginalScript = includeFile.Replace(Environment.NewLine, Constants.END_LINE.ToString());
+                tempScript.ParentScript = this;
+                tempScript.InTryBlock = InTryBlock;
+                tempScript.Tag = this.Tag;
+                tempScript.Generation = this.Generation + 1;
+                tempScript.ThrowError = this.ThrowError;
+                if (isPackageFile)
+                {
+                    tempScript.Package = this.Package;
+                }
 
-            return tempScript;
+                return tempScript;
+            }
+            else
+            {
+                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, this);
+            }
         }
         private string GetIncludeFileLine(string filename, out string pathname, out bool isPackageFile)
         {

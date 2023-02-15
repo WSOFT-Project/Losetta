@@ -54,18 +54,25 @@ namespace AliceScript.NameSpaces
         {
             bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
             string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            if (NameSpaceManerger.Contains(file))
+            if (!e.Script.ContainsSymbol(Constants.DISABLE_USING))
             {
-                var script = ParsingScript.TopLevelScript;
-                if (!isGlobal)
+                if (NameSpaceManerger.Contains(file))
                 {
-                    script = e.Script;
+                    var script = ParsingScript.TopLevelScript;
+                    if (!isGlobal)
+                    {
+                        script = e.Script;
+                    }
+                    script.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[file]);
                 }
-                script.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[file]);
+                else
+                {
+                    throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, e.Script);
+                }
             }
             else
             {
-                throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, e.Script);
+                throw new ScriptException("その操作は禁止されています",Exceptions.FORBIDDEN_OPERATION,e.Script);
             }
         }
     }
@@ -81,15 +88,22 @@ namespace AliceScript.NameSpaces
         }
         private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            string filename = e.Args[0].AsString();
-            var data = Utils.GetFileFromPackageOrLocal(filename,Utils.GetSafeBool(e.Args,1),e.Script);
-            if (Utils.GetSafeBool(e.Args, 1))
+            if (!e.Script.ContainsSymbol(Constants.DISABLE_USING))
             {
-                Interop.NetLibraryLoader.LoadLibrary(data);
+                string filename = e.Args[0].AsString();
+                var data = Utils.GetFileFromPackageOrLocal(filename, Utils.GetSafeBool(e.Args, 1), e.Script);
+                if (Utils.GetSafeBool(e.Args, 1))
+                {
+                    Interop.NetLibraryLoader.LoadLibrary(data);
+                }
+                else
+                {
+                    AlicePackage.LoadData(data, filename, true);
+                }
             }
             else
             {
-                AlicePackage.LoadData(data, filename, true);
+                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, e.Script);
             }
         }
     }

@@ -92,6 +92,18 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new str_ToLowerUpperInvariantFunc());
             Variable.AddFunc(new str_ToLowerUpperInvariantFunc(true));
 
+            NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
+            space.Add(new DelayFunc());
+            space.Add(new SingletonFunction());
+            space.Add(new ExitFunction());
+            space.Add(new IsNaNFunction());
+            space.Add(new PrintFunction());
+            space.Add(new PrintFunction(true));
+            space.Add(new ReadFunction());
+            space.Add(new StringFormatFunction());
+
+            NameSpaceManerger.Add(space);
+
             FunctionBaseManerger.Add(new IfStatement());
             FunctionBaseManerger.Add(new DoWhileStatement());
             FunctionBaseManerger.Add(new WhileStatement());
@@ -109,17 +121,9 @@ namespace AliceScript.NameSpaces
 
             FunctionBaseManerger.Add(new NewObjectFunction());
 
-            FunctionBaseManerger.Add(new SingletonFunction());
-            FunctionBaseManerger.Add(new ExitFunction());
-            FunctionBaseManerger.Add(new IsNaNFunction());
-            FunctionBaseManerger.Add(new DelayFunc());
             FunctionBaseManerger.Add(new UsingStatement());
             FunctionBaseManerger.Add(new ImportFunc());
             FunctionBaseManerger.Add(new DelegateCreator());
-            FunctionBaseManerger.Add(new PrintFunction());
-            FunctionBaseManerger.Add(new PrintFunction(true));
-            FunctionBaseManerger.Add(new ReadFunction());
-            FunctionBaseManerger.Add(new StringFormatFunction());
             FunctionBaseManerger.Add(new LockFunction());
         }
     }

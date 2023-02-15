@@ -133,6 +133,7 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
+            NameSpaceManerger.Add(new NameSpace(Constants.TOP_NAMESPACE));
 
             ParserFunction.RegisterFunction(Constants.CLASS, new ClassCreator());
             ParserFunction.RegisterFunction(Constants.ENUM, new EnumFunction());
