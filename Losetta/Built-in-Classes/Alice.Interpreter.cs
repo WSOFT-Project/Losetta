@@ -25,6 +25,7 @@ namespace AliceScript
                 space.Add(new Interpreter_NameFunc());
                 space.Add(new GetPackageFunc());
                 space.Add(new Interpreter_ConstsFunc());
+                space.Add(new Interpreter_ScriptObject(null));
                 space.Add(new Interpreter_GetScriptFunc());
                 space.Add(new gc_collectFunc());
                 space.Add(new gc_gettotalmemoryFunc());
@@ -514,17 +515,47 @@ namespace AliceScript
             this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Parent, this));
             this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Package, this));
 
+            this.Constructor = new Interpreter_ScriptObject_Constructor();
+
             this.AddFunction(new Interpreter_ScriptObject_GetConst(this));
             this.AddFunction(new Interpreter_ScriptObject_GetVariable(this));
             this.AddFunction(new Interpreter_ScriptObject_GetFunction(this));
             this.AddFunction(new Interpreter_ScriptObject_ExecuteFunction(this));
             this.AddFunction(new Interpreter_ScriptObject_GetScriptFunction(this));
+            this.AddFunction(new Interpreter_ScriptObject_UsingFunction(this));
 
             Script = script;
         }
         internal ParsingScript Script;
-
-
+        public override bool Equals(ObjectBase other)
+        {
+           if(other is Interpreter_ScriptObject iso)
+            {
+                return iso.Script.Equals(this.Script);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private class Interpreter_ScriptObject_Constructor : FunctionBase
+        {
+            public Interpreter_ScriptObject_Constructor()
+            {
+                this.MinimumArgCounts = 1;
+                this.Run += Interpreter_ScriptObject_Constructor_Run;
+            }
+            private void Interpreter_ScriptObject_Constructor_Run(object sender, FunctionBaseEventArgs e)
+            {
+                Dictionary<int, int> char2Line;
+                List<string> defines;
+                string code = Utils.ConvertToScript(e.Args[0].AsString(), out char2Line, out defines);
+                var script = new ParsingScript(code,0,char2Line,false);
+                script.Defines = defines;
+                script.ParentScript = e.Script;
+                e.Return = new Variable(new Interpreter_ScriptObject(script));
+            }
+        }
         private class Interpreter_ScriptObject_GetVariable : FunctionBase
         {
             public Interpreter_ScriptObject_GetVariable(Interpreter_ScriptObject host)
@@ -613,6 +644,22 @@ namespace AliceScript
                 e.Return = new Variable(new Interpreter_ScriptObject(Host.Script.GetTempScript(e.Args[0].AsString())));
             }
         }
+        private class Interpreter_ScriptObject_UsingFunction : FunctionBase
+        {
+            private Interpreter_ScriptObject Host { get; set; }
+            public Interpreter_ScriptObject_UsingFunction(Interpreter_ScriptObject host)
+            {
+                Host = host;
+                this.MinimumArgCounts = 1;
+                this.Name = "Using";
+                this.Run += Interpreter_ScriptObject_GetScriptFunction_Run;
+            }
+
+            private void Interpreter_ScriptObject_GetScriptFunction_Run(object sender, FunctionBaseEventArgs e)
+            {
+                Host.Script.Using(e.Args[0].AsString());
+            }
+        }
         private class Interpreter_ScriptObject_Property : PropertyBase
         {
             public Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property_Mode mode, Interpreter_ScriptObject host)
@@ -620,10 +667,47 @@ namespace AliceScript
                 Mode = mode;
                 Host = host;
                 this.Name = Mode.ToString();
-                this.CanSet = false;
+                switch (mode)
+                {
+                    case Interpreter_ScriptObject_Property_Mode.Parent:
+                        {
+                            this.CanSet = true;
+                            break;
+                        }
+                    default:
+                        {
+                            this.CanSet = false;
+                            break;
+                        }
+                }
                 this.HandleEvents = true;
                 this.Getting += Interpreter_ScriptObject_Property_Getting;
+                this.Setting += Interpreter_ScriptObject_Property_Setting;
             }
+
+            private void Interpreter_ScriptObject_Property_Setting(object sender, PropertySettingEventArgs e)
+            {
+                switch (Mode)
+                {
+                    case Interpreter_ScriptObject_Property_Mode.Parent:
+                        {
+                            if(e.Value.Type==Variable.VarType.OBJECT&&e.Value.Object is Interpreter_ScriptObject iso)
+                            {
+                                Host.Script.ParentScript = iso.Script;
+                            }
+                            else if(e.Value.Type==Variable.VarType.NONE)
+                            {
+                                Host.Script.ParentScript = null;
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+            }
+
             private Interpreter_ScriptObject_Property_Mode Mode;
             private Interpreter_ScriptObject Host;
             internal enum Interpreter_ScriptObject_Property_Mode

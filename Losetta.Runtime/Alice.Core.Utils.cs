@@ -54,26 +54,12 @@ namespace AliceScript.NameSpaces
         {
             bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
             string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            if (!e.Script.ContainsSymbol(Constants.DISABLE_USING))
+            var script = e.Script;
+            if (isGlobal)
             {
-                if (NameSpaceManerger.Contains(file))
-                {
-                    var script = ParsingScript.TopLevelScript;
-                    if (!isGlobal)
-                    {
-                        script = e.Script;
-                    }
-                    script.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[file]);
-                }
-                else
-                {
-                    throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, e.Script);
-                }
+                script = ParsingScript.GetTopLevelScript(script);
             }
-            else
-            {
-                throw new ScriptException("その操作は禁止されています",Exceptions.FORBIDDEN_OPERATION,e.Script);
-            }
+            script.Using(file);
         }
     }
     internal class ImportFunc : FunctionBase
@@ -88,7 +74,7 @@ namespace AliceScript.NameSpaces
         }
         private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (!e.Script.ContainsSymbol(Constants.DISABLE_USING))
+            if (!e.Script.ContainsSymbol(Constants.DISABLE_IMPORT))
             {
                 string filename = e.Args[0].AsString();
                 var data = Utils.GetFileFromPackageOrLocal(filename, Utils.GetSafeBool(e.Args, 1), e.Script);

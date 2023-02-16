@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -227,6 +228,9 @@ namespace AliceScript
         public const string FOLLOW_INCLUDE = "follow_include";
         public const string DISABLE_USING = "disable_using";
         public const string DISABLE_IMPORT = "disable_import";
+        public const string DISABLE_INCLUDE = "disable_include";
+        //最上位のスクリプトへのアクセスを拒否
+        public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
         public static List<string> KEYWORD=new List<string>
         {

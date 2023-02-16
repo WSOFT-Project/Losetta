@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,17 +26,31 @@ namespace AliceScript
         private List<NameSpace> m_namespace = new List<NameSpace>();
 
         /// <summary>
-        /// 最上位のスクリプトです
+        /// 最上位のスクリプトを取得します
         /// </summary>
-        public static ParsingScript TopLevelScript => m_toplevel_script;
+        /// <param name="script">呼び出し元のスクリプト</param>
+        /// <returns>最上位のスクリプト</returns>
+        public static ParsingScript GetTopLevelScript(ParsingScript script)
+        {
+            if (m_toplevel_script.ParentScript != null)
+            {
+                //トップレベルスクリプトは親を持たない
+                m_toplevel_script.ParentScript = null;
+            }
+            if (script != null && script.ContainsSymbol(Constants.DENY_TO_TOPLEVEL_SCRIPT))
+            {
+                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, script);
+            }
+            return m_toplevel_script;
+        }
 
         /// <summary>
         /// このスクリプトで宣言されたシンボル
         /// </summary>
         public List<string> Defines
         {
-            get { return m_defines; }
-            set { m_defines = value; }
+            get => m_defines;
+            set => m_defines = value;
         }
         /// <summary>
         /// このスクリプトの現在の名前空間
@@ -184,13 +197,13 @@ namespace AliceScript
         public bool InTryBlock;
         public string MainFilename;
 
-        public ParsingScript ParentScript = TopLevelScript;
+        public ParsingScript ParentScript = m_toplevel_script;
 
         public AliceScriptClass CurrentClass { get; set; }
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
 
         public ParsingScript(string data, int from = 0,
-                             Dictionary<int, int> char2Line = null,bool usingAlice=true)
+                             Dictionary<int, int> char2Line = null, bool usingAlice = true)
         {
             m_data = data;
             m_from = from;
@@ -234,16 +247,24 @@ namespace AliceScript
         /// <param name="name"></param>
         public void Using(string name)
         {
-            if (NameSpaceManerger.Contains(name))
+            if (!ContainsSymbol(Constants.DISABLE_USING))
             {
-                this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
+                if (NameSpaceManerger.Contains(name))
+                {
+                    this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
+                }
+                else
+                {
+                    throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
+                }
             }
             else
             {
-                throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
+                {
+                    throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION,this);
+                }
             }
         }
-
         public int Size() { return m_data.Length; }
         public bool StillValid() { return m_from < m_data.Length; }
 
@@ -812,7 +833,7 @@ namespace AliceScript
 
         public ParsingScript GetTempScript(string str, int startIndex = 0)
         {
-            str = Utils.ConvertToScript(str, out _,out var def);
+            str = Utils.ConvertToScript(str, out _, out var def);
             ParsingScript tempScript = new ParsingScript(str, startIndex);
             tempScript.Defines = def;
             tempScript.Filename = this.Filename;
@@ -835,7 +856,7 @@ namespace AliceScript
         public ParsingScript GetIncludeFileScript(string filename)
         {
             string pathname;
-            if (!this.ContainsSymbol(Constants.DISABLE_USING))
+            if (!this.ContainsSymbol(Constants.DISABLE_INCLUDE))
             {
                 bool isPackageFile;
                 string includeFile = GetIncludeFileLine(filename, out pathname, out isPackageFile);

@@ -178,7 +178,7 @@ namespace AliceScript
             }
             if (script == null || isGlobal)
             {
-                script = ParsingScript.TopLevelScript;
+                script = ParsingScript.GetTopLevelScript(script);
             }
             ParserFunction.RegisterScriptFunction(fname, func, script);
             if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))

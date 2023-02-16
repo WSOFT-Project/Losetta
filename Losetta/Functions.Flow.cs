@@ -1827,7 +1827,7 @@ namespace AliceScript
                     {
                         if (isGlobal)
                         {
-                            ParsingScript.TopLevelScript.Consts.Add(m_name, new GetVarFunction(varValue));
+                            ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new GetVarFunction(varValue));
                         }
                         else
                         {
@@ -1846,7 +1846,7 @@ namespace AliceScript
                     ExtendArray(array, arrayIndices, 0, varValue);
                     if (isGlobal)
                     {
-                        ParsingScript.TopLevelScript.Consts.Add(m_name, new GetVarFunction(varValue));
+                        ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new GetVarFunction(varValue));
                     }
                     else
                     {

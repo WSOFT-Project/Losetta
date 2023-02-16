@@ -582,7 +582,7 @@ namespace AliceScript
 
             if (globalOnly)
             {
-                AddLocalVariable(function, ParsingScript.TopLevelScript, "", true, registVar);
+                AddLocalVariable(function, ParsingScript.GetTopLevelScript(script), "", true, registVar);
             }
             else
             {
