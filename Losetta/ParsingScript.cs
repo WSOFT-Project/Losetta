@@ -247,8 +247,6 @@ namespace AliceScript
         /// <param name="name"></param>
         public void Using(string name)
         {
-            if (!ContainsSymbol(Constants.DISABLE_USING))
-            {
                 if (NameSpaceManerger.Contains(name))
                 {
                     this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
@@ -257,13 +255,7 @@ namespace AliceScript
                 {
                     throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
                 }
-            }
-            else
-            {
-                {
-                    throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION,this);
-                }
-            }
+          
         }
         public int Size() { return m_data.Length; }
         public bool StillValid() { return m_from < m_data.Length; }
@@ -774,13 +766,15 @@ namespace AliceScript
             return result;
         }
 
-        public void ExecuteAll()
+        public Variable ExecuteAll()
         {
+            Variable result = null;
             while (StillValid())
             {
-                Execute(Constants.END_LINE_ARRAY);
+                result = Execute(Constants.END_LINE_ARRAY);
                 GoToNextStatement();
             }
+            return result;
         }
         public Variable Process()
         {

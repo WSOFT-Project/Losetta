@@ -59,7 +59,15 @@ namespace AliceScript.NameSpaces
             {
                 script = ParsingScript.GetTopLevelScript(script);
             }
-            script.Using(file);
+            if (!e.Script.ContainsSymbol(Constants.DISABLE_USING))
+            {
+
+                script.Using(file);
+            }
+            else
+            {
+                    throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, e.Script);
+            }
         }
     }
     internal class ImportFunc : FunctionBase

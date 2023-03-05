@@ -547,10 +547,9 @@ namespace AliceScript
             }
             private void Interpreter_ScriptObject_Constructor_Run(object sender, FunctionBaseEventArgs e)
             {
-                Dictionary<int, int> char2Line;
-                List<string> defines;
+                List<string> defines; Dictionary<int, int> char2Line;
                 string code = Utils.ConvertToScript(e.Args[0].AsString(), out char2Line, out defines);
-                var script = new ParsingScript(code,0,char2Line,false);
+                var script = new ParsingScript(code,0,char2Line,true);
                 script.Defines = defines;
                 script.ParentScript = e.Script;
                 e.Return = new Variable(new Interpreter_ScriptObject(script));
@@ -624,7 +623,7 @@ namespace AliceScript
 
             private void Interpreter_ScriptObject_ExecuteFunction_Run(object sender, FunctionBaseEventArgs e)
             {
-                e.Return = Host.Script.Process();
+                e.Return = Host.Script.ExecuteAll();
             }
 
             public Interpreter_ScriptObject Host { get; private set; }
