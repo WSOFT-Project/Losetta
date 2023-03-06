@@ -78,6 +78,7 @@ namespace AliceScript.NameSpaces
             //DELEGATE系(Delegate.csに本体あり)
             Variable.AddFunc(new InvokeFunc());
             Variable.AddFunc(new BeginInvokeFunc());
+            Variable.AddFunc(new DelegateNameFunc());
             //DELEGATE系(終わり)
             Variable.AddFunc(new list_SortFunc());
             Variable.AddFunc(new list_ReverseFunc());
@@ -127,6 +128,7 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new LockFunction());
         }
     }
+
 
     internal class ReturnStatement : FunctionBase
     {
@@ -508,6 +510,23 @@ namespace AliceScript.NameSpaces
         private bool isNull;
     }
 
+    internal class DelegateNameFunc : FunctionBase
+    {
+        public DelegateNameFunc()
+        {
+            this.Name = "Name";
+            this.RequestType = Variable.VarType.DELEGATE;
+            this.Run += DelegateNameFunc_Run;
+        }
+
+        private void DelegateNameFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            if (e.CurentVariable.Delegate != null)
+            {
+                e.Return = new Variable(e.CurentVariable.Delegate.Name);
+            }
+        }
+    }
     internal class InvokeFunc : FunctionBase
     {
         public InvokeFunc()

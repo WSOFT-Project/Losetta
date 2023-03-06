@@ -514,6 +514,7 @@ namespace AliceScript
             this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Consts, this));
             this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Parent, this));
             this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Package, this));
+            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StackTrace, this));
 
             this.Constructor = new Interpreter_ScriptObject_Constructor();
 
@@ -538,6 +539,7 @@ namespace AliceScript
                 return false;
             }
         }
+
         private class Interpreter_ScriptObject_Constructor : FunctionBase
         {
             public Interpreter_ScriptObject_Constructor()
@@ -711,7 +713,7 @@ namespace AliceScript
             private Interpreter_ScriptObject Host;
             internal enum Interpreter_ScriptObject_Property_Mode
             {
-                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package
+                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package,StackTrace
             }
             private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyGettingEventArgs e)
             {
@@ -832,6 +834,19 @@ namespace AliceScript
                             if (Host.Script.Package != null)
                             {
                                 e.Value = new Variable(new GetPackageFunc.AlicePackageObject(Host.Script.Package));
+                            }
+                            break;
+                        }
+                    case Interpreter_ScriptObject_Property_Mode.StackTrace:
+                        {
+                            if (Host.Script != null)
+                            {
+                                var trace = new Variable(Variable.VarType.ARRAY);
+                                foreach(CustomFunction cf in Host.Script.StackTrace)
+                                {
+                                    trace.Tuple.Add(new Variable(new DelegateObject(cf)));
+                                }
+                                e.Value= trace;
                             }
                             break;
                         }

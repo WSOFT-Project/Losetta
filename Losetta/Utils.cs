@@ -193,7 +193,7 @@ namespace AliceScript
             tempScript.ParentScript = script;
             tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
-            tempScript.StackLevel = stackLevel;
+            tempScript.StackTrace = script.StackTrace;
             if (script != null)
             {
                 tempScript.Package = script.Package;

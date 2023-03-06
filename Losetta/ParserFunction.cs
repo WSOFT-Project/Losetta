@@ -1158,7 +1158,7 @@ namespace AliceScript
         protected bool m_isNative = true;
         public bool isNative { get => m_isNative; set => m_isNative = value; }
 
-        private ParserFunction m_impl;
+        internal ParserFunction m_impl;
 
         // Global functions:
         public static Dictionary<string, ParserFunction> s_functions = new Dictionary<string, ParserFunction>();

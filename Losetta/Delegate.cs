@@ -8,6 +8,7 @@ namespace AliceScript
     public class DelegateObject
     {
         private List<CustomFunction> m_fucntions = new List<CustomFunction>();
+        private CustomFunction m_function = null;
 
         public List<CustomFunction> Functions
         {
@@ -52,7 +53,17 @@ namespace AliceScript
                 return m_fucntions.Count;
             }
         }
-
+        public string Name
+        {
+            get
+            {
+                if (m_fucntions.Count == 0)
+                {
+                    return string.Empty;
+                }
+                return m_fucntions[0].Name;
+            }
+        }
         public DelegateObject()
         {
 

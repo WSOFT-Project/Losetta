@@ -48,7 +48,6 @@ namespace AliceScript
 
         public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
-        private int MAX_LOOPS = 0;
 
         private StringBuilder m_output = new StringBuilder();
         public string Output
@@ -504,11 +503,6 @@ namespace AliceScript
                     break;
                 }
 
-                if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
-                {
-                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
-                }
-
                 script.Pointer = startForCondition;
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
                                                        Constants.END_GROUP);
@@ -556,11 +550,6 @@ namespace AliceScript
                     break;
                 }
 
-                if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
-                {
-                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
-                }
-
                 script.Pointer = startForCondition;
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
                                                        Constants.END_GROUP);
@@ -585,34 +574,24 @@ namespace AliceScript
         {
             int startWhileCondition = script.Pointer;
 
-            // 無限ループを抑制するための変数
+            // ループ回数
             int cycles = 0;
             bool stillValid = true;
             Variable result = Variable.EmptyInstance;
-            ParsingScript condScript = script.GetTempScript(Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG));
 
             while (stillValid)
             {
-                //int startSkipOnBreakChar = from;
                 script.Pointer = startWhileCondition;
-                Variable condResult = condScript.Process();
-                condScript.Pointer = 0;
+
+                //int startSkipOnBreakChar = from;
+                Variable condResult = script.Execute(Constants.END_ARG_ARRAY);
                 stillValid = condResult.AsBool();
                 if (!stillValid)
                 {
                     break;
                 }
 
-                // 無限ループを抑制するための判定
-                if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
-                {
-                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
-                }
-
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                result = mainScript.ProcessForWhile();
+                result = ProcessBlock(script);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     script.Pointer = startWhileCondition;
@@ -620,10 +599,36 @@ namespace AliceScript
                 }
             }
 
-            //whileステートメントの条件がtrueでなくなったためこのブロックをスキップ
+            // 条件はもうtrueではないので、ブロックをスキップします
             SkipBlock(script);
             return result.IsReturn ? result : Variable.EmptyInstance;
         }
+
+        internal Variable ProcessBlock(ParsingScript script)
+        {
+            int blockStart = script.Pointer;
+            Variable result = null;
+
+            while (script.StillValid())
+            {
+                int endGroupRead = script.GoToNextStatement();
+                if (endGroupRead > 0 || !script.StillValid())
+                {
+                    return result != null ? result : new Variable();
+                }
+
+                result = script.Execute();
+
+                if (result.IsReturn ||
+                    result.Type == Variable.VarType.BREAK ||
+                    result.Type == Variable.VarType.CONTINUE)
+                {
+                    return result;
+                }
+            }
+            return result;
+        }
+
         //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
         public async Task<Variable> ProcessWhileAsync(ParsingScript script)
         {
@@ -643,12 +648,6 @@ namespace AliceScript
                 if (!stillValid)
                 {
                     break;
-                }
-
-                // Check for an infinite loop if we are comparing same values:
-                if (MAX_LOOPS > 0 && ++cycles >= MAX_LOOPS)
-                {
-                    throw new ScriptException("現在の設定では" + MAX_LOOPS + "以上の繰り返しを行うことはできません", Exceptions.TOO_MANY_REPETITIONS, script);
                 }
 
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,

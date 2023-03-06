@@ -24,6 +24,7 @@ namespace AliceScript
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private List<NameSpace> m_namespace = new List<NameSpace>();
+        private List<CustomFunction> m_stacktrace = new List<CustomFunction>();
 
         /// <summary>
         /// 最上位のスクリプトを取得します
@@ -51,6 +52,13 @@ namespace AliceScript
         {
             get => m_defines;
             set => m_defines = value;
+        }
+        /// <summary>
+        /// このスクリプトのCustomFunctionの呼び出し履歴
+        /// </summary>
+        public List<CustomFunction> StackTrace
+        {
+            get => m_stacktrace; set => m_stacktrace = value;
         }
         /// <summary>
         /// このスクリプトの現在の名前空間
@@ -707,6 +715,7 @@ namespace AliceScript
                     }
                     ThrowErrorManerger.OnThrowError(ex.Script, ex);
                 }
+              
             }
             return result;
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -93,6 +94,10 @@ namespace AliceScript
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
+                if(func.m_impl is CustomFunction cf)
+                {
+                    script.StackTrace.Add(cf);
+                }
                 Variable current = func.GetValue(script);
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {
