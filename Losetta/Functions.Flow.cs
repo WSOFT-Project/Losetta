@@ -991,7 +991,7 @@ namespace AliceScript
 
             // 2. Execute the body of the function.
             Variable result = null;
-            ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, script,
+            ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
             tempScript.Tag = m_tag;
             tempScript.Variables = m_VarMap;
@@ -1029,7 +1029,7 @@ namespace AliceScript
 
             // 2. Execute the body of the function.
             Variable result = null;
-            ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, script,
+            ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
             tempScript.Tag = m_tag;
             tempScript.Variables = m_VarMap;

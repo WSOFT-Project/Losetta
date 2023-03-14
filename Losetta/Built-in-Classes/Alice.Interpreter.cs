@@ -844,7 +844,9 @@ namespace AliceScript
                                 var trace = new Variable(Variable.VarType.ARRAY);
                                 foreach(CustomFunction cf in Host.Script.StackTrace)
                                 {
-                                    trace.Tuple.Add(new Variable(new DelegateObject(cf)));
+                                    var v = new Variable(Variable.VarType.DELEGATE);
+                                    v.Delegate = new DelegateObject(cf);
+                                    trace.Tuple.Add(v);
                                 }
                                 e.Value= trace;
                             }

@@ -167,4 +167,39 @@ namespace AliceScript
             return true;
         }
     }
+    /// <summary>
+    /// C#からAliceScriptにイベントを通知するためのプロパティベースです。
+    /// </summary>
+    public class EventBase : PropertyBase
+    {
+        public EventBase()
+        {
+            this.CanSet = true;
+            this.Value = new Variable(Variable.VarType.DELEGATE);
+        }
+        public EventBase(string name)
+        {
+            this.Name = name;
+            this.CanSet = true;
+            this.Value = new Variable(Variable.VarType.DELEGATE);
+        }
+        /// <summary>
+        /// イベントを実行します
+        /// </summary>
+        /// <param name="args">実行の引数</param>
+        /// <param name="script">親スクリプト</param>
+        /// <param name="instance">実行元のクラスインスタンス</param>
+        /// <returns>実行結果</returns>
+        public Variable Invoke(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
+        {
+            Variable result = Variable.EmptyInstance;
+
+            if (this.Value.Type == Variable.VarType.DELEGATE && this.Value.Delegate != null)
+            {
+                result = this.Value.Delegate.Invoke(args, script, instance);
+            }
+
+            return result;
+        }
+    }
 }
