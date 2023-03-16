@@ -490,6 +490,13 @@ namespace AliceScript
                     }
                 }
             }
+            string className = Constants.ConvertName(name);
+
+            var csClass = AliceScriptClass.GetClass(className, script);
+            if (csClass != null)
+            {
+                return new GetVarFunction(new Variable(new TypeObject(csClass)));
+            }
 
             return GetFromNamespace(name, script);
         }
