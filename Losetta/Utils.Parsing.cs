@@ -89,7 +89,8 @@ namespace AliceScript
             script.ProcessingList = true;// script.ProcessingList || script.Current == Constants.START_ARRAY;
             try
             {
-                value.Tuple = GetArgs(script, start, end, (outList) => { isList = outList; });
+                value.Tuple = new VariableCollection();
+                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }));
             }
             finally
             {

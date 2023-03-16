@@ -152,6 +152,7 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.POINTER, new PointerFunction());
             ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
 
+            FunctionBaseManerger.Add(new ArrayTypeFunction());
             FunctionBaseManerger.Add(new FunctionCreator());
 
         }

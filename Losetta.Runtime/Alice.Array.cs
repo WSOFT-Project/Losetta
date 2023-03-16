@@ -93,24 +93,6 @@ namespace AliceScript
         }
     }
 
-    internal class list_InsertRangeFunc : FunctionBase
-    {
-        public list_InsertRangeFunc()
-        {
-            this.Name = Constants.INSERT_RANGE;
-            this.RequestType = Variable.VarType.ARRAY;
-            this.MinimumArgCounts = 2;
-            this.Run += List_InsertFunc_Run;
-        }
-
-        private void List_InsertFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.CurentVariable.Tuple != null && e.Args[0].Type == Variable.VarType.NUMBER && e.Args[1].Type == Variable.VarType.ARRAY && e.Args[1].Tuple != null)
-            {
-                e.CurentVariable.Tuple.InsertRange(e.Args[0].AsInt(), e.Args[1].Tuple);
-            }
-        }
-    }
 
     internal class list_allFunc : FunctionBase
     {

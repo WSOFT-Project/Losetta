@@ -149,34 +149,38 @@ namespace AliceScript
         }
         public Variable(List<Variable> a)
         {
-            this.Tuple = a;
+            this.Tuple = new VariableCollection();
+            this.Tuple.AddRange(a);
         }
         public Variable(List<string> a)
         {
-            List<Variable> tuple = new List<Variable>(a.Count);
+            VariableCollection tuple = new VariableCollection();
+            tuple.Type = new TypeObject(Variable.VarType.STRING);
             for (int i = 0; i < a.Count; i++)
             {
                 tuple.Add(new Variable(a[i]));
             }
-            this.Tuple = tuple;
+            this.Tuple.AddRange(tuple);
         }
         public Variable(string[] a)
         {
-            List<Variable> tuple = new List<Variable>();
-            foreach (string s in a)
+            VariableCollection tuple = new VariableCollection();
+            tuple.Type = new TypeObject(Variable.VarType.STRING);
+            for (int i = 0; i < a.Count(); i++)
             {
-                tuple.Add(new Variable(s));
+                tuple.Add(new Variable(a[i]));
             }
-            this.Tuple = tuple;
+            this.Tuple.AddRange(tuple);
         }
         public Variable(List<double> a)
         {
-            List<Variable> tuple = new List<Variable>(a.Count);
+            VariableCollection tuple = new VariableCollection();
+            tuple.Type = new TypeObject(Variable.VarType.NUMBER);
             for (int i = 0; i < a.Count; i++)
             {
                 tuple.Add(new Variable(a[i]));
             }
-            this.Tuple = tuple;
+            this.Tuple.AddRange(tuple);
         }
         public Variable(Dictionary<string, string> a)
         {
@@ -188,7 +192,8 @@ namespace AliceScript
                 m_dictionary[lower] = tuple.Count;
                 tuple.Add(new Variable(a[key]));
             }
-            this.Tuple = tuple;
+            this.Tuple = new VariableCollection();
+            this.Tuple.AddRange(tuple);
         }
         public Variable(Dictionary<string, double> a)
         {
@@ -200,7 +205,8 @@ namespace AliceScript
                 m_dictionary[lower] = tuple.Count;
                 tuple.Add(new Variable(a[key]));
             }
-            this.Tuple = tuple;
+            this.Tuple = new VariableCollection();
+            this.Tuple.AddRange(tuple);
         }
 
         public Variable(object o)
@@ -224,7 +230,8 @@ namespace AliceScript
 
             if (m_tuple != null)
             {
-                List<Variable> newTuple = new List<Variable>();
+                VariableCollection newTuple = new VariableCollection();
+                newTuple.Type=m_tuple.Type;
                 foreach (var item in m_tuple)
                 {
                     newTuple.Add(item.DeepClone());
@@ -352,7 +359,7 @@ namespace AliceScript
                 case Variable.VarType.ARRAY:
                     {
                         Variable tuple = new Variable(Variable.VarType.ARRAY);
-                        tuple.Tuple = new List<Variable> { this };
+                        tuple.Tuple = new VariableCollection { this };
                         return tuple;
                     }
                 case Variable.VarType.BOOLEAN:
@@ -512,7 +519,7 @@ namespace AliceScript
 
             if (results.Count == 0 && m_tuple != null)
             {
-                results = m_tuple;
+                results.AddRange(m_tuple);
             }
 
             return results;
@@ -574,38 +581,6 @@ namespace AliceScript
             }
         }
 
-        public int RemoveItem(string item)
-        {
-            string lower = item.ToLower();
-            if (m_dictionary.Count > 0)
-            {
-                int index = 0;
-                if (!m_dictionary.TryGetValue(lower, out index))
-                {
-                    return 0;
-                }
-
-                m_tuple.RemoveAt(index);
-                m_keyMappings.Remove(lower);
-                m_dictionary.Remove(lower);
-
-                // "Rehash" the dictionary so that it points correctly to the indices after removed.
-                foreach (var key in m_dictionary.Keys.ToList())
-                {
-                    int value = m_dictionary[key];
-                    if (value > index)
-                    {
-                        m_dictionary[key] = value - 1;
-                    }
-                }
-
-                return 1;
-            }
-
-            int removed = m_tuple.RemoveAll(p => p.AsString() == item);
-            return removed;
-        }
-
         public int GetArrayIndex(Variable indexVar)
         {
             if (!Constants.CAN_GET_ARRAYELEMENT_VARIABLE_TYPES.Contains(this.Type))
@@ -651,14 +626,6 @@ namespace AliceScript
                 m_tuple.Insert(index, v);
             }
         }
-        public int FindIndex(Variable val)
-        {
-            if (this.Type != VarType.ARRAY)
-            {
-                return -1;
-            }
-            return m_tuple.FindIndex(item => item == val);
-        }
 
         public virtual bool AsBool()
         {
@@ -697,6 +664,11 @@ namespace AliceScript
         /// <returns>この変数の種類を表すTypeオブジェクト</returns>
         public virtual TypeObject AsType()
         {
+            if (Tuple != null && Tuple.Type != null)
+            {
+                var to = new TypeObject(Type);
+                to.ArrayType = Tuple.Type;
+            }
             if (Object != null && Object is AliceScriptClass c)
             {
                 return new TypeObject(c);
@@ -773,7 +745,7 @@ namespace AliceScript
             {
                 return this.Bool == bol;
             }
-            if (obj is List<Variable> tup)
+            if (obj is VariableCollection tup)
             {
                 return this.Tuple == tup;
             }
@@ -1016,7 +988,7 @@ namespace AliceScript
                     {
                         if (m_tuple == null)
                         {
-                            m_tuple = new List<Variable>();
+                            m_tuple = new VariableCollection();
                         }
                         break;
                     }
@@ -1035,7 +1007,7 @@ namespace AliceScript
             Type = VarType.ARRAY;
             if (m_tuple == null)
             {
-                m_tuple = new List<Variable>();
+                m_tuple = new VariableCollection();
             }
         }
 
@@ -1472,7 +1444,8 @@ namespace AliceScript
                     strings.Add(arg.AsString());
                 }
             }
-            List<Variable> newTuple = new List<Variable>(Tuple.Count);
+            VariableCollection newTuple = new VariableCollection();
+            newTuple.Type = Tuple.Type;
             numbers.Sort();
             strings.Sort();
 
@@ -1543,7 +1516,7 @@ namespace AliceScript
             set => m_customFunctionSet = value;
         }
 
-        public List<Variable> Tuple
+        public VariableCollection Tuple
         {
             get => m_tuple;
             set { m_tuple = value; Type = VarType.ARRAY; }
@@ -1602,7 +1575,7 @@ namespace AliceScript
         protected VarType m_type;
         private CustomFunction m_customFunctionGet;
         private CustomFunction m_customFunctionSet;
-        protected List<Variable> m_tuple;
+        protected VariableCollection m_tuple;
         protected byte[] m_byteArray;
         private Dictionary<string, int> m_dictionary = new Dictionary<string, int>();
         private Dictionary<string, string> m_keyMappings = new Dictionary<string, string>();

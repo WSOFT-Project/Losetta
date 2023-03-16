@@ -888,6 +888,7 @@ namespace AliceScript
             this.Properties.Add("Base",new BaseProperty(this));
         }
         public Variable.VarType Type { get; set; }
+        public TypeObject ArrayType { get; set; }
         public AliceScriptClass ClassType { get; set; }
         internal class NamespaceProperty : PropertyBase
         {
@@ -1001,6 +1002,12 @@ namespace AliceScript
                         e.Return = obj;
                         return;
                     }
+                }
+                else if (Type.Type == Variable.VarType.ARRAY)
+                {
+                    Variable v = new Variable(Variable.VarType.ARRAY);
+                    v.Tuple.Type = Type.ArrayType;
+                    e.Return = v;
                 }
                 else
                 {

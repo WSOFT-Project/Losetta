@@ -68,6 +68,29 @@ namespace AliceScript
 
         public CustomFunction Function { get; set; }
     }
+    internal class ArrayTypeFunction : FunctionBase
+    {
+        public ArrayTypeFunction()
+        {
+            this.Name = "array";
+            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            this.Run += ArrayTypeFunction_Run;
+        }
+
+        private void ArrayTypeFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            if (e.Args[0].Count > 0 && e.Args[0].Object is TypeObject t)
+            {
+                var to = new TypeObject(Variable.VarType.ARRAY);
+                to.ArrayType = t;
+                e.Return = new Variable(to);
+            }
+            else
+            {
+                e.Return = Variable.AsType(Variable.VarType.ARRAY);
+            }
+        }
+    }
     internal class FunctionCreator : FunctionBase
     {
         public FunctionCreator()

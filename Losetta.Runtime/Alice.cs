@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace AliceScript.NameSpaces
 {
@@ -56,8 +55,6 @@ namespace AliceScript.NameSpaces
             //List関数
             Variable.AddFunc(new list_addFunc());
             Variable.AddFunc(new list_addRangeFunc());
-            Variable.AddFunc(new list_InsertRangeFunc());
-            Variable.AddFunc(new list_RemoveRangeFunc());
             Variable.AddFunc(new list_allFunc());
             Variable.AddFunc(new list_anyFunc());
             Variable.AddFunc(new list_secenceEqualFunc());
@@ -176,25 +173,6 @@ namespace AliceScript.NameSpaces
         {
             Variable arg = e.Args[0];
             e.Return = new Variable(arg.Type != Variable.VarType.NUMBER || double.IsNaN(arg.Value));
-        }
-    }
-
-    internal class list_RemoveRangeFunc : FunctionBase
-    {
-        public list_RemoveRangeFunc()
-        {
-            this.Name = Constants.REMOVE_RANGE;
-            this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.ARRAY;
-            this.Run += List_RemoveRangeFunc_Run;
-        }
-
-        private void List_RemoveRangeFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args[0].Type == Variable.VarType.NUMBER && e.Args[1].Type == Variable.VarType.NUMBER && e.CurentVariable.Tuple != null)
-            {
-                e.CurentVariable.Tuple.RemoveRange(e.Args[0].AsInt(), e.Args[1].AsInt());
-            }
         }
     }
 
@@ -331,18 +309,8 @@ namespace AliceScript.NameSpaces
                     {
                         if (e.CurentVariable.Tuple != null)
                         {
-                            if (e.Args.Count == 1)
-                            {
-                                e.Return = new Variable(e.CurentVariable.Tuple.IndexOf(e.Args[0]));
-                            }
-                            else if (e.Args.Count == 2)
-                            {
-                                e.Return = new Variable(e.CurentVariable.Tuple.IndexOf(e.Args[0], e.Args[1].AsInt()));
-                            }
-                            else
-                            {
-                                e.Return = new Variable(e.CurentVariable.Tuple.IndexOf(e.Args[0], e.Args[1].AsInt(), e.Args[2].AsInt()));
-                            }
+
+                            e.Return = new Variable(e.CurentVariable.Tuple.IndexOf(e.Args[0]));
                         }
                         break;
                     }
@@ -1036,7 +1004,7 @@ namespace AliceScript.NameSpaces
         private bool Right = false;
     }
 
-   
+
     internal class ThrowFunction : FunctionBase
     {
         public ThrowFunction()
@@ -1243,14 +1211,8 @@ namespace AliceScript.NameSpaces
 
         private void List_ReverseFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args.Count > 1)
-            {
-                e.CurentVariable.Tuple.Reverse(e.Args[0].AsInt(), e.Args[1].AsInt());
-            }
-            else
-            {
+            
                 e.CurentVariable.Tuple.Reverse();
-            }
         }
     }
 

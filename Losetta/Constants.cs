@@ -292,7 +292,6 @@ namespace AliceScript
             {CONTINUE,new Variable(Variable.VarType.CONTINUE) },
             {"string", Variable.AsType(Variable.VarType.STRING) },
             {"number",Variable.AsType(Variable.VarType.NUMBER) },
-            {"array",Variable.AsType(Variable.VarType.ARRAY) },
             {"bytes",Variable.AsType(Variable.VarType.BYTES) },
             {"object",Variable.AsType(Variable.VarType.OBJECT) },
             {"enum",Variable.AsType(Variable.VarType.ENUM) },
