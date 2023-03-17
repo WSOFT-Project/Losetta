@@ -79,7 +79,7 @@ namespace AliceScript
 
         private void ArrayTypeFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args[0].Count > 0 && e.Args[0].Object is TypeObject t)
+            if (e.Args.Count > 0 && e.Args[0].Object is TypeObject t)
             {
                 var to = new TypeObject(Variable.VarType.ARRAY);
                 to.ArrayType = t;
@@ -1691,14 +1691,8 @@ namespace AliceScript
             {
                 case "+=":
                     {
-                        if (valueB.Type == Variable.VarType.ARRAY)
-                        {
-                            valueA.Tuple.AddRange(valueB.Tuple);
-                        }
-                        else
-                        {
-                            valueA.Tuple.Add(valueB);
-                        }
+                        
+                        valueA.Tuple.Add(valueB);
                         break;
                     }
                 case "+":
