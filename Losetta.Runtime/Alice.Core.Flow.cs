@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AliceScript.NameSpaces
@@ -16,23 +17,41 @@ namespace AliceScript.NameSpaces
 
         private void NewObjectFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            string className = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            className = Constants.ConvertName(className);
-            e.Script.MoveForwardIf(Constants.START_ARG);
-            List<Variable> args = e.Script.GetFunctionArgs();
-
-            ObjectBase csClass = AliceScriptClass.GetClass(className, e.Script) as ObjectBase;
-            if (csClass != null)
+            if (e.Script.Prev == Constants.START_ARG)
             {
-                Variable obj = csClass.GetImplementation(args, e.Script);
-                e.Return = obj;
-                return;
+                ///本来の関数のように使用されている
+                List<Variable> args = e.Script.GetFunctionArgs();
+                if (args.Count > 0 && args[0].Object is TypeObject type)
+                {
+                    var arg = new List<Variable>();
+                    if (args.Count > 1)
+                    {
+                        arg=args.Skip(1).ToList();
+                    }
+                    e.Return = new Variable(type.Activate(arg,e.Script));
+                }
             }
+            else
+            {
+                string className = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
 
-            AliceScriptClass.ClassInstance instance = new
-                AliceScriptClass.ClassInstance(e.Script.CurrentAssign, className, args, e.Script);
+                className = Constants.ConvertName(className);
+                e.Script.MoveForwardIf(Constants.START_ARG);
+                List<Variable> args = e.Script.GetFunctionArgs();
 
-            e.Return = new Variable(instance);
+                ObjectBase csClass = AliceScriptClass.GetClass(className, e.Script) as ObjectBase;
+                if (csClass != null)
+                {
+                    Variable obj = csClass.GetImplementation(args, e.Script);
+                    e.Return = obj;
+                    return;
+                }
+
+                AliceScriptClass.ClassInstance instance = new
+                    AliceScriptClass.ClassInstance(e.Script.CurrentAssign, className, args, e.Script);
+
+                e.Return = new Variable(instance);
+            }
         }
     }
 

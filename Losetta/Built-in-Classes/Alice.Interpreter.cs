@@ -981,6 +981,30 @@ namespace AliceScript
                 return this.Type==other.Type;
             }
         }
+
+        public Variable Activate(List<Variable> args,ParsingScript script)
+        {
+            if (ClassType != null)
+            {
+                //TODO:非ObjectBaseのクラスのアクティベート
+                ObjectBase csClass = ClassType as ObjectBase;
+                if (csClass != null)
+                {
+                    return csClass.GetImplementation(args, script);
+                }
+            }
+            else if (Type == Variable.VarType.ARRAY)
+            {
+                Variable v = new Variable(Variable.VarType.ARRAY);
+                v.Tuple.Type = ArrayType;
+                return v;
+            }
+            else
+            {
+                return new Variable(Type);
+            }
+            return Variable.EmptyInstance;
+        }
         internal class ActivateFunction : FunctionBase
         {
             public ActivateFunction(TypeObject type)
@@ -992,27 +1016,7 @@ namespace AliceScript
             public TypeObject Type { get; set; }
             private void Type_ActivateFunc_Run(object sender, FunctionBaseEventArgs e)
             {
-                if (Type.ClassType != null)
-                {
-                    //TODO:非ObjectBaseのクラスのアクティベート
-                    ObjectBase csClass = Type.ClassType as ObjectBase;
-                    if (csClass != null)
-                    {
-                        Variable obj = csClass.GetImplementation(e.Args, e.Script);
-                        e.Return = obj;
-                        return;
-                    }
-                }
-                else if (Type.Type == Variable.VarType.ARRAY)
-                {
-                    Variable v = new Variable(Variable.VarType.ARRAY);
-                    v.Tuple.Type = Type.ArrayType;
-                    e.Return = v;
-                }
-                else
-                {
-                    e.Return = new Variable(Type.Type);
-                }
+                e.Return = Type.Activate(e.Args,e.Script);
             }
         }
         internal class ToStringFunction : FunctionBase
