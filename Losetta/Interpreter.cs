@@ -360,6 +360,14 @@ namespace AliceScript
         private void ProcessArrayFor(ParsingScript script, string forString)
         {
             var tokens = forString.Split(' ');
+
+            bool registVar = false;
+            if (tokens[0].ToLower() == Constants.VAR)
+            {
+                tokens = tokens.Skip(1).ToArray();
+                forString = forString.Substring(3);
+                registVar = true;
+            }
             var sep = tokens.Length > 2 ? tokens[1] : "";
             string varName = tokens[0];
             //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
@@ -401,7 +409,7 @@ namespace AliceScript
                                                        Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
                 ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new GetVarFunction(current), mainScript, false, true);
+                               new GetVarFunction(current), mainScript, registVar,false);
                 Variable result = mainScript.Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
