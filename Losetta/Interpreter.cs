@@ -409,7 +409,7 @@ namespace AliceScript
                                                        Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
                 ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new GetVarFunction(current), mainScript, registVar,false);
+                               new GetVarFunction(current), mainScript,false, registVar,false);
                 Variable result = mainScript.Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
