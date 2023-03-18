@@ -1572,18 +1572,27 @@ namespace AliceScript
     {
         protected override Variable Evaluate(ParsingScript script)
         {
+
             // Value to be added to the variable:
             Variable right = Utils.GetItem(script);
 
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
 
-            ParserFunction func = ParserFunction.GetVariable(m_name, script);
-            if (!Utils.CheckNotNull(func, m_name, script))
+            Variable currentValue = ParserFunction.GetObjectFunction(m_name,script,new List<string>())?.GetValue(script);
+            bool isobj = true;
+            List<Variable> arrayIndices = new List<Variable>();
+            if (currentValue == null)
             {
-                return Variable.EmptyInstance;
+                isobj = false;
+                arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
+
+                ParserFunction func = ParserFunction.GetVariable(m_name, script);
+                if (!Utils.CheckNotNull(func, m_name, script))
+                {
+                    return Variable.EmptyInstance;
+                }
+                currentValue = func.GetValue(script); 
             }
 
-            Variable currentValue = func.GetValue(script);
             currentValue = currentValue.DeepClone();
             Variable left = currentValue;
 
@@ -1629,6 +1638,10 @@ namespace AliceScript
                 AssignFunction.ExtendArray(currentValue, arrayIndices, 0, left);
                 ParserFunction.AddGlobalOrLocalVariable(m_name,
                                                          new GetVarFunction(currentValue), script);
+            }
+            else if (isobj)
+            {
+                return AssignFunction.ProcessObject(m_name, script, left);
             }
             else
             {
@@ -1879,7 +1892,7 @@ namespace AliceScript
             else
             {
                 // First try processing as an object (with a dot notation):
-                Variable result = ProcessObject(script, varValue);
+                Variable result = ProcessObject(m_name,script, varValue);
                 if (result != null)
                 {
                     if (script.CurrentClass == null && script.ClassInstance == null)
@@ -2013,7 +2026,7 @@ namespace AliceScript
             }
         }
 
-        private Variable ProcessObject(ParsingScript script, Variable varValue)
+        internal static Variable ProcessObject(string m_name,ParsingScript script, Variable varValue)
         {
             if (script.CurrentClass != null)
             {

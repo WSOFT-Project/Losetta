@@ -43,6 +43,11 @@ It can also be described in a more sophisticated way.
 write("What your name?\r\nName>>");
 print("Hello,{0}!",read());
 ```
+Ah yeah, if you consider the order in which they are executed, you can write them on a single line.
+
+```cs
+print("Hello,{1}!",write("What your name?\r\nName>>"),read());
+```
 
 Access to the API is done after declaring it with the using directive.
 
@@ -51,6 +56,12 @@ using Alice.IO;
 
 // Write "Hello" in test.txt.
 file_write_text("test.txt","Hello");
+```
+
+It can also be called directly by specifying a namespace.
+
+```cs
+Alice.IO.file_write_text("test.txt","Hello");
 ```
 
 Available APIs can be found in the [API browser](https://docs.wsoft.ws/products/alice/api/).
