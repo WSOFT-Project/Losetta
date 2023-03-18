@@ -577,16 +577,9 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             //[is]演算子、型テスト演算子ですべての型に適応できます
-            if (leftCell.Action == Constants.IS)
+            if (leftCell.Action == Constants.IS && rightCell.Object != null && rightCell.Object is TypeObject to)
             {
-                if (rightCell.Object != null && rightCell.Object is TypeObject to)
-                {
-                    leftCell = new Variable(leftCell.AsType().Equals(to));
-                }
-                else
-                {
-                    throw new ScriptException("is式の右辺はAlice.Interpreter.Typeオブジェクトである必要があります。", Exceptions.INVALID_OPERAND, script);
-                }
+                    leftCell = new Variable(to.Match(leftCell));
             }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
             else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)

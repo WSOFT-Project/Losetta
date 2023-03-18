@@ -205,7 +205,7 @@ namespace AliceScript.NameSpaces
         public RemoveAtFunc()
         {
             this.Name = Constants.REMOVE_AT;
-            this.RequestType = Variable.VarType.STRING | Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += RemoveAtFunc_Run;
         }
@@ -239,7 +239,7 @@ namespace AliceScript.NameSpaces
         public RemoveFunc()
         {
             this.Name = Constants.REMOVE_ITEM;
-            this.RequestType = Variable.VarType.STRING | Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += RemoveFunc_Run;
         }
@@ -280,7 +280,7 @@ namespace AliceScript.NameSpaces
         public IndexOfFunc()
         {
             this.Name = Constants.INDEX_OF;
-            this.RequestType = Variable.VarType.STRING | Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += IndexOfFunc_Run;
         }
@@ -323,7 +323,7 @@ namespace AliceScript.NameSpaces
         public KeysFunc()
         {
             this.Name = Constants.KEYS;
-            this.RequestType = Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR;
+            this.RequestType = new TypeObject(Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR);
             this.Run += KeysFunc_Run;
 
         }
@@ -367,7 +367,7 @@ namespace AliceScript.NameSpaces
         public LengthFunc()
         {
             this.Name = Constants.LENGTH;
-            this.RequestType = Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY);
             this.Run += ToStringFunc_Run;
         }
 
@@ -382,7 +382,7 @@ namespace AliceScript.NameSpaces
         public SizeFunc()
         {
             this.Name = Constants.SIZE;
-            this.RequestType = Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY);
             this.Run += ToStringFunc_Run;
         }
 
@@ -412,7 +412,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.CONTAINS;
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING | Variable.VarType.ARRAY | Variable.VarType.DELEGATE;
+            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY | Variable.VarType.DELEGATE);
             this.Run += ContainsFunc_Run;
         }
 
@@ -460,7 +460,7 @@ namespace AliceScript.NameSpaces
             {
                 this.Name = Constants.EMPTY_WHITE;
             }
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += String_EmptyOrWhiteFunc_Run;
         }
 
@@ -483,7 +483,7 @@ namespace AliceScript.NameSpaces
         public DelegateNameFunc()
         {
             this.Name = "Name";
-            this.RequestType = Variable.VarType.DELEGATE;
+            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
             this.Run += DelegateNameFunc_Run;
         }
 
@@ -500,7 +500,7 @@ namespace AliceScript.NameSpaces
         public InvokeFunc()
         {
             this.Name = "Invoke";
-            this.RequestType = Variable.VarType.DELEGATE;
+            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
             this.Run += InvokeFunc_Run;
         }
 
@@ -577,7 +577,7 @@ namespace AliceScript.NameSpaces
         public BeginInvokeFunc()
         {
             this.Name = "BeginInvoke";
-            this.RequestType = Variable.VarType.DELEGATE;
+            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
             this.Run += BeginInvokeFunc_Run;
         }
 
@@ -632,7 +632,7 @@ namespace AliceScript.NameSpaces
                         break;
                     }
             }
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += String_TrimFunc_Run;
         }
 
@@ -718,7 +718,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = "CompareTo";
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_IndexOfFunc_Run;
         }
 
@@ -733,7 +733,7 @@ namespace AliceScript.NameSpaces
         public str_IsNormalizedFunc()
         {
             this.Name = "IsNormalized";
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_IsNormalizedFunc_Run;
         }
 
@@ -749,7 +749,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = "LastIndexOf";
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_IndexOfFunc_Run;
         }
 
@@ -782,7 +782,7 @@ namespace AliceScript.NameSpaces
         public str_NormalizeFunc()
         {
             this.Name = "Normalize";
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_NormalizeFunc_Run1;
         }
 
@@ -798,7 +798,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.REPLACE;
             this.MinimumArgCounts = 2;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_ReplaceFunc_Run;
         }
 
@@ -814,7 +814,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.SPLIT;
             this.MinimumArgCounts = 0;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_SplitFunc_Run;
         }
 
@@ -844,7 +844,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.SUBSTRING;
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_SubStringFunc_Run;
         }
 
@@ -871,7 +871,7 @@ namespace AliceScript.NameSpaces
         public str_FormatFunc()
         {
             this.Name = "Format";
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_FormatFunc_Run;
         }
 
@@ -885,7 +885,7 @@ namespace AliceScript.NameSpaces
         public str_JoinFunc()
         {
             this.Name = "Join";
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.MinimumArgCounts = 2;
             this.Run += Str_JoinFunc_Run;
         }
@@ -907,7 +907,7 @@ namespace AliceScript.NameSpaces
         {
             Upper = upper;
             if (upper) { this.Name = Constants.UPPER; } else { this.Name = Constants.LOWER; }
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_ToLowerUpperFunc_Run;
         }
 
@@ -932,7 +932,7 @@ namespace AliceScript.NameSpaces
         {
             this.EndWith = endsWith;
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_SEWithFunc_Run;
         }
 
@@ -971,7 +971,7 @@ namespace AliceScript.NameSpaces
         {
             this.Right = right;
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_PadFunc_Run;
         }
 
@@ -1128,7 +1128,7 @@ namespace AliceScript.NameSpaces
         public list_ForeachFunc()
         {
             this.Name = Constants.FOREACH;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_ForeachFunc_Run;
         }
@@ -1151,7 +1151,7 @@ namespace AliceScript.NameSpaces
         {
             Upper = upper;
             if (upper) { this.Name = "ToUpperInvariant"; } else { this.Name = "ToLowerInvariant"; }
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_ToLowerUpperFunc_Run;
         }
 
@@ -1175,7 +1175,7 @@ namespace AliceScript.NameSpaces
         public bytes_toBase64Func()
         {
             this.Name = "ToBase64";
-            this.RequestType = Variable.VarType.BYTES;
+            this.RequestType = new TypeObject(Variable.VarType.BYTES);
             this.Run += ToBase64Func_Run;
         }
 
@@ -1190,7 +1190,7 @@ namespace AliceScript.NameSpaces
         public list_SortFunc()
         {
             this.Name = Constants.SORT;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_SortFunc_Run;
         }
 
@@ -1205,7 +1205,7 @@ namespace AliceScript.NameSpaces
         public list_ReverseFunc()
         {
             this.Name = Constants.REVERSE;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_ReverseFunc_Run;
         }
 
@@ -1221,7 +1221,7 @@ namespace AliceScript.NameSpaces
         public list_flattenFunc()
         {
             this.Name = "Flatten";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_flattenFunc_Run;
         }
 
@@ -1249,7 +1249,7 @@ namespace AliceScript.NameSpaces
         {
 
             this.Name = "Merge";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_marge2Func_Run;
         }
 
@@ -1288,7 +1288,7 @@ namespace AliceScript.NameSpaces
             {
                 this.Name = Constants.FIRST;
             }
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_FirstOrLastFunc_Run;
         }
 

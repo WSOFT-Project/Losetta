@@ -35,7 +35,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = "IsMatch";
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_IsMatchFunc_Run;
         }
 
@@ -50,7 +50,7 @@ namespace AliceScript.NameSpaces
         {
             this.Name = "Matches";
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.STRING);
             this.Run += Str_IsMatchFunc_Run;
         }
 

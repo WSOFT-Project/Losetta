@@ -1290,7 +1290,7 @@ namespace AliceScript
             foreach (string name in Functions.Keys)
             {
                 FunctionBase fb = Functions[name];
-                if (fb.RequestType == VarType.NONE || fb.RequestType.HasFlag(Type))
+                if (fb.RequestType.Match(this))
                 {
                     all.Add(name);
                 }

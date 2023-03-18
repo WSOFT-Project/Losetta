@@ -24,7 +24,7 @@ namespace AliceScript
         /// <summary>
         /// この関数が変数のプロパティとして呼び出される場合、その変数の種類を取得または設定します
         /// </summary>
-        public Variable.VarType RequestType { get; set; }
+        public TypeObject RequestType { get; set; }
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
@@ -67,10 +67,9 @@ namespace AliceScript
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
             if (currentVariable == null) { return Variable.EmptyInstance; }
-            if (this.RequestType != Variable.VarType.NONE)
+            if (!this.RequestType.Match(currentVariable))
             {
-                if (!this.RequestType.HasFlag(currentVariable.Type)) {
-                    throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); }
+                    throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); 
             }
             List<Variable> args = null;
             if (!this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))

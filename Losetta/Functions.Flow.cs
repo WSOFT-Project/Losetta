@@ -732,7 +732,7 @@ namespace AliceScript
                 {
                     trueArgs.Add(arg);
                 }
-                Variable.VarType reqType = Variable.VarType.NONE;
+                TypeObject reqType = new TypeObject();
                 if (options.Count > 0)
                 {
                     parms = (options.Contains("params"));
@@ -746,26 +746,18 @@ namespace AliceScript
                         {
                             throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
                         }
-                        foreach (string opt in options)
-                        {
-                            string option = opt.ToLower();
-                            if (Constants.TYPE_MODIFER.Contains(option))
-                            {
-                                if (reqType == Variable.VarType.NONE)
-                                {
-                                    reqType = Constants.StringToType(option);
-                                }
-                                else
-                                {
-                                    throw new ScriptException("複数の型を指定することはできません", Exceptions.WRONG_TYPE_VARIABLE, script);
-                                }
-                            }
-                        }
+
                     }
-                    if (reqType != Variable.VarType.NONE)
+                    else if(options.Count>1)
                     {
-                        m_typArgMap.Add(i, reqType);
+                            Variable v = script.GetTempScript(options[options.Count-2]).Execute();
+                            if (v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
+                            {
+                                reqType = to;
+                            }
                     }
+
+                    m_typArgMap.Add(i, reqType);
                     int ind = arg.IndexOf('=');
                     if (ind > 0)
                     {
@@ -777,9 +769,9 @@ namespace AliceScript
                         defVariable.CurrentAssign = m_args[i];
                         defVariable.Index = i;
 
-                        if (defVariable.Type != reqType)
+                        if (!reqType.Match(defVariable))
                         {
-                            throw new ScriptException("この引数は" + Constants.TypeToString(reqType) + "型である必要があります", Exceptions.WRONG_TYPE_VARIABLE, script);
+                            throw new ScriptException("この引数にその型を使用することはできません", Exceptions.WRONG_TYPE_VARIABLE, script);
                         }
 
                         m_defArgMap[i] = m_defaultArgs.Count;
@@ -857,9 +849,9 @@ namespace AliceScript
             {
                 var arg = args[i];
                 int argIndex = -1;
-                if (m_typArgMap.ContainsKey(i) && m_typArgMap[i] != arg.Type)
+                if (m_typArgMap.ContainsKey(i) && !m_typArgMap[i].Match(arg))
                 {
-                    throw new ScriptException("この引数は" + Constants.TypeToString(m_typArgMap[i]) + "型である必要があります", Exceptions.WRONG_TYPE_VARIABLE);
+                    throw new ScriptException("この引数にその型を使用することはできません", Exceptions.WRONG_TYPE_VARIABLE);
                 }
                 else
                 {
@@ -1126,7 +1118,7 @@ namespace AliceScript
 
         public StackLevel NamespaceData { get; set; }
         public bool IsMethod => (m_this != -1);
-        public Variable.VarType MethodRequestType
+        public TypeObject MethodRequestType
         {
             get
             {
@@ -1136,7 +1128,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    return Variable.VarType.NONE;
+                    return new TypeObject();
                 }
             }
         }
@@ -1157,7 +1149,7 @@ namespace AliceScript
         private List<Variable> m_defaultArgs = new List<Variable>();
         private Dictionary<string, ParserFunction> m_VarMap = new Dictionary<string, ParserFunction>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
-        private Dictionary<int, Variable.VarType> m_typArgMap = new Dictionary<int, Variable.VarType>();
+        private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
 
         public Dictionary<string, int> ArgMap { get; private set; } = new Dictionary<string, int>();
     }

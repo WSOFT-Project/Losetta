@@ -12,7 +12,7 @@ namespace AliceScript
         public list_addFunc()
         {
             this.Name = Constants.ADD;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_addFunc_Run;
         }
@@ -34,7 +34,7 @@ namespace AliceScript
         public list_addRangeFunc()
         {
             this.Name = Constants.ADD_RANGE;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_addFunc_Run;
         }
@@ -63,7 +63,7 @@ namespace AliceScript
         public list_InsertFunc()
         {
             this.Name = Constants.INSERT;
-            this.RequestType = Variable.VarType.ARRAY | Variable.VarType.STRING;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY | Variable.VarType.STRING);
             this.MinimumArgCounts = 2;
             this.Run += List_InsertFunc_Run;
         }
@@ -99,7 +99,7 @@ namespace AliceScript
         public list_allFunc()
         {
             this.Name = "All";
-            this.RequestType= Variable.VarType.ARRAY;
+            this.RequestType= new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -118,7 +118,7 @@ namespace AliceScript
         public list_anyFunc()
         {
             this.Name = "Any";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -137,7 +137,7 @@ namespace AliceScript
         public list_secenceEqualFunc()
         {
             this.Name = "SequenceEqual";
-            this.RequestType= Variable.VarType.ARRAY;
+            this.RequestType= new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts= 1;
             this.Run += List_secenceEqualFunc_Run;
         }
@@ -156,7 +156,7 @@ namespace AliceScript
         public list_ofTypeFunc()
         {
             this.Name = "ofType";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -177,7 +177,7 @@ namespace AliceScript
         public list_whereFunc()
         {
             this.Name = "Where";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -197,7 +197,7 @@ namespace AliceScript
         public list_DistinctFunc()
         {
             this.Name = "Distinct";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_allFunc_Run;
         }
 
@@ -223,7 +223,7 @@ namespace AliceScript
         public list_skipFunc()
         {
             this.Name = "Skip";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -242,7 +242,7 @@ namespace AliceScript
         public list_skipWhileFunc()
         {
             this.Name = "SkipWhile";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -262,7 +262,7 @@ namespace AliceScript
         public list_takeFunc()
         {
             this.Name = "take";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -281,7 +281,7 @@ namespace AliceScript
         public list_takeWhileFunc()
         {
             this.Name = "takeWhile";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -301,7 +301,7 @@ namespace AliceScript
         public list_SelectFunc()
         {
             this.Name = "Select";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
@@ -321,7 +321,7 @@ namespace AliceScript
         public list_OrderByFunc()
         {
             this.Name = "OrderBy";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_allFunc_Run;
         }
 
@@ -344,7 +344,7 @@ namespace AliceScript
         public list_OrderByDescendingFunc()
         {
             this.Name = "OrderByDescending";
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_allFunc_Run;
         }
 
@@ -368,7 +368,7 @@ namespace AliceScript
         {
             this.Name = "Union";
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_allFunc_Run;
         }
 
@@ -387,7 +387,7 @@ namespace AliceScript
         {
             this.Name = "Except";
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_allFunc_Run;
         }
 
@@ -406,7 +406,7 @@ namespace AliceScript
         {
             this.Name = "Intersect";
             this.MinimumArgCounts = 1;
-            this.RequestType = Variable.VarType.ARRAY;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.Run += List_allFunc_Run;
         }
 

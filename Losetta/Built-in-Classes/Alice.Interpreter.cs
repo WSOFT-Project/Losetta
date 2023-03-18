@@ -862,6 +862,7 @@ namespace AliceScript
         public TypeObject()
         {
             Init();
+            Type = Variable.VarType.NONE;
         }
         public TypeObject(Variable.VarType type)
         {
@@ -1004,6 +1005,22 @@ namespace AliceScript
                 return new Variable(Type);
             }
             return Variable.EmptyInstance;
+        }
+
+        public bool Match(Variable item)
+        {
+            if (Type.HasFlag(item.Type))
+            {
+                if(Type==Variable.VarType.OBJECT && item.Object is AliceScriptClass c && ClassType != c)
+                {
+                    return false;
+                }else if(Type==Variable.VarType.ARRAY && item.Tuple.Type != ArrayType)
+                {
+                    return false;
+                }
+                return true;
+            }
+            else { return false; }
         }
         internal class ActivateFunction : FunctionBase
         {
