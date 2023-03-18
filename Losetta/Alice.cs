@@ -104,7 +104,7 @@ namespace AliceScript
         {
             get
             {
-                return new Version(2,2,1);
+                return new Version(2,3);
             }
         }
         /// <summary>
