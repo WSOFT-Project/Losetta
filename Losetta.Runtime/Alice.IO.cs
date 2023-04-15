@@ -393,7 +393,7 @@ namespace AliceScript.NameSpaces
         {
             var data = Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script);
             Encoding encode = null;
-            if (e.Args.Count < 3)
+            if (e.Args.Count > 3)
             {
                 if (e.Args[2].Type == Variable.VarType.NUMBER)
                 {

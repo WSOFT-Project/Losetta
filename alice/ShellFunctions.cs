@@ -41,6 +41,7 @@ namespace alice
         private void Shell_reinitFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             Program.CreateAliceDirectory(true);
+
         }
     }
     internal class shell_execFunc : FunctionBase
