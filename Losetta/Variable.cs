@@ -154,6 +154,7 @@ namespace AliceScript
         }
         public Variable(List<string> a)
         {
+            this.Tuple = new VariableCollection();
             VariableCollection tuple = new VariableCollection();
             tuple.Type = new TypeObject(Variable.VarType.STRING);
             for (int i = 0; i < a.Count; i++)
