@@ -165,6 +165,7 @@ namespace AliceScript
         }
         public Variable(string[] a)
         {
+            this.Tuple = new VariableCollection();
             VariableCollection tuple = new VariableCollection();
             tuple.Type = new TypeObject(Variable.VarType.STRING);
             for (int i = 0; i < a.Count(); i++)
@@ -175,6 +176,7 @@ namespace AliceScript
         }
         public Variable(List<double> a)
         {
+            this.Tuple = new VariableCollection();
             VariableCollection tuple = new VariableCollection();
             tuple.Type = new TypeObject(Variable.VarType.NUMBER);
             for (int i = 0; i < a.Count; i++)
@@ -185,6 +187,7 @@ namespace AliceScript
         }
         public Variable(Dictionary<string, string> a)
         {
+            this.Tuple = new VariableCollection();
             List<Variable> tuple = new List<Variable>(a.Count);
             foreach (string key in a.Keys)
             {
@@ -198,6 +201,7 @@ namespace AliceScript
         }
         public Variable(Dictionary<string, double> a)
         {
+            this.Tuple = new VariableCollection();
             List<Variable> tuple = new List<Variable>(a.Count);
             foreach (string key in a.Keys)
             {
