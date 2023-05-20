@@ -820,7 +820,7 @@ namespace AliceScript.NameSpaces
 
         private void Str_SplitFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args.Count > 0)
+            if (e.Args.Count < 1)
             {
                 //引数がない場合は文字ずつに分割
                 Variable v = new Variable(Variable.VarType.ARRAY);

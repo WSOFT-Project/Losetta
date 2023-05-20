@@ -29,7 +29,7 @@ namespace AliceScript
         /// <returns>追加できればTrue、それ以外の場合はFalse。</returns>
         private bool CanAdd(Variable item)
         {
-            if (Type != null)
+            if (Type != null && (Type.Type==Variable.VarType.NONE && item!=null))
             {
                 if (Type.Type != item.Type)
                 {
