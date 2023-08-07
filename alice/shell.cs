@@ -396,7 +396,9 @@ namespace alice
             string errorMsg = null;
             Variable result = null;
 
+#if !DEBUG
             try
+#endif
             {
                 if (!string.IsNullOrWhiteSpace(filename))
                 {
@@ -418,11 +420,15 @@ namespace alice
                     result = CurrentScript.Process();
                 }
             }
+#if !DEBUG
             catch (Exception exc)
             {
-                errorMsg = exc.InnerException != null ? exc.InnerException.Message : exc.Message;
+                ///TODO:補足されなかった例外にエラー番号振る。
+                errorMsg ="補足されなかった例外:"+ (exc.InnerException != null ? exc.InnerException.Message : exc.Message);
                 ParserFunction.InvalidateStacksAfterLevel(0);
+
             }
+#endif
 
             if (!s_PrintingCompleted)
             {

@@ -684,10 +684,13 @@ namespace AliceScript
             }
             else
             {
+#if !DEBUG
                 try
+#endif
                 {
                     result = Parser.AliceScript(this, toArray);
                 }
+#if !DEBUG
                 catch (Exception e)
                 {
                     ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
@@ -714,11 +717,14 @@ namespace AliceScript
                         return result;
                     }
                     ThrowErrorManerger.OnThrowError(ex.Script, ex);
+                    throw e;
                 }
-              
+#endif
             }
             return result;
+
         }
+        
 
         public async Task<Variable> ExecuteAsync(char[] toArray = null, int from = -1)
         {
