@@ -105,7 +105,7 @@ namespace AliceScript
 
         private void Gc_gettotalmemoryFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            GC.GetTotalMemory(e.Args[0].AsBool());
+            e.Return=new Variable(GC.GetTotalMemory(e.Args[0].AsBool()));
         }
     }
 
@@ -232,6 +232,7 @@ namespace AliceScript
                 }
                 else
                 {
+                    ///TODO:名前空間の例外追加
                     throw new System.Exception("指定された名前空間が見つかりませんでした");
                 }
             }

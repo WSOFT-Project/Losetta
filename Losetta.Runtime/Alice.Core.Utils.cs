@@ -190,7 +190,7 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count == 0)
             {
-                AddOutput("", e.Script, !m_write);
+                AddOutput(string.Empty, e.Script, !m_write);
             }
             else if (e.Args.Count == 1)
             {
