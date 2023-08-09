@@ -466,7 +466,7 @@ namespace AliceScript.NameSpaces
             }
             else
             {
-                e.Return = new Variable(Environment.GetEnvironmentVariables());
+                e.Return = new Variable(Environment.GetEnvironmentVariables().Keys);
             }
         }
     }
