@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
     internal static class Alice_Initer
@@ -1211,8 +1207,8 @@ namespace AliceScript.NameSpaces
 
         private void List_ReverseFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            
-                e.CurentVariable.Tuple.Reverse();
+
+            e.CurentVariable.Tuple.Reverse();
         }
     }
 

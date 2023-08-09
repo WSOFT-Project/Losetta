@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Threading;
+﻿using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
 
@@ -23,7 +20,7 @@ namespace AliceScript.NameSpaces
 
             string expr = e.Args[0].AsString();
             Dictionary<int, int> char2Line;
-            expr = Utils.ConvertToScript(expr, out char2Line,out var def);
+            expr = Utils.ConvertToScript(expr, out char2Line, out var def);
 
             Variable result;
             if (m_singletons.TryGetValue(expr, out result))
@@ -66,7 +63,7 @@ namespace AliceScript.NameSpaces
             }
             else
             {
-                    throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, e.Script);
+                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, e.Script);
             }
         }
     }
@@ -144,7 +141,6 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-
     internal class LockFunction : FunctionBase
     {
         public LockFunction()

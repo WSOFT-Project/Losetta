@@ -740,63 +740,6 @@ namespace AliceScript
                    result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
         }
 
-        public async Task<Variable> ProcessIfAsync(ParsingScript script)
-        {
-            int startIfCondition = script.Pointer;
-
-            Variable result = await script.ExecuteAsync(Constants.END_ARG_ARRAY);
-            bool isTrue = result.AsBool();
-
-            if (isTrue)
-            {
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                result = await mainScript.ProcessAsync();
-
-                if (result.IsReturn ||
-                    result.Type == Variable.VarType.BREAK ||
-                    result.Type == Variable.VarType.CONTINUE)
-                {
-                    // We are here from the middle of the if-block. Skip it.
-                    script.Pointer = startIfCondition;
-                    SkipBlock(script);
-                }
-                SkipRestBlocks(script);
-
-                //return result;
-                return result.IsReturn ||
-                       result.Type == Variable.VarType.BREAK ||
-                       result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
-            }
-
-            // We are in Else. Skip everything in the If statement.
-            SkipBlock(script);
-
-            ParsingScript nextData = new ParsingScript(script);
-            nextData.ParentScript = script;
-
-            string nextToken = Utils.GetNextToken(nextData);
-
-            if (Constants.ELSE_IF == nextToken)
-            {
-                script.Pointer = nextData.Pointer + 1;
-                result = await ProcessIfAsync(script);
-            }
-            else if (Constants.ELSE == nextToken)
-            {
-                script.Pointer = nextData.Pointer + 1;
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                result = await mainScript.ProcessAsync();
-            }
-
-            return result.IsReturn ||
-                   result.Type == Variable.VarType.BREAK ||
-                   result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
-        }
-
         public Variable ProcessTry(ParsingScript script)
         {
             int startTryCondition = script.Pointer - 1;

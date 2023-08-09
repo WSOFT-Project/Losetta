@@ -60,17 +60,13 @@ namespace AliceScript.NameSpaces
         public IfStatement()
         {
             this.Name = Constants.IF;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += IfStatement_Run;
+        }
 
-        }
-        protected override Variable Evaluate(ParsingScript script)
+        private void IfStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            Variable result = Interpreter.Instance.ProcessIf(script);
-            return result;
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            Variable result = await Interpreter.Instance.ProcessIfAsync(script);
-            return result;
+            e.Return= Interpreter.Instance.ProcessIf(e.Script);
         }
     }
 
@@ -140,14 +136,13 @@ namespace AliceScript.NameSpaces
         public SwitchStatement()
         {
             this.Name = Constants.SWITCH;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += SwitchStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void SwitchStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessSwitch(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessSwitch(script);
+            e.Return= Interpreter.Instance.ProcessSwitch(e.Script); 
         }
     }
 
@@ -156,15 +151,15 @@ namespace AliceScript.NameSpaces
         public CaseStatement()
         {
             this.Name = Constants.CASE;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += CaseStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void CaseStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessCase(script, Name);
+            e.Return= Interpreter.Instance.ProcessCase(e.Script, Name);
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessCase(script, Name);
-        }
+
     }
     //デリゲートを作成する関数クラスです
     internal class DelegateCreator : FunctionBase
@@ -172,34 +167,38 @@ namespace AliceScript.NameSpaces
         public DelegateCreator()
         {
             this.Name = "delegate";
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += DelegateCreator_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void DelegateCreator_Run(object sender, FunctionBaseEventArgs e)
         {
-            string[] args = Utils.GetFunctionSignature(script);
+            string[] args = Utils.GetFunctionSignature(e.Script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = new string[0];
             }
 
-            script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+            e.Script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
             /*string line = */
-            script.GetOriginalLine(out _);
+            e.Script.GetOriginalLine(out _);
 
-            int parentOffset = script.Pointer;
+            int parentOffset = e.Script.Pointer;
 
-            if (script.CurrentClass != null)
+            if (e.Script.CurrentClass != null)
             {
-                parentOffset += script.CurrentClass.ParentOffset;
+                parentOffset += e.Script.CurrentClass.ParentOffset;
             }
 
-            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
 
-            script.MoveForwardIf(Constants.END_GROUP);
-            CustomFunction customFunc = new CustomFunction("", body, args, script);
-            customFunc.ParentScript = script;
+            e.Script.MoveForwardIf(Constants.END_GROUP);
+            CustomFunction customFunc = new CustomFunction("", body, args, e.Script);
+            customFunc.ParentScript = e.Script;
             customFunc.ParentOffset = parentOffset;
-            return new Variable(customFunc);
+            e.Return = new Variable(customFunc);
         }
+
     }
     internal class TryBlock : FunctionBase
     {
