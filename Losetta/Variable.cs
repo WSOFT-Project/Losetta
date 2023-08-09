@@ -1233,7 +1233,7 @@ namespace AliceScript
                     if (script != null &&
                        (script.Pointer == 0 || script.Prev == Constants.START_ARG))
                     {
-                        args = await script.GetFunctionArgsAsync();
+                        args = script.GetFunctionArgs();
                     }
                     else if (script != null)
                     {

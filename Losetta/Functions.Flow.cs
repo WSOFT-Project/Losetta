@@ -1035,45 +1035,7 @@ namespace AliceScript
 
             return result;
         }
-        public async Task<Variable> RunAsync(List<Variable> args = null, ParsingScript script = null,
-                            AliceScriptClass.ClassInstance instance = null)
-        {
-            List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
-            // 1. Add passed arguments as local variables to the Parser.
-            RegisterArguments(args, args2);
-
-            // 2. Execute the body of the function.
-            Variable result = null;
-            ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
-                                                           m_parentScript, m_parentOffset, instance);
-            tempScript.Tag = m_tag;
-            tempScript.Variables = m_VarMap;
-
-
-            while (tempScript.Pointer < m_body.Length - 1 &&
-                  (result == null || !result.IsReturn))
-            {
-                result = await tempScript.ExecuteAsync();
-                tempScript.GoToNextStatement();
-            }
-
-
-            if (result == null)
-            {
-                result = Variable.EmptyInstance;
-            }
-            else if (result.IsReturn || m_forceReturn)
-            {
-                result.IsReturn = false;
-            }
-            else
-            {
-                result = Variable.EmptyInstance;
-            }
-
-            return result;
-        }
-
+        
         public static Task<Variable> ARun(string functionName,
              Variable arg1 = null, Variable arg2 = null, Variable arg3 = null, ParsingScript script = null)
         {
@@ -1402,7 +1364,7 @@ namespace AliceScript
                 if (m_arrayIndices == null)
                 {
                     string startName = script.Substr(script.Pointer - 1);
-                    m_arrayIndices = await Utils.GetArrayIndicesAsync(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; });
+                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; });
                 }
 
                 script.Forward(m_delta);
@@ -1437,7 +1399,7 @@ namespace AliceScript
                          m_value.GetEnumProperty(temp, script) :
                          await m_value.GetPropertyAsync(temp, script);
                 Utils.CheckNotNull(propValue, temp, script);
-                return await EvaluateFunctionAsync(propValue, script, m_propName);
+                return EvaluateFunction(propValue, script, m_propName);
             }
 
             // Otherwise just return the stored value.
@@ -1461,25 +1423,6 @@ namespace AliceScript
             }
             return var;
         }
-
-        public static async Task<Variable> EvaluateFunctionAsync(Variable var, ParsingScript script, string m_propName)
-        {
-            if (var.CustomFunctionGet != null)
-            {
-                List<Variable> args = script.Prev == '(' ? await script.GetFunctionArgsAsync() : new List<Variable>();
-                if (var.StackVariables != null)
-                {
-                    args.AddRange(var.StackVariables);
-                }
-                return await var.CustomFunctionGet.RunAsync(args, script);
-            }
-            if (!string.IsNullOrWhiteSpace(var.CustomGet))
-            {
-                return ParsingScript.RunString(var.CustomGet);
-            }
-            return var;
-        }
-
         public int Delta
         {
             set => m_delta = value;
@@ -1921,103 +1864,10 @@ namespace AliceScript
 
         protected override async Task<Variable> EvaluateAsync(ParsingScript script)
         {
-            return await AssignAsync(script, m_name);
+            return Assign(script, m_name);
         }
 
-        public async Task<Variable> AssignAsync(ParsingScript script, string varName, bool localIfPossible = false, bool registVar = false, bool registConst = false, ParsingScript baseScript = null, bool isGlobal = false)
-        {
-            m_name = Constants.GetRealName(varName);
-            script.CurrentAssign = m_name;
-            Variable varValue = Utils.GetItem(script);
-            if (baseScript == null)
-            {
-                baseScript = script;
-            }
-
-            script.MoveBackIfPrevious(Constants.END_ARG);
-            varValue.TrySetAsMap();
-
-            if (script.Current == ' ' || script.Prev == ' ')
-            {
-                Utils.ThrowErrorMsg("[" + script.Rest + "]は無効なトークンです", Exceptions.INVALID_TOKEN,
-                                    script, m_name);
-            }
-            if (registConst)
-            {
-                //定数定義
-                if (!FunctionExists(m_name, script))
-                {
-                    // Check if the variable to be set has the form of x[a][b]...,
-                    // meaning that this is an array element.
-                    List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
-
-                    if (arrayIndices.Count == 0)
-                    {
-                        baseScript.Consts.Add(m_name, new GetVarFunction(varValue));
-                        Variable retVar = varValue.DeepClone();
-                        retVar.CurrentAssign = m_name;
-                        return retVar;
-                    }
-
-                    Variable array;
-
-                    ParserFunction pf = ParserFunction.GetVariable(m_name, script);
-                    array = pf != null ? (pf.GetValue(script)) : new Variable();
-
-                    ExtendArray(array, arrayIndices, 0, varValue);
-                    if (isGlobal)
-                    {
-                        Constants.CONSTS.Add(m_name, varValue);
-                    }
-                    else
-                    {
-                        baseScript.Consts.Add(m_name, new GetVarFunction(varValue));
-                    }
-                    return array;
-                }
-                else
-                {
-                    throw new ScriptException("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT, script);
-                }
-            }
-            else
-            {
-                // First try processing as an object (with a dot notation):
-                Variable result = await ProcessObjectAsync(script, varValue);
-                if (result != null)
-                {
-                    if (script.CurrentClass == null && script.ClassInstance == null)
-                    {
-
-                        ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(result), baseScript, localIfPossible, registVar, isGlobal);
-                    }
-                    return result;
-                }
-
-                // Check if the variable to be set has the form of x[a][b]...,
-                // meaning that this is an array element.
-                List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
-
-                if (arrayIndices.Count == 0)
-                {
-                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal);
-                    Variable retVar = varValue.DeepClone();
-                    retVar.CurrentAssign = m_name;
-                    return retVar;
-                }
-
-                Variable array;
-
-                ParserFunction pf = ParserFunction.GetVariable(m_name, baseScript);
-                array = pf != null ? (pf.GetValue(script)) : new Variable();
-
-                ExtendArray(array, arrayIndices, 0, varValue);
-
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal);
-                return array;
-            }
-        }
-
+        
         internal static Variable ProcessObject(string m_name,ParsingScript script, Variable varValue)
         {
             if (script.CurrentClass != null)
@@ -2060,48 +1910,7 @@ namespace AliceScript
             return varValue.DeepClone();
         }
 
-        private async Task<Variable> ProcessObjectAsync(ParsingScript script, Variable varValue)
-        {
-            if (script.CurrentClass != null)
-            {
-                script.CurrentClass.AddProperty(m_name, varValue);
-                return varValue.DeepClone();
-            }
-            string varName = m_name;
-            if (script.ClassInstance != null)
-            {
-                //varName = script.ClassInstance.InstanceName + "." + m_name;
-                await script.ClassInstance.SetProperty(m_name, varValue);
-                return varValue.DeepClone();
-            }
-
-            int ind = varName.IndexOf('.');
-            if (ind <= 0)
-            {
-                return null;
-            }
-
-            Utils.CheckForValidName(varName, script);
-
-            string name = varName.Substring(0, ind);
-            string prop = varName.Substring(ind + 1);
-
-            if (ParserFunction.TryAddToNamespace(prop, name, varValue))
-            {
-                return varValue.DeepClone();
-            }
-
-            ParserFunction existing = ParserFunction.GetVariable(name, script);
-            Variable baseValue = existing != null ? await existing.GetValueAsync(script) : new Variable(Variable.VarType.ARRAY);
-            await baseValue.SetPropertyAsync(prop, varValue, script, name);
-
-            ParserFunction.AddGlobalOrLocalVariable(name, new GetVarFunction(baseValue), script);
-            //ParserFunction.AddGlobal(name, new GetVarFunction(baseValue), false);
-
-            return varValue.DeepClone();
-        }
-
-
+       
         override public ParserFunction NewInstance()
         {
             return new AssignFunction();
@@ -2294,7 +2103,7 @@ namespace AliceScript
         }
         protected override async Task<Variable> EvaluateAsync(ParsingScript script)
         {
-            List<Variable> args = await script.GetFunctionArgsAsync();
+            List<Variable> args = script.GetFunctionArgs();
             Utils.CheckArgs(args.Count, 2, m_name, true);
 
             Variable baseValue = args[0];
@@ -2313,18 +2122,6 @@ namespace AliceScript
             Variable baseValue = args[0];
 
             Variable propValue = baseValue.GetProperty(sPropertyName, script);
-            Utils.CheckNotNull(propValue, sPropertyName, script);
-
-            return new Variable(propValue);
-        }
-        public static async Task<Variable> GetPropertyAsync(ParsingScript script, string sPropertyName)
-        {
-            List<Variable> args = await script.GetFunctionArgsAsync();
-            Utils.CheckArgs(args.Count, 1, "GetProperty", true);
-
-            Variable baseValue = args[0];
-
-            Variable propValue = await baseValue.GetPropertyAsync(sPropertyName, script);
             Utils.CheckNotNull(propValue, sPropertyName, script);
 
             return new Variable(propValue);
@@ -2350,7 +2147,7 @@ namespace AliceScript
         }
         protected override async Task<Variable> EvaluateAsync(ParsingScript script)
         {
-            List<Variable> args = await script.GetFunctionArgsAsync();
+            List<Variable> args = script.GetFunctionArgs();
             Utils.CheckArgs(args.Count, 3, m_name, true);
 
             Variable baseValue = args[0];
@@ -2373,20 +2170,6 @@ namespace AliceScript
             Variable propValue = Utils.GetSafeVariable(args, 1);
 
             Variable result = baseValue.SetProperty(sPropertyName, propValue, script);
-
-            ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
-                                                    new GetVarFunction(baseValue), script);
-            return result;
-        }
-        public static async Task<Variable> SetPropertyAsync(ParsingScript script, string sPropertyName)
-        {
-            List<Variable> args = await script.GetFunctionArgsAsync();
-            Utils.CheckArgs(args.Count, 2, "SetProperty", true);
-
-            Variable baseValue = args[0];
-            Variable propValue = Utils.GetSafeVariable(args, 1);
-
-            Variable result = await baseValue.SetPropertyAsync(sPropertyName, propValue, script);
 
             ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
                                                     new GetVarFunction(baseValue), script);

@@ -641,15 +641,6 @@ namespace AliceScript
                                                 start, end, (outList) => { isList = outList; });
             return args;
         }
-        public async Task<List<Variable>> GetFunctionArgsAsync(char start = Constants.START_ARG,
-                                      char end = Constants.END_ARG)
-        {
-            bool isList;
-            List<Variable> args = await Utils.GetArgsAsync(this,
-                                                start, end, (outList) => { isList = outList; });
-            return args;
-        }
-
         public int GoToNextStatement()
         {
             int endGroupRead = 0;
@@ -842,21 +833,6 @@ namespace AliceScript
             }
             return result;
         }
-        public async Task<Variable> ProcessForWhileAsync()
-        {
-            Variable result = null;
-            while (this.Pointer < m_data.Length)
-            {
-                result = await this.ExecuteAsync();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                {
-                    return result;
-                }
-                this.GoToNextStatement();
-            }
-            return result;
-        }
-
         public ParsingScript GetTempScript(string str, int startIndex = 0)
         {
             str = Utils.ConvertToScript(str, out _, out var def);

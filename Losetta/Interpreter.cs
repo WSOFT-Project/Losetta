@@ -405,64 +405,7 @@ namespace AliceScript
             SkipBlock(script);
         }
 
-        private async Task ProcessArrayForAsync(ParsingScript script, string forString)
-        {
-            var tokens = forString.Split(' ');
-            var sep = tokens.Length > 2 ? tokens[1] : "";
-            string varName = tokens[0];
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-
-            if (sep != Constants.FOR_IN)
-            {
-                int index = forString.IndexOf(Constants.FOR_EACH);
-                if (index <= 0 || index == forString.Length - 1)
-                {
-                    Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX,
-                                     script, Constants.FOREACH);
-                }
-                varName = forString.Substring(0, index);
-            }
-
-            ParsingScript forScript = script.GetTempScript(forString, varName.Length + sep.Length + 1);
-
-            Variable arrayValue = await Utils.GetItemAsync(forScript);
-
-            if (arrayValue.Type == Variable.VarType.STRING)
-            {
-                arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
-            }
-
-            int cycles = arrayValue.Count;
-            if (cycles == 0)
-            {
-                SkipBlock(script);
-                return;
-            }
-            int startForCondition = script.Pointer;
-
-            for (int i = 0; i < cycles; i++)
-            {
-                script.Pointer = startForCondition;
-                Variable current = arrayValue.GetValue(i);
-
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new GetVarFunction(current), mainScript, false, true);
-                Variable result = mainScript.Process();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                {
-                    //script.Pointer = startForCondition;
-                    //SkipBlock(script);
-                    //return;
-                    break;
-                }
-            }
-            script.Pointer = startForCondition;
-            SkipBlock(script);
-        }
-
+        
         private void ProcessCanonicalFor(ParsingScript script, string forString)
         {
             string[] forTokens = forString.Split(Constants.END_STATEMENT);

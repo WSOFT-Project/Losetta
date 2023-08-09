@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
-   
+
 
     internal class NewObjectFunction : FunctionBase
     {
@@ -26,9 +22,9 @@ namespace AliceScript.NameSpaces
                     var arg = new List<Variable>();
                     if (args.Count > 1)
                     {
-                        arg=args.Skip(1).ToList();
+                        arg = args.Skip(1).ToList();
                     }
-                    e.Return = new Variable(type.Activate(arg,e.Script));
+                    e.Return = new Variable(type.Activate(arg, e.Script));
                 }
             }
             else
@@ -66,7 +62,7 @@ namespace AliceScript.NameSpaces
 
         private void IfStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return= Interpreter.Instance.ProcessIf(e.Script);
+            e.Return = Interpreter.Instance.ProcessIf(e.Script);
         }
     }
 
@@ -81,7 +77,7 @@ namespace AliceScript.NameSpaces
 
         private void ForStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return= Interpreter.Instance.ProcessFor(e.Script);
+            e.Return = Interpreter.Instance.ProcessFor(e.Script);
         }
     }
 
@@ -96,7 +92,7 @@ namespace AliceScript.NameSpaces
 
         private void ForeachStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return= Interpreter.Instance.ProcessForeach(e.Script); 
+            e.Return = Interpreter.Instance.ProcessForeach(e.Script);
         }
 
     }
@@ -112,7 +108,7 @@ namespace AliceScript.NameSpaces
 
         private void WhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return= Interpreter.Instance.ProcessWhile(e.Script);
+            e.Return = Interpreter.Instance.ProcessWhile(e.Script);
         }
     }
 
@@ -127,7 +123,7 @@ namespace AliceScript.NameSpaces
 
         private void DoWhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return= Interpreter.Instance.ProcessDoWhile(e.Script); 
+            e.Return = Interpreter.Instance.ProcessDoWhile(e.Script);
         }
     }
 
@@ -142,7 +138,7 @@ namespace AliceScript.NameSpaces
 
         private void SwitchStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return= Interpreter.Instance.ProcessSwitch(e.Script); 
+            e.Return = Interpreter.Instance.ProcessSwitch(e.Script);
         }
     }
 
@@ -157,7 +153,7 @@ namespace AliceScript.NameSpaces
 
         private void CaseStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return= Interpreter.Instance.ProcessCase(e.Script, Name);
+            e.Return = Interpreter.Instance.ProcessCase(e.Script, Name);
         }
 
     }
