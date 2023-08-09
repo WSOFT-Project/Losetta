@@ -1,10 +1,10 @@
-﻿namespace AliceScript.NameSpaces
+﻿using System.Security.Cryptography;
+
+namespace AliceScript.NameSpaces
 {
     internal static class Alice_Random_Initer
     {
         internal static Random random;
-
-        internal static System.Security.Cryptography.RNGCryptoServiceProvider rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
         public static void Init()
         {
             try
@@ -98,60 +98,16 @@
         {
             if (e.Args.Count == 0)
             {
-                var randomByte = new byte[4];
-                Alice_Random_Initer.rng.GetBytes(randomByte);
-                e.Return = new Variable(BitConverter.ToInt32(randomByte, 0));
+                e.Return = new Variable(RandomNumberGenerator.GetInt32(int.MaxValue));
             }
             else if (e.Args.Count == 1)
             {
-                e.Return = new Variable(Next(e.Args[0].AsInt()));
+                e.Return = new Variable(RandomNumberGenerator.GetInt32(e.Args[0].AsInt()));
             }
             else if (e.Args.Count == 2)
             {
-                e.Return = new Variable(Next(e.Args[1].AsInt(), e.Args[0].AsInt()));
+                e.Return = new Variable(RandomNumberGenerator.GetInt32(e.Args[0].AsInt(), e.Args[1].AsInt()));
             }
-        }
-        private int Next(int max = int.MaxValue, int min = int.MinValue)
-        {
-            //このとき選出されるべき数値の範囲は次のとおりである
-            int com = min.CompareTo(max);
-            byte[] randomByte;
-            //選出されるべき範囲によって確保する領域を変更することによって高速化を図ります
-            if (com <= 256)
-            {
-                //256まで、すなわち1バイトで済む場合
-                randomByte = new byte[1];
-            }
-            else if (com <= 65536)
-            {
-                //65536、2バイト
-                randomByte = new byte[2];
-            }
-            else if (com <= 16777216)
-            {
-                //16777216、3バイト
-                randomByte = new byte[3];
-            }
-            else
-            {
-                //それ以上、4バイト
-                randomByte = new byte[4];
-            }
-            int i = 0;
-            do
-            {
-                using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
-                {
-                    rng.GetBytes(randomByte);
-                }
-                Array.Resize(ref randomByte, 4);
-                i = BitConverter.ToInt32(randomByte, 0);
-                i = i.CompareTo(min);
-            }
-            //範囲に収まるまで繰り返す
-            while (!(i > 0) || !(i < com));
-            //答えを返します
-            return i + min;
         }
     }
 
@@ -166,24 +122,7 @@
 
         private void Random_bytesFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if ((Utils.GetSafeInt(e.Args, 1) == 0))
-            {
-                var randomByte = new byte[e.Args[0].AsInt()];
-                using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
-                {
-                    rng.GetBytes(randomByte);
-                }
-                e.Return = new Variable(randomByte);
-            }
-            else
-            {
-                var randomByte = new byte[e.Args[0].AsInt()];
-                using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
-                {
-                    rng.GetNonZeroBytes(randomByte);
-                }
-                e.Return = new Variable(randomByte);
-            }
+            e.Return = new Variable(RandomNumberGenerator.GetBytes(e.Args[0].AsInt()));
         }
     }
 
