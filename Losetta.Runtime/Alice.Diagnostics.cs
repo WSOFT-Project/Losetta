@@ -126,7 +126,7 @@ namespace AliceScript.NameSpaces
                 if (m_isIf) { countnum++; }
                 if (e.Args.Count == countnum)
                 {
-                    AddDebugOutput("", e.Script, !m_isWrite);
+                    AddDebugOutput(string.Empty, e.Script, !m_isWrite);
                 }
                 else if (e.Args.Count == countnum + 1)
                 {
@@ -145,7 +145,7 @@ namespace AliceScript.NameSpaces
         }
 
         public static void AddDebugOutput(string text, ParsingScript script = null,
-                                     bool addLine = true, bool addSpace = true, string start = "", string indent = " ")
+                                     bool addLine = true, bool addSpace = true, string start = "", string indent = "    ")
         {
             string indents = "";
             for (int i = 0; i < Debug_IndentFunction.IndentLevel; i++)
