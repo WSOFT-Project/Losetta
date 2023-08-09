@@ -525,8 +525,8 @@ namespace AliceScript
                 loopScript.Execute(null, 0);
             }
 
-            //  script.Pointer = startForCondition;
-            //  SkipBlock(script); 
+              script.Pointer = startForCondition;
+              SkipBlock(script); 
         }
 
         private async Task ProcessCanonicalForAsync(ParsingScript script, string forString)
