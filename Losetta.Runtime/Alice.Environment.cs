@@ -20,6 +20,7 @@ namespace AliceScript.NameSpaces
             space.Add(new env_currentdirFunc());
             space.Add(new env_Expand_EnvironmentVariablesFunc());
             space.Add(new env_get_envirnomentVariableFunc());
+            space.Add(new env_set_envirnomentVariableFunc());
             space.Add(new env_HasShutdownStartedFunc());
             space.Add(new env_impl_nameFunc());
             space.Add(new env_impl_versionFunc());
@@ -36,7 +37,6 @@ namespace AliceScript.NameSpaces
             space.Add(new env_Process_IdFunc());
             space.Add(new env_Process_PathFunc());
             space.Add(new env_setExitCodeFunc());
-            space.Add(new env_set_envirnomentVariableFunc());
             space.Add(new env_SystemnDirectoryFunc());
             space.Add(new env_SystemPageSizeFunc());
             space.Add(new env_TickCountFunc());
@@ -447,7 +447,7 @@ namespace AliceScript.NameSpaces
 
         private void Env_Expand_EnvironmentVariablesFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Environment.ExpandEnvironmentVariables(e.Args[0].AsString()));
+            e.Return = new Variable(Environment.ExpandEnvironmentVariables(e.Args[0].AsString()??string.Empty));
         }
     }
     internal class env_get_envirnomentVariableFunc : FunctionBase
