@@ -11,12 +11,15 @@ namespace AliceScript
     {
         public string Message { get; set; }
         public Exceptions ErrorCode { get; set; }
-        public ExceptionObject(string message,Exceptions errorcode)
+        public ParsingScript MainScript { get; set; }
+        public ExceptionObject(string message,Exceptions errorcode,ParsingScript mainScript)
         {
             this.Message= message;
             this.ErrorCode = errorcode;
+            this.MainScript = mainScript;
             this.AddProperty(new Exception_MessageProperty(this));
             this.AddProperty(new Exception_ErrorcodeProperty(this));
+            this.AddProperty(new Exception_StackTraceProperty(this));
             this.AddFunction(new Exception_ToStringFunc(this));
         }
         public override string ToString()
@@ -37,6 +40,22 @@ namespace AliceScript
             private void Exception_MessageProperty_Getting(object sender, PropertyGettingEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.Message);
+            }
+        }
+        class Exception_StackTraceProperty : PropertyBase
+        {
+            public Exception_StackTraceProperty(ExceptionObject eo)
+            {
+                this.Name = "StackTrace";
+                this.HandleEvents = true;
+                this.CanSet = false;
+                this.ExceptionObject = eo;
+                this.Getting += Exception_StackTraceProperty_Getting;
+            }
+            public ExceptionObject ExceptionObject { get; set; }
+            private void Exception_StackTraceProperty_Getting(object sender, PropertyGettingEventArgs e)
+            {
+                e.Value = ExceptionObject.MainScript.GetStackTrace();
             }
         }
         class Exception_ErrorcodeProperty : PropertyBase

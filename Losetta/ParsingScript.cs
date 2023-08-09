@@ -60,6 +60,7 @@ namespace AliceScript
         {
             get => m_stacktrace; set => m_stacktrace = value;
         }
+
         /// <summary>
         /// このスクリプトの現在の名前空間
         /// </summary>
@@ -270,6 +271,22 @@ namespace AliceScript
 
         public void SetDone() { m_from = m_data.Length; }
 
+        /// <summary>
+        /// 現在のスクリプトの呼び出し履歴を変数で返します。
+        /// </summary>
+        /// <returns>Delegate配列</returns>
+        public Variable GetStackTrace()
+        {
+            var trace = new Variable(Variable.VarType.ARRAY);
+            trace.Tuple.Type = new TypeObject(Variable.VarType.DELEGATE);
+            foreach (CustomFunction cf in this.StackTrace)
+            {
+                var v = new Variable(Variable.VarType.DELEGATE);
+                v.Delegate = new DelegateObject(cf);
+                trace.Tuple.Add(v);
+            }
+            return trace;
+        }
         public string GetFilePath(string path)
         {
             if (!Path.IsPathRooted(path))

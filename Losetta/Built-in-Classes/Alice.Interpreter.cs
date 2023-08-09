@@ -842,14 +842,7 @@ namespace AliceScript
                         {
                             if (Host.Script != null)
                             {
-                                var trace = new Variable(Variable.VarType.ARRAY);
-                                foreach(CustomFunction cf in Host.Script.StackTrace)
-                                {
-                                    var v = new Variable(Variable.VarType.DELEGATE);
-                                    v.Delegate = new DelegateObject(cf);
-                                    trace.Tuple.Add(v);
-                                }
-                                e.Value= trace;
+                                e.Value = Host.Script.GetStackTrace();
                             }
                             break;
                         }

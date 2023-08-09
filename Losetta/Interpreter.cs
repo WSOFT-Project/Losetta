@@ -932,7 +932,7 @@ namespace AliceScript
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
             {
-                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message,e.ErrorCode)));
+                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message,e.ErrorCode,e.Script)));
                 catchScript.Variables.Add(exceptionName, excMsgFunc);
                 result = catchScript.Process();
                 e.Handled= true;
