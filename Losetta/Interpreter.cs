@@ -338,16 +338,6 @@ namespace AliceScript
             ProcessArrayFor(script, forString);
             return Variable.EmptyInstance;
         }
-        public async Task<Variable> ProcessForeachAsync(ParsingScript script)
-        {
-            string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
-            script.Forward();
-
-            //foreach(var in ary)の形式です
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-            await ProcessArrayForAsync(script, forString);
-            return Variable.EmptyInstance;
-        }
 
         private void ProcessArrayFor(ParsingScript script, string forString)
         {
@@ -521,55 +511,6 @@ namespace AliceScript
               SkipBlock(script); 
         }
 
-        private async Task ProcessCanonicalForAsync(ParsingScript script, string forString)
-        {
-            string[] forTokens = forString.Split(Constants.END_STATEMENT);
-            if (forTokens.Length != 3)
-            {
-                Utils.ThrowErrorMsg("for文はfor(init; condition; loopStatement;)の形である必要があります", Exceptions.INVALID_SYNTAX,
-                                     script, Constants.FOR);
-            }
-
-            int startForCondition = script.Pointer;
-
-            ParsingScript initScript = script.GetTempScript(forTokens[0] + Constants.END_STATEMENT);
-            ParsingScript condScript = script.GetTempScript(forTokens[1] + Constants.END_STATEMENT);
-            ParsingScript loopScript = script.GetTempScript(forTokens[2] + Constants.END_STATEMENT);
-
-            condScript.Variables = loopScript.Variables = initScript.Variables;
-            await initScript.ExecuteAsync(null, 0);
-
-            int cycles = 0;
-            bool stillValid = true;
-
-            while (stillValid)
-            {
-                Variable condResult = await condScript.ExecuteAsync(null, 0);
-                stillValid = condResult.AsBool();
-                if (!stillValid)
-                {
-                    break;
-                }
-
-                script.Pointer = startForCondition;
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                mainScript.Variables = initScript.Variables;
-                Variable result = mainScript.Process();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                {
-                    //script.Pointer = startForCondition;
-                    //SkipBlock(script);
-                    //return;
-                    break;
-                }
-                await loopScript.ExecuteAsync(null, 0);
-            }
-
-            //  script.Pointer = startForCondition;
-            //  SkipBlock(script);
-        }
 
         public Variable ProcessWhile(ParsingScript script)
         {
@@ -631,43 +572,7 @@ namespace AliceScript
         }
 
         //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
-        public async Task<Variable> ProcessWhileAsync(ParsingScript script)
-        {
-            int startWhileCondition = script.Pointer;
-
-            // A check against an infinite loop.
-            int cycles = 0;
-            bool stillValid = true;
-            Variable result = Variable.EmptyInstance;
-
-            while (stillValid)
-            {
-                //int startSkipOnBreakChar = from;
-                script.Pointer = startWhileCondition;
-                Variable condResult = await script.ExecuteAsync(Constants.END_ARG_ARRAY);
-                stillValid = condResult.AsBool();
-                if (!stillValid)
-                {
-                    break;
-                }
-
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                result = await mainScript.ProcessForWhileAsync();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                {
-                    script.Pointer = startWhileCondition;
-                    break;
-                }
-            }
-
-            // The while condition is not true anymore: must skip the whole while
-            // block before continuing with next statements.
-            SkipBlock(script);
-            return result.IsReturn ? result : Variable.EmptyInstance;
-        }
-
+        
 
         public Variable ProcessDoWhile(ParsingScript script)
         {
@@ -697,7 +602,7 @@ namespace AliceScript
                 }
             }
 
-            SkipBlock(script);
+            //SkipBlock(script);
             return result.IsReturn ? result : Variable.EmptyInstance;
         }
 

@@ -95,15 +95,14 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.FOREACH;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += ForeachStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void ForeachStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessForeach(script);
+            e.Return= Interpreter.Instance.ProcessForeach(e.Script); 
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForeachAsync(script);
-        }
+
     }
 
     internal class WhileStatement : FunctionBase
@@ -112,14 +111,12 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.WHILE;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += WhileStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void WhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessWhile(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessWhileAsync(script);
+            e.Return= Interpreter.Instance.ProcessWhile(e.Script);
         }
     }
 
@@ -129,14 +126,12 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.DO;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += DoWhileStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void DoWhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessDoWhile(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessDoWhile(script);
+            e.Return= Interpreter.Instance.ProcessDoWhile(e.Script); 
         }
     }
 
