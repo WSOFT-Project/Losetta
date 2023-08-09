@@ -329,14 +329,6 @@ namespace AliceScript
             ProcessCanonicalFor(script, forString);
             return Variable.EmptyInstance;
         }
-        public async Task<Variable> ProcessForAsync(ParsingScript script)
-        {
-            string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
-            script.Forward();
-            //for(init; condition; loopStatemen;)の形式です
-            await ProcessCanonicalForAsync(script, forString);
-            return Variable.EmptyInstance;
-        }
         public Variable ProcessForeach(ParsingScript script)
         {
             string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);

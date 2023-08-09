@@ -80,14 +80,12 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.FOR;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += ForStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void ForStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessFor(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForAsync(script);
+            e.Return= Interpreter.Instance.ProcessFor(e.Script);
         }
     }
 
