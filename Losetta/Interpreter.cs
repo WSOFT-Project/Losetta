@@ -484,7 +484,7 @@ namespace AliceScript
         private void ProcessCanonicalFor(ParsingScript script, string forString)
         {
             string[] forTokens = forString.Split(Constants.END_STATEMENT);
-            if (forTokens.Length != 3)
+            if (forTokens.Length < 3)
             {
                 Utils.ThrowErrorMsg("for文はfor(init; condition; loopStatement;)の形である必要があります", Exceptions.INVALID_SYNTAX,
                                      script, Constants.FOR);
@@ -493,8 +493,8 @@ namespace AliceScript
             int startForCondition = script.Pointer;
 
             ParsingScript initScript = script.GetTempScript(forTokens[0] + Constants.END_STATEMENT);
-            ParsingScript condScript = script.GetTempScript(forTokens[1] + Constants.END_STATEMENT);
-            ParsingScript loopScript = script.GetTempScript(forTokens[2] + Constants.END_STATEMENT);
+            ParsingScript condScript = initScript.GetTempScript(forTokens[1] + Constants.END_STATEMENT);
+            ParsingScript loopScript = initScript.GetTempScript(forTokens[2] + Constants.END_STATEMENT);
 
             condScript.Variables = loopScript.Variables = initScript.Variables;
 
@@ -505,7 +505,7 @@ namespace AliceScript
 
             while (stillValid)
             {
-                Variable condResult = condScript.Execute(null, 0);
+                Variable condResult = condScript.Execute(null, 0);condScript.Tag = "COND";
                 stillValid = condResult.AsBool();
                 if (!stillValid)
                 {
@@ -515,8 +515,8 @@ namespace AliceScript
                 script.Pointer = startForCondition;
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
                                                        Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                mainScript.Variables = initScript.Variables;
+                ParsingScript mainScript = initScript.GetTempScript(body);
+                //mainScript.Variables = initScript.Variables;
                 Variable result = mainScript.Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
