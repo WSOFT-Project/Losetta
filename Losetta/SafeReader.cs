@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -21,9 +19,9 @@ namespace AliceScript
                 return reader.Text;
             }
         }
-        public static string ReadAllText(byte[] data,out string charcode)
+        public static string ReadAllText(byte[] data, out string charcode)
         {
-            using (FileReader reader=new FileReader(data))
+            using (FileReader reader = new FileReader(data))
             {
                 CharCode c = reader.Read(data);
                 charcode = c.Name;

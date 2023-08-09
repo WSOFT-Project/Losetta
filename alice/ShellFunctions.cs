@@ -57,7 +57,7 @@ namespace alice
         {
             string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             file = file.Trim('"');
-            e.Return=Alice.ExecuteFile(Program.GetScriptPath(file));
+            e.Return = Alice.ExecuteFile(Program.GetScriptPath(file));
         }
     }
     internal class buildpkgFunc : FunctionBase
@@ -92,7 +92,7 @@ namespace alice
             if (Program.BuildPackage(e.Args[0].AsString(), path))
             {
                 Interpreter.Instance.AppendOutput("ビルド成功...開始しています", true);
-                AlicePackage.Load(path,true);
+                AlicePackage.Load(path, true);
             }
             else
             {

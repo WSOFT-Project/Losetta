@@ -1,12 +1,6 @@
-﻿using AliceScript;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
-    static class Alice_Threading_Initer
+    internal static class Alice_Threading_Initer
     {
         public static void Init()
         {
@@ -25,7 +19,8 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-    class thread_idFunc : FunctionBase
+
+    internal class thread_idFunc : FunctionBase
     {
         public thread_idFunc()
         {
@@ -39,7 +34,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Thread.CurrentThread.ManagedThreadId);
         }
     }
-    class thread_queueFunc : FunctionBase
+
+    internal class thread_queueFunc : FunctionBase
     {
         public thread_queueFunc()
         {
@@ -59,22 +55,25 @@ namespace AliceScript.NameSpaces
             {
                 tqsi.Args = e.Args.GetRange(1, e.Args.Count - 1);
             }
-            ThreadPool.QueueUserWorkItem(ThreadProc,tqsi);
+            ThreadPool.QueueUserWorkItem(ThreadProc, tqsi);
             e.Return = Variable.EmptyInstance;
         }
-        static void ThreadProc(Object stateInfo)
+
+        private static void ThreadProc(Object stateInfo)
         {
             ThreadQueueStateInfo tqsi = (ThreadQueueStateInfo)stateInfo;
-            tqsi.Delegate.Invoke(tqsi.Args,tqsi.Script);
+            tqsi.Delegate.Invoke(tqsi.Args, tqsi.Script);
         }
     }
-    class ThreadQueueStateInfo
+
+    internal class ThreadQueueStateInfo
     {
         public List<Variable> Args { get; set; }
         public ParsingScript Script { get; set; }
         public DelegateObject Delegate { get; set; }
     }
-    class task_runFunc : FunctionBase
+
+    internal class task_runFunc : FunctionBase
     {
         public task_runFunc()
         {
@@ -97,15 +96,16 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class SignalWaitFunction : FunctionBase
+
+    internal class SignalWaitFunction : FunctionBase
     {
-        static AutoResetEvent waitEvent = new AutoResetEvent(false);
-        bool m_isSignal;
+        private static AutoResetEvent waitEvent = new AutoResetEvent(false);
+        private bool m_isSignal;
 
         public SignalWaitFunction(bool isSignal)
         {
             m_isSignal = isSignal;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.FUNCT_WITH_SPACE|FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.FUNCT_WITH_SPACE | FunctionAttribute.LANGUAGE_STRUCTURE;
             if (isSignal)
             {
                 this.Name = "signal";
@@ -121,7 +121,7 @@ namespace AliceScript.NameSpaces
         {
             bool result = m_isSignal ? waitEvent.Set() :
                                       waitEvent.WaitOne();
-            e.Return=new Variable(result);
+            e.Return = new Variable(result);
         }
 
     }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -254,8 +249,8 @@ namespace AliceScript
         }
         public Dictionary<string, FunctionBase> StaticFunctions
         {
-            get { return m_static_customFunctions; }
-            set { m_static_customFunctions = value; }
+            get => m_static_customFunctions;
+            set => m_static_customFunctions = value;
         }
         public static void RegisterClass(string className, AliceScriptClass obj)
         {
@@ -600,7 +595,7 @@ namespace AliceScript
                                                      Constants.END_GROUP);
             script.MoveForwardIf(Constants.END_GROUP);
 
-            string body = Utils.ConvertToScript(scriptExpr, out _,out var def);
+            string body = Utils.ConvertToScript(scriptExpr, out _, out var def);
 
             Variable result = null;
             ParsingScript tempScript = script.GetTempScript(body);
@@ -634,7 +629,7 @@ namespace AliceScript
                 script.MoveForwardIf(Constants.END_GROUP);
 
                 Dictionary<int, int> char2Line;
-                string body = Utils.ConvertToScript(scriptExpr, out char2Line,out var def);
+                string body = Utils.ConvertToScript(scriptExpr, out char2Line, out var def);
 
                 ParsingScript tempScript = script.GetTempScript(body);
                 tempScript.Defines = def;
@@ -662,7 +657,7 @@ namespace AliceScript
     public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
-                                string body, string[] args, ParsingScript script,  bool forceReturn = false)
+                                string body, string[] args, ParsingScript script, bool forceReturn = false)
         {
             Name = funcName;
             m_body = body;
@@ -748,13 +743,13 @@ namespace AliceScript
                         }
 
                     }
-                    else if(options.Count>1)
+                    else if (options.Count > 1)
                     {
-                            Variable v = script.GetTempScript(options[options.Count-2]).Execute();
-                            if (v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
-                            {
-                                reqType = to;
-                            }
+                        Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
+                        if (v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
+                        {
+                            reqType = to;
+                        }
                     }
 
                     m_typArgMap.Add(i, reqType);
@@ -1035,7 +1030,7 @@ namespace AliceScript
 
             return result;
         }
-        
+
         public static Task<Variable> ARun(string functionName,
              Variable arg1 = null, Variable arg2 = null, Variable arg3 = null, ParsingScript script = null)
         {
@@ -1512,7 +1507,7 @@ namespace AliceScript
             Variable right = Utils.GetItem(script);
 
 
-            Variable currentValue = ParserFunction.GetObjectFunction(m_name,script,new List<string>())?.GetValue(script);
+            Variable currentValue = ParserFunction.GetObjectFunction(m_name, script, new List<string>())?.GetValue(script);
             bool isobj = true;
             List<Variable> arrayIndices = new List<Variable>();
             if (currentValue == null)
@@ -1525,7 +1520,7 @@ namespace AliceScript
                 {
                     return Variable.EmptyInstance;
                 }
-                currentValue = func.GetValue(script); 
+                currentValue = func.GetValue(script);
             }
 
             currentValue = currentValue.DeepClone();
@@ -1639,7 +1634,7 @@ namespace AliceScript
             {
                 case "+=":
                     {
-                        
+
                         valueA.Tuple.Add(valueB);
                         break;
                     }
@@ -1745,7 +1740,7 @@ namespace AliceScript
             return new OperatorAssignFunction();
         }
     }
-  
+
     public class AssignFunction : ActionFunction
     {
         protected override Variable Evaluate(ParsingScript script)
@@ -1827,7 +1822,7 @@ namespace AliceScript
             else
             {
                 // First try processing as an object (with a dot notation):
-                Variable result = ProcessObject(m_name,script, varValue);
+                Variable result = ProcessObject(m_name, script, varValue);
                 if (result != null)
                 {
                     if (script.CurrentClass == null && script.ClassInstance == null)
@@ -1867,8 +1862,8 @@ namespace AliceScript
             return Assign(script, m_name);
         }
 
-        
-        internal static Variable ProcessObject(string m_name,ParsingScript script, Variable varValue)
+
+        internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)
         {
             if (script.CurrentClass != null)
             {
@@ -1910,7 +1905,7 @@ namespace AliceScript
             return varValue.DeepClone();
         }
 
-       
+
         override public ParserFunction NewInstance()
         {
             return new AssignFunction();

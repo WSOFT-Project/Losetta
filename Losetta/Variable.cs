@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -236,7 +232,7 @@ namespace AliceScript
             if (m_tuple != null)
             {
                 VariableCollection newTuple = new VariableCollection();
-                newTuple.Type=m_tuple.Type;
+                newTuple.Type = m_tuple.Type;
                 foreach (var item in m_tuple)
                 {
                     newTuple.Add(item.DeepClone());

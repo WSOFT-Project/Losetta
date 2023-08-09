@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -88,7 +83,7 @@ namespace AliceScript
             }
             else
             {
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.END_STATEMENT.ToString() );
+                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.END_STATEMENT.ToString());
                 result = GetCompiledArgs(body);
             }
             return result;
@@ -378,7 +373,7 @@ namespace AliceScript
         }
 
 
-        
+
 
         public static List<Variable> GetArgs(ParsingScript script,
             char start, char end, Action<bool> outList)
@@ -537,7 +532,7 @@ namespace AliceScript
             return args;
         }
 
-   
+
 
         public static bool EndsWithFunction(string buffer, List<string> functions)
         {
@@ -680,7 +675,7 @@ namespace AliceScript
             }
             return args;
         }
-        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line,out List<string> defines, string filename = "")
+        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out List<string> defines, string filename = "")
         {
             string curlyErrorMsg = "波括弧が不均等です";
             string bracketErrorMsg = "角括弧が不均等です";
@@ -1008,11 +1003,11 @@ namespace AliceScript
                             }
                         case "error":
                             {
-                                throw new ScriptException(arg,Exceptions.USER_DEFINED);
+                                throw new ScriptException(arg, Exceptions.USER_DEFINED);
                             }
                         case "print":
                             {
-                                Interpreter.Instance.AppendOutput(arg,true);
+                                Interpreter.Instance.AppendOutput(arg, true);
                                 break;
                             }
                     }
@@ -1058,7 +1053,7 @@ namespace AliceScript
             return sb.ToString().Trim();
         }
 
-     
+
         public static string GetBodySize(ParsingScript script, string endToken1, string endToken2 = null)
         {
             int start = script.Pointer;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     public class FunctionBase : ParserFunction
     {
@@ -69,7 +66,7 @@ namespace AliceScript
             if (currentVariable == null) { return Variable.EmptyInstance; }
             if (!this.RequestType.Match(currentVariable))
             {
-                    throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); 
+                throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION);
             }
             List<Variable> args = null;
             if (!this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))

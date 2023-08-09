@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace alice
+﻿namespace alice
 {
     internal class ParsedArguments
     {

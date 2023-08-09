@@ -1,24 +1,13 @@
-﻿using AliceScript;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 
 namespace AliceScript
 {
     public class VariableCollection : IEnumerable<Variable>, IList<Variable>
     {
-        private List<Variable> Tuple {
-            get
-            {
-                return m_tuple;
-            }
-            set
-            {
-                m_tuple = value;
-            }
+        private List<Variable> Tuple
+        {
+            get => m_tuple;
+            set => m_tuple = value;
         }
         public TypeObject Type { get; set; }
 
@@ -29,7 +18,7 @@ namespace AliceScript
         /// <returns>追加できればTrue、それ以外の場合はFalse。</returns>
         private bool CanAdd(Variable item)
         {
-            if (Type != null && (Type.Type==Variable.VarType.NONE && item!=null))
+            if (Type != null && (Type.Type == Variable.VarType.NONE && item != null))
             {
                 if (Type.Type != item.Type)
                 {
@@ -45,7 +34,7 @@ namespace AliceScript
 
         private bool CanAdd(IEnumerable<Variable> items)
         {
-            foreach(Variable item in items)
+            foreach (Variable item in items)
             {
                 if (!CanAdd(item))
                 {
@@ -59,9 +48,9 @@ namespace AliceScript
 
         public bool IsReadOnly => false;
 
-        public Variable this[int index] { get => m_tuple[index]; set => Insert(index,value); }
+        public Variable this[int index] { get => m_tuple[index]; set => Insert(index, value); }
 
-        private List<Variable> m_tuple=new List<Variable>();
+        private List<Variable> m_tuple = new List<Variable>();
         public IEnumerator<Variable> GetEnumerator()
         {
             return m_tuple.GetEnumerator();
@@ -81,7 +70,7 @@ namespace AliceScript
         {
             if (CanAdd(item))
             {
-                m_tuple.Insert(index,item);
+                m_tuple.Insert(index, item);
             }
             else
             {
@@ -106,7 +95,7 @@ namespace AliceScript
             }
             else
             {
-                throw new ScriptException("現在の配列にはその型を代入することができません。",Exceptions.WRONG_TYPE_VARIABLE);
+                throw new ScriptException("現在の配列にはその型を代入することができません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
         }
         public void AddRange(IEnumerable<Variable> items)
@@ -134,7 +123,7 @@ namespace AliceScript
         {
             if (CanAdd(array))
             {
-                m_tuple.CopyTo(array,arrayIndex);
+                m_tuple.CopyTo(array, arrayIndex);
             }
             else
             {

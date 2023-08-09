@@ -1,7 +1,4 @@
 ﻿using AliceScript;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Text;
 
@@ -184,11 +181,11 @@ namespace alice
                 var directoryInfo = new DirectoryInfo(path);
                 directoryInfo.Attributes |= System.IO.FileAttributes.Hidden;
 
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "version"),Properties.Resources.version,Encoding.UTF8);
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "version"), Properties.Resources.version, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "install"), Properties.Resources.install, Encoding.UTF8);
 
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"),Properties.Resources.shell, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), Properties.Resources.shell, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "update"), Properties.Resources.update, Encoding.UTF8);
             }

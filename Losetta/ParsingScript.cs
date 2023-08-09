@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -256,15 +251,15 @@ namespace AliceScript
         /// <param name="name"></param>
         public void Using(string name)
         {
-                if (NameSpaceManerger.Contains(name))
-                {
-                    this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
-                }
-                else
-                {
-                    throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
-                }
-          
+            if (NameSpaceManerger.Contains(name))
+            {
+                this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
+            }
+            else
+            {
+                throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
+            }
+
         }
         public int Size() { return m_data.Length; }
         public bool StillValid() { return m_from < m_data.Length; }
@@ -732,7 +727,7 @@ namespace AliceScript
             return result;
 
         }
-        
+
 
         public async Task<Variable> ExecuteAsync(char[] toArray = null, int from = -1)
         {

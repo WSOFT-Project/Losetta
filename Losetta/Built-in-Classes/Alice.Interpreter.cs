@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     internal static class Alice_Interpreter_Initer
     {
@@ -49,11 +46,11 @@ namespace AliceScript
 
         private void Interpreter_GetParentFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args[0].Type==Variable.VarType.OBJECT && e.Args[0].Object is Interpreter_ScriptObject o)
+            if (e.Args[0].Type == Variable.VarType.OBJECT && e.Args[0].Object is Interpreter_ScriptObject o)
             {
                 e.Return = new Variable(new Interpreter_ScriptObject(o.Script.ParentScript));
             }
-            else if (e.Args[0].Parent!=null)
+            else if (e.Args[0].Parent != null)
             {
                 e.Return = new Variable(new Interpreter_ScriptObject(e.Args[0].Parent));
             }
@@ -105,7 +102,7 @@ namespace AliceScript
 
         private void Gc_gettotalmemoryFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return=new Variable(GC.GetTotalMemory(e.Args[0].AsBool()));
+            e.Return = new Variable(GC.GetTotalMemory(e.Args[0].AsBool()));
         }
     }
 
@@ -301,7 +298,7 @@ namespace AliceScript
         }
     }
 
-   
+
 
     internal class Interpreter_GetScriptFunc : FunctionBase
     {
@@ -531,7 +528,7 @@ namespace AliceScript
         internal ParsingScript Script;
         public override bool Equals(ObjectBase other)
         {
-           if(other is Interpreter_ScriptObject iso)
+            if (other is Interpreter_ScriptObject iso)
             {
                 return iso.Script.Equals(this.Script);
             }
@@ -552,7 +549,7 @@ namespace AliceScript
             {
                 List<string> defines; Dictionary<int, int> char2Line;
                 string code = Utils.ConvertToScript(e.Args[0].AsString(), out char2Line, out defines);
-                var script = new ParsingScript(code,0,char2Line,true);
+                var script = new ParsingScript(code, 0, char2Line, true);
                 script.Defines = defines;
                 script.ParentScript = e.Script;
                 e.Return = new Variable(new Interpreter_ScriptObject(script));
@@ -693,11 +690,11 @@ namespace AliceScript
                 {
                     case Interpreter_ScriptObject_Property_Mode.Parent:
                         {
-                            if(e.Value.Type==Variable.VarType.OBJECT&&e.Value.Object is Interpreter_ScriptObject iso)
+                            if (e.Value.Type == Variable.VarType.OBJECT && e.Value.Object is Interpreter_ScriptObject iso)
                             {
                                 Host.Script.ParentScript = iso.Script;
                             }
-                            else if(e.Value.Type==Variable.VarType.NONE)
+                            else if (e.Value.Type == Variable.VarType.NONE)
                             {
                                 Host.Script.ParentScript = null;
                             }
@@ -714,7 +711,7 @@ namespace AliceScript
             private Interpreter_ScriptObject Host;
             internal enum Interpreter_ScriptObject_Property_Mode
             {
-                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package,StackTrace
+                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
             }
             private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyGettingEventArgs e)
             {
@@ -877,10 +874,10 @@ namespace AliceScript
             this.Name = "Type";
             this.Functions.Add("Activate", new ActivateFunction(this));
             this.Functions.Add("ToString", new ToStringFunction(this));
-            this.Functions.Add("ToNativeProperty",new ToNativeProperty(this));
-            this.Properties.Add("IsObject",new IsObjectProperty(this));
-            this.Properties.Add("Namespace",new NamespaceProperty(this));
-            this.Properties.Add("Base",new BaseProperty(this));
+            this.Functions.Add("ToNativeProperty", new ToNativeProperty(this));
+            this.Properties.Add("IsObject", new IsObjectProperty(this));
+            this.Properties.Add("Namespace", new NamespaceProperty(this));
+            this.Properties.Add("Base", new BaseProperty(this));
         }
         public Variable.VarType Type { get; set; }
         public TypeObject ArrayType { get; set; }
@@ -934,7 +931,7 @@ namespace AliceScript
                 this.CanSet = false;
                 this.Getting += delegate (object sender, PropertyGettingEventArgs e)
                 {
-                    e.Value = new Variable(type.ClassType!=null);
+                    e.Value = new Variable(type.ClassType != null);
                 };
             }
         }
@@ -963,21 +960,21 @@ namespace AliceScript
         /// <returns>もう一方の型と等しければTrue、それ以外の場合はFalse</returns>
         public bool Equals(TypeObject other)
         {
-            if(this.ClassType!=null && other.ClassType != null)
+            if (this.ClassType != null && other.ClassType != null)
             {
                 return ClassType.ToString() == other.ClassType.ToString();
             }
-            else if(this.ClassType != null || other.ClassType != null)
+            else if (this.ClassType != null || other.ClassType != null)
             {
                 return false;
             }
             else
             {
-                return this.Type==other.Type;
+                return this.Type == other.Type;
             }
         }
 
-        public Variable Activate(List<Variable> args,ParsingScript script)
+        public Variable Activate(List<Variable> args, ParsingScript script)
         {
             if (ClassType != null)
             {
@@ -1005,10 +1002,11 @@ namespace AliceScript
         {
             if (Type.HasFlag(item.Type))
             {
-                if(Type==Variable.VarType.OBJECT && item.Object is AliceScriptClass c && ClassType != c)
+                if (Type == Variable.VarType.OBJECT && item.Object is AliceScriptClass c && ClassType != c)
                 {
                     return false;
-                }else if(Type==Variable.VarType.ARRAY && item.Tuple.Type != ArrayType)
+                }
+                else if (Type == Variable.VarType.ARRAY && item.Tuple.Type != ArrayType)
                 {
                     return false;
                 }
@@ -1027,7 +1025,7 @@ namespace AliceScript
             public TypeObject Type { get; set; }
             private void Type_ActivateFunc_Run(object sender, FunctionBaseEventArgs e)
             {
-                e.Return = Type.Activate(e.Args,e.Script);
+                e.Return = Type.Activate(e.Args, e.Script);
             }
         }
         internal class ToStringFunction : FunctionBase
@@ -1041,7 +1039,7 @@ namespace AliceScript
             public TypeObject Type { get; set; }
             private void ToStringFunction_Run(object sender, FunctionBaseEventArgs e)
             {
-                if(Type.ClassType !=null && Type.ClassType is TypeObject to)
+                if (Type.ClassType != null && Type.ClassType is TypeObject to)
                 {
                     e.Return = new Variable("Alice.Interpreter.Type");
                     return;
@@ -1052,7 +1050,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    e.Return = new  Variable(Constants.TypeToString(Type.Type));
+                    e.Return = new Variable(Constants.TypeToString(Type.Type));
                 }
             }
         }

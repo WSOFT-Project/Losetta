@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     internal class LabelFunction : ActionFunction
     {

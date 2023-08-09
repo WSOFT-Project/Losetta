@@ -1,12 +1,7 @@
 ﻿using AliceScript.Interop;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AliceScript
 {
@@ -163,7 +158,7 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.ASSIGNMENT, new AssignFunction());
             ParserFunction.AddAction(Constants.INCREMENT, new IncrementDecrementFunction());
             ParserFunction.AddAction(Constants.DECREMENT, new IncrementDecrementFunction());
-            
+
 
             for (int i = 0; i < Constants.OPER_ACTIONS.Length; i++)
             {
@@ -198,7 +193,7 @@ namespace AliceScript
                 return Variable.EmptyInstance;
             }
             string script = Utils.GetFileContents(data);
-            return Process(script, filename, mainFile,null,null);
+            return Process(script, filename, mainFile, null, null);
         }
         public async Task<Variable> ProcessDataAsync(byte[] data, string filename = "", bool mainFile = false)
         {
@@ -238,7 +233,7 @@ namespace AliceScript
         public ParsingScript GetScript(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
             Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line,out var def, filename);
+            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 data = ";";
@@ -260,7 +255,7 @@ namespace AliceScript
         public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
             Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def,filename);
+            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
@@ -294,7 +289,7 @@ namespace AliceScript
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
         {
             Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def,filename);
+            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
@@ -391,7 +386,7 @@ namespace AliceScript
                                                        Constants.END_GROUP);
                 ParsingScript mainScript = script.GetTempScript(body);
                 ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new GetVarFunction(current), mainScript,false, registVar,false);
+                               new GetVarFunction(current), mainScript, false, registVar, false);
                 Variable result = mainScript.Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
@@ -405,7 +400,7 @@ namespace AliceScript
             SkipBlock(script);
         }
 
-        
+
         private void ProcessCanonicalFor(ParsingScript script, string forString)
         {
             string[] forTokens = forString.Split(Constants.END_STATEMENT);
@@ -424,13 +419,11 @@ namespace AliceScript
             condScript.Variables = loopScript.Variables = initScript.Variables;
 
             initScript.Execute(null, 0);
-
-            int cycles = 0;
             bool stillValid = true;
 
             while (stillValid)
             {
-                Variable condResult = condScript.Execute(null, 0);condScript.Tag = "COND";
+                Variable condResult = condScript.Execute(null, 0); condScript.Tag = "COND";
                 stillValid = condResult.AsBool();
                 if (!stillValid)
                 {
@@ -450,17 +443,14 @@ namespace AliceScript
                 loopScript.Execute(null, 0);
             }
 
-              script.Pointer = startForCondition;
-              SkipBlock(script); 
+            script.Pointer = startForCondition;
+            SkipBlock(script);
         }
 
 
         public Variable ProcessWhile(ParsingScript script)
         {
             int startWhileCondition = script.Pointer;
-
-            // ループ回数
-            int cycles = 0;
             bool stillValid = true;
             Variable result = Variable.EmptyInstance;
 
@@ -515,7 +505,7 @@ namespace AliceScript
         }
 
         //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
-        
+
         public Variable ProcessDoWhile(ParsingScript script)
         {
             int startDoCondition = script.Pointer;
@@ -687,7 +677,6 @@ namespace AliceScript
         {
             int startTryCondition = script.Pointer - 1;
             int currentStackLevel = ParserFunction.GetCurrentStackLevel();
-            Exception exception = null;
 
             Variable result = null;
 
@@ -697,8 +686,8 @@ namespace AliceScript
             ParsingScript mainScript = script.GetTempScript(body);
             mainScript.InTryBlock = true;
 
-            // catchブロック内のスクリプト
-            getCatch:
+        // catchブロック内のスクリプト
+        getCatch:
             string catchToken = Utils.GetNextToken(script);
             script.Forward(); // skip opening parenthesis
                               // The next token after the try block must be a catch.
@@ -719,10 +708,10 @@ namespace AliceScript
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
             {
-                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message,e.ErrorCode,e.Script)));
+                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script)));
                 catchScript.Variables.Add(exceptionName, excMsgFunc);
                 result = catchScript.Process();
-                e.Handled= true;
+                e.Handled = true;
             };
 
             result = mainScript.Process();
@@ -731,7 +720,7 @@ namespace AliceScript
             return result;
         }
 
-       
+
         private static string CreateExceptionStack(string exceptionName, int lowestStackLevel)
         {
             string result = "";

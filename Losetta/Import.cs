@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
-   
+
     public static class NameSpaceManerger
     {
         public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>();
         public static void Add(NameSpace space, string name = null)
         {
-            if (name ==null) { name = space.Name; }
+            if (name == null) { name = space.Name; }
             if (NameSpaces.ContainsKey(name))
             {
                 //既に存在する場合はマージ
@@ -63,14 +58,8 @@ namespace AliceScript
         {
             Functions.Remove(func);
         }
-        
-        public int Count
-        {
-            get
-            {
-                return Functions.Count + Classes.Count;
-            }
-        }
+
+        public int Count => Functions.Count + Classes.Count;
         /// <summary>
         /// 現在の名前空間にもう一方の名前空間をマージします。ただし、列挙体はマージされません。
         /// </summary>
@@ -81,6 +70,6 @@ namespace AliceScript
             this.Classes = this.Classes.Union(other.Classes).ToList();
         }
     }
-   
+
 
 }

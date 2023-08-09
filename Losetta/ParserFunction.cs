@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -228,7 +223,7 @@ namespace AliceScript
                 {
                     args = new string[] { };
                 }
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG,Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
 
                 int parentOffset = script.Pointer;
 

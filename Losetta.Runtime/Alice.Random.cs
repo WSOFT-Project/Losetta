@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
-    static class Alice_Random_Initer
+    internal static class Alice_Random_Initer
     {
         internal static Random random;
 
@@ -32,7 +27,8 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-    class randFunc : FunctionBase
+
+    internal class randFunc : FunctionBase
     {
         public randFunc()
         {
@@ -57,7 +53,8 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class rand_bytesFunc : FunctionBase
+
+    internal class rand_bytesFunc : FunctionBase
     {
         public rand_bytesFunc()
         {
@@ -73,7 +70,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(bs);
         }
     }
-    class rand_doubleFunc : FunctionBase
+
+    internal class rand_doubleFunc : FunctionBase
     {
         public rand_doubleFunc()
         {
@@ -87,7 +85,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Alice_Random_Initer.random.NextDouble());
         }
     }
-    class random_intFunc : FunctionBase
+
+    internal class random_intFunc : FunctionBase
     {
         public random_intFunc()
         {
@@ -100,10 +99,10 @@ namespace AliceScript.NameSpaces
             if (e.Args.Count == 0)
             {
                 var randomByte = new byte[4];
-                    Alice_Random_Initer.rng.GetBytes(randomByte);
+                Alice_Random_Initer.rng.GetBytes(randomByte);
                 e.Return = new Variable(BitConverter.ToInt32(randomByte, 0));
             }
-            else if(e.Args.Count == 1)
+            else if (e.Args.Count == 1)
             {
                 e.Return = new Variable(Next(e.Args[0].AsInt()));
             }
@@ -112,7 +111,7 @@ namespace AliceScript.NameSpaces
                 e.Return = new Variable(Next(e.Args[1].AsInt(), e.Args[0].AsInt()));
             }
         }
-        private int Next(int max=int.MaxValue,int min = int.MinValue)
+        private int Next(int max = int.MaxValue, int min = int.MinValue)
         {
             //このとき選出されるべき数値の範囲は次のとおりである
             int com = min.CompareTo(max);
@@ -155,7 +154,8 @@ namespace AliceScript.NameSpaces
             return i + min;
         }
     }
-    class random_bytesFunc : FunctionBase
+
+    internal class random_bytesFunc : FunctionBase
     {
         public random_bytesFunc()
         {
@@ -186,7 +186,8 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class guid_new_textFunc : FunctionBase
+
+    internal class guid_new_textFunc : FunctionBase
     {
         public guid_new_textFunc()
         {
@@ -199,7 +200,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Guid.NewGuid().ToString());
         }
     }
-    class guid_new_bytesFunc : FunctionBase
+
+    internal class guid_new_bytesFunc : FunctionBase
     {
         public guid_new_bytesFunc()
         {

@@ -1,18 +1,10 @@
-﻿using System;
-using AliceScript;
-using AliceScript.Interop;
+﻿using AliceScript.Interop;
 
 namespace AliceScript.NameSpaces
 {
     public class Alice_Runtime : ILibrary
     {
-        public string Name
-        {
-            get
-            {
-                return "Alice.Runtime";
-            }
-        }
+        public string Name => "Alice.Runtime";
 
         public void Main()
         {

@@ -1,20 +1,13 @@
-﻿using AliceScript;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     public class ExceptionObject : ObjectBase
     {
         public string Message { get; set; }
         public Exceptions ErrorCode { get; set; }
         public ParsingScript MainScript { get; set; }
-        public ExceptionObject(string message,Exceptions errorcode,ParsingScript mainScript)
+        public ExceptionObject(string message, Exceptions errorcode, ParsingScript mainScript)
         {
-            this.Message= message;
+            this.Message = message;
             this.ErrorCode = errorcode;
             this.MainScript = mainScript;
             this.AddProperty(new Exception_MessageProperty(this));
@@ -26,14 +19,15 @@ namespace AliceScript
         {
             return "[0x" + ((int)ErrorCode).ToString("x3") + "]" + ErrorCode.ToString() + " : " + Message;
         }
-        class Exception_MessageProperty : PropertyBase
+
+        private class Exception_MessageProperty : PropertyBase
         {
             public Exception_MessageProperty(ExceptionObject eo)
             {
-                this.Name= "Message";
+                this.Name = "Message";
                 this.HandleEvents = true;
                 this.CanSet = false;
-                this.ExceptionObject= eo;
+                this.ExceptionObject = eo;
                 this.Getting += Exception_MessageProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
@@ -42,7 +36,8 @@ namespace AliceScript
                 e.Value = new Variable(ExceptionObject.Message);
             }
         }
-        class Exception_StackTraceProperty : PropertyBase
+
+        private class Exception_StackTraceProperty : PropertyBase
         {
             public Exception_StackTraceProperty(ExceptionObject eo)
             {
@@ -58,7 +53,8 @@ namespace AliceScript
                 e.Value = ExceptionObject.MainScript.GetStackTrace();
             }
         }
-        class Exception_ErrorcodeProperty : PropertyBase
+
+        private class Exception_ErrorcodeProperty : PropertyBase
         {
             public Exception_ErrorcodeProperty(ExceptionObject eo)
             {
@@ -71,14 +67,15 @@ namespace AliceScript
             public ExceptionObject ExceptionObject { get; set; }
             private void Exception_MessageProperty_Getting(object sender, PropertyGettingEventArgs e)
             {
-                    e.Value = new Variable((int)ExceptionObject.ErrorCode);
+                e.Value = new Variable((int)ExceptionObject.ErrorCode);
             }
         }
-        class Exception_ToStringFunc : FunctionBase
+
+        private class Exception_ToStringFunc : FunctionBase
         {
             public Exception_ToStringFunc(ExceptionObject eo)
             {
-                this.Name = "tostring"; 
+                this.Name = "tostring";
                 this.ExceptionObject = eo;
                 this.Run += Exception_ToStringFunc_Run;
             }
