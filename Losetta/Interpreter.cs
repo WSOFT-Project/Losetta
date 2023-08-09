@@ -573,7 +573,6 @@ namespace AliceScript
 
         //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
         
-
         public Variable ProcessDoWhile(ParsingScript script)
         {
             int startDoCondition = script.Pointer;
@@ -652,9 +651,9 @@ namespace AliceScript
                 if (!caseDone)
                 {
                     Variable caseValue = script.Execute(caseSep);
-                    script.Forward();
+                    script.Forward(2);
 
-                    if (switchValue.Type == caseValue.Type && switchValue.Equals(caseValue))
+                    if (switchValue.Equals(caseValue))
                     {
                         caseDone = true;
                         string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
@@ -666,6 +665,11 @@ namespace AliceScript
                             break;
                         }
                         script.Forward();
+                    }
+                    else
+                    {
+                        script.Backward();
+                        SkipBlock(script);
                     }
                 }
             }
