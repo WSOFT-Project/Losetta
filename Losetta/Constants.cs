@@ -162,6 +162,8 @@
         public const string GOSUB = "gosub";
 
 
+        public const string UTF8_LITERAL = "u8";
+
         public const string PROP_TO_STRING = "ToString";
 
         public static string END_ARG_STR = END_ARG.ToString();

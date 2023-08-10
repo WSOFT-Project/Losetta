@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -207,7 +208,8 @@ namespace AliceScript
 
     public class AliceScriptClass : FunctionBase
     {
-        public AliceScriptClass() {
+        public AliceScriptClass()
+        {
             this.Name = "Class";
         }
 
@@ -762,7 +764,7 @@ namespace AliceScript
                         trueArgs[i] = arg.Substring(0, ind).Trim();
                         string defValue = ind >= arg.Length - 1 ? "" : arg.Substring(ind + 1).Trim();
 
-                        Variable defVariable = Utils.GetVariableFromString(defValue, script,this);
+                        Variable defVariable = Utils.GetVariableFromString(defValue, script, this);
                         defVariable.CurrentAssign = m_args[i];
                         defVariable.Index = i;
 
@@ -1180,7 +1182,17 @@ namespace AliceScript
                     }
                     //[\\]を\に置き換えます(装置制御1から[\]に置き換えます)
                     result = result.Replace("\u0011", "\\");
-                    return new Variable(result);
+
+                    if (DetectionUTF8_Literal)
+                    {
+                        //UTF-8リテラルの時はUTF-8バイナリを返す
+                        return new Variable(Encoding.UTF8.GetBytes(result));
+                    }
+                    else
+                    {
+                        return new Variable(result);
+                    }
+
                 }
             }
             //Nullとして処理
@@ -1194,6 +1206,7 @@ namespace AliceScript
         }
 
         public string Item { private get; set; }
+        public bool DetectionUTF8_Literal { get; set; }
 
         private static string ConvertUnicodeToChar(string charCode, bool mode = true)
         {
@@ -1284,7 +1297,7 @@ namespace AliceScript
                 if (m_arrayIndices == null)
                 {
                     string startName = script.Substr(script.Pointer - 1);
-                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; },this);
+                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; }, this);
                 }
 
                 script.Forward(m_delta);
@@ -1319,7 +1332,7 @@ namespace AliceScript
                                      m_value.GetEnumProperty(temp, script) :
                                      m_value.GetProperty(temp, script);
                 Utils.CheckNotNull(propValue, temp, script);
-                return EvaluateFunction(propValue, script, m_propName,this);
+                return EvaluateFunction(propValue, script, m_propName, this);
             }
 
             // Otherwise just return the stored value.
@@ -1367,7 +1380,7 @@ namespace AliceScript
                 if (m_arrayIndices == null)
                 {
                     string startName = script.Substr(script.Pointer - 1);
-                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; },this);
+                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; }, this);
                 }
 
                 script.Forward(m_delta);
@@ -1402,14 +1415,14 @@ namespace AliceScript
                          m_value.GetEnumProperty(temp, script) :
                          await m_value.GetPropertyAsync(temp, script);
                 Utils.CheckNotNull(propValue, temp, script);
-                return EvaluateFunction(propValue, script, m_propName,this);
+                return EvaluateFunction(propValue, script, m_propName, this);
             }
 
             // Otherwise just return the stored value.
             return m_value;
         }
 
-        public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName,FunctionBase callFrom)
+        public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName, FunctionBase callFrom)
         {
             if (var != null && var.CustomFunctionGet != null)
             {
@@ -1422,7 +1435,7 @@ namespace AliceScript
             }
             if (var != null && !string.IsNullOrWhiteSpace(var.CustomGet))
             {
-                return ParsingScript.RunString(var.CustomGet,script);
+                return ParsingScript.RunString(var.CustomGet, script);
             }
             return var;
         }
@@ -1469,7 +1482,7 @@ namespace AliceScript
             // Check if the variable to be set has the form of x[a][b],
             // meaning that this is an array element.
             double newValue = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; },this);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
 
             ParserFunction func = ParserFunction.GetVariable(m_name, script);
             Utils.CheckNotNull(m_name, func, script);
@@ -1483,7 +1496,7 @@ namespace AliceScript
                 {
                     string tmpName = m_name + script.Rest;
                     int delta = 0;
-                    arrayIndices = Utils.GetArrayIndices(script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; },this);
+                    arrayIndices = Utils.GetArrayIndices(script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; }, this);
                     script.Forward(Math.Max(0, delta - tmpName.Length));
                 }
 
@@ -2060,7 +2073,7 @@ namespace AliceScript
 
     internal class DefineLocalFunction : FunctionBase
     {
-       public DefineLocalFunction()
+        public DefineLocalFunction()
         {
             this.Name = Constants.DEFINE_LOCAL;
             this.MinimumArgCounts = 1;
@@ -2093,7 +2106,7 @@ namespace AliceScript
                                                      new GetVarFunction(currentValue));
             }
 
-            e.Return=currentValue;
+            e.Return = currentValue;
         }
     }
 
@@ -2110,7 +2123,7 @@ namespace AliceScript
         {
             Variable baseValue = e.Args[0];
             List<Variable> props = baseValue.GetProperties();
-            e.Return =new Variable(props);
+            e.Return = new Variable(props);
         }
     }
 
@@ -2131,7 +2144,7 @@ namespace AliceScript
             Variable propValue = baseValue.GetProperty(propName, e.Script);
             Utils.CheckNotNull(propValue, propName, e.Script);
 
-            e.Return= new Variable(propValue);
+            e.Return = new Variable(propValue);
         }
     }
 
