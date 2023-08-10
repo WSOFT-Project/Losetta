@@ -95,6 +95,7 @@
             space.Add(new PrintFunction(true));
             space.Add(new ReadFunction());
             space.Add(new StringFormatFunction());
+            space.Add(new ExceptionObject());
 
             NameSpaceManerger.Add(space);
 

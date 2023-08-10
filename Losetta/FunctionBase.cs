@@ -64,7 +64,7 @@
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
             if (currentVariable == null) { return Variable.EmptyInstance; }
-            if (!this.RequestType.Match(currentVariable))
+            if (this.RequestType?.Match(currentVariable)==false)
             {
                 throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION);
             }

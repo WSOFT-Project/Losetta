@@ -7,19 +7,65 @@
         public ParsingScript MainScript { get; set; }
         public ExceptionObject(string message, Exceptions errorcode, ParsingScript mainScript)
         {
+            this.Name = "Exception";
             this.Message = message;
             this.ErrorCode = errorcode;
             this.MainScript = mainScript;
+            this.Constructor = new Exception_Constractor();
             this.AddProperty(new Exception_MessageProperty(this));
             this.AddProperty(new Exception_ErrorcodeProperty(this));
             this.AddProperty(new Exception_StackTraceProperty(this));
             this.AddFunction(new Exception_ToStringFunc(this));
+        }
+        public ExceptionObject()
+        {
+            this.Name = "Exception";
         }
         public override string ToString()
         {
             return "[0x" + ((int)ErrorCode).ToString("x3") + "]" + ErrorCode.ToString() + " : " + Message;
         }
 
+        private class Exception_Constractor : FunctionBase
+        {
+            public Exception_Constractor()
+            {
+                this.Run += Exception_Constractor_Run;
+            }
+
+            private void Exception_Constractor_Run(object sender, FunctionBaseEventArgs e)
+            {
+                switch (e.Args.Count)
+                {
+                    case 0:
+                        {
+                            var exc = new ExceptionObject(string.Empty,Exceptions.USER_DEFINED, e.Script);
+                            e.Return = new Variable(exc);
+                            break;
+                        }
+                    case 1:
+                        {
+                            if (e.Args[0].Type.HasFlag(Variable.VarType.NUMBER))
+                            {
+                                var exc = new ExceptionObject(string.Empty, (Exceptions)e.Args[0].AsInt(), e.Script);
+                                e.Return = new Variable(exc);
+                            }
+                            else
+                            {
+                                var exc = new ExceptionObject(e.Args[0].AsString(), Exceptions.USER_DEFINED, e.Script);
+                                e.Return = new Variable(exc);
+                            }
+                            break;
+                        }
+                    case 2:
+                        {
+                            var exc = new ExceptionObject(e.Args[1].AsString(), (Exceptions)e.Args[0].AsInt(), e.Script);
+                            e.Return = new Variable(exc);
+                            break;
+                        }
+                }
+            }
+        }
         private class Exception_MessageProperty : PropertyBase
         {
             public Exception_MessageProperty(ExceptionObject eo)
