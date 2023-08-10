@@ -215,11 +215,11 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count > 1)
             {
-                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString(), e.Args[1].AsString()));
+                e.Return = new Variable(Path.GetFullPath(e.Args[0]?.AsString(), e.Args[1]?.AsString()));
             }
             else
             {
-                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString()));
+                e.Return = new Variable(Path.GetFullPath(e.Args[0]?.AsString()));
             }
         }
     }
@@ -970,7 +970,7 @@ namespace AliceScript.NameSpaces
 
         private void File_exists_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Directory.Exists(e.Args[0].AsString()));
+            e.Return = new Variable(Directory.Exists(e.Args[0]?.AsString()));
         }
     }
 

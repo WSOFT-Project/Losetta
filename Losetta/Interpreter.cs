@@ -592,7 +592,10 @@ namespace AliceScript
                 ParsingScript mainScript = script.GetTempScript(body);
                 result = mainScript.Process();
             }
-
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
+            }
 
             return result.IsReturn ||
                    result.Type == Variable.VarType.BREAK ||

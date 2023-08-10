@@ -190,7 +190,7 @@ namespace AliceScript
             tempScript.ParentScript = script;
             tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
-            tempScript.m_stacktrace = new List<FunctionBase>(script.StackTrace);
+            tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
             if (script != null)
             {
                 tempScript.Package = script.Package;

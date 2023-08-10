@@ -19,7 +19,7 @@ namespace AliceScript
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private List<NameSpace> m_namespace = new List<NameSpace>();
-        internal List<FunctionBase> m_stacktrace = new List<FunctionBase>();
+        internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
         /// <summary>
         /// 最上位のスクリプトを取得します
@@ -51,16 +51,74 @@ namespace AliceScript
         /// <summary>
         /// このスクリプトのCustomFunctionの呼び出し履歴
         /// </summary>
-        public List<FunctionBase> StackTrace
+        public List<StackInfo> StackTrace
         {
             get
             {
-                var s = new List<FunctionBase>(m_stacktrace);
+                var s = new List<StackInfo>(m_stacktrace);
                 if (ProcessingFunction != null)
                 {
-                    s.Add(ProcessingFunction);
+                    s.Add(new StackInfo(ProcessingFunction,this.OriginalLine,this.OriginalLineNumber,this.Filename));
                 }
                 return s;
+            }
+        }
+
+        /// <summary>
+        /// StackTraceで使用するひとつ当たりのスタック
+        /// </summary>
+        public class StackInfo
+        {
+            public FunctionBase Function { get; set; }
+            public string Line { get; set; }
+            public int LineNumber { get; set; }
+            public string FileName { get; set; }
+
+            public StackInfo()
+            {
+
+            }
+            public StackInfo(FunctionBase function,string line,int lineNumber,string fileName)
+            {
+                Function = function;
+                Line = line;
+                LineNumber = lineNumber;
+                FileName = fileName;
+            }
+            public override string ToString()
+            {
+                var sb=new StringBuilder();
+                sb.Append("場所 ");
+                foreach (string k in Function.Keywords)
+                {
+                    sb.Append(k + " ");
+                }
+                if (Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
+                {
+                    sb.Append(Constants.COMMAND + " ");
+                }
+                if (!(Function is CustomFunction) && Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+                {
+                    sb.Append("keyword ");
+                }
+                sb.Append(Constants.FUNCTION + " ");
+                sb.Append((string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name) + "(");
+                int args_count = 0;
+                if (Function is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)
+                {
+                    foreach (string a in Function.RealArgs)
+                    {
+                        sb.Append(a + (++args_count == Function.RealArgs.Length ? string.Empty : ","));
+                    }
+                }
+                sb.Append(");");
+                if (!string.IsNullOrWhiteSpace(FileName))
+                {
+                    sb.Append(" 場所 ");
+                    sb.Append(FileName);
+                    sb.Append(":行 "+LineNumber);
+                }
+                return sb.ToString();
             }
         }
 
@@ -296,12 +354,10 @@ namespace AliceScript
         public Variable GetStackTrace()
         {
             var trace = new Variable(Variable.VarType.ARRAY);
-            trace.Tuple.Type = new TypeObject(Variable.VarType.DELEGATE);
-            foreach (CustomFunction cf in this.StackTrace)
+            trace.Tuple.Type = new TypeObject(Variable.VarType.STRING);
+            foreach (var s in this.StackTrace)
             {
-                var v = new Variable(Variable.VarType.DELEGATE);
-                v.Delegate = new DelegateObject(cf);
-                trace.Tuple.Add(v);
+                trace.Tuple.Add(new Variable(s.ToString()));
             }
             return trace;
         }
@@ -875,10 +931,10 @@ namespace AliceScript
             tempScript.Package = this.Package;
             tempScript.Generation = this.Generation + 1;
             tempScript.ThrowError = this.ThrowError;
-            tempScript.m_stacktrace = new List<FunctionBase>(m_stacktrace);
+            tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
             if (callFrom != null)
             {
-                tempScript.m_stacktrace.Add(callFrom);
+                tempScript.m_stacktrace.Add(new StackInfo(callFrom,this.OriginalLine,this.OriginalLineNumber,this.Filename));
             }
 
             return tempScript;
@@ -904,11 +960,11 @@ namespace AliceScript
                 tempScript.Tag = this.Tag;
                 tempScript.Generation = this.Generation + 1;
                 tempScript.ThrowError = this.ThrowError;
-                tempScript.m_stacktrace = new List<FunctionBase>(this.m_stacktrace);
+                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(this.m_stacktrace);
 
                 if (callFrom != null)
                 {
-                    tempScript.m_stacktrace.Add(callFrom);
+                    tempScript.m_stacktrace.Add(new StackInfo(callFrom, this.OriginalLine, this.OriginalLineNumber, this.Filename));
                 }
                 if (isPackageFile)
                 {

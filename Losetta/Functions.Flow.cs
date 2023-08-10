@@ -1007,11 +1007,12 @@ namespace AliceScript
             Variable result = null;
             ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
+            tempScript.Filename = m_parentScript.Filename;
             if (script != null)
             {
                 script.CloneThrowTryInfo(tempScript);
-                tempScript.m_stacktrace = new List<FunctionBase>(script.m_stacktrace);
-                tempScript.m_stacktrace.Add(this);
+                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.m_stacktrace);
+                tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this,script.OriginalLine,script.OriginalLineNumber,script.Filename));
             }
             tempScript.Tag = m_tag;
             tempScript.Variables = m_VarMap;
