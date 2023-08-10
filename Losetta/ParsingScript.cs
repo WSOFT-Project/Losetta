@@ -923,13 +923,16 @@ namespace AliceScript
         {
             Interpreter.SkipBlock(this);
         }
+        public void SkipRestBlocks()
+        {
+            Interpreter.SkipRestBlocks(this);
+        }
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
             str = Utils.ConvertToScript(str, out _, out var def);
             ParsingScript tempScript = new ParsingScript(str, startIndex);
             tempScript.Defines = def;
             tempScript.Filename = this.Filename;
-            tempScript.InTryBlock = this.InTryBlock;
             tempScript.ParentScript = this;
             tempScript.Char2Line = this.Char2Line;
             tempScript.OriginalScript = this.OriginalScript;

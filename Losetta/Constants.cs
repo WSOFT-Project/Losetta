@@ -20,6 +20,7 @@
         public const char EMPTY = '\0';
         public const char DESTRUCTION = '_';
         public const char TERNARY_OPERATOR = '?';
+        public const char DOLLER = '$';
 
         public const string AS = "as ";
         public const string IS = "is ";

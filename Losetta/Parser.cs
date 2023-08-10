@@ -89,7 +89,7 @@ namespace AliceScript
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if(func.m_impl is FunctionBase fb)
+                if(func.m_impl is FunctionBase fb && (script.ProcessingFunction==null || !(fb is StringOrNumberFunction)))
                 {
                     script.ProcessingFunction = fb;
                 }

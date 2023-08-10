@@ -6,6 +6,7 @@ namespace AliceScript
     {
         public static string ReadAllText(string filename, out string charcode)
         {
+            if (string.IsNullOrEmpty(filename)) { charcode = ""; return string.Empty; }
             FileInfo file = new FileInfo(filename);
             if (!file.Exists)
             {

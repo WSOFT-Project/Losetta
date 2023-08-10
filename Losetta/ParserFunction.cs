@@ -92,10 +92,17 @@ namespace AliceScript
 
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
+            s_strOrNumFunction.DetectionStringFormat = false;
+            s_strOrNumFunction.DetectionUTF8_Literal = false;
             if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL))
             {
                 item=item.Substring(Constants.UTF8_LITERAL.Length);
                 s_strOrNumFunction.DetectionUTF8_Literal = true;
+            }
+            if(item.Length > 2 && item.StartsWith(Constants.DOLLER))
+            {
+                item = item.Substring(1);
+                s_strOrNumFunction.DetectionStringFormat = true;
             }
             if (item.Length > 1 &&
               (((item[0] == Constants.QUOTE) && item[item.Length - 1] == Constants.QUOTE) ||

@@ -20,6 +20,7 @@ namespace AliceScript.NameSpaces
             Alice_Security_Initer.Init();
             Alice_Packaging_Initer.Init();
             Alice_Environment_Initer.Init();
+            Alice_Legacy_Initer.Init();
         }
     }
 }

@@ -66,10 +66,10 @@
         }
     }
 
-    internal interface INumericFunction { }
+    public interface INumericFunction { }
 
-    internal interface IArrayFunction { }
+    public interface IArrayFunction { }
 
-    internal interface IStringFunction { }
+    public interface IStringFunction { }
 
 }

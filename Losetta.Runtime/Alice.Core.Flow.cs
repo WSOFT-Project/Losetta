@@ -62,7 +62,71 @@
 
         private void IfStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessIf(e.Script);
+            e.Return = ProcessIf(e.Script);
+        }
+        private Variable ProcessIf(ParsingScript script)
+        {
+            int startIfCondition = script.Pointer;
+
+            Variable result = script.Execute(Constants.END_ARG_ARRAY);
+            bool isTrue = false;
+            if (result != null)
+            {
+                isTrue = result.AsBool();
+            }
+
+            if (isTrue)
+            {
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = script.GetTempScript(body);
+                result = mainScript.Process();
+
+                if (result.IsReturn ||
+                    result.Type == Variable.VarType.BREAK ||
+                    result.Type == Variable.VarType.CONTINUE)
+                {
+                    // We are here from the middle of the if-block. Skip it.
+                    script.Pointer = startIfCondition;
+                    script.SkipBlock();
+                }
+                script.SkipRestBlocks();
+
+                //return result;
+                return result.IsReturn ||
+                       result.Type == Variable.VarType.BREAK ||
+                       result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
+            }
+
+            // We are in Else. Skip everything in the If statement.
+            script.SkipBlock();
+
+            ParsingScript nextData = new ParsingScript(script);
+            nextData.ParentScript = script;
+
+            string nextToken = Utils.GetNextToken(nextData);
+
+            if (Constants.ELSE_IF == nextToken)
+            {
+                script.Pointer = nextData.Pointer + 1;
+                result = ProcessIf(script);
+            }
+            else if (Constants.ELSE == nextToken)
+            {
+                script.Pointer = nextData.Pointer + 1;
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = script.GetTempScript(body);
+                result = mainScript.Process();
+            }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
+            }
+
+            return result.IsReturn ||
+                   result.Type == Variable.VarType.BREAK ||
+                   result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
         }
     }
 
@@ -77,7 +141,51 @@
 
         private void ForStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessFor(e.Script);
+            string forString = Utils.GetBodyBetween(e.Script, Constants.START_ARG, Constants.END_ARG);
+            e.Script.Forward();
+            //for(init; condition; loopStatemen;)の形式です
+            string[] forTokens = forString.Split(Constants.END_STATEMENT);
+            if (forTokens.Length < 3)
+            {
+                Utils.ThrowErrorMsg("for文はfor(init; condition; loopStatement;)の形である必要があります", Exceptions.INVALID_SYNTAX,
+                                     e.Script, Constants.FOR);
+            }
+
+            int startForCondition = e.Script.Pointer;
+
+            ParsingScript initScript = e.Script.GetTempScript(forTokens[0] + Constants.END_STATEMENT);
+            ParsingScript condScript = initScript.GetTempScript(forTokens[1] + Constants.END_STATEMENT);
+            ParsingScript loopScript = initScript.GetTempScript(forTokens[2] + Constants.END_STATEMENT);
+
+            condScript.Variables = loopScript.Variables = initScript.Variables;
+
+            initScript.Execute(null, 0);
+            bool stillValid = true;
+
+            while (stillValid)
+            {
+                Variable condResult = condScript.Execute(null, 0); condScript.Tag = "COND";
+                stillValid = condResult.AsBool();
+                if (!stillValid)
+                {
+                    break;
+                }
+
+                e.Script.Pointer = startForCondition;
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = initScript.GetTempScript(body);
+                //mainScript.Variables = initScript.Variables;
+                Variable result = mainScript.Process();
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    return;
+                }
+                loopScript.Execute(null, 0);
+            }
+
+            e.Script.Pointer = startForCondition;
+            e.Script.SkipBlock();
         }
     }
 
@@ -170,10 +278,59 @@
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             this.Run += WhileStatement_Run;
         }
+        private Variable ProcessBlock(ParsingScript script)
+        {
+            int blockStart = script.Pointer;
+            Variable result = null;
 
+            while (script.StillValid())
+            {
+                int endGroupRead = script.GoToNextStatement();
+                if (endGroupRead > 0 || !script.StillValid())
+                {
+                    return result != null ? result : new Variable();
+                }
+
+                result = script.Execute();
+
+                if (result.IsReturn ||
+                    result.Type == Variable.VarType.BREAK ||
+                    result.Type == Variable.VarType.CONTINUE)
+                {
+                    return result;
+                }
+            }
+            return result;
+        }
         private void WhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessWhile(e.Script);
+            int startWhileCondition = e.Script.Pointer;
+            bool stillValid = true;
+            Variable result = Variable.EmptyInstance;
+
+            while (stillValid)
+            {
+                e.Script.Pointer = startWhileCondition;
+
+                //int startSkipOnBreakChar = from;
+                Variable condResult = e.Script.Execute(Constants.END_ARG_ARRAY);
+                stillValid = condResult.AsBool();
+                if (!stillValid)
+                {
+                    break;
+                }
+
+                result = ProcessBlock(e.Script);
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    e.Script.Pointer = startWhileCondition;
+                    break;
+                }
+            }
+
+            // 条件はもうtrueではないので、ブロックをスキップします
+            e.Script.SkipBlock();
+            e.Return = result.IsReturn ? result : Variable.EmptyInstance;
         }
     }
 
@@ -188,7 +345,34 @@
 
         private void DoWhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessDoWhile(e.Script);
+            int startDoCondition = e.Script.Pointer;
+            bool stillValid = true;
+            Variable result = Variable.EmptyInstance;
+
+            while (stillValid)
+            {
+                e.Script.Pointer = startDoCondition;
+
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = e.Script.GetTempScript(body);
+                result = mainScript.ProcessForWhile();
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    e.Script.Pointer = startDoCondition;
+                    break;
+                }
+                e.Script.Forward(Constants.WHILE.Length + 1);
+                Variable condResult = e.Script.Execute(Constants.END_ARG_ARRAY);
+                stillValid = condResult.AsBool();
+                if (!stillValid)
+                {
+                    break;
+                }
+            }
+
+            //SkipBlock(script);
+            e.Return= result.IsReturn ? result : Variable.EmptyInstance;
         }
     }
 
@@ -203,7 +387,57 @@
 
         private void SwitchStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessSwitch(e.Script);
+            Variable switchValue = Utils.GetItem(e.Script);
+            e.Script.Forward();
+
+            Variable result = Variable.EmptyInstance;
+            var caseSep = ":".ToCharArray();
+
+            bool caseDone = false;
+
+            while (e.Script.StillValid())
+            {
+                var nextToken = Utils.GetBodySize(e.Script, Constants.CASE, Constants.DEFAULT);
+                if (string.IsNullOrEmpty(nextToken))
+                {
+                    break;
+                }
+                if (nextToken == Constants.DEFAULT && !caseDone)
+                {
+                    string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                    ParsingScript mainScript = e.Script.GetTempScript(body);
+                    result = mainScript.Process();
+                    break;
+                }
+                if (!caseDone)
+                {
+                    Variable caseValue = e.Script.Execute(caseSep);
+                    e.Script.Forward(2);
+
+                    if (switchValue.Equals(caseValue))
+                    {
+                        caseDone = true;
+                        string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                        ParsingScript mainScript = e.Script.GetTempScript(body);
+                        result = mainScript.Process();
+                        if (mainScript.Prev == '}')
+                        {
+                            break;
+                        }
+                        e.Script.Forward();
+                    }
+                    else
+                    {
+                        e.Script.Backward();
+                        e.Script.SkipBlock();
+                    }
+                }
+            }
+            //  script.MoveForwardIfNotPrevious('}');
+            e.Script.GoToNextStatement();
+            e.Return=result;
         }
     }
 
@@ -218,7 +452,20 @@
 
         private void CaseStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessCase(e.Script, Name);
+            if (Name == Constants.CASE)
+            {
+                /*var token = */
+                Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
+            }
+            e.Script.MoveForwardIf(':');
+
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+            ParsingScript mainScript = e.Script.GetTempScript(body);
+            Variable result = mainScript.Process();
+            e.Script.MoveBackIfPrevious('}');
+
+            e.Return=result;
         }
 
     }
@@ -272,7 +519,49 @@
 
         private void TryBlock_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessTry(e.Script);
+            int startTryCondition = e.Script.Pointer - 1;
+            int currentStackLevel = ParserFunction.GetCurrentStackLevel();
+
+            Variable result = null;
+
+            // tryブロック内のスクリプト
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                   Constants.END_GROUP);
+            ParsingScript mainScript = e.Script.GetTempScript(body);
+            mainScript.InTryBlock = true;
+
+        // catchブロック内のスクリプト
+        getCatch:
+            string catchToken = Utils.GetNextToken(e.Script);
+            e.Script.Forward(); // skip opening parenthesis
+                              // The next token after the try block must be a catch.
+            if (Constants.CATCH != catchToken && e.Script.StillValid())
+            {
+                goto getCatch;
+            }
+            else if (Constants.CATCH != catchToken)
+            {
+                throw new ScriptException("Catchステートメントがありません", Exceptions.MISSING_CATCH_STATEMENT, e.Script);
+            }
+
+            string exceptionName = Utils.GetNextToken(e.Script);
+            e.Script.Forward(); // skip closing parenthesis
+            string body2 = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                   Constants.END_GROUP);
+            ParsingScript catchScript = e.Script.GetTempScript(body2);
+
+            mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
+            {
+                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
+                catchScript.Variables.Add(exceptionName, excMsgFunc);
+                result = catchScript.Process();
+                e.Handled = true;
+            };
+
+            result = mainScript.Process();
+
+            e.Script.SkipRestBlocks();
+            e.Return=result;
         }
     }
 }
