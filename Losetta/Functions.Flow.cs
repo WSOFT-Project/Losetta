@@ -1009,6 +1009,7 @@ namespace AliceScript
                                                            m_parentScript, m_parentOffset, instance);
             if (script != null)
             {
+                script.CloneThrowTryInfo(tempScript);
                 tempScript.m_stacktrace = new List<FunctionBase>(script.m_stacktrace);
                 tempScript.m_stacktrace.Add(this);
             }

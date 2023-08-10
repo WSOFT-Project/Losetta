@@ -153,6 +153,16 @@ namespace AliceScript
         /// </summary>
         public event ThrowErrorEventhandler ThrowError;
 
+        /// <summary>
+        /// 他のスクリプトに対してこのスクリプトの例外処理情報を引き継ぎます
+        /// </summary>
+        /// <param name="other">引き継ぐ対象のスクリプト</param>
+        internal void CloneThrowTryInfo(ParsingScript other)
+        {
+            other.InTryBlock = this.InTryBlock;
+            other.ThrowError = this.ThrowError;
+        }
+
         public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
         public char Current => m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
         public char Prev => m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
