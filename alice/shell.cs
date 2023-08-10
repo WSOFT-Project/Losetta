@@ -46,14 +46,18 @@ namespace alice
         {
             if (e.Message != "")
             {
-                string throwmsg = "エラー0x" + ((int)e.ErrorCode).ToString("x3") + ": ";
-                if (!string.IsNullOrEmpty(e.Message))
+                string throwmsg = "エラー0x" + ((int)e.ErrorCode).ToString("x3");
+                if (!string.IsNullOrWhiteSpace(e.Message))
                 {
-                    throwmsg += e.Message;
+                    throwmsg += ": "+e.Message;
                 }
                 if (e.Script != null)
                 {
-                    throwmsg += " " + e.Script.OriginalLineNumber + "行  ファイル名:" + e.Script.Filename;
+                    throwmsg += " " + e.Script.OriginalLineNumber + "行";
+                    if (!string.IsNullOrWhiteSpace(e.Script.Filename))
+                    {
+                        throwmsg += " ファイル名:" + e.Script.Filename;
+                    }
                 }
                 throwmsg += "\r\n";
                 if (allow_throw)
@@ -393,7 +397,7 @@ namespace alice
             string errorMsg = null;
             Variable result = null;
 
-#if !DEBUG
+#if !DEBUG_THROW
             try
 #endif
             {
@@ -417,12 +421,14 @@ namespace alice
                     result = CurrentScript.Process();
                 }
             }
-#if !DEBUG
+#if !DEBUG_THROW
             catch (Exception exc)
             {
                 ///TODO:補足されなかった例外にエラー番号振る。
+                /*
                 errorMsg ="補足されなかった例外:"+ (exc.InnerException != null ? exc.InnerException.Message : exc.Message);
                 ParserFunction.InvalidateStacksAfterLevel(0);
+                */
 
             }
 #endif
@@ -490,7 +496,8 @@ namespace alice
         {
             if (allow_debug_print)
             {
-                Console.Write(e.Output);
+                Utils.PrintColor(e.Output, ConsoleColor.Cyan);
+                //Console.Write(e.Output);
             }
             if (debug_print_redirect_files.Count > 0)
             {
