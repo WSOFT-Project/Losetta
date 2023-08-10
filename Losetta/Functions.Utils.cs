@@ -26,6 +26,10 @@
 
     internal class PointerReferenceFunction : ActionFunction
     {
+        public PointerReferenceFunction()
+        {
+            this.Name = "PointerReference";
+        }
         protected override Variable Evaluate(ParsingScript script)
         {
             var pointer = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
@@ -55,7 +59,7 @@
             if (result is CustomFunction)
             {
                 script.Forward();
-                List<Variable> args = script.GetFunctionArgs();
+                List<Variable> args = script.GetFunctionArgs(this);
                 return ((CustomFunction)result).ARun(args, script);
             }
             return Variable.Undefined;

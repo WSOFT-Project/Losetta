@@ -205,9 +205,11 @@ namespace AliceScript
         }
     }
 
-    public class AliceScriptClass : ParserFunction
+    public class AliceScriptClass : FunctionBase
     {
-        public AliceScriptClass() { }
+        public AliceScriptClass() {
+            this.Name = "Class";
+        }
 
         public AliceScriptClass(string className)
         {
@@ -267,7 +269,7 @@ namespace AliceScript
 
         protected override Variable Evaluate(ParsingScript script)
         {
-            script.GetFunctionArgs();
+            script.GetFunctionArgs(this);
 
             // TODO: Work in progress, currently not functional
             return Variable.EmptyInstance;
@@ -760,7 +762,7 @@ namespace AliceScript
                         trueArgs[i] = arg.Substring(0, ind).Trim();
                         string defValue = ind >= arg.Length - 1 ? "" : arg.Substring(ind + 1).Trim();
 
-                        Variable defVariable = Utils.GetVariableFromString(defValue, script);
+                        Variable defVariable = Utils.GetVariableFromString(defValue, script,this);
                         defVariable.CurrentAssign = m_args[i];
                         defVariable.Index = i;
 
@@ -797,7 +799,7 @@ namespace AliceScript
             List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
                 // Special case of extracting args.
                 Utils.GetFunctionArgsAsStrings(e.Script) :
-                e.Script.GetFunctionArgs();
+                e.Script.GetFunctionArgs(this);
 
             Utils.ExtractParameterNames(args, m_name, e.Script);
 
@@ -970,7 +972,7 @@ namespace AliceScript
             List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
              // Special case of extracting args.
              Utils.GetFunctionArgsAsStrings(script) :
-             script.GetFunctionArgs();
+             script.GetFunctionArgs(this);
 
             Utils.ExtractParameterNames(args, m_name, script);
 
@@ -1003,6 +1005,11 @@ namespace AliceScript
             Variable result = null;
             ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
+            if (script != null)
+            {
+                tempScript.m_stacktrace = new List<FunctionBase>(script.m_stacktrace);
+                tempScript.m_stacktrace.Add(this);
+            }
             tempScript.Tag = m_tag;
             tempScript.Variables = m_VarMap;
 
@@ -1226,11 +1233,12 @@ namespace AliceScript
     }
 
     // Get a value of a variable or of an array element
-    public class GetVarFunction : ParserFunction
+    public class GetVarFunction : FunctionBase
     {
         public GetVarFunction(Variable value)
         {
             m_value = value;
+            this.Name = "GetVar";
         }
 
         protected override Variable Evaluate(ParsingScript script)
@@ -1276,7 +1284,7 @@ namespace AliceScript
                 if (m_arrayIndices == null)
                 {
                     string startName = script.Substr(script.Pointer - 1);
-                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; });
+                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; },this);
                 }
 
                 script.Forward(m_delta);
@@ -1311,7 +1319,7 @@ namespace AliceScript
                                      m_value.GetEnumProperty(temp, script) :
                                      m_value.GetProperty(temp, script);
                 Utils.CheckNotNull(propValue, temp, script);
-                return EvaluateFunction(propValue, script, m_propName);
+                return EvaluateFunction(propValue, script, m_propName,this);
             }
 
             // Otherwise just return the stored value.
@@ -1359,7 +1367,7 @@ namespace AliceScript
                 if (m_arrayIndices == null)
                 {
                     string startName = script.Substr(script.Pointer - 1);
-                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; });
+                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; },this);
                 }
 
                 script.Forward(m_delta);
@@ -1394,18 +1402,18 @@ namespace AliceScript
                          m_value.GetEnumProperty(temp, script) :
                          await m_value.GetPropertyAsync(temp, script);
                 Utils.CheckNotNull(propValue, temp, script);
-                return EvaluateFunction(propValue, script, m_propName);
+                return EvaluateFunction(propValue, script, m_propName,this);
             }
 
             // Otherwise just return the stored value.
             return m_value;
         }
 
-        public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName)
+        public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName,FunctionBase callFrom)
         {
             if (var != null && var.CustomFunctionGet != null)
             {
-                List<Variable> args = script.Prev == '(' ? script.GetFunctionArgs() : new List<Variable>();
+                List<Variable> args = script.Prev == '(' ? script.GetFunctionArgs(callFrom) : new List<Variable>();
                 if (var.StackVariables != null)
                 {
                     args.AddRange(var.StackVariables);
@@ -1414,7 +1422,7 @@ namespace AliceScript
             }
             if (var != null && !string.IsNullOrWhiteSpace(var.CustomGet))
             {
-                return ParsingScript.RunString(var.CustomGet);
+                return ParsingScript.RunString(var.CustomGet,script);
             }
             return var;
         }
@@ -1440,6 +1448,10 @@ namespace AliceScript
 
     internal class IncrementDecrementFunction : ActionFunction, INumericFunction
     {
+        public IncrementDecrementFunction()
+        {
+            this.Name = "IncrementDecrement";
+        }
         protected override Variable Evaluate(ParsingScript script)
         {
             bool prefix = string.IsNullOrWhiteSpace(Name);
@@ -1457,7 +1469,7 @@ namespace AliceScript
             // Check if the variable to be set has the form of x[a][b],
             // meaning that this is an array element.
             double newValue = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; },this);
 
             ParserFunction func = ParserFunction.GetVariable(m_name, script);
             Utils.CheckNotNull(m_name, func, script);
@@ -1471,7 +1483,7 @@ namespace AliceScript
                 {
                     string tmpName = m_name + script.Rest;
                     int delta = 0;
-                    arrayIndices = Utils.GetArrayIndices(script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; });
+                    arrayIndices = Utils.GetArrayIndices(script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; },this);
                     script.Forward(Math.Max(0, delta - tmpName.Length));
                 }
 
@@ -1500,6 +1512,10 @@ namespace AliceScript
 
     internal class OperatorAssignFunction : ActionFunction
     {
+        public OperatorAssignFunction()
+        {
+            this.Name = "OperatorAssign";
+        }
         protected override Variable Evaluate(ParsingScript script)
         {
 
@@ -1513,7 +1529,7 @@ namespace AliceScript
             if (currentValue == null)
             {
                 isobj = false;
-                arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
+                arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
 
                 ParserFunction func = ParserFunction.GetVariable(m_name, script);
                 if (!Utils.CheckNotNull(func, m_name, script))
@@ -1743,6 +1759,10 @@ namespace AliceScript
 
     public class AssignFunction : ActionFunction
     {
+        public AssignFunction()
+        {
+            this.Name = "Assign";
+        }
         protected override Variable Evaluate(ParsingScript script)
         {
             return Assign(script, m_name);
@@ -1781,7 +1801,7 @@ namespace AliceScript
                 {
                     // Check if the variable to be set has the form of x[a][b]...,
                     // meaning that this is an array element.
-                    List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
+                    List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
                     m_name = Constants.ConvertName(m_name);
                     if (arrayIndices.Count == 0)
                     {
@@ -1835,7 +1855,7 @@ namespace AliceScript
 
                 // 設定する変数が x[a][b]... のような形式かどうかをチェックする
                 // つまり、配列添え字演算子が書いてあるかどうかを確認
-                List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; });
+                List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
 
                 if (arrayIndices.Count == 0)
                 {
@@ -1957,26 +1977,30 @@ namespace AliceScript
             return arrayIndex;
         }
     }
-    internal class AddVariablesToHashFunction : ParserFunction
+    internal class AddVariablesToHashFunction : FunctionBase
     {
-        protected override Variable Evaluate(ParsingScript script)
+        public AddVariablesToHashFunction()
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 3, m_name);
+            this.Name = Constants.ADD_ALL_TO_HASH;
+            this.MinimumArgCounts = 3;
+            this.Run += AddVariablesToHashFunction_Run;
+        }
 
-            string varName = Utils.GetSafeString(args, 0);
-            Variable lines = Utils.GetSafeVariable(args, 1);
-            int fromLine = Utils.GetSafeInt(args, 2);
-            string hash2 = Utils.GetSafeString(args, 3);
-            string sepStr = Utils.GetSafeString(args, 4, "\t");
+        private void AddVariablesToHashFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string varName = Utils.GetSafeString(e.Args, 0);
+            Variable lines = Utils.GetSafeVariable(e.Args, 1);
+            int fromLine = Utils.GetSafeInt(e.Args, 2);
+            string hash2 = Utils.GetSafeString(e.Args, 3);
+            string sepStr = Utils.GetSafeString(e.Args, 4, "\t");
             if (sepStr == "\\t")
             {
                 sepStr = "\t";
             }
             char[] sep = sepStr.ToCharArray();
 
-            var function = ParserFunction.GetVariable(varName, script);
-            Variable mapVar = function != null ? function.GetValue(script) :
+            var function = ParserFunction.GetVariable(varName, e.Script);
+            Variable mapVar = function != null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
             for (int counter = fromLine; counter < lines.Tuple.Count; counter++)
@@ -1995,30 +2019,33 @@ namespace AliceScript
             }
 
             ParserFunction.AddGlobalOrLocalVariable(varName,
-                                              new GetVarFunction(mapVar), script);
-            return Variable.EmptyInstance;
+                                              new GetVarFunction(mapVar), e.Script);
         }
     }
 
-    internal class AddVariableToHashFunction : ParserFunction
+    internal class AddVariableToHashFunction : FunctionBase
     {
-        protected override Variable Evaluate(ParsingScript script)
+        public AddVariableToHashFunction()
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 3, m_name);
+            this.Name = Constants.ADD_TO_HASH;
+            this.MinimumArgCounts = 3;
+            this.Run += AddVariableToHashFunction_Run;
+        }
 
-            string varName = Utils.GetSafeString(args, 0);
-            Variable toAdd = Utils.GetSafeVariable(args, 1);
-            string hash = Utils.GetSafeString(args, 2);
+        private void AddVariableToHashFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string varName = Utils.GetSafeString(e.Args, 0);
+            Variable toAdd = Utils.GetSafeVariable(e.Args, 1);
+            string hash = Utils.GetSafeString(e.Args, 2);
 
-            var function = ParserFunction.GetVariable(varName, script);
-            Variable mapVar = function != null ? function.GetValue(script) :
+            var function = ParserFunction.GetVariable(varName, e.Script);
+            Variable mapVar = function != null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
             mapVar.AddVariableToHash(hash, toAdd);
-            for (int i = 3; i < args.Count; i++)
+            for (int i = 3; i < e.Args.Count; i++)
             {
-                string hash2 = Utils.GetSafeString(args, 3);
+                string hash2 = Utils.GetSafeString(e.Args, 3);
                 if (!string.IsNullOrWhiteSpace(hash2) &&
                     !hash2.Equals(hash, StringComparison.OrdinalIgnoreCase))
                 {
@@ -2027,165 +2054,130 @@ namespace AliceScript
             }
 
             ParserFunction.AddGlobalOrLocalVariable(varName,
-                                                new GetVarFunction(mapVar), script);
-
-            return Variable.EmptyInstance;
+                                                new GetVarFunction(mapVar), e.Script);
         }
     }
 
-    internal class DefineLocalFunction : ParserFunction
+    internal class DefineLocalFunction : FunctionBase
     {
-        protected override Variable Evaluate(ParsingScript script)
+       public DefineLocalFunction()
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 1, m_name);
+            this.Name = Constants.DEFINE_LOCAL;
+            this.MinimumArgCounts = 1;
+            this.Run += DefineLocalFunction_Run;
+        }
 
-            string varName = Utils.GetSafeString(args, 0);
-            Variable currentValue = Utils.GetSafeVariable(args, 1);
+        private void DefineLocalFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string varName = Utils.GetSafeString(e.Args, 0);
+            Variable currentValue = Utils.GetSafeVariable(e.Args, 1);
 
             if (currentValue == null)
             {
                 currentValue = new Variable("");
             }
 
-            if (script.StackLevel != null)
+            if (e.Script.StackLevel != null)
             {
-                ParserFunction.AddLocalVariable(new GetVarFunction(currentValue), script, varName);
+                ParserFunction.AddLocalVariable(new GetVarFunction(currentValue), e.Script, varName);
             }
-            else if (script.CurrentClass != null)
+            else if (e.Script.CurrentClass != null)
             {
                 Utils.ThrowErrorMsg(m_name + "をクラス内で定義することはできません", Exceptions.COULDNT_DEFINE_IN_CLASS,
-                                    script, m_name);
+                                    e.Script, m_name);
             }
             else
             {
-                string scopeName = Path.GetFileName(script.Filename);
+                string scopeName = Path.GetFileName(e.Script.Filename);
                 ParserFunction.AddLocalScopeVariable(varName, scopeName,
                                                      new GetVarFunction(currentValue));
             }
 
-            return currentValue;
+            e.Return=currentValue;
         }
     }
 
-    internal class GetPropertiesFunction : ParserFunction, IArrayFunction
+    internal class GetPropertiesFunction : FunctionBase, IArrayFunction
     {
-        protected override Variable Evaluate(ParsingScript script)
+        public GetPropertiesFunction()
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 1, m_name, true);
+            this.Name = Constants.GET_PROPERTIES;
+            this.MinimumArgCounts = 1;
+            this.Run += GetPropertiesFunction_Run;
+        }
 
-            Variable baseValue = args[0];
+        private void GetPropertiesFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            Variable baseValue = e.Args[0];
             List<Variable> props = baseValue.GetProperties();
-            return new Variable(props);
+            e.Return =new Variable(props);
         }
     }
 
-    internal class GetPropertyFunction : ParserFunction, IArrayFunction
+    internal class GetPropertyFunction : FunctionBase, IArrayFunction
     {
-        protected override Variable Evaluate(ParsingScript script)
+        public GetPropertyFunction()
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 2, m_name, true);
-
-            Variable baseValue = args[0];
-            string propName = Utils.GetSafeString(args, 1);
-
-            Variable propValue = baseValue.GetProperty(propName, script);
-            Utils.CheckNotNull(propValue, propName, script);
-
-            return new Variable(propValue);
+            this.Name = Constants.GET_PROPERTY;
+            this.MinimumArgCounts = 2;
+            this.Run += GetPropertyFunction_Run;
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
+
+        private void GetPropertyFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 2, m_name, true);
+            Variable baseValue = e.Args[0];
+            string propName = Utils.GetSafeString(e.Args, 1);
 
-            Variable baseValue = args[0];
-            string propName = Utils.GetSafeString(args, 1);
+            Variable propValue = baseValue.GetProperty(propName, e.Script);
+            Utils.CheckNotNull(propValue, propName, e.Script);
 
-            Variable propValue = await baseValue.GetPropertyAsync(propName, script);
-            Utils.CheckNotNull(propValue, propName, script);
-
-            return new Variable(propValue);
-        }
-        public static Variable GetProperty(ParsingScript script, string sPropertyName)
-        {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 1, "GetProperty", true);
-
-            Variable baseValue = args[0];
-
-            Variable propValue = baseValue.GetProperty(sPropertyName, script);
-            Utils.CheckNotNull(propValue, sPropertyName, script);
-
-            return new Variable(propValue);
+            e.Return= new Variable(propValue);
         }
     }
 
-    internal class SetPropertyFunction : ParserFunction, IArrayFunction
+    internal class SetPropertyFunction : FunctionBase, IArrayFunction
     {
-        protected override Variable Evaluate(ParsingScript script)
+        public SetPropertyFunction()
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 3, m_name, true);
-
-            Variable baseValue = args[0];
-            string propName = Utils.GetSafeString(args, 1);
-            Variable propValue = Utils.GetSafeVariable(args, 2);
-
-            Variable result = baseValue.SetProperty(propName, propValue, script);
-
-            ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
-                                                    new GetVarFunction(baseValue), script);
-            return result;
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 3, m_name, true);
-
-            Variable baseValue = args[0];
-            string propName = Utils.GetSafeString(args, 1);
-            Variable propValue = Utils.GetSafeVariable(args, 2);
-
-            Variable result = await baseValue.SetPropertyAsync(propName, propValue, script);
-
-            ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
-                                                    new GetVarFunction(baseValue), script);
-            return result;
+            this.Name = "SetProperty";
+            this.MinimumArgCounts = 3;
+            this.Run += SetPropertyFunction_Run;
         }
 
-        public static Variable SetProperty(ParsingScript script, string sPropertyName)
+        private void SetPropertyFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 2, "SetProperty", true);
 
-            Variable baseValue = args[0];
-            Variable propValue = Utils.GetSafeVariable(args, 1);
+            Variable baseValue = e.Args[0];
+            string propName = Utils.GetSafeString(e.Args, 1);
+            Variable propValue = Utils.GetSafeVariable(e.Args, 2);
 
-            Variable result = baseValue.SetProperty(sPropertyName, propValue, script);
+            Variable result = baseValue.SetProperty(propName, propValue, e.Script);
 
             ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
-                                                    new GetVarFunction(baseValue), script);
-            return result;
+                                                    new GetVarFunction(baseValue), e.Script);
+            e.Return = result;
         }
     }
 
-    internal class CancelFunction : ParserFunction
+    internal class CancelFunction : FunctionBase
     {
         public static bool Canceled { get; set; }
 
-        protected override Variable Evaluate(ParsingScript script)
+        public CancelFunction()
         {
-            List<Variable> args = script.GetFunctionArgs();
-            Utils.CheckArgs(args.Count, 0, m_name, true);
-
-            bool mode = Utils.GetSafeInt(args, 0, 1) == 1;
-            Canceled = mode;
-
-            return new Variable(Canceled);
+            this.Name = Constants.CANCEL;
+            this.Run += CancelFunction_Run;
         }
+
+        private void CancelFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            Utils.CheckArgs(e.Args.Count, 0, m_name, true);
+
+            bool mode = Utils.GetSafeInt(e.Args, 0, 1) == 1;
+            Canceled = mode;
+            e.Return = new Variable(Canceled);
+        }
+
     }
 
 
@@ -2193,7 +2185,7 @@ namespace AliceScript
     {
         protected override Variable Evaluate(ParsingScript script)
         {
-            List<Variable> args = script.GetFunctionArgs();
+            List<Variable> args = script.GetFunctionArgs(null);
             Utils.CheckArgs(args.Count, 2, m_name);
 
             Variable arrayVar = Utils.GetSafeVariable(args, 0);

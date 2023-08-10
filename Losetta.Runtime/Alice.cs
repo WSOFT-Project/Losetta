@@ -1078,7 +1078,7 @@
             if (script.LabelToFile.TryGetValue(labelName, out filename) &&
                 filename != script.Filename && !string.IsNullOrWhiteSpace(filename))
             {
-                var newScript = script.GetIncludeFileScript(filename);
+                var newScript = script.GetIncludeFileScript(filename,this);
                 script.Filename = filename;
                 script.String = newScript.String;
             }
@@ -1112,11 +1112,13 @@
 
         private void IncludeFile_Run(object sender, FunctionBaseEventArgs e)
         {
+            /*
             if (e.Script == null)
             {
                 e.Script = new ParsingScript("");
             }
-            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString());
+            */
+            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString(),this);
 
             Variable result = null;
             while (tempScript.StillValid())

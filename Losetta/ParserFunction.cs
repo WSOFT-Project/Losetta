@@ -118,14 +118,15 @@ namespace AliceScript
 
             if (arrayStart == 0)
             {
-                Variable arr = Utils.ProcessArrayMap(new ParsingScript(name));
+                //Variable arr = Utils.ProcessArrayMap(new ParsingScript(name));
+                Variable arr = Utils.ProcessArrayMap(script.GetTempScript(name));
                 return new GetVarFunction(arr);
             }
 
             string arrayName = name;
 
             int delta = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; });
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; },null);
 
             if (arrayIndices.Count == 0)
             {
@@ -195,7 +196,7 @@ namespace AliceScript
                 pf = ParserFunction.GetFunction(baseName, script);
                 if (pf == null)
                 {
-                    pf = Utils.ExtractArrayElement(baseName);
+                    pf = Utils.ExtractArrayElement(baseName,script);
                 }
             }
 
@@ -1222,7 +1223,7 @@ namespace AliceScript
         public static int StackLevelDelta { get; set; }
     }
 
-    public abstract class ActionFunction : ParserFunction
+    public abstract class ActionFunction : FunctionBase
     {
         protected string m_action;
         public string Action { set => m_action = value; }

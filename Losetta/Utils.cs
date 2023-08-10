@@ -190,7 +190,7 @@ namespace AliceScript
             tempScript.ParentScript = script;
             tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
-            tempScript.StackTrace = script.StackTrace;
+            tempScript.m_stacktrace = new List<FunctionBase>(script.StackTrace);
             if (script != null)
             {
                 tempScript.Package = script.Package;
@@ -257,14 +257,14 @@ namespace AliceScript
             return lines;
         }
 
-        public static GetVarFunction ExtractArrayElement(string token)
+        public static GetVarFunction ExtractArrayElement(string token,ParsingScript script)
         {
             if (!token.Contains(Constants.START_ARRAY))
             {
                 return null;
             }
 
-            ParsingScript tempScript = new ParsingScript(token);
+            ParsingScript tempScript = script.GetTempScript(token);
             Variable result = tempScript.Execute();
             return new GetVarFunction(result);
         }
@@ -318,27 +318,6 @@ namespace AliceScript
             }
             return args[index];
         }
-
-        public static Variable GetVariable(string varName, ParsingScript script = null, bool testNull = true)
-        {
-            varName = varName.ToLower();
-            if (script == null)
-            {
-                script = new ParsingScript("");
-            }
-
-            ParserFunction func = ParserFunction.GetVariable(varName, script);
-            if (!testNull && func == null)
-            {
-                return null;
-            }
-            Utils.CheckNotNull(varName, func, script);
-            Variable varValue = func.GetValue(script);
-            Utils.CheckNotNull(varValue, varName, script);
-            return varValue;
-        }
-
-
         public static double ConvertToDouble(object obj, ParsingScript script = null)
         {
             string str = obj.ToString().ToLower();

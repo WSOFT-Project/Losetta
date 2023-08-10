@@ -51,7 +51,7 @@
                 }
                 else
                 {
-                    args = script.GetFunctionArgs(Constants.START_ARG, Constants.END_ARG);
+                    args = script.GetFunctionArgs(this,Constants.START_ARG, Constants.END_ARG);
                 }
 
                 if (MinimumArgCounts >= 1)
@@ -77,7 +77,7 @@
                 }
                 else
                 {
-                    args = script.GetFunctionArgs(Constants.START_ARG, Constants.END_ARG);
+                    args = script.GetFunctionArgs(this,Constants.START_ARG, Constants.END_ARG);
                 }
                 if (MinimumArgCounts >= 1)
                 {

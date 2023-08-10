@@ -29,7 +29,8 @@ namespace AliceScript.NameSpaces
                 return;
             }
 
-            ParsingScript tempScript = new ParsingScript(expr);
+            //ParsingScript tempScript = new ParsingScript(expr);
+            ParsingScript tempScript = e.Script.GetTempScript(expr);
             tempScript.Defines = def;
             result = tempScript.Execute();
 

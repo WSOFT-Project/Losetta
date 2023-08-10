@@ -58,16 +58,6 @@
             }*/
         }
 
-        public static void PrintColor(string output, ConsoleColor fgcolor)
-        {
-            ConsoleColor currentForeground = Console.ForegroundColor;
-            Console.ForegroundColor = fgcolor;
-
-            Interpreter.Instance.AppendOutput(output);
-            //Console.Write(output);
-
-            Console.ForegroundColor = currentForeground;
-        }
 
         public static void GetDir(string dir = "./", bool recursive = true)
         {

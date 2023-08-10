@@ -1077,7 +1077,7 @@ namespace AliceScript
                 }
                 if (!string.IsNullOrWhiteSpace(result.CustomSet))
                 {
-                    return ParsingScript.RunString(result.CustomSet);
+                    return ParsingScript.RunString(result.CustomSet,script);
                 }
             }
 
@@ -1185,7 +1185,7 @@ namespace AliceScript
                        (script.Pointer == 0 || script.Prev == Constants.START_ARG))
                     {
 
-                        args = script.GetFunctionArgs();
+                        args = script.GetFunctionArgs(null);
                         ObjectBase.LaskVariable = args;
                     }
                     else if (script != null)
@@ -1229,7 +1229,7 @@ namespace AliceScript
                     if (script != null &&
                        (script.Pointer == 0 || script.Prev == Constants.START_ARG))
                     {
-                        args = script.GetFunctionArgs();
+                        args = script.GetFunctionArgs(null);
                     }
                     else if (script != null)
                     {

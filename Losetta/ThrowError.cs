@@ -3,6 +3,8 @@
     public class ThrowErrorEventArgs : EventArgs
     {
         public string Message { get; set; }
+        public string HelpLink { get; set; }
+        public string Source { get; set; }
         public ParsingScript Script { get; set; }
         public ParsingException Exception { get; set; }
         public Exceptions ErrorCode { get; set; }
@@ -29,6 +31,7 @@
             this.ErrorCode = erorcode;
             this.Script = script;
             this.Exception = exception;
+            this.HelpLink = "https://a.wsoft.ws/alice/exceptions/0x" + ((int)ErrorCode).ToString("x3");
         }
         public ParsingScript Script { get; set; }
         public ParsingException Exception { get; set; }

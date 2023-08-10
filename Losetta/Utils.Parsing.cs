@@ -51,7 +51,7 @@ namespace AliceScript
             try
             {
                 value.Tuple = new VariableCollection();
-                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }));
+                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; },null));
             }
             finally
             {
@@ -376,7 +376,7 @@ namespace AliceScript
 
 
         public static List<Variable> GetArgs(ParsingScript script,
-            char start, char end, Action<bool> outList)
+            char start, char end, Action<bool> outList,FunctionBase callFrom)
         {
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
@@ -386,7 +386,7 @@ namespace AliceScript
                 return args;
             }
 
-            ParsingScript tempScript = script.GetTempScript(script.String, script.Pointer);
+            ParsingScript tempScript = script.GetTempScript(script.String, callFrom,script.Pointer);
 
             if (script.Current != start && script.TryPrev() != start &&
                (script.Current == ' ' || script.TryPrev() == ' '))
@@ -502,9 +502,9 @@ namespace AliceScript
             return args.ToArray();
         }
 
-        public static Variable GetVariableFromString(string str, ParsingScript script, int startIndex = 0)
+        public static Variable GetVariableFromString(string str, ParsingScript script,FunctionBase callFrom, int startIndex = 0)
         {
-            ParsingScript tempScript = script.GetTempScript(str, startIndex);
+            ParsingScript tempScript = script.GetTempScript(str, callFrom,startIndex);
             Variable result = Utils.GetItem(tempScript);
             return result;
         }
@@ -1211,12 +1211,12 @@ namespace AliceScript
             return null;
         }
 
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom)
         {
             int end = 0;
-            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; });
+            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; },callFrom);
         }
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals,FunctionBase callFrom)
         {
             List<Variable> indices = new List<Variable>();
 
@@ -1236,7 +1236,7 @@ namespace AliceScript
                     break;
                 }
 
-                ParsingScript tempScript = script.GetTempScript(varName, argStart);
+                ParsingScript tempScript = script.GetTempScript(varName, callFrom,argStart);
                 tempScript.MoveForwardIf(Constants.START_ARG, Constants.START_ARRAY);
 
                 Variable index = tempScript.Execute(Constants.END_ARRAY_ARRAY);

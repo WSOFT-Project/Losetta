@@ -42,35 +42,66 @@ namespace alice
         }
 
         private static bool mainfile = false;
-        private static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
+        internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (e.Message != "")
             {
-                string throwmsg = "エラー0x" + ((int)e.ErrorCode).ToString("x3");
-                if (!string.IsNullOrWhiteSpace(e.Message))
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
+                sb.AppendLine("説明: "+e.Message);
+                if (!string.IsNullOrWhiteSpace(e.HelpLink))
                 {
-                    throwmsg += ": "+e.Message;
+                    sb.AppendLine("詳細情報: " + e.HelpLink);
                 }
                 if (e.Script != null)
                 {
-                    throwmsg += " " + e.Script.OriginalLineNumber + "行";
                     if (!string.IsNullOrWhiteSpace(e.Script.Filename))
                     {
-                        throwmsg += " ファイル名:" + e.Script.Filename;
+                        sb.AppendLine("発生場所: "+e.Script.Filename+" "+e.Script.OriginalLineNumber+"行");
                     }
+                    var st = new List<FunctionBase>(e.Script.StackTrace);
+                    st.Reverse();
+                    sb.AppendLine("---スタックトレース---");
+                    foreach(var s in st)
+                    {
+                        sb.Append("場所 ");
+                        foreach(string k in s.Keywords)
+                        {
+                            sb.Append(k+" ");
+                        }
+                        if(s.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || s.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
+                        {
+                            sb.Append(Constants.COMMAND+" ");
+                        }
+                            sb.Append(Constants.FUNCTION + " ");
+                            if (!(s is CustomFunction) && s.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+                            {
+                                sb.Append("keyword ");
+                            }
+                        sb.Append( (string.IsNullOrWhiteSpace(s.Name)? "Anonymous" : s.Name)+"(");
+                        if(s is CustomFunction cf && cf.RealArgs!=null && cf.RealArgs.Length > 0)
+                        {
+                            foreach(string a in s.RealArgs)
+                            {
+                                sb.Append(a+",");
+                            }
+                        }
+                        sb.AppendLine(");");
+                    }
+                    sb.AppendLine("---スタックトレース(終わり)---");
                 }
-                throwmsg += "\r\n";
                 if (allow_throw)
                 {
-                    AliceScript.Utils.PrintColor(throwmsg, ConsoleColor.Red);
-                    DumpLocalVariables(e.Script);
-                    DumpGlobalVariables();
+                    PrintColor(sb.ToString(), ConsoleColor.White,ConsoleColor.DarkRed);
+                    //DumpLocalVariables(e.Script);
+                    //DumpGlobalVariables();
+                    Interpreter.Instance.AppendOutput(string.Empty,true);
                 }
                 if (throw_redirect_files.Count > 0)
                 {
                     foreach (string fn in throw_redirect_files)
                     {
-                        File.AppendAllText(fn, throwmsg);
+                        File.AppendAllText(fn, sb.ToString());
                     }
 
                 }
@@ -452,7 +483,7 @@ namespace alice
 
             if (!string.IsNullOrWhiteSpace(errorMsg))
             {
-                Utils.PrintColor(errorMsg + Environment.NewLine, ConsoleColor.Red);
+                PrintColor(errorMsg + Environment.NewLine, ConsoleColor.Red);
                 errorMsg = string.Empty;
             }
         }
@@ -463,6 +494,22 @@ namespace alice
             return string.Format("{0}>>", path);
         }
 
+        internal static void PrintColor(string output, ConsoleColor fgcolor, ConsoleColor? bgcolor = null)
+        {
+            ConsoleColor currentForeground = Console.ForegroundColor;
+            ConsoleColor currentBackground = Console.BackgroundColor;
+
+            Console.ForegroundColor = fgcolor;
+            if (bgcolor.HasValue)
+            {
+                Console.BackgroundColor = bgcolor.Value;
+            }
+
+            Console.Write(output);
+
+            Console.ForegroundColor = currentForeground;
+            Console.BackgroundColor = currentBackground;
+        }
         private static void ClearLine(string part1 = "", string part2 = "")
         {
             string spaces = new string(' ', part1.Length + part2.Length + 1);
@@ -496,7 +543,7 @@ namespace alice
         {
             if (allow_debug_print)
             {
-                Utils.PrintColor(e.Output, ConsoleColor.Cyan);
+                PrintColor(e.Output, ConsoleColor.Cyan);
                 //Console.Write(e.Output);
             }
             if (debug_print_redirect_files.Count > 0)

@@ -16,7 +16,7 @@
             if (e.Script.Prev == Constants.START_ARG)
             {
                 ///本来の関数のように使用されている
-                List<Variable> args = e.Script.GetFunctionArgs();
+                List<Variable> args = e.Script.GetFunctionArgs(this);
                 if (args.Count > 0 && args[0].Object is TypeObject type)
                 {
                     var arg = new List<Variable>();
@@ -33,7 +33,7 @@
 
                 className = Constants.ConvertName(className);
                 e.Script.MoveForwardIf(Constants.START_ARG);
-                List<Variable> args = e.Script.GetFunctionArgs();
+                List<Variable> args = e.Script.GetFunctionArgs(this);
 
                 ObjectBase csClass = AliceScriptClass.GetClass(className, e.Script) as ObjectBase;
                 if (csClass != null)
@@ -92,7 +92,72 @@
 
         private void ForeachStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessForeach(e.Script);
+            string forString = Utils.GetBodyBetween(e.Script, Constants.START_ARG, Constants.END_ARG);
+            e.Script.Forward();
+            //foreach(var in ary)の形式です
+            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
+            var tokens = forString.Split(' ');
+
+            bool registVar = false;
+            if (tokens[0].ToLower() == Constants.VAR)
+            {
+                tokens = tokens.Skip(1).ToArray();
+                forString = forString.Substring(3);
+                registVar = true;
+            }
+            var sep = tokens.Length > 2 ? tokens[1] : "";
+            string varName = tokens[0];
+            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
+
+            if (sep != Constants.FOR_IN)
+            {
+                int index = forString.IndexOf(Constants.FOR_EACH);
+                if (index <= 0 || index == forString.Length - 1)
+                {
+                    Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
+                                     , e.Script, Constants.FOREACH);
+                }
+                varName = forString.Substring(0, index);
+            }
+
+            ParsingScript forScript = e.Script.GetTempScript(forString,this, varName.Length + sep.Length + 1);
+
+            Variable arrayValue = Utils.GetItem(forScript);
+
+            if (arrayValue.Type == Variable.VarType.STRING)
+            {
+                arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
+            }
+
+            int cycles = arrayValue.Count;
+            if (cycles == 0)
+            {
+                e.Script.SkipBlock();
+                return;
+            }
+            int startForCondition = e.Script.Pointer;
+
+            for (int i = 0; i < cycles; i++)
+            {
+                e.Script.Pointer = startForCondition;
+                Variable current = arrayValue.GetValue(i);
+
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = e.Script.GetTempScript(body);
+                ParserFunction.AddGlobalOrLocalVariable(varName,
+                               new GetVarFunction(current), mainScript, false, registVar, false);
+                Variable result = mainScript.Process();
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    //script.Pointer = startForCondition;
+                    //SkipBlock(script);
+                    //return;
+                    break;
+                }
+            }
+            e.Script.Pointer = startForCondition;
+            e.Script.SkipBlock();
         }
 
     }

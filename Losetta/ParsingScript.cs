@@ -19,7 +19,7 @@ namespace AliceScript
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private List<NameSpace> m_namespace = new List<NameSpace>();
-        private List<CustomFunction> m_stacktrace = new List<CustomFunction>();
+        internal List<FunctionBase> m_stacktrace = new List<FunctionBase>();
 
         /// <summary>
         /// 最上位のスクリプトを取得します
@@ -51,10 +51,23 @@ namespace AliceScript
         /// <summary>
         /// このスクリプトのCustomFunctionの呼び出し履歴
         /// </summary>
-        public List<CustomFunction> StackTrace
+        public List<FunctionBase> StackTrace
         {
-            get => m_stacktrace; set => m_stacktrace = value;
+            get
+            {
+                var s = new List<FunctionBase>(m_stacktrace);
+                if (ProcessingFunction != null)
+                {
+                    s.Add(ProcessingFunction);
+                }
+                return s;
+            }
         }
+
+        /// <summary>
+        /// 現在実行中あるいは最後に実行された関数
+        /// </summary>
+        public FunctionBase ProcessingFunction { get; set; }
 
         /// <summary>
         /// このスクリプトの現在の名前空間
@@ -628,12 +641,12 @@ namespace AliceScript
             return b;
         }
 
-        public List<Variable> GetFunctionArgs(char start = Constants.START_ARG,
+        public List<Variable> GetFunctionArgs(FunctionBase callFrom,char start = Constants.START_ARG,
                                       char end = Constants.END_ARG)
         {
             bool isList;
             List<Variable> args = Utils.GetArgs(this,
-                                                start, end, (outList) => { isList = outList; });
+                                                start, end, (outList) => { isList = outList; },callFrom);
             return args;
         }
         public int GoToNextStatement()
@@ -661,9 +674,9 @@ namespace AliceScript
             return endGroupRead;
         }
 
-        public static Variable RunString(string str)
+        public static Variable RunString(string str,ParsingScript script)
         {
-            ParsingScript tempScript = new ParsingScript(str);
+            ParsingScript tempScript = script.GetTempScript(str);
             Variable result = tempScript.Execute();
             return result;
         }
@@ -699,6 +712,8 @@ namespace AliceScript
                     ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
                     ex.Message = e.Message;
                     ex.Script = this;
+                    ex.HelpLink = e.HelpLink;
+                    ex.Source = e.Source;
 
                     if (e is ScriptException scriptExc)
                     {
@@ -720,7 +735,6 @@ namespace AliceScript
                         return result;
                     }
                     ThrowErrorManerger.OnThrowError(ex.Script, ex);
-                    throw e;
                 }
 #endif
             }
@@ -828,7 +842,11 @@ namespace AliceScript
             }
             return result;
         }
-        public ParsingScript GetTempScript(string str, int startIndex = 0)
+        public void SkipBlock()
+        {
+            Interpreter.SkipBlock(this);
+        }
+        public ParsingScript GetTempScript(string str,FunctionBase callFrom=null, int startIndex = 0)
         {
             str = Utils.ConvertToScript(str, out _, out var def);
             ParsingScript tempScript = new ParsingScript(str, startIndex);
@@ -847,10 +865,15 @@ namespace AliceScript
             tempScript.Package = this.Package;
             tempScript.Generation = this.Generation + 1;
             tempScript.ThrowError = this.ThrowError;
+            tempScript.m_stacktrace = new List<FunctionBase>(m_stacktrace);
+            if (callFrom != null)
+            {
+                tempScript.m_stacktrace.Add(callFrom);
+            }
 
             return tempScript;
         }
-        public ParsingScript GetIncludeFileScript(string filename)
+        public ParsingScript GetIncludeFileScript(string filename,FunctionBase callFrom)
         {
             string pathname;
             if (!this.ContainsSymbol(Constants.DISABLE_INCLUDE))
@@ -871,6 +894,12 @@ namespace AliceScript
                 tempScript.Tag = this.Tag;
                 tempScript.Generation = this.Generation + 1;
                 tempScript.ThrowError = this.ThrowError;
+                tempScript.m_stacktrace = new List<FunctionBase>(this.m_stacktrace);
+
+                if (callFrom != null)
+                {
+                    tempScript.m_stacktrace.Add(callFrom);
+                }
                 if (isPackageFile)
                 {
                     tempScript.Package = this.Package;

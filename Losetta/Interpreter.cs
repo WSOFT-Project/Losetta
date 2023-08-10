@@ -131,14 +131,7 @@ namespace AliceScript
 
             ParserFunction.RegisterFunction(Constants.CLASS, new ClassCreator());
             ParserFunction.RegisterFunction(Constants.ENUM, new EnumFunction());
-            ParserFunction.RegisterFunction(Constants.GET_PROPERTIES, new GetPropertiesFunction());
-            ParserFunction.RegisterFunction(Constants.GET_PROPERTY, new GetPropertyFunction());
-            ParserFunction.RegisterFunction(Constants.SET_PROPERTY, new SetPropertyFunction());
 
-            ParserFunction.RegisterFunction(Constants.ADD_TO_HASH, new AddVariableToHashFunction());
-            ParserFunction.RegisterFunction(Constants.ADD_ALL_TO_HASH, new AddVariablesToHashFunction());
-            ParserFunction.RegisterFunction(Constants.CANCEL, new CancelFunction());
-            ParserFunction.RegisterFunction(Constants.DEFINE_LOCAL, new DefineLocalFunction());
             ParserFunction.RegisterFunction(Constants.GET_COLUMN, new GetColumnFunction());
             ParserFunction.RegisterFunction(Constants.GET_KEYS, new GetAllKeysFunction());
             ParserFunction.RegisterFunction(Constants.NAMESPACE, new NamespaceFunction());
@@ -148,6 +141,13 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
 
             FunctionBaseManerger.Add(new ArrayTypeFunction());
+            FunctionBaseManerger.Add(new DefineLocalFunction());
+            FunctionBaseManerger.Add(new AddVariablesToHashFunction());
+            FunctionBaseManerger.Add(new AddVariableToHashFunction());
+            FunctionBaseManerger.Add(new SetPropertyFunction());
+            FunctionBaseManerger.Add(new GetPropertyFunction());
+            FunctionBaseManerger.Add(new GetPropertiesFunction());
+            FunctionBaseManerger.Add(new CancelFunction());
             FunctionBaseManerger.Add(new FunctionCreator());
 
         }
@@ -262,7 +262,6 @@ namespace AliceScript
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
-            toParse.Defines = def;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
             toParse.Tag = tag;
@@ -280,6 +279,7 @@ namespace AliceScript
                 result = toParse.Execute();
                 toParse.GoToNextStatement();
             }
+            //これでこのスクリプトの処理は終わり
             if (Interop.GCManerger.CollectAfterExecute)
             {
                 GC.Collect();
@@ -324,82 +324,6 @@ namespace AliceScript
             ProcessCanonicalFor(script, forString);
             return Variable.EmptyInstance;
         }
-        public Variable ProcessForeach(ParsingScript script)
-        {
-            string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
-            script.Forward();
-            //foreach(var in ary)の形式です
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-            ProcessArrayFor(script, forString);
-            return Variable.EmptyInstance;
-        }
-
-        private void ProcessArrayFor(ParsingScript script, string forString)
-        {
-            var tokens = forString.Split(' ');
-
-            bool registVar = false;
-            if (tokens[0].ToLower() == Constants.VAR)
-            {
-                tokens = tokens.Skip(1).ToArray();
-                forString = forString.Substring(3);
-                registVar = true;
-            }
-            var sep = tokens.Length > 2 ? tokens[1] : "";
-            string varName = tokens[0];
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-
-            if (sep != Constants.FOR_IN)
-            {
-                int index = forString.IndexOf(Constants.FOR_EACH);
-                if (index <= 0 || index == forString.Length - 1)
-                {
-                    Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
-                                     , script, Constants.FOREACH);
-                }
-                varName = forString.Substring(0, index);
-            }
-
-            ParsingScript forScript = script.GetTempScript(forString, varName.Length + sep.Length + 1);
-
-            Variable arrayValue = Utils.GetItem(forScript);
-
-            if (arrayValue.Type == Variable.VarType.STRING)
-            {
-                arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
-            }
-
-            int cycles = arrayValue.Count;
-            if (cycles == 0)
-            {
-                SkipBlock(script);
-                return;
-            }
-            int startForCondition = script.Pointer;
-
-            for (int i = 0; i < cycles; i++)
-            {
-                script.Pointer = startForCondition;
-                Variable current = arrayValue.GetValue(i);
-
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
-                ParsingScript mainScript = script.GetTempScript(body);
-                ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new GetVarFunction(current), mainScript, false, registVar, false);
-                Variable result = mainScript.Process();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                {
-                    //script.Pointer = startForCondition;
-                    //SkipBlock(script);
-                    //return;
-                    break;
-                }
-            }
-            script.Pointer = startForCondition;
-            SkipBlock(script);
-        }
-
 
         private void ProcessCanonicalFor(ParsingScript script, string forString)
         {
@@ -708,7 +632,7 @@ namespace AliceScript
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
             {
-                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script)));
+                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source,e.HelpLink)));
                 catchScript.Variables.Add(exceptionName, excMsgFunc);
                 result = catchScript.Process();
                 e.Handled = true;
@@ -767,7 +691,7 @@ namespace AliceScript
             return result;
         }
 
-        private void SkipBlock(ParsingScript script)
+        internal static void SkipBlock(ParsingScript script)
         {
             int blockStart = script.Pointer;
             int startCount = 0;

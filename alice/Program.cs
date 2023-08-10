@@ -49,7 +49,7 @@ namespace alice
             ShellFunctions.Init();
 
 
-            ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
+            ThrowErrorManerger.ThrowError += Shell.ThrowErrorManerger_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
@@ -127,7 +127,7 @@ namespace alice
             }
             else
             {
-                ThrowErrorManerger.ThrowError -= ThrowErrorManerger_ThrowError;
+                ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }
@@ -268,36 +268,6 @@ namespace alice
                 }
             }
         }
-        private static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
-        {
-            if (e.Message != "")
-            {
-                string throwmsg = "エラー0x" + ((int)e.ErrorCode).ToString("x3") + ": ";
-                if (!string.IsNullOrEmpty(e.Message))
-                {
-                    throwmsg += e.Message;
-                }
-                if (e.Script != null)
-                {
-                    throwmsg += " " + e.Script.OriginalLineNumber + "行 ファイル名:" + e.Script.Filename;
-                }
-                throwmsg += "\r\n";
-                if (allow_throw)
-                {
-                    AliceScript.Utils.PrintColor(throwmsg, ConsoleColor.Red);
-                    Shell.DumpLocalVariables(e.Script);
-                    Shell.DumpGlobalVariables();
-                }
-                if (throw_redirect_files.Count > 0)
-                {
-                    foreach (string fn in throw_redirect_files)
-                    {
-                        File.AppendAllText(fn, throwmsg);
-                    }
-
-                }
-            }
-
-        }
+        
     }
 }
