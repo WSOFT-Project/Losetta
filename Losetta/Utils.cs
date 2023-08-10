@@ -234,7 +234,7 @@ namespace AliceScript
             }
             if (fromPackage || !File.Exists(filename))
             {
-                throw new ScriptException("ファイル名:[" + filename + "]は存在しません", Exceptions.FILE_NOT_FOUND);
+                throw new FileNotFoundException(null,filename);
             }
             return File.ReadAllBytes(filename);
         }

@@ -36,7 +36,7 @@
             this.ErrorCode = erorcode;
             this.Script = script;
             this.Exception = exception;
-            this.HelpLink = "https://a.wsoft.ws/alice/exceptions/0x" + ((int)ErrorCode).ToString("x3");
+            this.HelpLink = Constants.HELP_LINK + ((int)ErrorCode).ToString("x3");
         }
         public ParsingScript Script { get; set; }
         public ParsingException Exception { get; set; }

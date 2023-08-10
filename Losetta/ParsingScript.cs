@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace AliceScript
 {
@@ -58,7 +59,7 @@ namespace AliceScript
                 var s = new List<StackInfo>(m_stacktrace);
                 if (ProcessingFunction != null)
                 {
-                    s.Add(new StackInfo(ProcessingFunction,this.OriginalLine,this.OriginalLineNumber,this.Filename));
+                    s.Add(new StackInfo(ProcessingFunction, this.OriginalLine, this.OriginalLineNumber, this.Filename));
                 }
                 return s;
             }
@@ -78,7 +79,7 @@ namespace AliceScript
             {
 
             }
-            public StackInfo(FunctionBase function,string line,int lineNumber,string fileName)
+            public StackInfo(FunctionBase function, string line, int lineNumber, string fileName)
             {
                 Function = function;
                 Line = line;
@@ -87,7 +88,7 @@ namespace AliceScript
             }
             public override string ToString()
             {
-                var sb=new StringBuilder();
+                var sb = new StringBuilder();
                 sb.Append("場所 ");
                 foreach (string k in Function.Keywords)
                 {
@@ -97,7 +98,11 @@ namespace AliceScript
                 {
                     sb.Append(Constants.COMMAND + " ");
                 }
-                if (!(Function is CustomFunction) && Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+                if ((Function is CustomFunction))
+                {
+                    sb.Append("custom ");
+                }
+                else if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
                 {
                     sb.Append("keyword ");
                 }
@@ -116,7 +121,7 @@ namespace AliceScript
                 {
                     sb.Append(" 場所 ");
                     sb.Append(FileName);
-                    sb.Append(":行 "+LineNumber);
+                    sb.Append(":行 " + LineNumber);
                 }
                 return sb.ToString();
             }
@@ -707,12 +712,12 @@ namespace AliceScript
             return b;
         }
 
-        public List<Variable> GetFunctionArgs(FunctionBase callFrom,char start = Constants.START_ARG,
+        public List<Variable> GetFunctionArgs(FunctionBase callFrom, char start = Constants.START_ARG,
                                       char end = Constants.END_ARG)
         {
             bool isList;
             List<Variable> args = Utils.GetArgs(this,
-                                                start, end, (outList) => { isList = outList; },callFrom);
+                                                start, end, (outList) => { isList = outList; }, callFrom);
             return args;
         }
         public int GoToNextStatement()
@@ -740,7 +745,7 @@ namespace AliceScript
             return endGroupRead;
         }
 
-        public static Variable RunString(string str,ParsingScript script)
+        public static Variable RunString(string str, ParsingScript script)
         {
             ParsingScript tempScript = script.GetTempScript(str);
             Variable result = tempScript.Execute();
@@ -773,41 +778,47 @@ namespace AliceScript
                     result = Parser.AliceScript(this, toArray);
                 }
 #if !DEBUG_THROW
-                catch (Exception e)
+                catch (ScriptException scriptExc)
                 {
-                    ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
-                    ex.Message = e.Message;
-                    ex.Script = this;
-                    ex.HelpLink = e.HelpLink;
-                    ex.Source = e.Source;
-
-                    if (e is ScriptException scriptExc)
-                    {
-                        ex.ErrorCode = scriptExc.ErrorCode;
-                        ex.Exception = scriptExc.Exception;
-                        if (scriptExc.Script != null)
-                        {
-                            ex.Script = scriptExc.Script;
-                        }
-                    }
-                    else if (e is ParsingException parseExc)
-                    {
-                        ex.ErrorCode = Exceptions.COULDNT_PARSE;
-                        ex.Exception = parseExc;
-                    }
-                    ex.Script.OnThrowError(ex.Script, ex);
-                    if (ex.Handled)
-                    {
-                        return result;
-                    }
-                    ThrowErrorManerger.OnThrowError(ex.Script, ex);
+                    OnThrowError(scriptExc.Message,scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink,scriptExc.Script,scriptExc.Exception);
                 }
+                catch(ParsingException parseExc)
+                {
+                    OnThrowError(parseExc.Message, Exceptions.COULDNT_PARSE, parseExc.Source, parseExc.HelpLink, this,parseExc);
+                }
+                catch(FileNotFoundException fileNotFoundExc)
+                {
+                    OnThrowError("ファイル"+ (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ")+"が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source,fileNotFoundExc.HelpLink);
+                }
+               
 #endif
             }
             return result;
 
         }
-
+        private void OnThrowError(string message,Exceptions errorCode,string source, string helpLink=null, ParsingScript script=null,ParsingException parsingException=null)
+        {
+            var ex = new ThrowErrorEventArgs();
+            ex.Message=message;
+            ex.ErrorCode=errorCode;
+            ex.HelpLink=helpLink;
+            ex.Source=source;
+            ex.Script=script;
+            ex.Exception=parsingException;
+            if (string.IsNullOrWhiteSpace(helpLink))
+            {
+                ex.HelpLink = Constants.HELP_LINK + ((int)ex.ErrorCode).ToString("x3");
+            }
+            if (script == null)
+            {
+                ex.Script = this;
+            }
+            ex.Script.OnThrowError(ex.Script, ex);
+            if (!ex.Handled)
+            {
+                ThrowErrorManerger.OnThrowError(ex.Script, ex);
+            }
+        }
 
         public async Task<Variable> ExecuteAsync(char[] toArray = null, int from = -1)
         {
@@ -912,7 +923,7 @@ namespace AliceScript
         {
             Interpreter.SkipBlock(this);
         }
-        public ParsingScript GetTempScript(string str,FunctionBase callFrom=null, int startIndex = 0)
+        public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
             str = Utils.ConvertToScript(str, out _, out var def);
             ParsingScript tempScript = new ParsingScript(str, startIndex);
@@ -934,12 +945,12 @@ namespace AliceScript
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
             if (callFrom != null)
             {
-                tempScript.m_stacktrace.Add(new StackInfo(callFrom,this.OriginalLine,this.OriginalLineNumber,this.Filename));
+                tempScript.m_stacktrace.Add(new StackInfo(callFrom, this.OriginalLine, this.OriginalLineNumber, this.Filename));
             }
 
             return tempScript;
         }
-        public ParsingScript GetIncludeFileScript(string filename,FunctionBase callFrom)
+        public ParsingScript GetIncludeFileScript(string filename, FunctionBase callFrom)
         {
             string pathname;
             if (!this.ContainsSymbol(Constants.DISABLE_INCLUDE))

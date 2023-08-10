@@ -25,8 +25,21 @@
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = args;
-            if (ex.Args == null) { ex.Args = new List<Variable>(); }
+            ex.Args = new List<Variable>();
+            if (args != null)
+            {
+                foreach (var a in args)
+                {
+                    if (a == null)
+                    {
+                        ex.Args.Add(Variable.EmptyInstance);
+                    }
+                    else
+                    {
+                        ex.Args.Add(a);
+                    }
+                }
+            }
             ex.UseObjectResult = false;
             ex.ObjectResult = null;
             if (script != null)

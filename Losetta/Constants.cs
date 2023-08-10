@@ -227,6 +227,8 @@
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
+        public const string HELP_LINK = "https://a.wsoft.ws/alice/exceptions/0x";
+
         public static List<string> KEYWORD = new List<string>
         {
             PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND

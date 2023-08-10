@@ -9,7 +9,7 @@ namespace AliceScript
             FileInfo file = new FileInfo(filename);
             if (!file.Exists)
             {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException(null,filename);
             }
 
             using (FileReader reader = new FileReader(file))
