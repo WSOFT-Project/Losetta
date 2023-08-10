@@ -81,25 +81,28 @@ namespace alice
                             }
                             sb.Append(Constants.FUNCTION + " ");
                             sb.Append((string.IsNullOrWhiteSpace(s.Name) ? "Anonymous" : s.Name) + "(");
+                            int args_count = 0;
                             if (s is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)
                             {
                                 foreach (string a in s.RealArgs)
                                 {
-                                    sb.Append(a + ",");
+                                    sb.Append(a + (++args_count == s.RealArgs.Length?string.Empty:","));
                                 }
                             }
                             sb.AppendLine(");");
                         }
                         sb.AppendLine("---スタックトレース(終わり)---");
                     }
-
                 }
                 if (allow_throw)
                 {
                     PrintColor(sb.ToString(), ConsoleColor.White,ConsoleColor.DarkRed);
                     //DumpLocalVariables(e.Script);
                     //DumpGlobalVariables();
-                    Interpreter.Instance.AppendOutput(string.Empty,true);
+
+                    Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
+                    e.Handled = Console.ReadKey().Key.HasFlag(ConsoleKey.Enter);
+                    Console.WriteLine();
                 }
                 if (throw_redirect_files.Count > 0)
                 {
