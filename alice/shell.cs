@@ -59,36 +59,40 @@ namespace alice
                     {
                         sb.AppendLine("発生場所: "+e.Script.Filename+" "+e.Script.OriginalLineNumber+"行");
                     }
-                    var st = new List<FunctionBase>(e.Script.StackTrace);
-                    st.Reverse();
-                    sb.AppendLine("---スタックトレース---");
-                    foreach(var s in st)
+                    if (e.Script.StackTrace.Count > 0)
                     {
-                        sb.Append("場所 ");
-                        foreach(string k in s.Keywords)
+                        var st = new List<FunctionBase>(e.Script.StackTrace);
+                        st.Reverse();
+                        sb.AppendLine("---スタックトレース---");
+                        foreach (var s in st)
                         {
-                            sb.Append(k+" ");
-                        }
-                        if(s.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || s.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
-                        {
-                            sb.Append(Constants.COMMAND+" ");
-                        }
-                            sb.Append(Constants.FUNCTION + " ");
+                            sb.Append("場所 ");
+                            foreach (string k in s.Keywords)
+                            {
+                                sb.Append(k + " ");
+                            }
+                            if (s.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || s.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
+                            {
+                                sb.Append(Constants.COMMAND + " ");
+                            }
                             if (!(s is CustomFunction) && s.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
                             {
                                 sb.Append("keyword ");
                             }
-                        sb.Append( (string.IsNullOrWhiteSpace(s.Name)? "Anonymous" : s.Name)+"(");
-                        if(s is CustomFunction cf && cf.RealArgs!=null && cf.RealArgs.Length > 0)
-                        {
-                            foreach(string a in s.RealArgs)
+                            sb.Append(Constants.FUNCTION + " ");
+                            sb.Append((string.IsNullOrWhiteSpace(s.Name) ? "Anonymous" : s.Name) + "(");
+                            if (s is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)
                             {
-                                sb.Append(a+",");
+                                foreach (string a in s.RealArgs)
+                                {
+                                    sb.Append(a + ",");
+                                }
                             }
+                            sb.AppendLine(");");
                         }
-                        sb.AppendLine(");");
+                        sb.AppendLine("---スタックトレース(終わり)---");
                     }
-                    sb.AppendLine("---スタックトレース(終わり)---");
+
                 }
                 if (allow_throw)
                 {

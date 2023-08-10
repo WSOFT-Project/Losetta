@@ -336,6 +336,11 @@ namespace AliceScript
             num = 0;
             //文字列を小文字に置き換え
             str = str.ToLower();
+            if(str.StartsWith("_") || str.EndsWith("_"))
+            {
+                throw new ScriptException("数値型リテラルの先頭または末尾にアンダースコア(_)を含めることはできません",Exceptions.INVALID_NUMERIC_REPRESENTATION);
+            }
+            str = str.Replace("_","");
             //0xから始まる実数の16進表現を確認します
             System.Text.RegularExpressions.MatchCollection mc =
     System.Text.RegularExpressions.Regex.Matches(

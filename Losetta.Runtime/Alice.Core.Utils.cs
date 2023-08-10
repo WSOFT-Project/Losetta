@@ -191,7 +191,7 @@ namespace AliceScript.NameSpaces
             }
             else if (e.Args.Count == 1)
             {
-                AddOutput(e.Args[0].AsString(), e.Script, !m_write);
+                AddOutput(e.Args[0]?.AsString(), e.Script, !m_write);
             }
             else if (e.Args.Count > 0)
             {
@@ -204,7 +204,7 @@ namespace AliceScript.NameSpaces
         public static void AddOutput(string text, ParsingScript script = null,
                                      bool addLine = true, bool addSpace = true, string start = "")
         {
-
+            
             string output = text + (addLine ? Environment.NewLine : string.Empty);
             Interpreter.Instance.AppendOutput(output);
 

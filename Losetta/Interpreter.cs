@@ -272,8 +272,9 @@ namespace AliceScript
                 toParse.MainFilename = toParse.Filename;
             }
 
-            Variable result = null;
+            Variable result = toParse.Process();
 
+            /*
             while (toParse.Pointer < data.Length)
             {
                 result = toParse.Execute();
@@ -284,6 +285,7 @@ namespace AliceScript
             {
                 GC.Collect();
             }
+            */
             return result;
         }
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
