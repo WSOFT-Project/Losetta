@@ -687,13 +687,13 @@ namespace AliceScript
             }
             else
             {
-#if !DEBUG
+#if !DEBUG_THROW
                 try
 #endif
                 {
                     result = Parser.AliceScript(this, toArray);
                 }
-#if !DEBUG
+#if !DEBUG_THROW
                 catch (Exception e)
                 {
                     ThrowErrorEventArgs ex = new ThrowErrorEventArgs();

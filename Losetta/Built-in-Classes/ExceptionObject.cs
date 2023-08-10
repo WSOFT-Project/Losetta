@@ -20,10 +20,11 @@
         public ExceptionObject()
         {
             this.Name = "Exception";
+            this.Constructor = new Exception_Constractor();
         }
         public override string ToString()
         {
-            return "[0x" + ((int)ErrorCode).ToString("x3") + "]" + ErrorCode.ToString() + " : " + Message;
+            return "[0x" + ((int)ErrorCode).ToString("x3") + "]" + ErrorCode.ToString() + (string.IsNullOrWhiteSpace(Message) ? string.Empty : " : " + Message);
         }
 
         private class Exception_Constractor : FunctionBase

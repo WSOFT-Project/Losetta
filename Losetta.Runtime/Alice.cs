@@ -1024,6 +1024,15 @@
                     {
                         throw new ScriptException(Utils.GetSafeString(e.Args, 1), (Exceptions)e.Args[0].AsInt(), e.Script);
                     }
+                default:
+                    {
+                        if(e.Args[0].Object is ExceptionObject eo)
+                        {
+                            var s = eo.MainScript == null ? e.Script : eo.MainScript;
+                            throw new ScriptException(eo.Message,eo.ErrorCode,s);
+                        }
+                        break;
+                    }
             }
         }
     }
