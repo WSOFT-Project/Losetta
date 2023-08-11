@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -87,7 +82,7 @@ namespace AliceScript
             {
                 string problem = (!string.IsNullOrWhiteSpace(action) ? action : ch.ToString());
                 string restData = ch.ToString() + script.Rest;
-                throw new ArgumentException("Couldn't parse [" + problem + "] in " + restData + "...");
+                throw new ScriptException("`"+restData+"` 内の `"+problem+"` をパースできませんでした。",Exceptions.COULDNT_PARSE,script);
             }
 
             // Function not found, will try to parse this as a string in quotes or a number.
@@ -97,6 +92,18 @@ namespace AliceScript
 
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
+            s_strOrNumFunction.DetectionStringFormat = false;
+            s_strOrNumFunction.DetectionUTF8_Literal = false;
+            if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL))
+            {
+                item=item.Substring(Constants.UTF8_LITERAL.Length);
+                s_strOrNumFunction.DetectionUTF8_Literal = true;
+            }
+            if(item.Length > 2 && item.StartsWith(Constants.DOLLER))
+            {
+                item = item.Substring(1);
+                s_strOrNumFunction.DetectionStringFormat = true;
+            }
             if (item.Length > 1 &&
               (((item[0] == Constants.QUOTE) && item[item.Length - 1] == Constants.QUOTE) ||
                (item[0] == Constants.QUOTE1 && item[item.Length - 1] == Constants.QUOTE1)))
@@ -123,14 +130,18 @@ namespace AliceScript
 
             if (arrayStart == 0)
             {
-                Variable arr = Utils.ProcessArrayMap(new ParsingScript(name));
+                //Variable arr = Utils.ProcessArrayMap(new ParsingScript(name));
+                Variable arr = Utils.ProcessArrayMap(script.GetTempScript(name));
                 return new GetVarFunction(arr);
             }
 
             string arrayName = name;
 
+            string varName = arrayName.Substring(0,arrayStart);
+            Variable ary = Utils.GetItem(script.GetTempScript(varName));
+            int max = ary == null ? 0 : ary.Count;
             int delta = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; });
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; },null,max);
 
             if (arrayIndices.Count == 0)
             {
@@ -200,7 +211,7 @@ namespace AliceScript
                 pf = ParserFunction.GetFunction(baseName, script);
                 if (pf == null)
                 {
-                    pf = Utils.ExtractArrayElement(baseName);
+                    pf = Utils.ExtractArrayElement(baseName,script);
                 }
             }
 
@@ -228,7 +239,7 @@ namespace AliceScript
                 {
                     args = new string[] { };
                 }
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG,Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
 
                 int parentOffset = script.Pointer;
 
@@ -927,7 +938,7 @@ namespace AliceScript
             namespaceName = Constants.ConvertName(namespaceName);
             if (!string.IsNullOrWhiteSpace(s_namespace))
             {
-                throw new ArgumentException("Already inside of namespace [" + s_namespace + "].");
+                throw new ScriptException("名前空間 `"+s_namespace+"` をネストすることはできません。",Exceptions.NAMESPACE_CANT_BE_NESTED);
             }
 
             StackLevel level;
@@ -997,7 +1008,16 @@ namespace AliceScript
                     {
                         v.Value.Parent = script;
                     }
-                    v.Value.Parent.Variables[name] = local;
+                    if (local is GetVarFunction g2)
+                    {
+                        v.Value.Assign(g2.Value);
+                    }
+                    /*
+                    if (v.Value.Parent.Variables[name] is GetVarFunction g && local is GetVarFunction g2)
+                    {
+                        g.Value.Assign(g2.Value);
+                    }*/
+                    //v.Value.Parent.Variables[name] = local;
                 }
                 else
                 {
@@ -1227,7 +1247,7 @@ namespace AliceScript
         public static int StackLevelDelta { get; set; }
     }
 
-    public abstract class ActionFunction : ParserFunction
+    public abstract class ActionFunction : FunctionBase
     {
         protected string m_action;
         public string Action { set => m_action = value; }

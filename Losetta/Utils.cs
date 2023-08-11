@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Text;
 
 namespace AliceScript
@@ -193,7 +190,7 @@ namespace AliceScript
             tempScript.ParentScript = script;
             tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
-            tempScript.StackTrace = script.StackTrace;
+            tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
             if (script != null)
             {
                 tempScript.Package = script.Package;
@@ -237,7 +234,7 @@ namespace AliceScript
             }
             if (fromPackage || !File.Exists(filename))
             {
-                throw new ScriptException("ファイル名:[" + filename + "]は存在しません", Exceptions.FILE_NOT_FOUND);
+                throw new FileNotFoundException(null,filename);
             }
             return File.ReadAllBytes(filename);
         }
@@ -260,14 +257,14 @@ namespace AliceScript
             return lines;
         }
 
-        public static GetVarFunction ExtractArrayElement(string token)
+        public static GetVarFunction ExtractArrayElement(string token,ParsingScript script)
         {
             if (!token.Contains(Constants.START_ARRAY))
             {
                 return null;
             }
 
-            ParsingScript tempScript = new ParsingScript(token);
+            ParsingScript tempScript = script.GetTempScript(token);
             Variable result = tempScript.Execute();
             return new GetVarFunction(result);
         }
@@ -290,7 +287,7 @@ namespace AliceScript
                 if (!Int32.TryParse(numberVar.String, NumberStyles.Number,
                                      CultureInfo.InvariantCulture, out num))
                 {
-                    throw new ArgumentException("Expected an integer instead of [" + numberVar.AsString() + "]");
+                    throw new ScriptException("`"+numberVar.AsString()+"` は整数である必要があります。",Exceptions.EXPECTED_INTEGER);
                 }
                 return num;
             }
@@ -321,34 +318,13 @@ namespace AliceScript
             }
             return args[index];
         }
-
-        public static Variable GetVariable(string varName, ParsingScript script = null, bool testNull = true)
-        {
-            varName = varName.ToLower();
-            if (script == null)
-            {
-                script = new ParsingScript("");
-            }
-
-            ParserFunction func = ParserFunction.GetVariable(varName, script);
-            if (!testNull && func == null)
-            {
-                return null;
-            }
-            Utils.CheckNotNull(varName, func, script);
-            Variable varValue = func.GetValue(script);
-            Utils.CheckNotNull(varValue, varName, script);
-            return varValue;
-        }
-
-
         public static double ConvertToDouble(object obj, ParsingScript script = null)
         {
             string str = obj.ToString().ToLower();
             double num = 0;
             if (script.Tag is string s && s == "DELEGATE") { return 0; }
             if (!CanConvertToDouble(str, out num) &&
-                script != null)
+                script != null && str!=Constants.END_ARRAY.ToString())
             {
                 ProcessErrorMsg(str, script);
             }
@@ -360,6 +336,11 @@ namespace AliceScript
             num = 0;
             //文字列を小文字に置き換え
             str = str.ToLower();
+            if(str.StartsWith("_") || str.EndsWith("_"))
+            {
+                throw new ScriptException("数値型リテラルの先頭または末尾にアンダースコア(_)を含めることはできません",Exceptions.INVALID_NUMERIC_REPRESENTATION);
+            }
+            str = str.Replace("_","");
             //0xから始まる実数の16進表現を確認します
             System.Text.RegularExpressions.MatchCollection mc =
     System.Text.RegularExpressions.Regex.Matches(
@@ -414,7 +395,7 @@ namespace AliceScript
                                             Exceptions.COULDNT_FIND_VARIABLE;
                 string token = Constants.GetRealName(str);
 
-                string msg = entity + ":[" + token + "]は定義されていないか、存在しません";
+                string msg = entity + " `" + token + "`は定義されていないか、存在しません";
 
                 ThrowErrorMsg(msg, ex, script, str);
             }

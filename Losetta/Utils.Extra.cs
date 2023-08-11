@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     public partial class Utils
     {
@@ -67,16 +58,6 @@ namespace AliceScript
             }*/
         }
 
-        public static void PrintColor(string output, ConsoleColor fgcolor)
-        {
-            ConsoleColor currentForeground = Console.ForegroundColor;
-            Console.ForegroundColor = fgcolor;
-
-            Interpreter.Instance.AppendOutput(output);
-            //Console.Write(output);
-
-            Console.ForegroundColor = currentForeground;
-        }
 
         public static void GetDir(string dir = "./", bool recursive = true)
         {

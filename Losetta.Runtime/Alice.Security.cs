@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
 
 namespace AliceScript.NameSpaces
 {
@@ -17,7 +14,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new Password_Salt());
                 space.Add(new Password_Verify());
                 space.Add(new Password_HashData());
-                space.Add(new Password_VerifyData()) ;
+                space.Add(new Password_VerifyData());
 
                 space.Add(new md5_gethash());
                 space.Add(new sha1_gethash());
@@ -171,7 +168,7 @@ namespace AliceScript.NameSpaces
             byte[] salt = e.Args[0].AsByteArray();
 
             // ハッシュ値を取得
-            byte[] hash =PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args,2,PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
+            byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
             e.Return = new Variable(hash);
         }
@@ -195,7 +192,7 @@ namespace AliceScript.NameSpaces
             {
                 throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
             }
-           byte[] password = e.Args[0].AsByteArray();
+            byte[] password = e.Args[0].AsByteArray();
 
             // ソルトを取得
             byte[] salt = e.Args[0].AsByteArray();
@@ -219,9 +216,9 @@ namespace AliceScript.NameSpaces
 
         private void Class3_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(PasswordSaltHashManerger.GetSalt(Utils.GetSafeInt(e.Args,0,30)));
+            e.Return = new Variable(PasswordSaltHashManerger.GetSalt(Utils.GetSafeInt(e.Args, 0, 30)));
         }
-        
+
     }
 
     internal class Password_Verify : FunctionBase
@@ -247,7 +244,7 @@ namespace AliceScript.NameSpaces
             byte[] salt = e.Args[2].AsByteArray();
 
             // ハッシュ値を取得
-            byte[] hash =PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
+            byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
             bool i = (e.Args[1].AsByteArray() == hash);
             e.Return = new Variable(i);

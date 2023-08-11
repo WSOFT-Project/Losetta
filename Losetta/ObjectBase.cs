@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using static AliceScript.Variable;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
@@ -198,7 +191,7 @@ namespace AliceScript
             this.Functions.Remove(function.Name);
         }
 
-        
+
     }
 
 

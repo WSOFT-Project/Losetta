@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
-   public static class Alice
+    public static class Alice
     {
         /// <summary>
         /// AliceScriptのコードを実行します
@@ -17,9 +9,9 @@ namespace AliceScript
         /// <param name="filename">スクリプトのファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>スクリプトから返される戻り値</returns>
-        public static Variable Execute(string code,string filename="",bool mainFile=false)
+        public static Variable Execute(string code, string filename = "", bool mainFile = false)
         {
-           return Interpreter.Instance.Process(code,filename,mainFile);
+            return Interpreter.Instance.Process(code, filename, mainFile);
         }
         /// <summary>
         /// このインタプリタで実行可能なファイルを読み込みます
@@ -27,9 +19,9 @@ namespace AliceScript
         /// <param name="filename">ファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>スクリプトから返される戻り値</returns>
-        public static Variable ExecuteFile(string filename,bool mainFile=false)
+        public static Variable ExecuteFile(string filename, bool mainFile = false)
         {
-            return Interpreter.Instance.ProcessFile(filename,mainFile);
+            return Interpreter.Instance.ProcessFile(filename, mainFile);
         }
         /// <summary>
         /// このインタプリタで実行可能なファイルを読み込みます
@@ -38,9 +30,9 @@ namespace AliceScript
         /// <param name="filename">ファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>スクリプトから返される戻り値</returns>
-        public static Variable ExecuteFile(byte[] data,string filename="",bool mainFile = false)
+        public static Variable ExecuteFile(byte[] data, string filename = "", bool mainFile = false)
         {
-            return Interpreter.Instance.ProcessData(data,filename,mainFile);
+            return Interpreter.Instance.ProcessData(data, filename, mainFile);
         }
         /// <summary>
         /// AliceScriptのコードを非同期で実行します
@@ -49,9 +41,9 @@ namespace AliceScript
         /// <param name="filename">スクリプトのファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>スクリプトから返される戻り値</returns>
-        public static Task<Variable> ExecuteAsync(string code,string filename="",bool mainFile = false)
+        public static Task<Variable> ExecuteAsync(string code, string filename = "", bool mainFile = false)
         {
-            return Interpreter.Instance.ProcessAsync(code,filename,mainFile);
+            return Interpreter.Instance.ProcessAsync(code, filename, mainFile);
         }
         /// <summary>
         /// AliceScriptファイルを非同期で実行します
@@ -59,9 +51,9 @@ namespace AliceScript
         /// <param name="filename">スクリプトのファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>スクリプトから返される戻り値</returns>
-        public static Task<Variable> ExecuteFileAsync(string filename,bool mainFile = false)
+        public static Task<Variable> ExecuteFileAsync(string filename, bool mainFile = false)
         {
-            return Interpreter.Instance.ProcessFileAsync(filename,mainFile);
+            return Interpreter.Instance.ProcessFileAsync(filename, mainFile);
         }
         /// <summary>
         /// AliceScriptのコードからスクリプトを生成します
@@ -70,9 +62,9 @@ namespace AliceScript
         /// <param name="filename">スクリプトのファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>生成されたスクリプト</returns>
-        public static ParsingScript GetScript(string code,string filename="",bool mainFile = false)
+        public static ParsingScript GetScript(string code, string filename = "", bool mainFile = false)
         {
-            return Interpreter.Instance.GetScript(code,filename,mainFile);
+            return Interpreter.Instance.GetScript(code, filename, mainFile);
         }
         /// <summary>
         /// プログラムが終了を求めているときに発生するイベントです
@@ -82,12 +74,12 @@ namespace AliceScript
         /// Exitingイベントを発生させます
         /// </summary>
         /// <param name="exitcode">終了の理由を表す終了コード</param>
-        public static void OnExiting(int exitcode=0)
+        public static void OnExiting(int exitcode = 0)
         {
             ExitingEventArgs e = new ExitingEventArgs();
             e.Cancel = false;
             e.ExitCode = exitcode;
-            Exiting?.Invoke(null,e);
+            Exiting?.Invoke(null, e);
             if (e.Cancel)
             {
                 return;
@@ -100,13 +92,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのバージョン
         /// </summary>
-        public static Version Version
-        {
-            get
-            {
-                return new Version(2,3);
-            }
-        }
+        public static Version Version => new Version(2, 3);
         /// <summary>
         /// Losettaのバージョン
         /// </summary>
@@ -120,29 +106,17 @@ namespace AliceScript
                 return asm.GetName().Version;
             }
         }
-        public static string ImplementationName
-        {
-            get
-            {
-                return Interpreter.Instance.Name;
-            }
-        }
-        public static string ImplementationLocation
-        {
-            get
-            {
-                return AppContext.BaseDirectory;
-            }
-        }
+        public static string ImplementationName => Interpreter.Instance.Name;
+        public static string ImplementationLocation => AppContext.BaseDirectory;
         /// <summary>
         /// このAliceScriptが実行されているアプリケーションの名前
         /// </summary>
         public static string AppName
         {
-            get;set;
+            get; set;
         }
     }
-    public delegate void Exiting(object sender,ExitingEventArgs e);
+    public delegate void Exiting(object sender, ExitingEventArgs e);
     public class ExitingEventArgs : EventArgs
     {
         /// <summary>

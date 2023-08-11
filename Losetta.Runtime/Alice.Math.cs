@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
-    static class Alice_Math_Initer
+    internal static class Alice_Math_Initer
     {
         public static void Init()
         {
@@ -49,7 +45,8 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-    class math_MinMaxFunc : FunctionBase
+
+    internal class math_MinMaxFunc : FunctionBase
     {
         public math_MinMaxFunc(bool max)
         {
@@ -69,7 +66,7 @@ namespace AliceScript.NameSpaces
         private void Math_MinMaxFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             double returnValue = 0;
-            foreach(Variable v in e.Args)
+            foreach (Variable v in e.Args)
             {
                 if (Mode)
                 {
@@ -80,7 +77,7 @@ namespace AliceScript.NameSpaces
                 }
                 else
                 {
-                    if(v.Value < returnValue)
+                    if (v.Value < returnValue)
                     {
                         returnValue = v.Value;
                     }
@@ -91,7 +88,8 @@ namespace AliceScript.NameSpaces
 
         private bool Mode { get; set; }
     }
-    class math_RoundFunc : FunctionBase
+
+    internal class math_RoundFunc : FunctionBase
     {
         public math_RoundFunc()
         {
@@ -104,7 +102,7 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count > 1)
             {
-                e.Return = new Variable(Math.Round(e.Args[0].AsDouble(),e.Args[1].AsInt()));
+                e.Return = new Variable(Math.Round(e.Args[0].AsDouble(), e.Args[1].AsInt()));
             }
             else
             {
@@ -112,7 +110,8 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class math_powFunc : FunctionBase
+
+    internal class math_powFunc : FunctionBase
     {
         public math_powFunc()
         {
@@ -123,10 +122,11 @@ namespace AliceScript.NameSpaces
 
         private void Math_powFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Math.Pow(e.Args[0].Value,e.Args[1].Value));
+            e.Return = new Variable(Math.Pow(e.Args[0].Value, e.Args[1].Value));
         }
     }
-    class math_eFunc : FunctionBase
+
+    internal class math_eFunc : FunctionBase
     {
         public math_eFunc()
         {
@@ -141,7 +141,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.E);
         }
     }
-    class math_isPrimeFunc : FunctionBase
+
+    internal class math_isPrimeFunc : FunctionBase
     {
         public math_isPrimeFunc()
         {
@@ -154,11 +155,21 @@ namespace AliceScript.NameSpaces
         {
             e.Return = new Variable(IsPrime(e.Args[0].AsInt()));
         }
-        bool IsPrime(int num)
+
+        private bool IsPrime(int num)
         {
-            if (num < 2) return false;
-            else if (num == 2) return true;
-            else if (num % 2 == 0) return false; // 偶数はあらかじめ除く
+            if (num < 2)
+            {
+                return false;
+            }
+            else if (num == 2)
+            {
+                return true;
+            }
+            else if (num % 2 == 0)
+            {
+                return false; // 偶数はあらかじめ除く
+            }
 
             double sqrtNum = Math.Sqrt(num);
             for (int i = 3; i <= sqrtNum; i += 2)
@@ -174,7 +185,8 @@ namespace AliceScript.NameSpaces
             return true;
         }
     }
-    class math_tauFunc : FunctionBase
+
+    internal class math_tauFunc : FunctionBase
     {
         public math_tauFunc()
         {
@@ -189,7 +201,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(6.2831853071795862);
         }
     }
-    class math_piFunc : FunctionBase
+
+    internal class math_piFunc : FunctionBase
     {
         public math_piFunc()
         {
@@ -204,7 +217,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.PI);
         }
     }
-    class math_absFunc : FunctionBase
+
+    internal class math_absFunc : FunctionBase
     {
         public math_absFunc()
         {
@@ -218,7 +232,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Abs(e.Args[0].AsDouble()));
         }
     }
-    class math_acosFunc : FunctionBase
+
+    internal class math_acosFunc : FunctionBase
     {
         public math_acosFunc()
         {
@@ -232,7 +247,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Acos(e.Args[0].AsDouble()));
         }
     }
-    class math_acoshFunc : FunctionBase
+
+    internal class math_acoshFunc : FunctionBase
     {
         public math_acoshFunc()
         {
@@ -246,7 +262,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Acosh(e.Args[0].AsDouble()));
         }
     }
-    class math_sinFunc : FunctionBase
+
+    internal class math_sinFunc : FunctionBase
     {
         public math_sinFunc()
         {
@@ -260,7 +277,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Sin(e.Args[0].AsDouble()));
         }
     }
-    class math_sinhFunc : FunctionBase
+
+    internal class math_sinhFunc : FunctionBase
     {
         public math_sinhFunc()
         {
@@ -274,7 +292,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Sinh(e.Args[0].AsDouble()));
         }
     }
-    class math_atanFunc : FunctionBase
+
+    internal class math_atanFunc : FunctionBase
     {
         public math_atanFunc()
         {
@@ -288,7 +307,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Atan(e.Args[0].AsDouble()));
         }
     }
-    class math_atan2Func : FunctionBase
+
+    internal class math_atan2Func : FunctionBase
     {
         public math_atan2Func()
         {
@@ -299,10 +319,11 @@ namespace AliceScript.NameSpaces
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Math.Atan2(e.Args[0].AsDouble(),e.Args[1].AsDouble()));
+            e.Return = new Variable(Math.Atan2(e.Args[0].AsDouble(), e.Args[1].AsDouble()));
         }
     }
-    class math_atanhFunc : FunctionBase
+
+    internal class math_atanhFunc : FunctionBase
     {
         public math_atanhFunc()
         {
@@ -316,7 +337,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Atanh(e.Args[0].AsDouble()));
         }
     }
-    class math_bitdecrementFunc : FunctionBase
+
+    internal class math_bitdecrementFunc : FunctionBase
     {
         public math_bitdecrementFunc()
         {
@@ -330,7 +352,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.BitDecrement(e.Args[0].AsDouble()));
         }
     }
-    class math_bitincrementFunc : FunctionBase
+
+    internal class math_bitincrementFunc : FunctionBase
     {
         public math_bitincrementFunc()
         {
@@ -344,7 +367,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.BitIncrement(e.Args[0].AsDouble()));
         }
     }
-    class math_cbrtFunc : FunctionBase
+
+    internal class math_cbrtFunc : FunctionBase
     {
         public math_cbrtFunc()
         {
@@ -358,7 +382,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Cbrt(e.Args[0].AsDouble()));
         }
     }
-    class math_ceilingFunc : FunctionBase
+
+    internal class math_ceilingFunc : FunctionBase
     {
         public math_ceilingFunc()
         {
@@ -372,7 +397,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Ceiling(e.Args[0].AsDouble()));
         }
     }
-    class math_clampFunc : FunctionBase
+
+    internal class math_clampFunc : FunctionBase
     {
         public math_clampFunc()
         {
@@ -383,10 +409,11 @@ namespace AliceScript.NameSpaces
 
         private void Math_clampFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Math.Clamp(e.Args[0].AsDouble(),e.Args[1].AsDouble(),e.Args[2].AsDouble()));
+            e.Return = new Variable(Math.Clamp(e.Args[0].AsDouble(), e.Args[1].AsDouble(), e.Args[2].AsDouble()));
         }
     }
-    class math_copysignFunc : FunctionBase
+
+    internal class math_copysignFunc : FunctionBase
     {
         public math_copysignFunc()
         {
@@ -397,11 +424,12 @@ namespace AliceScript.NameSpaces
 
         private void Math_copysignFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Math.CopySign(e.Args[0].AsDouble(),e.Args[1].AsDouble()));
+            e.Return = new Variable(Math.CopySign(e.Args[0].AsDouble(), e.Args[1].AsDouble()));
         }
-    
+
     }
-    class math_cosFunc : FunctionBase
+
+    internal class math_cosFunc : FunctionBase
     {
         public math_cosFunc()
         {
@@ -415,7 +443,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Cos(e.Args[0].AsDouble()));
         }
     }
-    class math_coshFunc : FunctionBase
+
+    internal class math_coshFunc : FunctionBase
     {
         public math_coshFunc()
         {
@@ -429,7 +458,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Cosh(e.Args[0].AsDouble()));
         }
     }
-    class math_expFunc : FunctionBase
+
+    internal class math_expFunc : FunctionBase
     {
         public math_expFunc()
         {
@@ -443,7 +473,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Exp(e.Args[0].AsDouble()));
         }
     }
-    class math_floorFunc : FunctionBase
+
+    internal class math_floorFunc : FunctionBase
     {
         public math_floorFunc()
         {
@@ -457,7 +488,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Floor(e.Args[0].AsDouble()));
         }
     }
-    class math_fusedmultiplyaddFunc : FunctionBase
+
+    internal class math_fusedmultiplyaddFunc : FunctionBase
     {
         public math_fusedmultiplyaddFunc()
         {
@@ -468,10 +500,11 @@ namespace AliceScript.NameSpaces
 
         private void Math_fusedmultiplyaddFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Math.FusedMultiplyAdd(e.Args[0].AsDouble(),e.Args[1].AsDouble(),e.Args[2].AsDouble()));
+            e.Return = new Variable(Math.FusedMultiplyAdd(e.Args[0].AsDouble(), e.Args[1].AsDouble(), e.Args[2].AsDouble()));
         }
     }
-    class math_sqrtFunc : FunctionBase
+
+    internal class math_sqrtFunc : FunctionBase
     {
         public math_sqrtFunc()
         {
@@ -485,7 +518,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Sqrt(e.Args[0].AsDouble()));
         }
     }
-    class math_tanFunc : FunctionBase
+
+    internal class math_tanFunc : FunctionBase
     {
         public math_tanFunc()
         {
@@ -499,7 +533,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Tan(e.Args[0].AsDouble()));
         }
     }
-    class math_tanhFunc : FunctionBase
+
+    internal class math_tanhFunc : FunctionBase
     {
         public math_tanhFunc()
         {
@@ -513,7 +548,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Tanh(e.Args[0].AsDouble()));
         }
     }
-    class math_truncateFunc : FunctionBase
+
+    internal class math_truncateFunc : FunctionBase
     {
         public math_truncateFunc()
         {
@@ -527,6 +563,6 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Math.Truncate(e.Args[0].AsDouble()));
         }
     }
-  
+
 
 }

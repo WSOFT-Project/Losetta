@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     public class FunctionBase : ParserFunction
     {
@@ -28,8 +25,21 @@ namespace AliceScript
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = args;
-            if (ex.Args == null) { ex.Args = new List<Variable>(); }
+            ex.Args = new List<Variable>();
+            if (args != null)
+            {
+                foreach (var a in args)
+                {
+                    if (a == null)
+                    {
+                        ex.Args.Add(Variable.EmptyInstance);
+                    }
+                    else
+                    {
+                        ex.Args.Add(a);
+                    }
+                }
+            }
             ex.UseObjectResult = false;
             ex.ObjectResult = null;
             if (script != null)
@@ -54,7 +64,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    args = script.GetFunctionArgs(Constants.START_ARG, Constants.END_ARG);
+                    args = script.GetFunctionArgs(this,Constants.START_ARG, Constants.END_ARG);
                 }
 
                 if (MinimumArgCounts >= 1)
@@ -67,9 +77,9 @@ namespace AliceScript
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
             if (currentVariable == null) { return Variable.EmptyInstance; }
-            if (!this.RequestType.Match(currentVariable))
+            if (this.RequestType?.Match(currentVariable)==false)
             {
-                    throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION); 
+                throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION);
             }
             List<Variable> args = null;
             if (!this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
@@ -80,7 +90,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    args = script.GetFunctionArgs(Constants.START_ARG, Constants.END_ARG);
+                    args = script.GetFunctionArgs(this,Constants.START_ARG, Constants.END_ARG);
                 }
                 if (MinimumArgCounts >= 1)
                 {

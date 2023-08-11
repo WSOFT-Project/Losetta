@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -27,41 +23,10 @@ namespace AliceScript
             // A variable, a function, or a number.
             Variable var = script.Execute(sep);
             //value = var.Clone();
-
-            if (inQuotes)
+            if(script.ProcessingFunction!=null && script.ProcessingFunction.Keywords != null && var!=null)
             {
-                script.MoveForwardIf(Constants.QUOTE);
+                var.Keywords=script.ProcessingFunction.Keywords;
             }
-            else if (inQuotes1)
-            {
-                script.MoveForwardIf(Constants.QUOTE1);
-            }
-            if (eatLast)
-            {
-                script.MoveForwardIf(Constants.END_ARG, Constants.SPACE);
-            }
-            return var;
-        }
-
-        public static async Task<Variable> GetItemAsync(ParsingScript script, bool eatLast = true)
-        {
-            script.MoveForwardIf(Constants.NEXT_ARG, Constants.SPACE);
-            Utils.CheckNotEnd(script);
-
-            bool inQuotes = script.Current == Constants.QUOTE;
-            bool inQuotes1 = script.Current == Constants.QUOTE1;
-
-            bool isList = script.Current == Constants.START_GROUP || script.Current == Constants.START_ARRAY;
-            if (isList)
-            {
-                return ProcessArrayMap(script);
-            }
-
-            var sep = script.ProcessingList ? Constants.NEXT_OR_END_ARRAY_EXT : Constants.NEXT_OR_END_ARRAY;
-            // A variable, a function, or a number.
-            Variable var = await script.ExecuteAsync(sep);
-            //value = var.Clone();
-
             if (inQuotes)
             {
                 script.MoveForwardIf(Constants.QUOTE);
@@ -90,7 +55,7 @@ namespace AliceScript
             try
             {
                 value.Tuple = new VariableCollection();
-                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }));
+                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; },null));
             }
             finally
             {
@@ -122,7 +87,7 @@ namespace AliceScript
             }
             else
             {
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.END_STATEMENT.ToString() );
+                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.END_STATEMENT.ToString());
                 result = GetCompiledArgs(body);
             }
             return result;
@@ -153,8 +118,7 @@ namespace AliceScript
                 int qend = script.Find(curr, script.Pointer + 1);
                 if (qend == -1)
                 {
-                    throw new ArgumentException("Unmatched quotes in [" +
-                                           script.FromPrev() + "]");
+                    throw new ScriptException("`"+script.FromPrev()+"` で、クオーテーションが不均等です。",Exceptions.UNBALANCED_QUOTES,script);
                 }
                 string result = script.Substr(script.Pointer + 1, qend - script.Pointer - 1);
                 script.Pointer = qend + 1;
@@ -412,10 +376,10 @@ namespace AliceScript
         }
 
 
-        
+
 
         public static List<Variable> GetArgs(ParsingScript script,
-            char start, char end, Action<bool> outList)
+            char start, char end, Action<bool> outList,FunctionBase callFrom)
         {
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
@@ -425,7 +389,7 @@ namespace AliceScript
                 return args;
             }
 
-            ParsingScript tempScript = script.GetTempScript(script.String, script.Pointer);
+            ParsingScript tempScript = script.GetTempScript(script.String, callFrom,script.Pointer);
 
             if (script.Current != start && script.TryPrev() != start &&
                (script.Current == ' ' || script.TryPrev() == ' '))
@@ -443,61 +407,6 @@ namespace AliceScript
             while (script.Pointer < tempScript.Pointer)
             {
                 Variable item = Utils.GetItem(script, false);
-                args.Add(item);
-                if (script.Pointer < tempScript.Pointer)
-                {
-                    script.MoveForwardIf(Constants.END_GROUP);
-                    script.MoveForwardIf(Constants.NEXT_ARG);
-                }
-                if (script.Pointer == tempScript.Pointer - 1)
-                {
-                    script.MoveForwardIf(Constants.END_ARG, Constants.END_GROUP);
-                }
-            }
-
-            if (script.Pointer <= tempScript.Pointer)
-            {
-                // Eat closing parenthesis, if there is one, but only if it closes
-                // the current argument list, not one after it. 
-                script.MoveForwardIf(Constants.END_ARG, end);
-            }
-
-            script.MoveForwardIf(Constants.SPACE);
-            //script.MoveForwardIf(Constants.SPACE, Constants.END_STATEMENT);
-            outList(isList);
-            return args;
-        }
-
-        public static async Task<List<Variable>> GetArgsAsync(ParsingScript script,
-            char start, char end, Action<bool> outList)
-        {
-            List<Variable> args = new List<Variable>();
-            bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
-
-            if (!script.StillValid() || script.Current == Constants.END_STATEMENT)
-            {
-                return args;
-            }
-
-            ParsingScript tempScript = script.GetTempScript(script.String, script.Pointer);
-
-            if (script.Current != start && script.TryPrev() != start &&
-               (script.Current == ' ' || script.TryPrev() == ' '))
-            { // Allow functions with space separated arguments
-                start = ' ';
-                end = Constants.END_STATEMENT;
-            }
-
-            // ScriptingEngine - body is unsed (used in Debugging) but GetBodyBetween has sideeffects			
-#pragma warning disable 219
-            string body = Utils.GetBodyBetween(tempScript, start, end);
-#pragma warning restore 219
-            // After the statement above tempScript.Parent will point to the last
-            // character belonging to the body between start and end characters. 
-
-            while (script.Pointer < tempScript.Pointer)
-            {
-                Variable item = await Utils.GetItemAsync(script, false);
                 args.Add(item);
                 if (script.Pointer < tempScript.Pointer)
                 {
@@ -547,7 +456,7 @@ namespace AliceScript
 
             if (endArgs < 0 && !isLambda)
             {
-                throw new ArgumentException("Couldn't extract function signature");
+                throw new ScriptException("関数のシグネチャを解析できませんでした。",Exceptions.INVALID_FUNCTION_SIGNATURE);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -573,7 +482,7 @@ namespace AliceScript
                     string item = collect.ToString().Trim();
                     if (item.Length == 0)
                     {
-                        throw new ArgumentException("Empty argument in function signature [" + argStr + "]");
+                        throw new ScriptException("関数のシグネチャが空でした。",Exceptions.INVALID_FUNCTION_SIGNATURE,script);
                     }
                     args.Add(item);
                     collect.Clear();
@@ -584,7 +493,7 @@ namespace AliceScript
 
             if (curlyLevel != 0)
             {
-                throw new ArgumentException("Unbalanced curly braces in function signature [" + argStr + "]");
+                throw new ScriptException("関数のシグネチャ `"+argStr+"` 内の中括弧が不均等です。",Exceptions.UNBALANCED_CURLY_BRACES);
             }
             if (collect.Length > 0)
             {
@@ -596,9 +505,9 @@ namespace AliceScript
             return args.ToArray();
         }
 
-        public static Variable GetVariableFromString(string str, ParsingScript script, int startIndex = 0)
+        public static Variable GetVariableFromString(string str, ParsingScript script,FunctionBase callFrom, int startIndex = 0)
         {
-            ParsingScript tempScript = script.GetTempScript(str, startIndex);
+            ParsingScript tempScript = script.GetTempScript(str, callFrom,startIndex);
             Variable result = Utils.GetItem(tempScript);
             return result;
         }
@@ -614,7 +523,7 @@ namespace AliceScript
             int endArgs = script.FindFirstOf(Constants.START_GROUP.ToString());
             if (endArgs < 0)
             {
-                throw new ArgumentException("Couldn't extract base classes");
+                throw new ScriptException("基底クラスを取得できませんでした。",Exceptions.COULDNT_EXTRACT_BASE_CLASSES,script);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -626,7 +535,7 @@ namespace AliceScript
             return args;
         }
 
-   
+
 
         public static bool EndsWithFunction(string buffer, List<string> functions)
         {
@@ -769,7 +678,7 @@ namespace AliceScript
             }
             return args;
         }
-        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line,out List<string> defines, string filename = "")
+        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out List<string> defines, string filename = "")
         {
             string curlyErrorMsg = "波括弧が不均等です";
             string bracketErrorMsg = "角括弧が不均等です";
@@ -1097,11 +1006,11 @@ namespace AliceScript
                             }
                         case "error":
                             {
-                                throw new ScriptException(arg,Exceptions.USER_DEFINED);
+                                throw new ScriptException(arg, Exceptions.USER_DEFINED);
                             }
                         case "print":
                             {
-                                Interpreter.Instance.AppendOutput(arg,true);
+                                Interpreter.Instance.AppendOutput(arg, true);
                                 break;
                             }
                     }
@@ -1147,7 +1056,7 @@ namespace AliceScript
             return sb.ToString().Trim();
         }
 
-     
+
         public static string GetBodySize(ParsingScript script, string endToken1, string endToken2 = null)
         {
             int start = script.Pointer;
@@ -1305,14 +1214,20 @@ namespace AliceScript
             return null;
         }
 
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom,int max=0)
         {
             int end = 0;
-            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; });
+            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; },callFrom,max);
         }
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals,FunctionBase callFrom,int max=0)
         {
             List<Variable> indices = new List<Variable>();
+
+            if (max != 0)
+            {
+                //逆からインデックス
+                varName = Regex.Replace(varName, "(.*)\\[\\^([0-9]*)\\]", "$1["+max+"-$2]");
+            }
 
             int argStart = varName.IndexOf(Constants.START_ARRAY);
             if (argStart < 0)
@@ -1330,7 +1245,7 @@ namespace AliceScript
                     break;
                 }
 
-                ParsingScript tempScript = script.GetTempScript(varName, argStart);
+                ParsingScript tempScript = script.GetTempScript(varName, callFrom,argStart);
                 tempScript.MoveForwardIf(Constants.START_ARG, Constants.START_ARRAY);
 
                 Variable index = tempScript.Execute(Constants.END_ARRAY_ARRAY);
@@ -1348,45 +1263,6 @@ namespace AliceScript
             updateVals(varName, end);
             return indices;
         }
-        public static async Task<List<Variable>> GetArrayIndicesAsync(ParsingScript script, string varName, int end, Action<string, int> updateVals)
-        {
-            List<Variable> indices = new List<Variable>();
-
-            int argStart = varName.IndexOf(Constants.START_ARRAY);
-            if (argStart < 0)
-            {
-                return indices;
-            }
-            int firstIndexStart = argStart;
-
-            while (argStart < varName.Length &&
-                   varName[argStart] == Constants.START_ARRAY)
-            {
-                int argEnd = varName.IndexOf(Constants.END_ARRAY, argStart + 1);
-                if (argEnd == -1 || argEnd <= argStart + 1)
-                {
-                    break;
-                }
-
-                ParsingScript tempScript = script.GetTempScript(varName, argStart);
-                tempScript.MoveForwardIf(Constants.START_ARG, Constants.START_ARRAY);
-
-                Variable index = await tempScript.ExecuteAsync(Constants.END_ARRAY_ARRAY);
-
-                indices.Add(index);
-                argStart = argEnd + 1;
-            }
-
-            if (indices.Count > 0)
-            {
-                varName = varName.Substring(0, firstIndexStart);
-                end = argStart - 1;
-            }
-
-            updateVals(varName, end);
-            return indices;
-        }
-
         public static List<string> ExtractTokens(ParsingScript script)
         {
             List<string> tokens = new List<string>();
@@ -1415,9 +1291,7 @@ namespace AliceScript
 
                 if (arrayIndex < 0 || arrayIndex >= tupleSize)
                 {
-                    ThrowErrorMsg("インデックス: [" + index.AsString() +
-                                  "] は配列の長さ[" + tupleSize + "]を超えています", Exceptions.INDEX_OUT_OF_RANGE, script, index.AsString());
-                    return currLevel;
+                    throw new IndexOutOfRangeException("インデックス `"+index.AsString()+"`は配列の境界 `"+tupleSize+"` 外です。");
                 }
                 switch (currLevel.Type)
                 {

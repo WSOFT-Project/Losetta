@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
+﻿using System.Net;
 
 namespace AliceScript.NameSpaces
 {
-   static class Alice_Net_Initer
+    internal static class Alice_Net_Initer
     {
         public static void Init()
         {
@@ -34,7 +31,8 @@ namespace AliceScript.NameSpaces
         }
         internal static WebClient wc;
     }
-    class web_upload_dataFunc : FunctionBase
+
+    internal class web_upload_dataFunc : FunctionBase
     {
         public web_upload_dataFunc()
         {
@@ -47,14 +45,16 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count == 2)
             {
-              e.Return=new Variable(  Alice_Net_Initer.wc.UploadData(e.Args[0].AsString(),e.Args[1].AsByteArray()));
-            }else if (e.Args.Count >= 3)
+                e.Return = new Variable(Alice_Net_Initer.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsByteArray()));
+            }
+            else if (e.Args.Count >= 3)
             {
-               e.Return=new Variable( Alice_Net_Initer.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsString(),e.Args[2].AsByteArray()));
+                e.Return = new Variable(Alice_Net_Initer.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsByteArray()));
             }
         }
     }
-    class web_upload_fileFunc : FunctionBase
+
+    internal class web_upload_fileFunc : FunctionBase
     {
         public web_upload_fileFunc()
         {
@@ -75,7 +75,8 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class web_upload_textFunc : FunctionBase
+
+    internal class web_upload_textFunc : FunctionBase
     {
         public web_upload_textFunc()
         {
@@ -96,7 +97,8 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    class web_download_dataFunc : FunctionBase
+
+    internal class web_download_dataFunc : FunctionBase
     {
         public web_download_dataFunc()
         {
@@ -110,7 +112,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Alice_Net_Initer.wc.DownloadData(e.Args[0].AsString()));
         }
     }
-    class web_download_fileFunc : FunctionBase
+
+    internal class web_download_fileFunc : FunctionBase
     {
         public web_download_fileFunc()
         {
@@ -121,10 +124,11 @@ namespace AliceScript.NameSpaces
 
         private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
         {
-            Alice_Net_Initer.wc.DownloadFile(e.Args[0].AsString(),e.Args[1].AsString());
+            Alice_Net_Initer.wc.DownloadFile(e.Args[0].AsString(), e.Args[1].AsString());
         }
     }
-    class web_download_textFunc : FunctionBase
+
+    internal class web_download_textFunc : FunctionBase
     {
         public web_download_textFunc()
         {
@@ -138,7 +142,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Alice_Net_Initer.wc.DownloadString(e.Args[0].AsString()));
         }
     }
-    class web_htmldecodeFunc : FunctionBase
+
+    internal class web_htmldecodeFunc : FunctionBase
     {
         public web_htmldecodeFunc()
         {
@@ -152,7 +157,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(WebUtility.HtmlDecode(e.Args[0].AsString()));
         }
     }
-    class web_htmlencodeFunc : FunctionBase
+
+    internal class web_htmlencodeFunc : FunctionBase
     {
         public web_htmlencodeFunc()
         {
@@ -166,7 +172,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(WebUtility.HtmlEncode(e.Args[0].AsString()));
         }
     }
-    class web_urldecodeFunc : FunctionBase
+
+    internal class web_urldecodeFunc : FunctionBase
     {
         public web_urldecodeFunc()
         {
@@ -180,7 +187,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(WebUtility.UrlDecode(e.Args[0].AsString()));
         }
     }
-    class web_urlencodeFunc : FunctionBase
+
+    internal class web_urlencodeFunc : FunctionBase
     {
         public web_urlencodeFunc()
         {
@@ -194,7 +202,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(WebUtility.UrlEncode(e.Args[0].AsString()));
         }
     }
-    class web_send_pingFunc : FunctionBase
+
+    internal class web_send_pingFunc : FunctionBase
     {
         public web_send_pingFunc()
         {
@@ -210,7 +219,7 @@ namespace AliceScript.NameSpaces
             System.Net.NetworkInformation.Ping p =
                 new System.Net.NetworkInformation.Ping();
 
-            System.Net.NetworkInformation.PingReply reply = p.Send(e.Args[0].AsString(),Utils.GetSafeInt(e.Args,1,5000));
+            System.Net.NetworkInformation.PingReply reply = p.Send(e.Args[0].AsString(), Utils.GetSafeInt(e.Args, 1, 5000));
 
             //結果を取得
             if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)

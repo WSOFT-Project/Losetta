@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
+﻿using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -20,25 +16,25 @@ namespace AliceScript
 
         public PackageManifest Manifest { get; set; }
 
-        public static void Load(string path,bool callFromScrpipt=false)
+        public static void Load(string path, bool callFromScrpipt = false)
         {
             if (!File.Exists(path))
             {
                 throw new ScriptException("パッケージが見つかりません", Exceptions.FILE_NOT_FOUND);
             }
             byte[] file = File.ReadAllBytes(path);
-            LoadData(file, path,callFromScrpipt);
+            LoadData(file, path, callFromScrpipt);
         }
         public static void LoadData(byte[] data, string filename = "", bool callFromScript = false)
         {
             byte[] magic = data.Take(Constants.PACKAGE_MAGIC_NUMBER.Length).ToArray();
             if (magic.SequenceEqual(Constants.PACKAGE_MAGIC_NUMBER))
             {
-                LoadEncodingPackage(data, filename,callFromScript);
+                LoadEncodingPackage(data, filename, callFromScript);
             }
             else
             {
-                LoadArchive(new ZipArchive(new MemoryStream(data)), filename,callFromScript);
+                LoadArchive(new ZipArchive(new MemoryStream(data)), filename, callFromScript);
             }
         }
         public static PackageManifest GetManifest(string xml)
@@ -100,7 +96,7 @@ namespace AliceScript
                 return null;
             }
         }
-        internal static void LoadArchive(ZipArchive a, string filename = "",bool callFromScript=false)
+        internal static void LoadArchive(ZipArchive a, string filename = "", bool callFromScript = false)
         {
             if (a == null)
             {
@@ -231,7 +227,7 @@ namespace AliceScript
                             Stream sw = entry.Open();
                             string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _);
                             int old = script.Length;
-                            script = Utils.ConvertToScript(script, out _, out _,entry.FullName);
+                            script = Utils.ConvertToScript(script, out _, out _, entry.FullName);
                             byte[] script_data = Encoding.UTF8.GetBytes(script);
                             string fn = entry.FullName;
                             sw.Close();
@@ -378,7 +374,7 @@ namespace AliceScript
                 try
                 {
                     new ZipArchive(outfs);
-                    LoadArchive(new ZipArchive(outfs), filename,callFromScript);
+                    LoadArchive(new ZipArchive(outfs), filename, callFromScript);
                 }
                 catch
                 {

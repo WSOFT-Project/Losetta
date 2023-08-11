@@ -1,7 +1,4 @@
 ﻿using AliceScript;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace alice
@@ -45,31 +42,47 @@ namespace alice
         }
 
         private static bool mainfile = false;
-        private static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
+        internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (e.Message != "")
             {
-                string throwmsg = "エラー0x" + ((int)e.ErrorCode).ToString("x3") + ": ";
-                if (!string.IsNullOrEmpty(e.Message))
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine(e.ErrorCode.ToString()+"(0x" + ((int)e.ErrorCode).ToString("x3") + "): "+e.Message);
+                //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
+                //sb.AppendLine("説明: "+e.Message);
+                if (!string.IsNullOrWhiteSpace(e.HelpLink))
                 {
-                    throwmsg += e.Message;
+                    sb.AppendLine("詳細情報: " + e.HelpLink);
                 }
                 if (e.Script != null)
                 {
-                    throwmsg += " " + e.Script.OriginalLineNumber + "行  ファイル名:" + e.Script.Filename;
+                    if (e.Script.StackTrace.Count > 0)
+                    {
+                        var st = new List<ParsingScript.StackInfo>(e.Script.StackTrace);
+                        st.Reverse();
+                        sb.AppendLine("スタックトレース");
+                        foreach (var ss in st)
+                        {
+                            sb.Append("  ");
+                            sb.AppendLine(ss.ToString());
+                        }
+                    }
                 }
-                throwmsg += "\r\n";
                 if (allow_throw)
                 {
-                    AliceScript.Utils.PrintColor(throwmsg, ConsoleColor.Red);
-                    DumpLocalVariables(e.Script);
-                    DumpGlobalVariables();
+                    PrintColor(sb.ToString(), ConsoleColor.White,ConsoleColor.DarkRed);
+                    //DumpLocalVariables(e.Script);
+                    //DumpGlobalVariables();
+
+                    Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
+                    e.Handled = Console.ReadKey().Key.HasFlag(ConsoleKey.Enter);
+                    Console.WriteLine();
                 }
                 if (throw_redirect_files.Count > 0)
                 {
                     foreach (string fn in throw_redirect_files)
                     {
-                        File.AppendAllText(fn, throwmsg);
+                        File.AppendAllText(fn, sb.ToString());
                     }
 
                 }
@@ -396,7 +409,9 @@ namespace alice
             string errorMsg = null;
             Variable result = null;
 
+#if !DEBUG_THROW
             try
+#endif
             {
                 if (!string.IsNullOrWhiteSpace(filename))
                 {
@@ -418,11 +433,17 @@ namespace alice
                     result = CurrentScript.Process();
                 }
             }
+#if !DEBUG_THROW
             catch (Exception exc)
             {
-                errorMsg = exc.InnerException != null ? exc.InnerException.Message : exc.Message;
+                ///TODO:補足されなかった例外にエラー番号振る。
+                /*
+                errorMsg ="補足されなかった例外:"+ (exc.InnerException != null ? exc.InnerException.Message : exc.Message);
                 ParserFunction.InvalidateStacksAfterLevel(0);
+                */
+
             }
+#endif
 
             if (!s_PrintingCompleted)
             {
@@ -443,7 +464,7 @@ namespace alice
 
             if (!string.IsNullOrWhiteSpace(errorMsg))
             {
-                Utils.PrintColor(errorMsg + Environment.NewLine, ConsoleColor.Red);
+                PrintColor(errorMsg + Environment.NewLine, ConsoleColor.Red);
                 errorMsg = string.Empty;
             }
         }
@@ -454,6 +475,22 @@ namespace alice
             return string.Format("{0}>>", path);
         }
 
+        internal static void PrintColor(string output, ConsoleColor fgcolor, ConsoleColor? bgcolor = null)
+        {
+            ConsoleColor currentForeground = Console.ForegroundColor;
+            ConsoleColor currentBackground = Console.BackgroundColor;
+
+            Console.ForegroundColor = fgcolor;
+            if (bgcolor.HasValue)
+            {
+                Console.BackgroundColor = bgcolor.Value;
+            }
+
+            Console.Write(output);
+
+            Console.ForegroundColor = currentForeground;
+            Console.BackgroundColor = currentBackground;
+        }
         private static void ClearLine(string part1 = "", string part2 = "")
         {
             string spaces = new string(' ', part1.Length + part2.Length + 1);
@@ -487,7 +524,8 @@ namespace alice
         {
             if (allow_debug_print)
             {
-                Console.Write(e.Output);
+                PrintColor(e.Output, ConsoleColor.Cyan);
+                //Console.Write(e.Output);
             }
             if (debug_print_redirect_files.Count > 0)
             {

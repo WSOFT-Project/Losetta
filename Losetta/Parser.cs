@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AliceScript
 {
@@ -94,9 +89,9 @@ namespace AliceScript
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if(func.m_impl is CustomFunction cf)
+                if(func.m_impl is FunctionBase fb && (script.ProcessingFunction==null || !(fb is StringOrNumberFunction)))
                 {
-                    script.StackTrace.Add(cf);
+                    script.ProcessingFunction = fb;
                 }
                 Variable current = func.GetValue(script);
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
@@ -579,7 +574,7 @@ namespace AliceScript
             //[is]演算子、型テスト演算子ですべての型に適応できます
             if (leftCell.Action == Constants.IS && rightCell.Object != null && rightCell.Object is TypeObject to)
             {
-                    leftCell = new Variable(to.Match(leftCell));
+                leftCell = new Variable(to.Match(leftCell));
             }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
             else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)
@@ -595,7 +590,7 @@ namespace AliceScript
                 }
             }
             // [==]または[===]つまり、等値演算子の場合はそれぞれのEqualsメソッドを呼び出す
-            else if(leftCell.Action == "==" || leftCell.Action == "===")
+            else if (leftCell.Action == "==" || leftCell.Action == "===")
             {
                 leftCell = new Variable(leftCell.Equals(rightCell));
             }

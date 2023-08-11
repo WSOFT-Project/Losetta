@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFramework>net6.0</TargetFramework>
     <Company>WSOFT</Company>
@@ -11,7 +11,7 @@
     <PackageProjectUrl>https://docs.wsoft.ws/products/alice/</PackageProjectUrl>
     <Description>The next generation implementation of alice</Description>
     <SignAssembly>False</SignAssembly>
-    <Version>0.9.20</Version>
+    <Version>0.9.21</Version>
     <ApplicationIcon>alice_logo.ico</ApplicationIcon>
     <Copyright>Copyright (c) 2020-2023 WSOFT All Rights Reserved.</Copyright>
     <PackageIcon>alice_logo.png</PackageIcon>
@@ -19,7 +19,7 @@
     <PackageTags>Scripting</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64</Configurations>
+    <Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64;Debug_Throw</Configurations>
     <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
@@ -197,10 +197,6 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

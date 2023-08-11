@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AliceScript
 {
@@ -236,7 +234,7 @@ namespace AliceScript
             if (m_tuple != null)
             {
                 VariableCollection newTuple = new VariableCollection();
-                newTuple.Type=m_tuple.Type;
+                newTuple.Type = m_tuple.Type;
                 foreach (var item in m_tuple)
                 {
                     newTuple.Add(item.DeepClone());
@@ -252,7 +250,29 @@ namespace AliceScript
             }
             return newVar;
         }
-
+        /// <summary>
+        /// 他の変数を使って、この変数に代入します
+        /// </summary>
+        /// <param name="v">代入する値</param>
+        public void Assign(Variable v)
+        {
+            m_bool = v.m_bool;
+            m_byteArray= v.m_byteArray;
+            m_customFunctionGet = v.m_customFunctionGet;
+            m_customFunctionSet = v.m_customFunctionSet;
+            m_datetime= v.m_datetime;
+            m_delegate= v.m_delegate;
+            m_dictionary= v.m_dictionary;
+            m_enumMap= v.m_enumMap;
+            m_keyMappings= v.m_keyMappings;
+            m_object= v.m_object;
+            m_propertyMap= v.m_propertyMap;
+            m_propertyStringMap= v.m_propertyStringMap;
+            m_string= v.m_string;
+            m_tuple= v.m_tuple;
+            m_type= v.m_type;
+            m_value= v.m_value;
+        }
         public static Variable NewEmpty()
         {
             return new Variable();
@@ -303,6 +323,7 @@ namespace AliceScript
             m_object = null;
             m_tuple = null;
             m_byteArray = null;
+            m_delegate = null;
             Action = null;
             IsReturn = false;
             Type = VarType.NONE;
@@ -908,8 +929,7 @@ namespace AliceScript
                     }
                     else
                     {
-                        throw new ScriptException("インデックス: [" + entry.Value +
-                                  "] は配列の長さ[" + m_tuple.Count + "]を超えています", Exceptions.INDEX_OUT_OF_RANGE);
+                        throw new IndexOutOfRangeException("インデックス `" + entry.Value + "`は配列の境界 `" + m_tuple.Count + "` 外です。");
                     }
                 }
             }
@@ -1081,7 +1101,7 @@ namespace AliceScript
                 }
                 if (!string.IsNullOrWhiteSpace(result.CustomSet))
                 {
-                    return ParsingScript.RunString(result.CustomSet);
+                    return ParsingScript.RunString(result.CustomSet,script);
                 }
             }
 
@@ -1189,7 +1209,7 @@ namespace AliceScript
                        (script.Pointer == 0 || script.Prev == Constants.START_ARG))
                     {
 
-                        args = script.GetFunctionArgs();
+                        args = script.GetFunctionArgs(null);
                         ObjectBase.LaskVariable = args;
                     }
                     else if (script != null)
@@ -1233,7 +1253,7 @@ namespace AliceScript
                     if (script != null &&
                        (script.Pointer == 0 || script.Prev == Constants.START_ARG))
                     {
-                        args = await script.GetFunctionArgsAsync();
+                        args = script.GetFunctionArgs(null);
                     }
                     else if (script != null)
                     {
@@ -1378,8 +1398,7 @@ namespace AliceScript
         {
             if (index >= Count)
             {
-                throw new ArgumentException("There are only [" + Count +
-                                             "] but " + index + " requested.");
+                throw new IndexOutOfRangeException("インデックス `" + index + "`は配列の境界 `" + Count + "` 外です。");
 
             }
             if (Type == VarType.ARRAY)
@@ -1553,6 +1572,12 @@ namespace AliceScript
 
         public string CustomGet { get; set; }
         public string CustomSet { get; set; }
+        public object Tag { get; set; }
+        public List<string> Keywords
+        {
+            get => m_keywords;
+            set=>m_keywords = value;
+        }
 
         /// <summary>
         /// この変数が定義された元のスクリプトを表します
@@ -1582,6 +1607,7 @@ namespace AliceScript
         private CustomFunction m_customFunctionSet;
         protected VariableCollection m_tuple;
         protected byte[] m_byteArray;
+        private List<string> m_keywords = new List<string>();
         private Dictionary<string, int> m_dictionary = new Dictionary<string, int>();
         private Dictionary<string, string> m_keyMappings = new Dictionary<string, string>();
         private Dictionary<string, string> m_propertyStringMap = new Dictionary<string, string>();

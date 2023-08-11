@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Diagnostics;
 
 namespace AliceScript.NameSpaces
 {
-    static class Alice_Diagnostics_Initer
+    internal static class Alice_Diagnostics_Initer
     {
         public static void Init()
         {
@@ -126,7 +123,7 @@ namespace AliceScript.NameSpaces
                 if (m_isIf) { countnum++; }
                 if (e.Args.Count == countnum)
                 {
-                    AddDebugOutput("", e.Script, !m_isWrite);
+                    AddDebugOutput(string.Empty, e.Script, !m_isWrite);
                 }
                 else if (e.Args.Count == countnum + 1)
                 {
@@ -145,7 +142,7 @@ namespace AliceScript.NameSpaces
         }
 
         public static void AddDebugOutput(string text, ParsingScript script = null,
-                                     bool addLine = true, bool addSpace = true, string start = "", string indent = " ")
+                                     bool addLine = true, bool addSpace = true, string start = "", string indent = "    ")
         {
             string indents = "";
             for (int i = 0; i < Debug_IndentFunction.IndentLevel; i++)
@@ -156,7 +153,8 @@ namespace AliceScript.NameSpaces
             Interpreter.Instance.AppendDebug(output);
         }
     }
-    class Process_StartFunc : FunctionBase
+
+    internal class Process_StartFunc : FunctionBase
     {
         public Process_StartFunc()
         {
@@ -172,7 +170,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(po);
         }
     }
-    class Process_GetProcessFunc : FunctionBase
+
+    internal class Process_GetProcessFunc : FunctionBase
     {
         public Process_GetProcessFunc(bool byname = false)
         {
@@ -195,7 +194,7 @@ namespace AliceScript.NameSpaces
             {
                 Process[] ps = Process.GetProcessesByName(e.Args[0].AsString());
                 Variable v = new Variable(Variable.VarType.ARRAY);
-                foreach(Process p in ps)
+                foreach (Process p in ps)
                 {
                     ProcessObject po = new ProcessObject();
                     po.Process = p;
@@ -213,7 +212,8 @@ namespace AliceScript.NameSpaces
 
         private bool m_ByName = false;
     }
-    class ProcessObject : ObjectBase
+
+    internal class ProcessObject : ObjectBase
     {
         public ProcessObject()
         {
@@ -221,17 +221,18 @@ namespace AliceScript.NameSpaces
 
             this.AddProperty(new StartInfoProperty(this));
 
-            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.CloseMainWindow,this));
-            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Kill,this));
-            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Reflesh,this));
+            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.CloseMainWindow, this));
+            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Kill, this));
+            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Reflesh, this));
             this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Start, this));
-            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.WaitForExit,this));
+            this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.WaitForExit, this));
             this.AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.WaitForInputIdle, this));
 
-            
+
         }
-        internal Process Process=new Process();
-        class StartInfoProperty : PropertyBase
+        internal Process Process = new Process();
+
+        private class StartInfoProperty : PropertyBase
         {
             public StartInfoProperty(ProcessObject host)
             {
@@ -262,20 +263,22 @@ namespace AliceScript.NameSpaces
 
             private ProcessObject Host;
         }
-        class ProcessFunction : FunctionBase
+
+        private class ProcessFunction : FunctionBase
         {
             internal enum ProcessFunctionMode
             {
-                Start,Kill,WaitForExit,Reflesh, WaitForInputIdle,CloseMainWindow
+                Start, Kill, WaitForExit, Reflesh, WaitForInputIdle, CloseMainWindow
             }
-            public ProcessFunction(ProcessFunctionMode mode,ProcessObject host)
+            public ProcessFunction(ProcessFunctionMode mode, ProcessObject host)
             {
                 Mode = mode;
                 Host = host;
                 this.Name = Mode.ToString();
                 this.Run += ProcessFunction_Run;
             }
-            ProcessObject Host;
+
+            private ProcessObject Host;
             private void ProcessFunction_Run(object sender, FunctionBaseEventArgs e)
             {
                 switch (Mode)
@@ -316,13 +319,14 @@ namespace AliceScript.NameSpaces
             private ProcessFunctionMode Mode;
         }
     }
-    class ProcessStartInfoObject : ObjectBase
+
+    internal class ProcessStartInfoObject : ObjectBase
     {
         public ProcessStartInfoObject()
         {
             this.Name = "ProcessStartInfo";
 
-            this.AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments,this));
+            this.AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments, this));
             this.AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.CreateNoWindow, this));
             this.AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.ErrorDialog, this));
             this.AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.FileName, this));
@@ -336,13 +340,14 @@ namespace AliceScript.NameSpaces
             this.AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.WorkingDirectory, this));
         }
         internal ProcessStartInfo ps = new ProcessStartInfo();
-        class InfoProperty : PropertyBase
+
+        private class InfoProperty : PropertyBase
         {
             internal enum InfoPropertyMode
             {
                 Arguments, CreateNoWindow, ErrorDialog, FileName, LoadUserProfile, RedirectStandardError, RedirectStandardInput, RedirectStandardOutput, UseShellExecute, Verb, WindowStyle, WorkingDirectory
             }
-            public InfoProperty(InfoPropertyMode mode,ProcessStartInfoObject host)
+            public InfoProperty(InfoPropertyMode mode, ProcessStartInfoObject host)
             {
                 Mode = mode;
                 Host = host;
@@ -386,7 +391,7 @@ namespace AliceScript.NameSpaces
                             Host.ps.RedirectStandardError = e.Value.AsBool();
                             break;
                         }
-                        case InfoPropertyMode.RedirectStandardInput:
+                    case InfoPropertyMode.RedirectStandardInput:
                         {
                             Host.ps.RedirectStandardInput = e.Value.AsBool();
                             break;
@@ -488,13 +493,14 @@ namespace AliceScript.NameSpaces
                 }
             }
 
-            InfoPropertyMode Mode;
+            private InfoPropertyMode Mode;
         }
 
-       
+
 
     }
-    class StopWatchObject : ObjectBase
+
+    internal class StopWatchObject : ObjectBase
     {
         public StopWatchObject()
         {
@@ -514,7 +520,7 @@ namespace AliceScript.NameSpaces
 
         private Stopwatch stopwatch = new Stopwatch();
 
-        class ElapsedProperty : PropertyBase
+        private class ElapsedProperty : PropertyBase
         {
             public ElapsedProperty(Stopwatch stopwatch)
             {
@@ -530,7 +536,8 @@ namespace AliceScript.NameSpaces
                 e.Value = new Variable(Stopwatch.Elapsed);
             }
         }
-        class ElapsedMillisecondsProperty : PropertyBase
+
+        private class ElapsedMillisecondsProperty : PropertyBase
         {
             public ElapsedMillisecondsProperty(Stopwatch stopwatch)
             {
@@ -546,7 +553,8 @@ namespace AliceScript.NameSpaces
                 e.Value = new Variable(Stopwatch.ElapsedMilliseconds);
             }
         }
-        class ElapsedTicksProperty : PropertyBase
+
+        private class ElapsedTicksProperty : PropertyBase
         {
             public ElapsedTicksProperty(Stopwatch stopwatch)
             {
@@ -562,7 +570,8 @@ namespace AliceScript.NameSpaces
                 e.Value = new Variable(Stopwatch.ElapsedTicks);
             }
         }
-        class IsRunningProperty : PropertyBase
+
+        private class IsRunningProperty : PropertyBase
         {
             public IsRunningProperty(Stopwatch stopwatch)
             {
@@ -578,7 +587,8 @@ namespace AliceScript.NameSpaces
                 e.Value = new Variable(Stopwatch.IsRunning);
             }
         }
-        class IsHighResolutionProperty : PropertyBase
+
+        private class IsHighResolutionProperty : PropertyBase
         {
             public IsHighResolutionProperty(Stopwatch stopwatch)
             {
@@ -594,7 +604,8 @@ namespace AliceScript.NameSpaces
                 e.Value = new Variable(Stopwatch.IsHighResolution);
             }
         }
-        class FrequencyProperty : PropertyBase
+
+        private class FrequencyProperty : PropertyBase
         {
             public FrequencyProperty(Stopwatch stopwatch)
             {
@@ -611,7 +622,7 @@ namespace AliceScript.NameSpaces
             }
         }
 
-        class STWOFunc : FunctionBase
+        private class STWOFunc : FunctionBase
         {
             public STWOFunc(StopWatchObject sto, int mode)
             {

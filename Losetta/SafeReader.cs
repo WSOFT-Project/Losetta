@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -8,10 +6,11 @@ namespace AliceScript
     {
         public static string ReadAllText(string filename, out string charcode)
         {
+            if (string.IsNullOrEmpty(filename)) { charcode = ""; return string.Empty; }
             FileInfo file = new FileInfo(filename);
             if (!file.Exists)
             {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException(null,filename);
             }
 
             using (FileReader reader = new FileReader(file))
@@ -21,9 +20,9 @@ namespace AliceScript
                 return reader.Text;
             }
         }
-        public static string ReadAllText(byte[] data,out string charcode)
+        public static string ReadAllText(byte[] data, out string charcode)
         {
-            using (FileReader reader=new FileReader(data))
+            using (FileReader reader = new FileReader(data))
             {
                 CharCode c = reader.Read(data);
                 charcode = c.Name;

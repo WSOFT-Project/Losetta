@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
 {
-    static class Alice_Regex_Initer
+    internal static class Alice_Regex_Initer
     {
         public static void Init()
         {
@@ -29,7 +26,8 @@ namespace AliceScript.NameSpaces
         }
 
     }
-    class str_IsMatchFunc : FunctionBase
+
+    internal class str_IsMatchFunc : FunctionBase
     {
         public str_IsMatchFunc()
         {
@@ -44,7 +42,8 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable((System.Text.RegularExpressions.Regex.IsMatch(e.CurentVariable.AsString(), e.Args[0].AsString())));
         }
     }
-    class str_MatchesFunc : FunctionBase
+
+    internal class str_MatchesFunc : FunctionBase
     {
         public str_MatchesFunc()
         {
@@ -65,17 +64,18 @@ namespace AliceScript.NameSpaces
             e.Return = r;
         }
     }
-    class RegexSingleArgFunc : FunctionBase
+
+    internal class RegexSingleArgFunc : FunctionBase
     {
         public enum FuncMode
         {
-            Escape,IsMatch,Match,Matches,Replace,Split
+            Escape, IsMatch, Match, Matches, Replace, Split
         }
-        
+
         public RegexSingleArgFunc(FuncMode mode)
         {
             Mode = mode;
-           
+
             this.Run += RegexSingleArgFunc_Run;
             switch (Mode)
             {
@@ -129,7 +129,7 @@ namespace AliceScript.NameSpaces
                     }
                 case FuncMode.IsMatch:
                     {
-                            e.Return = new Variable(Regex.IsMatch(e.Args[0].AsString(),e.Args[1].AsString()));
+                        e.Return = new Variable(Regex.IsMatch(e.Args[0].AsString(), e.Args[1].AsString()));
                         break;
                     }
                 case FuncMode.Match:
@@ -140,7 +140,7 @@ namespace AliceScript.NameSpaces
                 case FuncMode.Matches:
                     {
                         Variable v = new Variable(Variable.VarType.ARRAY);
-                        foreach(Match m in Regex.Matches(e.Args[0].AsString(), e.Args[1].AsString()))
+                        foreach (Match m in Regex.Matches(e.Args[0].AsString(), e.Args[1].AsString()))
                         {
                             v.Tuple.Add(new Variable(m.Value));
                         }
@@ -149,12 +149,12 @@ namespace AliceScript.NameSpaces
                     }
                 case FuncMode.Replace:
                     {
-                        e.Return = new Variable(Regex.Replace(e.Args[0].AsString(),e.Args[1].AsString(),e.Args[2].AsString()));
+                        e.Return = new Variable(Regex.Replace(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString()));
                         break;
                     }
                 case FuncMode.Split:
                     {
-                        e.Return = new Variable(Regex.Split(e.Args[0].AsString(),e.Args[1].AsString()));
+                        e.Return = new Variable(Regex.Split(e.Args[0].AsString(), e.Args[1].AsString()));
                         break;
                     }
             }

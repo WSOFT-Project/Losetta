@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
     internal static class Alice_Console
     {

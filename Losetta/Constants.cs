@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     public partial class Constants
     {
@@ -27,6 +20,7 @@ namespace AliceScript
         public const char EMPTY = '\0';
         public const char DESTRUCTION = '_';
         public const char TERNARY_OPERATOR = '?';
+        public const char DOLLER = '$';
 
         public const string AS = "as ";
         public const string IS = "is ";
@@ -88,6 +82,9 @@ namespace AliceScript
 
         public const string TRUE = "true";
         public const string FALSE = "false";
+
+        public const string REF = "ref";
+        public const string PARAMS = "params";
 
         public const string ADD = "add";
         public const string ADD_RANGE = "AddRange";
@@ -168,13 +165,19 @@ namespace AliceScript
         public const string GOTO = "goto";
         public const string GOSUB = "gosub";
 
+        /// <summary>
+        /// このプログラミング言語の名前
+        /// </summary>
+        public const string LANGUAGE = "AliceScript";
+
+        public const string UTF8_LITERAL = "u8";
 
         public const string PROP_TO_STRING = "ToString";
 
         public static string END_ARG_STR = END_ARG.ToString();
         public static string NULL_ACTION = END_ARG.ToString();
 
-        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=","=>"};
+        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=", "=>" };
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS};
@@ -184,11 +187,11 @@ namespace AliceScript
         public static string[] CORE_OPERATORS = (new List<string> { TRY, FOR, WHILE }).ToArray();
 
         // ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
-        public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45,0x01 };
+        public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
         // DLLファイルのマーク(ASCIIでM,Z)
-        public static byte[] DLL_MAGIC_NUMBER = { 0x4d,0x5a};
+        public static byte[] DLL_MAGIC_NUMBER = { 0x4d, 0x5a };
         // ZIPファイルのマーク(ASCIIでP,K)
-        public static byte[] ZIP_MAGIC_NUMBER = { 0x50,0x4b };
+        public static byte[] ZIP_MAGIC_NUMBER = { 0x50, 0x4b };
         // パッケージマニフェストファイルの名前
         public const string PACKAGE_MANIFEST_FILENAME = "manifest.xml";
 
@@ -232,9 +235,11 @@ namespace AliceScript
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
-        public static List<string> KEYWORD=new List<string>
+        public const string HELP_LINK = "https://a.wsoft.ws/alice/exceptions/0x";
+
+        public static List<string> KEYWORD = new List<string>
         {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF
         };
 
         // 関数呼び出し時に丸括弧が不要な関数
@@ -314,8 +319,7 @@ namespace AliceScript
         public const int INDENT = 2;
         public const int DEFAULT_FILE_LINES = 20;
         public const int MAX_CHARS_TO_SHOW = 45;
-
-        static Dictionary<string, string> s_realNames = new Dictionary<string, string>();
+        private static Dictionary<string, string> s_realNames = new Dictionary<string, string>();
 
         public static string ConvertName(string name)
         {
@@ -350,30 +354,30 @@ namespace AliceScript
             }
             return realName;
         }
-        
+
         public static string TypeToString(Variable.VarType type)
         {
             switch (type)
             {
-                case Variable.VarType.NUMBER:   return "NUMBER";
-                case Variable.VarType.STRING:   return "STRING";
+                case Variable.VarType.NUMBER: return "NUMBER";
+                case Variable.VarType.STRING: return "STRING";
                 case Variable.VarType.ARRAY_STR:
                 case Variable.VarType.ARRAY_NUM:
-                case Variable.VarType.ARRAY:    return "ARRAY";
+                case Variable.VarType.ARRAY: return "ARRAY";
                 case Variable.VarType.MAP_STR:
-                case Variable.VarType.MAP_NUM:  return "MAP";
-                case Variable.VarType.OBJECT:   return "OBJECT";
-                case Variable.VarType.BREAK:    return "BREAK";
+                case Variable.VarType.MAP_NUM: return "MAP";
+                case Variable.VarType.OBJECT: return "OBJECT";
+                case Variable.VarType.BREAK: return "BREAK";
                 case Variable.VarType.CONTINUE: return "CONTINUE";
                 case Variable.VarType.DELEGATE: return "DELEGATE";
-                case Variable.VarType.BOOLEAN:  return "BOOLEAN";
-                case Variable.VarType.BYTES:    return "BYTES";
+                case Variable.VarType.BOOLEAN: return "BOOLEAN";
+                case Variable.VarType.BYTES: return "BYTES";
                 //case Variable.VarType.TYPE:     return "TYPE";
                 case Variable.VarType.UNDEFINED: return "UNDEFINED";
                 default: return "NONE";
             }
         }
-        public static bool TryParseType(string text,out Variable.VarType type)
+        public static bool TryParseType(string text, out Variable.VarType type)
         {
             text = text.ToUpper();
             switch (text)
@@ -381,26 +385,26 @@ namespace AliceScript
                 case "INT":
                 case "FLOAT":
                 case "DOUBLE":
-                case "NUMBER": type= Variable.VarType.NUMBER;break;
+                case "NUMBER": type = Variable.VarType.NUMBER; break;
                 case "CHAR":
-                case "STRING": type= Variable.VarType.STRING; break;
+                case "STRING": type = Variable.VarType.STRING; break;
                 case "LIST<INT>":
-                case "LIST<DOUBLE>": type= Variable.VarType.ARRAY_NUM; break;
-                case "LIST<STRING>": type= Variable.VarType.ARRAY_STR; break;
+                case "LIST<DOUBLE>": type = Variable.VarType.ARRAY_NUM; break;
+                case "LIST<STRING>": type = Variable.VarType.ARRAY_STR; break;
                 case "MAP<INT>":
                 case "MAP<STRING,INT>":
                 case "MAP<DOUBLE>":
-                case "MAP<STRING,DOUBLE>": type= Variable.VarType.MAP_NUM; break;
+                case "MAP<STRING,DOUBLE>": type = Variable.VarType.MAP_NUM; break;
                 case "MAP<STRING>":
-                case "MAP<STRING,STRING>": type= Variable.VarType.MAP_STR; break;
+                case "MAP<STRING,STRING>": type = Variable.VarType.MAP_STR; break;
                 case "TUPLE":
-                case "ARRAY": type= Variable.VarType.ARRAY; break;
+                case "ARRAY": type = Variable.VarType.ARRAY; break;
                 case "BOOL":
-                case "BOOLEAN": type= Variable.VarType.BOOLEAN; break;
-                case "BREAK": type= Variable.VarType.BREAK; break;
-                case "CONTINUE": type= Variable.VarType.CONTINUE; break;
-                case "DELEGATE": type= Variable.VarType.DELEGATE; break;
-                case "VARIABLE": type= Variable.VarType.VARIABLE; break;
+                case "BOOLEAN": type = Variable.VarType.BOOLEAN; break;
+                case "BREAK": type = Variable.VarType.BREAK; break;
+                case "CONTINUE": type = Variable.VarType.CONTINUE; break;
+                case "DELEGATE": type = Variable.VarType.DELEGATE; break;
+                case "VARIABLE": type = Variable.VarType.VARIABLE; break;
                 //case "TYPE": type= Variable.VarType.TYPE; break;
                 default: type = Variable.VarType.NONE; return false;
             }

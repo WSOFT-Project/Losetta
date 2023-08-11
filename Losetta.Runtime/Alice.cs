@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
     internal static class Alice_Initer
@@ -99,6 +95,7 @@ namespace AliceScript.NameSpaces
             space.Add(new PrintFunction(true));
             space.Add(new ReadFunction());
             space.Add(new StringFormatFunction());
+            space.Add(new ExceptionObject());
 
             NameSpaceManerger.Add(space);
 
@@ -125,7 +122,6 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new LockFunction());
         }
     }
-
 
     internal class ReturnStatement : FunctionBase
     {
@@ -1027,6 +1023,15 @@ namespace AliceScript.NameSpaces
                     {
                         throw new ScriptException(Utils.GetSafeString(e.Args, 1), (Exceptions)e.Args[0].AsInt(), e.Script);
                     }
+                default:
+                    {
+                        if(e.Args[0].Object is ExceptionObject eo)
+                        {
+                            var s = eo.MainScript == null ? e.Script : eo.MainScript;
+                            throw new ScriptException(eo.Message,eo.ErrorCode,s);
+                        }
+                        break;
+                    }
             }
         }
     }
@@ -1072,7 +1077,7 @@ namespace AliceScript.NameSpaces
             if (script.LabelToFile.TryGetValue(labelName, out filename) &&
                 filename != script.Filename && !string.IsNullOrWhiteSpace(filename))
             {
-                var newScript = script.GetIncludeFileScript(filename);
+                var newScript = script.GetIncludeFileScript(filename,this);
                 script.Filename = filename;
                 script.String = newScript.String;
             }
@@ -1106,11 +1111,13 @@ namespace AliceScript.NameSpaces
 
         private void IncludeFile_Run(object sender, FunctionBaseEventArgs e)
         {
+            /*
             if (e.Script == null)
             {
                 e.Script = new ParsingScript("");
             }
-            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString());
+            */
+            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString(),this);
 
             Variable result = null;
             while (tempScript.StillValid())
@@ -1211,8 +1218,8 @@ namespace AliceScript.NameSpaces
 
         private void List_ReverseFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            
-                e.CurentVariable.Tuple.Reverse();
+
+            e.CurentVariable.Tuple.Reverse();
         }
     }
 

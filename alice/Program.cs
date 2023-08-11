@@ -1,7 +1,4 @@
 ﻿using AliceScript;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Text;
 
@@ -52,7 +49,7 @@ namespace alice
             ShellFunctions.Init();
 
 
-            ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
+            ThrowErrorManerger.ThrowError += Shell.ThrowErrorManerger_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
@@ -130,7 +127,7 @@ namespace alice
             }
             else
             {
-                ThrowErrorManerger.ThrowError -= ThrowErrorManerger_ThrowError;
+                ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }
@@ -184,11 +181,11 @@ namespace alice
                 var directoryInfo = new DirectoryInfo(path);
                 directoryInfo.Attributes |= System.IO.FileAttributes.Hidden;
 
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "version"),Properties.Resources.version,Encoding.UTF8);
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "version"), Properties.Resources.version, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "install"), Properties.Resources.install, Encoding.UTF8);
 
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"),Properties.Resources.shell, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), Properties.Resources.shell, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "update"), Properties.Resources.update, Encoding.UTF8);
             }
@@ -271,36 +268,6 @@ namespace alice
                 }
             }
         }
-        private static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
-        {
-            if (e.Message != "")
-            {
-                string throwmsg = "エラー0x" + ((int)e.ErrorCode).ToString("x3") + ": ";
-                if (!string.IsNullOrEmpty(e.Message))
-                {
-                    throwmsg += e.Message;
-                }
-                if (e.Script != null)
-                {
-                    throwmsg += " " + e.Script.OriginalLineNumber + "行 ファイル名:" + e.Script.Filename;
-                }
-                throwmsg += "\r\n";
-                if (allow_throw)
-                {
-                    AliceScript.Utils.PrintColor(throwmsg, ConsoleColor.Red);
-                    Shell.DumpLocalVariables(e.Script);
-                    Shell.DumpGlobalVariables();
-                }
-                if (throw_redirect_files.Count > 0)
-                {
-                    foreach (string fn in throw_redirect_files)
-                    {
-                        File.AppendAllText(fn, throwmsg);
-                    }
-
-                }
-            }
-
-        }
+        
     }
 }

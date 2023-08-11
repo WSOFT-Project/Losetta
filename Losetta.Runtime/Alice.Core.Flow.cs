@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
-   
+
 
     internal class NewObjectFunction : FunctionBase
     {
@@ -20,15 +16,15 @@ namespace AliceScript.NameSpaces
             if (e.Script.Prev == Constants.START_ARG)
             {
                 ///本来の関数のように使用されている
-                List<Variable> args = e.Script.GetFunctionArgs();
+                List<Variable> args = e.Script.GetFunctionArgs(this);
                 if (args.Count > 0 && args[0].Object is TypeObject type)
                 {
                     var arg = new List<Variable>();
                     if (args.Count > 1)
                     {
-                        arg=args.Skip(1).ToList();
+                        arg = args.Skip(1).ToList();
                     }
-                    e.Return = new Variable(type.Activate(arg,e.Script));
+                    e.Return = new Variable(type.Activate(arg, e.Script));
                 }
             }
             else
@@ -37,7 +33,7 @@ namespace AliceScript.NameSpaces
 
                 className = Constants.ConvertName(className);
                 e.Script.MoveForwardIf(Constants.START_ARG);
-                List<Variable> args = e.Script.GetFunctionArgs();
+                List<Variable> args = e.Script.GetFunctionArgs(this);
 
                 ObjectBase csClass = AliceScriptClass.GetClass(className, e.Script) as ObjectBase;
                 if (csClass != null)
@@ -60,17 +56,77 @@ namespace AliceScript.NameSpaces
         public IfStatement()
         {
             this.Name = Constants.IF;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += IfStatement_Run;
+        }
 
-        }
-        protected override Variable Evaluate(ParsingScript script)
+        private void IfStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            Variable result = Interpreter.Instance.ProcessIf(script);
-            return result;
+            e.Return = ProcessIf(e.Script);
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
+        private Variable ProcessIf(ParsingScript script)
         {
-            Variable result = await Interpreter.Instance.ProcessIfAsync(script);
-            return result;
+            int startIfCondition = script.Pointer;
+
+            Variable result = script.Execute(Constants.END_ARG_ARRAY);
+            bool isTrue = false;
+            if (result != null)
+            {
+                isTrue = result.AsBool();
+            }
+
+            if (isTrue)
+            {
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = script.GetTempScript(body);
+                result = mainScript.Process();
+
+                if (result.IsReturn ||
+                    result.Type == Variable.VarType.BREAK ||
+                    result.Type == Variable.VarType.CONTINUE)
+                {
+                    // We are here from the middle of the if-block. Skip it.
+                    script.Pointer = startIfCondition;
+                    script.SkipBlock();
+                }
+                script.SkipRestBlocks();
+
+                //return result;
+                return result.IsReturn ||
+                       result.Type == Variable.VarType.BREAK ||
+                       result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
+            }
+
+            // We are in Else. Skip everything in the If statement.
+            script.SkipBlock();
+
+            ParsingScript nextData = new ParsingScript(script);
+            nextData.ParentScript = script;
+
+            string nextToken = Utils.GetNextToken(nextData);
+
+            if (Constants.ELSE_IF == nextToken)
+            {
+                script.Pointer = nextData.Pointer + 1;
+                result = ProcessIf(script);
+            }
+            else if (Constants.ELSE == nextToken)
+            {
+                script.Pointer = nextData.Pointer + 1;
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = script.GetTempScript(body);
+                result = mainScript.Process();
+            }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
+            }
+
+            return result.IsReturn ||
+                   result.Type == Variable.VarType.BREAK ||
+                   result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
         }
     }
 
@@ -80,14 +136,56 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.FOR;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += ForStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void ForStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessFor(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForAsync(script);
+            string forString = Utils.GetBodyBetween(e.Script, Constants.START_ARG, Constants.END_ARG);
+            e.Script.Forward();
+            //for(init; condition; loopStatemen;)の形式です
+            string[] forTokens = forString.Split(Constants.END_STATEMENT);
+            if (forTokens.Length < 3)
+            {
+                Utils.ThrowErrorMsg("for文はfor(init; condition; loopStatement;)の形である必要があります", Exceptions.INVALID_SYNTAX,
+                                     e.Script, Constants.FOR);
+            }
+
+            int startForCondition = e.Script.Pointer;
+
+            ParsingScript initScript = e.Script.GetTempScript(forTokens[0] + Constants.END_STATEMENT);
+            ParsingScript condScript = initScript.GetTempScript(forTokens[1] + Constants.END_STATEMENT);
+            ParsingScript loopScript = initScript.GetTempScript(forTokens[2] + Constants.END_STATEMENT);
+
+            condScript.Variables = loopScript.Variables = initScript.Variables;
+
+            initScript.Execute(null, 0);
+            bool stillValid = true;
+
+            while (stillValid)
+            {
+                Variable condResult = condScript.Execute(null, 0); condScript.Tag = "COND";
+                stillValid = condResult.AsBool();
+                if (!stillValid)
+                {
+                    break;
+                }
+
+                e.Script.Pointer = startForCondition;
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = initScript.GetTempScript(body);
+                //mainScript.Variables = initScript.Variables;
+                Variable result = mainScript.Process();
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    return;
+                }
+                loopScript.Execute(null, 0);
+            }
+
+            e.Script.Pointer = startForCondition;
+            e.Script.SkipBlock();
         }
     }
 
@@ -97,15 +195,79 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.FOREACH;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += ForeachStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void ForeachStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessForeach(script);
+            string forString = Utils.GetBodyBetween(e.Script, Constants.START_ARG, Constants.END_ARG);
+            e.Script.Forward();
+            //foreach(var in ary)の形式です
+            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
+            var tokens = forString.Split(' ');
+
+            bool registVar = false;
+            if (tokens[0].ToLower() == Constants.VAR)
+            {
+                tokens = tokens.Skip(1).ToArray();
+                forString = forString.Substring(3);
+                registVar = true;
+            }
+            var sep = tokens.Length > 2 ? tokens[1] : "";
+            string varName = tokens[0];
+            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
+
+            if (sep != Constants.FOR_IN)
+            {
+                int index = forString.IndexOf(Constants.FOR_EACH);
+                if (index <= 0 || index == forString.Length - 1)
+                {
+                    Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
+                                     , e.Script, Constants.FOREACH);
+                }
+                varName = forString.Substring(0, index);
+            }
+
+            ParsingScript forScript = e.Script.GetTempScript(forString,this, varName.Length + sep.Length + 1);
+
+            Variable arrayValue = Utils.GetItem(forScript);
+
+            if (arrayValue.Type == Variable.VarType.STRING)
+            {
+                arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
+            }
+
+            int cycles = arrayValue.Count;
+            if (cycles == 0)
+            {
+                e.Script.SkipBlock();
+                return;
+            }
+            int startForCondition = e.Script.Pointer;
+
+            for (int i = 0; i < cycles; i++)
+            {
+                e.Script.Pointer = startForCondition;
+                Variable current = arrayValue.GetValue(i);
+
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = e.Script.GetTempScript(body);
+                ParserFunction.AddGlobalOrLocalVariable(varName,
+                               new GetVarFunction(current), mainScript, false, registVar, false);
+                Variable result = mainScript.Process();
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    //script.Pointer = startForCondition;
+                    //SkipBlock(script);
+                    //return;
+                    break;
+                }
+            }
+            e.Script.Pointer = startForCondition;
+            e.Script.SkipBlock();
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await Interpreter.Instance.ProcessForeachAsync(script);
-        }
+
     }
 
     internal class WhileStatement : FunctionBase
@@ -114,14 +276,61 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.WHILE;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += WhileStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+        private Variable ProcessBlock(ParsingScript script)
         {
-            return Interpreter.Instance.ProcessWhile(script);
+            int blockStart = script.Pointer;
+            Variable result = null;
+
+            while (script.StillValid())
+            {
+                int endGroupRead = script.GoToNextStatement();
+                if (endGroupRead > 0 || !script.StillValid())
+                {
+                    return result != null ? result : new Variable();
+                }
+
+                result = script.Execute();
+
+                if (result.IsReturn ||
+                    result.Type == Variable.VarType.BREAK ||
+                    result.Type == Variable.VarType.CONTINUE)
+                {
+                    return result;
+                }
+            }
+            return result;
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
+        private void WhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return await Interpreter.Instance.ProcessWhileAsync(script);
+            int startWhileCondition = e.Script.Pointer;
+            bool stillValid = true;
+            Variable result = Variable.EmptyInstance;
+
+            while (stillValid)
+            {
+                e.Script.Pointer = startWhileCondition;
+
+                //int startSkipOnBreakChar = from;
+                Variable condResult = e.Script.Execute(Constants.END_ARG_ARRAY);
+                stillValid = condResult.AsBool();
+                if (!stillValid)
+                {
+                    break;
+                }
+
+                result = ProcessBlock(e.Script);
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    e.Script.Pointer = startWhileCondition;
+                    break;
+                }
+            }
+
+            // 条件はもうtrueではないので、ブロックをスキップします
+            e.Script.SkipBlock();
+            e.Return = result.IsReturn ? result : Variable.EmptyInstance;
         }
     }
 
@@ -131,14 +340,39 @@ namespace AliceScript.NameSpaces
         {
             this.Name = Constants.DO;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += DoWhileStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void DoWhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessDoWhile(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessDoWhile(script);
+            int startDoCondition = e.Script.Pointer;
+            bool stillValid = true;
+            Variable result = Variable.EmptyInstance;
+
+            while (stillValid)
+            {
+                e.Script.Pointer = startDoCondition;
+
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                ParsingScript mainScript = e.Script.GetTempScript(body);
+                result = mainScript.ProcessForWhile();
+                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                {
+                    e.Script.Pointer = startDoCondition;
+                    break;
+                }
+                e.Script.Forward(Constants.WHILE.Length + 1);
+                Variable condResult = e.Script.Execute(Constants.END_ARG_ARRAY);
+                stillValid = condResult.AsBool();
+                if (!stillValid)
+                {
+                    break;
+                }
+            }
+
+            //SkipBlock(script);
+            e.Return= result.IsReturn ? result : Variable.EmptyInstance;
         }
     }
 
@@ -147,14 +381,63 @@ namespace AliceScript.NameSpaces
         public SwitchStatement()
         {
             this.Name = Constants.SWITCH;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += SwitchStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void SwitchStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessSwitch(script);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessSwitch(script);
+            Variable switchValue = Utils.GetItem(e.Script);
+            e.Script.Forward();
+
+            Variable result = Variable.EmptyInstance;
+            var caseSep = ":".ToCharArray();
+
+            bool caseDone = false;
+
+            while (e.Script.StillValid())
+            {
+                var nextToken = Utils.GetBodySize(e.Script, Constants.CASE, Constants.DEFAULT);
+                if (string.IsNullOrEmpty(nextToken))
+                {
+                    break;
+                }
+                if (nextToken == Constants.DEFAULT && !caseDone)
+                {
+                    string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                    ParsingScript mainScript = e.Script.GetTempScript(body);
+                    result = mainScript.Process();
+                    break;
+                }
+                if (!caseDone)
+                {
+                    Variable caseValue = e.Script.Execute(caseSep);
+                    e.Script.Forward(2);
+
+                    if (switchValue.Equals(caseValue))
+                    {
+                        caseDone = true;
+                        string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+                        ParsingScript mainScript = e.Script.GetTempScript(body);
+                        result = mainScript.Process();
+                        if (mainScript.Prev == '}')
+                        {
+                            break;
+                        }
+                        e.Script.Forward();
+                    }
+                    else
+                    {
+                        e.Script.Backward();
+                        e.Script.SkipBlock();
+                    }
+                }
+            }
+            //  script.MoveForwardIfNotPrevious('}');
+            e.Script.GoToNextStatement();
+            e.Return=result;
         }
     }
 
@@ -163,15 +446,28 @@ namespace AliceScript.NameSpaces
         public CaseStatement()
         {
             this.Name = Constants.CASE;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += CaseStatement_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void CaseStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Interpreter.Instance.ProcessCase(script, Name);
+            if (Name == Constants.CASE)
+            {
+                /*var token = */
+                Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
+            }
+            e.Script.MoveForwardIf(':');
+
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                       Constants.END_GROUP);
+            ParsingScript mainScript = e.Script.GetTempScript(body);
+            Variable result = mainScript.Process();
+            e.Script.MoveBackIfPrevious('}');
+
+            e.Return=result;
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Interpreter.Instance.ProcessCase(script, Name);
-        }
+
     }
     //デリゲートを作成する関数クラスです
     internal class DelegateCreator : FunctionBase
@@ -179,34 +475,38 @@ namespace AliceScript.NameSpaces
         public DelegateCreator()
         {
             this.Name = "delegate";
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += DelegateCreator_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void DelegateCreator_Run(object sender, FunctionBaseEventArgs e)
         {
-            string[] args = Utils.GetFunctionSignature(script);
+            string[] args = Utils.GetFunctionSignature(e.Script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = new string[0];
             }
 
-            script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+            e.Script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
             /*string line = */
-            script.GetOriginalLine(out _);
+            e.Script.GetOriginalLine(out _);
 
-            int parentOffset = script.Pointer;
+            int parentOffset = e.Script.Pointer;
 
-            if (script.CurrentClass != null)
+            if (e.Script.CurrentClass != null)
             {
-                parentOffset += script.CurrentClass.ParentOffset;
+                parentOffset += e.Script.CurrentClass.ParentOffset;
             }
 
-            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
 
-            script.MoveForwardIf(Constants.END_GROUP);
-            CustomFunction customFunc = new CustomFunction("", body, args, script);
-            customFunc.ParentScript = script;
+            e.Script.MoveForwardIf(Constants.END_GROUP);
+            CustomFunction customFunc = new CustomFunction("", body, args, e.Script);
+            customFunc.ParentScript = e.Script;
             customFunc.ParentOffset = parentOffset;
-            return new Variable(customFunc);
+            e.Return = new Variable(customFunc);
         }
+
     }
     internal class TryBlock : FunctionBase
     {
@@ -219,7 +519,49 @@ namespace AliceScript.NameSpaces
 
         private void TryBlock_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Interpreter.Instance.ProcessTry(e.Script);
+            int startTryCondition = e.Script.Pointer - 1;
+            int currentStackLevel = ParserFunction.GetCurrentStackLevel();
+
+            Variable result = null;
+
+            // tryブロック内のスクリプト
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                   Constants.END_GROUP);
+            ParsingScript mainScript = e.Script.GetTempScript(body);
+            mainScript.InTryBlock = true;
+
+        // catchブロック内のスクリプト
+        getCatch:
+            string catchToken = Utils.GetNextToken(e.Script);
+            e.Script.Forward(); // skip opening parenthesis
+                              // The next token after the try block must be a catch.
+            if (Constants.CATCH != catchToken && e.Script.StillValid())
+            {
+                goto getCatch;
+            }
+            else if (Constants.CATCH != catchToken)
+            {
+                throw new ScriptException("Catchステートメントがありません", Exceptions.MISSING_CATCH_STATEMENT, e.Script);
+            }
+
+            string exceptionName = Utils.GetNextToken(e.Script);
+            e.Script.Forward(); // skip closing parenthesis
+            string body2 = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
+                                                   Constants.END_GROUP);
+            ParsingScript catchScript = e.Script.GetTempScript(body2);
+
+            mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
+            {
+                GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
+                catchScript.Variables.Add(exceptionName, excMsgFunc);
+                result = catchScript.Process();
+                e.Handled = true;
+            };
+
+            result = mainScript.Process();
+
+            e.Script.SkipRestBlocks();
+            e.Return=result;
         }
     }
 }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     internal class list_addFunc : FunctionBase
     {
@@ -99,18 +92,18 @@ namespace AliceScript
         public list_allFunc()
         {
             this.Name = "All";
-            this.RequestType= new TypeObject(Variable.VarType.ARRAY);
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
             this.MinimumArgCounts = 1;
             this.Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if(e.CurentVariable.Tuple == null || e.Args[0].Type != Variable.VarType.DELEGATE)
+            if (e.CurentVariable.Tuple == null || e.Args[0].Type != Variable.VarType.DELEGATE)
             {
-                throw new ScriptException("指定された型の変数は比較に使用できません。",Exceptions.WRONG_TYPE_VARIABLE);
+                throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.All(item => e.Args[0].Delegate.Invoke(new List<Variable> { item },e.Script).AsBool()));
+            e.Return = new Variable(e.CurentVariable.Tuple.All(item => e.Args[0].Delegate.Invoke(new List<Variable> { item }, e.Script).AsBool()));
         }
     }
     internal class list_anyFunc : FunctionBase
@@ -137,8 +130,8 @@ namespace AliceScript
         public list_secenceEqualFunc()
         {
             this.Name = "SequenceEqual";
-            this.RequestType= new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts= 1;
+            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
+            this.MinimumArgCounts = 1;
             this.Run += List_secenceEqualFunc_Run;
         }
 
@@ -163,7 +156,7 @@ namespace AliceScript
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.CurentVariable.Tuple == null || e.Args[0].Type != Variable.VarType.OBJECT || ! (e.Args[0].Object is TypeObject))
+            if (e.CurentVariable.Tuple == null || e.Args[0].Type != Variable.VarType.OBJECT || !(e.Args[0].Object is TypeObject))
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
@@ -189,7 +182,7 @@ namespace AliceScript
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
             var filter = e.Args[0].Delegate;
-            e.Return = new Variable(e.CurentVariable.Tuple.Where(item => filter.Invoke(new List<Variable> { item},e.Script).AsBool()).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Where(item => filter.Invoke(new List<Variable> { item }, e.Script).AsBool()).ToList());
         }
     }
     internal class list_DistinctFunc : FunctionBase
@@ -208,7 +201,7 @@ namespace AliceScript
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
             var list = new List<Variable>();
-            foreach(var v in e.CurentVariable.Tuple)
+            foreach (var v in e.CurentVariable.Tuple)
             {
                 if (!list.Contains(v))
                 {
@@ -249,7 +242,7 @@ namespace AliceScript
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.CurentVariable.Tuple == null || e.Args[0].Type!=Variable.VarType.DELEGATE)
+            if (e.CurentVariable.Tuple == null || e.Args[0].Type != Variable.VarType.DELEGATE)
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
@@ -331,7 +324,7 @@ namespace AliceScript
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            if (e.Args.Count>0 && e.Args[0].Type == Variable.VarType.DELEGATE)
+            if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.DELEGATE)
             {
                 var filter = e.Args[0].Delegate;
                 e.Return = new Variable(e.CurentVariable.Tuple.OrderBy(item => filter.Invoke(new List<Variable> { item }, e.Script)).ToList());

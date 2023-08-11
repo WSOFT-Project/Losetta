@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Threading;
+﻿using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
 
@@ -23,7 +20,7 @@ namespace AliceScript.NameSpaces
 
             string expr = e.Args[0].AsString();
             Dictionary<int, int> char2Line;
-            expr = Utils.ConvertToScript(expr, out char2Line,out var def);
+            expr = Utils.ConvertToScript(expr, out char2Line, out var def);
 
             Variable result;
             if (m_singletons.TryGetValue(expr, out result))
@@ -32,7 +29,8 @@ namespace AliceScript.NameSpaces
                 return;
             }
 
-            ParsingScript tempScript = new ParsingScript(expr);
+            //ParsingScript tempScript = new ParsingScript(expr);
+            ParsingScript tempScript = e.Script.GetTempScript(expr);
             tempScript.Defines = def;
             result = tempScript.Execute();
 
@@ -66,7 +64,7 @@ namespace AliceScript.NameSpaces
             }
             else
             {
-                    throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, e.Script);
+                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, e.Script);
             }
         }
     }
@@ -144,7 +142,6 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-
     internal class LockFunction : FunctionBase
     {
         public LockFunction()
@@ -190,11 +187,11 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count == 0)
             {
-                AddOutput("", e.Script, !m_write);
+                AddOutput(string.Empty, e.Script, !m_write);
             }
             else if (e.Args.Count == 1)
             {
-                AddOutput(e.Args[0].AsString(), e.Script, !m_write);
+                AddOutput(e.Args[0]?.AsString(), e.Script, !m_write);
             }
             else if (e.Args.Count > 0)
             {
@@ -207,7 +204,7 @@ namespace AliceScript.NameSpaces
         public static void AddOutput(string text, ParsingScript script = null,
                                      bool addLine = true, bool addSpace = true, string start = "")
         {
-
+            
             string output = text + (addLine ? Environment.NewLine : string.Empty);
             Interpreter.Instance.AppendOutput(output);
 

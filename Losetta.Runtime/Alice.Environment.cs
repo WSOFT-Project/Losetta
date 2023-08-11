@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using AliceScript;
-
-namespace AliceScript.NameSpaces
+﻿namespace AliceScript.NameSpaces
 {
     internal static class Alice_Environment_Initer
-	{
-		public static void Init()
-		{
+    {
+        public static void Init()
+        {
             NameSpace space = new NameSpace("Alice.Environment");
 
             space.Add(new Env_CommandLineArgsFunc());
@@ -20,7 +12,10 @@ namespace AliceScript.NameSpaces
             space.Add(new env_currentdirFunc());
             space.Add(new env_Expand_EnvironmentVariablesFunc());
             space.Add(new env_get_envirnomentVariableFunc());
+            space.Add(new env_set_envirnomentVariableFunc());
             space.Add(new env_HasShutdownStartedFunc());
+            space.Add(new env_lang_nameFunc());
+            space.Add(new env_lang_versionFunc());
             space.Add(new env_impl_nameFunc());
             space.Add(new env_impl_versionFunc());
             space.Add(new env_impl_locationFunc());
@@ -36,7 +31,6 @@ namespace AliceScript.NameSpaces
             space.Add(new env_Process_IdFunc());
             space.Add(new env_Process_PathFunc());
             space.Add(new env_setExitCodeFunc());
-            space.Add(new env_set_envirnomentVariableFunc());
             space.Add(new env_SystemnDirectoryFunc());
             space.Add(new env_SystemPageSizeFunc());
             space.Add(new env_TickCountFunc());
@@ -69,7 +63,7 @@ namespace AliceScript.NameSpaces
             this.Name = "env_commandLineArgs";
             this.Run += Env_CommandLineArgsFunc_Run;
         }
-        public static List<string> Args { get; set; } 
+        public static List<string> Args { get; set; }
         private void Env_CommandLineArgsFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             if (Args == null)
@@ -187,19 +181,19 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Environment.OSVersion.Platform);
         }
     }
-	internal class env_OS_VersionFunc : FunctionBase
-	{
-		public env_OS_VersionFunc()
-		{
-			this.Name = "env_os_version";
-			this.Run += Env_OS_PlatformFunc_Run;
-		}
+    internal class env_OS_VersionFunc : FunctionBase
+    {
+        public env_OS_VersionFunc()
+        {
+            this.Name = "env_os_version";
+            this.Run += Env_OS_PlatformFunc_Run;
+        }
 
-		private void Env_OS_PlatformFunc_Run(object sender, FunctionBaseEventArgs e)
-		{
-			e.Return = new Variable(Environment.OSVersion.VersionString);
-		}
-	}
+        private void Env_OS_PlatformFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Environment.OSVersion.VersionString);
+        }
+    }
     internal class env_Process_IdFunc : FunctionBase
     {
         public env_Process_IdFunc()
@@ -330,32 +324,58 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Alice.Version.ToString());
         }
     }
-	internal class env_impl_versionFunc : FunctionBase
-	{
-		public env_impl_versionFunc()
-		{
-			this.Name = "env_impl_version";
-			this.Run += Env_versionFunc_Run;
-		}
+    internal class env_lang_versionFunc : FunctionBase
+    {
+        public env_lang_versionFunc()
+        {
+            this.Name = "env_lang_version";
+            this.Run += Env_versionFunc_Run;
+        }
 
-		private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-		{
-			e.Return = new Variable(Alice.ImplementationVersion.ToString());
-		}
-	}
-	internal class env_impl_nameFunc : FunctionBase
-	{
-		public env_impl_nameFunc()
-		{
-			this.Name = "env_impl_name";
-			this.Run += Env_versionFunc_Run;
-		}
+        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Alice.Version.ToString());
+        }
+    }
+    internal class env_lang_nameFunc : FunctionBase
+    {
+        public env_lang_nameFunc()
+        {
+            this.Name = "env_lang_name";
+            this.Run += Env_versionFunc_Run;
+        }
 
-		private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-		{
-			e.Return = new Variable(Alice.ImplementationName);
-		}
-	}
+        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Constants.LANGUAGE);
+        }
+    }
+    internal class env_impl_versionFunc : FunctionBase
+    {
+        public env_impl_versionFunc()
+        {
+            this.Name = "env_impl_version";
+            this.Run += Env_versionFunc_Run;
+        }
+
+        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Alice.ImplementationVersion.ToString());
+        }
+    }
+    internal class env_impl_nameFunc : FunctionBase
+    {
+        public env_impl_nameFunc()
+        {
+            this.Name = "env_impl_name";
+            this.Run += Env_versionFunc_Run;
+        }
+
+        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Alice.ImplementationName);
+        }
+    }
     internal class env_impl_locationFunc : FunctionBase
     {
         public env_impl_locationFunc()
@@ -417,25 +437,25 @@ namespace AliceScript.NameSpaces
 #elif RELEASE_LINUX_X64 || RELEASE_LINUX_ARM || RELEASE_LINUX_ARM64
             arch_name = "Linux";
 #else
-            arch_name = "NET6.0";
+            arch_name = "NET";
 #endif
 
             e.Return = new Variable(arch_name);
         }
     }
     internal class env_clr_versionFunc : FunctionBase
-	{
-		public env_clr_versionFunc()
-		{
-			this.Name = "env_clr_version";
-			this.Run += Env_versionFunc_Run;
-		}
+    {
+        public env_clr_versionFunc()
+        {
+            this.Name = "env_clr_version";
+            this.Run += Env_versionFunc_Run;
+        }
 
-		private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-		{
-			e.Return = new Variable(Environment.Version.ToString());
-		}
-	}
+        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Environment.Version.ToString());
+        }
+    }
     internal class env_Expand_EnvironmentVariablesFunc : FunctionBase
     {
         public env_Expand_EnvironmentVariablesFunc()
@@ -447,7 +467,7 @@ namespace AliceScript.NameSpaces
 
         private void Env_Expand_EnvironmentVariablesFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Environment.ExpandEnvironmentVariables(e.Args[0].AsString()));
+            e.Return = new Variable(Environment.ExpandEnvironmentVariables(e.Args[0].AsString() ?? string.Empty));
         }
     }
     internal class env_get_envirnomentVariableFunc : FunctionBase
@@ -466,22 +486,22 @@ namespace AliceScript.NameSpaces
             }
             else
             {
-                e.Return = new Variable(Environment.GetEnvironmentVariables());
+                e.Return = new Variable(Environment.GetEnvironmentVariables().Keys);
             }
         }
     }
-	internal class env_set_envirnomentVariableFunc : FunctionBase
-	{
-		public env_set_envirnomentVariableFunc()
-		{
-			this.Name = "env_set_environmentvariable";
+    internal class env_set_envirnomentVariableFunc : FunctionBase
+    {
+        public env_set_envirnomentVariableFunc()
+        {
+            this.Name = "env_set_environmentvariable";
             this.MinimumArgCounts = 2;
-			this.Run += Env_get_envirnomentVariable_Run;
-		}
+            this.Run += Env_get_envirnomentVariable_Run;
+        }
 
-		private void Env_get_envirnomentVariable_Run(object sender, FunctionBaseEventArgs e)
-		{
+        private void Env_get_envirnomentVariable_Run(object sender, FunctionBaseEventArgs e)
+        {
             Environment.SetEnvironmentVariable(e.Args[0].AsString(), e.Args[1].AsString());
-		}
-	}
+        }
+    }
 }
