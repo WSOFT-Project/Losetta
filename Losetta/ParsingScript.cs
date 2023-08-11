@@ -107,6 +107,10 @@ namespace AliceScript
                     sb.Append("keyword ");
                 }
                 sb.Append(Constants.FUNCTION + " ");
+                if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
+                {
+                    sb.Append(Function.RelatedNameSpace+".") ;
+                }
                 sb.Append((string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name) + "(");
                 int args_count = 0;
                 if (Function is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)

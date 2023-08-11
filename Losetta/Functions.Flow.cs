@@ -4,21 +4,6 @@ using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
-    internal class ReturnValueFunction : FunctionBase, INumericFunction
-    {
-        public ReturnValueFunction(Variable value)
-        {
-            Value = value;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-        }
-
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return new Variable(Value);
-        }
-        private Variable Value;
-    }
-
     internal class IsUndefinedFunction : ParserFunction
     {
         private string m_argument;
@@ -212,6 +197,7 @@ namespace AliceScript
         public AliceScriptClass()
         {
             this.Name = "Class";
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
         }
 
         public AliceScriptClass(string className)
@@ -499,6 +485,7 @@ namespace AliceScript
         public EnumFunction()
         {
             this.Name = Constants.ENUM;
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             this.Run += EnumFunction_Run;
         }
@@ -592,6 +579,7 @@ namespace AliceScript
         public ClassCreator()
         {
             this.Name = Constants.CLASS;
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             this.Run += ClassCreator_Run;
         }
@@ -1211,6 +1199,7 @@ namespace AliceScript
         {
             this.Name = "StringOrNumber";
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
             this.Run += StringOrNumberFunction_Run;
         }
 
@@ -1221,7 +1210,7 @@ namespace AliceScript
             {
                 bool sq = (Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1);
                 bool dq = (Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE);
-                Name = "StringLiteral";
+                Name = "ParseScript";
                 if (dq)
                 {
                     int index = 0;
@@ -1433,13 +1422,6 @@ namespace AliceScript
         }
     }
 
-    internal class ConstantsFunction : ParserFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return new Variable(m_name);
-        }
-    }
 
     // Get a value of a variable or of an array element
     public class GetVarFunction : FunctionBase
@@ -1447,8 +1429,9 @@ namespace AliceScript
         public GetVarFunction(Variable value)
         {
             m_value = value;
-            this.Name = "GetVar";
+            this.Name = "Variable";
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
             this.Run += GetVarFunction_Run;
         }
 
@@ -1571,16 +1554,20 @@ namespace AliceScript
         public IncrementDecrementFunction()
         {
             this.Name = "IncrementDecrement";
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            this.Run += IncrementDecrementFunction_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void IncrementDecrementFunction_Run(object sender, FunctionBaseEventArgs e)
         {
             bool prefix = string.IsNullOrWhiteSpace(Name);
             if (prefix)
             {// If it is a prefix we do not have the variable name yet.
-                Name = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
+                Name = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             }
 
-            Utils.CheckForValidName(Name, script);
+            Utils.CheckForValidName(Name, e.Script);
 
             // Value to be added to the variable:
             int valueDelta = m_action == Constants.INCREMENT ? 1 : -1;
@@ -1589,26 +1576,26 @@ namespace AliceScript
             // Check if the variable to be set has the form of x[a][b],
             // meaning that this is an array element.
             double newValue = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(e.Script, m_name, (string name) => { m_name = name; }, this);
 
-            ParserFunction func = ParserFunction.GetVariable(m_name, script);
-            Utils.CheckNotNull(m_name, func, script);
+            ParserFunction func = ParserFunction.GetVariable(m_name, e.Script);
+            Utils.CheckNotNull(m_name, func, e.Script);
 
-            Variable currentValue = func.GetValue(script);
+            Variable currentValue = func.GetValue(e.Script);
             currentValue = currentValue.DeepClone();
 
-            if (arrayIndices.Count > 0 || script.TryCurrent() == Constants.START_ARRAY)
+            if (arrayIndices.Count > 0 || e.Script.TryCurrent() == Constants.START_ARRAY)
             {
                 if (prefix)
                 {
-                    string tmpName = m_name + script.Rest;
+                    string tmpName = m_name + e.Script.Rest;
                     int delta = 0;
-                    arrayIndices = Utils.GetArrayIndices(script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; }, this);
-                    script.Forward(Math.Max(0, delta - tmpName.Length));
+                    arrayIndices = Utils.GetArrayIndices(e.Script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; }, this);
+                    e.Script.Forward(Math.Max(0, delta - tmpName.Length));
                 }
 
-                Variable element = Utils.ExtractArrayElement(currentValue, arrayIndices, script);
-                script.MoveForwardIf(Constants.END_ARRAY);
+                Variable element = Utils.ExtractArrayElement(currentValue, arrayIndices, e.Script);
+                e.Script.MoveForwardIf(Constants.END_ARRAY);
 
                 newValue = element.Value + returnDelta;
                 element.Value += valueDelta;
@@ -1620,9 +1607,10 @@ namespace AliceScript
             }
 
             ParserFunction.AddGlobalOrLocalVariable(m_name,
-                                                    new GetVarFunction(currentValue), script);
-            return new Variable(newValue);
+                                                    new GetVarFunction(currentValue), e.Script);
+            e.Return=new Variable(newValue);
         }
+
 
         override public ParserFunction NewInstance()
         {
@@ -1635,28 +1623,31 @@ namespace AliceScript
         public OperatorAssignFunction()
         {
             this.Name = "OperatorAssign";
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            this.Run += OperatorAssignFunction_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void OperatorAssignFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-
             // Value to be added to the variable:
-            Variable right = Utils.GetItem(script);
+            Variable right = Utils.GetItem(e.Script);
 
 
-            Variable currentValue = ParserFunction.GetObjectFunction(m_name, script, new List<string>())?.GetValue(script);
+            Variable currentValue = ParserFunction.GetObjectFunction(m_name, e.Script, new List<string>())?.GetValue(e.Script);
             bool isobj = true;
             List<Variable> arrayIndices = new List<Variable>();
             if (currentValue == null)
             {
                 isobj = false;
-                arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
+                arrayIndices = Utils.GetArrayIndices(e.Script, m_name, (string name) => { m_name = name; }, this);
 
-                ParserFunction func = ParserFunction.GetVariable(m_name, script);
-                if (!Utils.CheckNotNull(func, m_name, script))
+                ParserFunction func = ParserFunction.GetVariable(m_name, e.Script);
+                if (!Utils.CheckNotNull(func, m_name, e.Script))
                 {
-                    return Variable.EmptyInstance;
+                    return;
                 }
-                currentValue = func.GetValue(script);
+                currentValue = func.GetValue(e.Script);
             }
 
             currentValue = currentValue.DeepClone();
@@ -1664,18 +1655,20 @@ namespace AliceScript
 
             if (arrayIndices.Count > 0)
             {// array element
-                left = Utils.ExtractArrayElement(currentValue, arrayIndices, script);
-                script.MoveForwardIf(Constants.END_ARRAY);
+                left = Utils.ExtractArrayElement(currentValue, arrayIndices, e.Script);
+                e.Script.MoveForwardIf(Constants.END_ARRAY);
             }
             if (m_action == "??=")
             {
                 if (left.IsNull())
                 {
-                    return right;
+                    e.Return = right;
+                    return;
                 }
                 else
                 {
-                    return left;
+                    e.Return = left;
+                    return;
                 }
             }
             else if (left.Type == Variable.VarType.NUMBER)
@@ -1684,15 +1677,15 @@ namespace AliceScript
             }
             else if (left.Type == Variable.VarType.ARRAY)
             {
-                ArrayOperator(left, right, m_action, script);
+                ArrayOperator(left, right, m_action, e.Script);
             }
             else if (left.Type == Variable.VarType.DELEGATE)
             {
-                DelegateOperator(left, right, m_action, script);
+                DelegateOperator(left, right, m_action, e.Script);
             }
             else if (left.Type == Variable.VarType.OBJECT && left.Object is ObjectBase obj)
             {
-                obj.Operator(left, right, m_action, script);
+                obj.Operator(left, right, m_action, e.Script);
             }
             else
             {
@@ -1703,18 +1696,19 @@ namespace AliceScript
             {// array element
                 AssignFunction.ExtendArray(currentValue, arrayIndices, 0, left);
                 ParserFunction.AddGlobalOrLocalVariable(m_name,
-                                                         new GetVarFunction(currentValue), script);
+                                                         new GetVarFunction(currentValue), e.Script);
             }
             else if (isobj)
             {
-                return AssignFunction.ProcessObject(m_name, script, left);
+                e.Return= AssignFunction.ProcessObject(m_name, e.Script, left);
+                return;
             }
             else
             {
                 ParserFunction.AddGlobalOrLocalVariable(m_name,
-                                                         new GetVarFunction(left), script);
+                                                         new GetVarFunction(left), e.Script);
             }
-            return left;
+            e.Return = left;
         }
 
         private static void DelegateOperator(Variable valueA, Variable valueB, string action, ParsingScript script)
@@ -1882,10 +1876,15 @@ namespace AliceScript
         public AssignFunction()
         {
             this.Name = "Assign";
+
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            this.Run += AssignFunction_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void AssignFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Assign(script, m_name);
+            e.Return= Assign(e.Script, m_name);
         }
 
         public Variable Assign(ParsingScript script, string varName, bool localIfPossible = false, ParsingScript baseScript = null)
@@ -1996,13 +1995,6 @@ namespace AliceScript
                 return array;
             }
         }
-
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Assign(script, m_name);
-        }
-
-
         internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)
         {
             if (script.CurrentClass != null)

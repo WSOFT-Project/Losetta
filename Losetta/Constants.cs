@@ -214,8 +214,14 @@
         public static char[] TOKENS_SEPARATION = ",;)".ToCharArray();
         public static string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
+        /// <summary>
+        /// パース中の言語構造が所属する名前空間です
+        /// </summary>
+        public static string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
+
         //最上位の名前空間
         public const string TOP_NAMESPACE = "Alice";
+        
 
         // キーワード
         public const string PUBLIC = "public";

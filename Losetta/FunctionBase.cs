@@ -22,6 +22,11 @@
         /// この関数が変数のプロパティとして呼び出される場合、その変数の種類を取得または設定します
         /// </summary>
         public TypeObject RequestType { get; set; }
+
+        /// <summary>
+        /// この関数が所属する名前空間の名前を取得または設定します。
+        /// </summary>
+        public string RelatedNameSpace { get; set; }
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();

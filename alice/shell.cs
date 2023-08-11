@@ -34,6 +34,9 @@ namespace alice
             ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
+
+            //REPLはデバッグモードに
+            Program.IsDebugMode = true;
             if (File.Exists(filename))
             {
                 Alice.ExecuteFile(filename);
@@ -47,36 +50,41 @@ namespace alice
             if (e.Message != "")
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine(e.ErrorCode.ToString()+"(0x" + ((int)e.ErrorCode).ToString("x3") + "): "+e.Message);
+                sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + "): " + e.Message);
                 //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
                 //sb.AppendLine("説明: "+e.Message);
                 if (!string.IsNullOrWhiteSpace(e.HelpLink))
                 {
                     sb.AppendLine("詳細情報: " + e.HelpLink);
                 }
-                if (e.Script != null)
+                if (Program.IsDebugMode)
                 {
-                    if (e.Script.StackTrace.Count > 0)
+                    if (e.Script != null)
                     {
-                        var st = new List<ParsingScript.StackInfo>(e.Script.StackTrace);
-                        st.Reverse();
-                        sb.AppendLine("スタックトレース");
-                        foreach (var ss in st)
+                        if (e.Script.StackTrace.Count > 0)
                         {
-                            sb.Append("  ");
-                            sb.AppendLine(ss.ToString());
+                            var st = new List<ParsingScript.StackInfo>(e.Script.StackTrace);
+                            st.Reverse();
+                            sb.AppendLine("スタックトレース");
+                            foreach (var ss in st)
+                            {
+                                sb.Append("  ");
+                                sb.AppendLine(ss.ToString());
+                            }
                         }
                     }
                 }
                 if (allow_throw)
                 {
-                    PrintColor(sb.ToString(), ConsoleColor.White,ConsoleColor.DarkRed);
+                    PrintColor(sb.ToString(), ConsoleColor.White, ConsoleColor.DarkRed);
                     //DumpLocalVariables(e.Script);
                     //DumpGlobalVariables();
-
-                    Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
-                    e.Handled = Console.ReadKey().Key.HasFlag(ConsoleKey.Enter);
-                    Console.WriteLine();
+                    if (Program.IsDebugMode)
+                    {
+                        Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
+                        e.Handled = Console.ReadKey().Key.HasFlag(ConsoleKey.Enter);
+                        Console.WriteLine();
+                    }
                 }
                 if (throw_redirect_files.Count > 0)
                 {
@@ -434,7 +442,7 @@ namespace alice
                 }
             }
 #if !DEBUG_THROW
-            catch (Exception exc)
+            catch (Exception)
             {
                 ///TODO:補足されなかった例外にエラー番号振る。
                 /*

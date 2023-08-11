@@ -43,6 +43,7 @@
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
         public void Add(FunctionBase func)
         {
+            func.RelatedNameSpace = this.Name;
             Functions.Add(func);
         }
         public void Add(ObjectBase obj)
@@ -53,10 +54,6 @@
         public void Add(string name, string val)
         {
             Enums.Add(name, val);
-        }
-        public void Remove(FunctionBase func)
-        {
-            Functions.Remove(func);
         }
 
         public int Count => Functions.Count + Classes.Count;

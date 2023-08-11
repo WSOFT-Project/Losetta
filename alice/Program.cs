@@ -132,6 +132,10 @@ namespace alice
                 Shell.Do();
             }
         }
+        /// <summary>
+        /// デバッグモードかどうかを表す値。
+        /// </summary>
+        internal static bool IsDebugMode { get; set; }
         private static bool allow_print = true;
         private static List<string> print_redirect_files = new List<string>();
         private static bool allow_throw = true;
