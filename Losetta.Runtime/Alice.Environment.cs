@@ -14,6 +14,8 @@
             space.Add(new env_get_envirnomentVariableFunc());
             space.Add(new env_set_envirnomentVariableFunc());
             space.Add(new env_HasShutdownStartedFunc());
+            space.Add(new env_lang_nameFunc());
+            space.Add(new env_lang_versionFunc());
             space.Add(new env_impl_nameFunc());
             space.Add(new env_impl_versionFunc());
             space.Add(new env_impl_locationFunc());
@@ -322,6 +324,32 @@
             e.Return = new Variable(Alice.Version.ToString());
         }
     }
+    internal class env_lang_versionFunc : FunctionBase
+    {
+        public env_lang_versionFunc()
+        {
+            this.Name = "env_lang_version";
+            this.Run += Env_versionFunc_Run;
+        }
+
+        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Alice.Version.ToString());
+        }
+    }
+    internal class env_lang_nameFunc : FunctionBase
+    {
+        public env_lang_nameFunc()
+        {
+            this.Name = "env_lang_name";
+            this.Run += Env_versionFunc_Run;
+        }
+
+        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(Constants.LANGUAGE);
+        }
+    }
     internal class env_impl_versionFunc : FunctionBase
     {
         public env_impl_versionFunc()
@@ -409,7 +437,7 @@
 #elif RELEASE_LINUX_X64 || RELEASE_LINUX_ARM || RELEASE_LINUX_ARM64
             arch_name = "Linux";
 #else
-            arch_name = "NET6.0";
+            arch_name = "NET";
 #endif
 
             e.Return = new Variable(arch_name);

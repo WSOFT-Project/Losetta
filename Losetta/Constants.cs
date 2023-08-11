@@ -165,6 +165,10 @@
         public const string GOTO = "goto";
         public const string GOSUB = "gosub";
 
+        /// <summary>
+        /// このプログラミング言語の名前
+        /// </summary>
+        public const string LANGUAGE = "AliceScript";
 
         public const string UTF8_LITERAL = "u8";
 
