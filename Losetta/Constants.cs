@@ -83,6 +83,9 @@
         public const string TRUE = "true";
         public const string FALSE = "false";
 
+        public const string REF = "ref";
+        public const string PARAMS = "params";
+
         public const string ADD = "add";
         public const string ADD_RANGE = "AddRange";
         public const string ADD_UNIQUE = "addunique";
@@ -232,7 +235,7 @@
 
         public static List<string> KEYWORD = new List<string>
         {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF
         };
 
         // 関数呼び出し時に丸括弧が不要な関数

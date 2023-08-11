@@ -22,7 +22,10 @@ namespace AliceScript
             // A variable, a function, or a number.
             Variable var = script.Execute(sep);
             //value = var.Clone();
-
+            if(script.ProcessingFunction!=null && script.ProcessingFunction.Keywords != null && var!=null)
+            {
+                var.Keywords=script.ProcessingFunction.Keywords;
+            }
             if (inQuotes)
             {
                 script.MoveForwardIf(Constants.QUOTE);

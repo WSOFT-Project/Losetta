@@ -698,6 +698,7 @@ namespace AliceScript
             //m_args = RealArgs = args;
 
             bool parms = false;
+            bool refs = false;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -708,7 +709,6 @@ namespace AliceScript
                 if (parms)
                 {
                     throw new ScriptException("parmsキーワードより後にパラメータを追加することはできません", Exceptions.COULDNT_ADD_PARAMETERS_AFTER_PARMS_KEYWORD, script);
-                    break;
                 }
                 if (arg.Contains(" "))
                 {
@@ -756,7 +756,8 @@ namespace AliceScript
                 TypeObject reqType = new TypeObject();
                 if (options.Count > 0)
                 {
-                    parms = (options.Contains("params"));
+                    parms = (options.Contains(Constants.PARAMS));
+                    refs= (options.Contains(Constants.REF));
                     if (options.Contains("this"))
                     {
                         if (m_this == -1)
@@ -769,16 +770,16 @@ namespace AliceScript
                         }
 
                     }
-                    else if (options.Count > 1)
+                    else if (!refs&&options.Count > 1)
                     {
                         Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
-                        if (v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
+                        if (v!=null &&v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
                         {
                             reqType = to;
                         }
+                        m_typArgMap.Add(i, reqType);
                     }
 
-                    m_typArgMap.Add(i, reqType);
                     int ind = arg.IndexOf('=');
                     if (ind > 0)
                     {
@@ -805,7 +806,16 @@ namespace AliceScript
                         if (parms)
                         {
                             parmsindex = i;
-                            argName = argName.TrimStart("params".ToCharArray());
+                            argName = argName.Substring(Constants.PARAMS.Length);
+                            argName = argName.Trim();
+                        }
+                        if (parms && refs)
+                        {
+                            throw new ScriptException(Constants.PARAMS+"パラメータを参照渡しに設定することはできません。",Exceptions.INCOMPLETE_FUNCTION_DEFINITION,script);
+                        }else  if (refs)
+                        {
+                            m_refMap.Add(i);
+                            //argName = argName.Substring(Constants.REF.Length);
                             argName = argName.Trim();
                         }
                         trueArgs[i] = argName;
@@ -848,9 +858,9 @@ namespace AliceScript
             return;
         }
 
-        private int parmsindex = -1;
+       private int parmsindex = -1;
         public void RegisterArguments(List<Variable> args,
-                                      List<KeyValuePair<string, Variable>> args2 = null, Variable current = null)
+                                      List<KeyValuePair<string, Variable>> args2 = null, Variable current = null,ParsingScript script=null)
         {
             if (args == null)
             {
@@ -941,7 +951,9 @@ namespace AliceScript
             {
                 foreach (var entry in args2)
                 {
-                    var arg = new GetVarFunction(entry.Value);
+                    var val = new Variable();
+                    val.Assign(entry.Value);
+                    var arg = new GetVarFunction(val);
                     arg.Name = entry.Key;
                     m_VarMap[entry.Key] = arg;
                 }
@@ -955,7 +967,9 @@ namespace AliceScript
                     Variable parmsarg = new Variable(Variable.VarType.ARRAY);
                     foreach (Variable argx in args.GetRange(i, args.Count - i))
                     {
-                        parmsarg.Tuple.Add(argx);
+                        var val = new Variable();
+                        val.Assign(argx);
+                        parmsarg.Tuple.Add(val);
                     }
                     var arg = new GetVarFunction(parmsarg);
                     arg.Name = m_args[i];
@@ -963,14 +977,48 @@ namespace AliceScript
                 }
                 else
                 {
-                    var arg = new GetVarFunction(args[i]);
+                    Variable val;
+
+                    bool refd = args[i].Keywords.Contains(Constants.REF);
+                    if (m_refMap.Contains(i))
+                    {
+                        if (refd)
+                        {
+                            val = args[i];
+                        }
+                        else
+                        {
+                            throw new ScriptException("引数 `"+i+"` は `"+Constants.REF+"` キーワードと共に渡さなければなりません。",Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD,script);
+                        }
+                    }
+                    else
+                    {
+                        if (refd)
+                        {
+                            throw new ScriptException("引数 `"+i+"` は `"+Constants.REF+"' キーワードと共に使用することができません。",Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD,script);
+                        }
+                        val = new Variable();
+                        val.Assign(args[i]);
+                    }
+                    var arg = new GetVarFunction(val);
                     arg.Name = m_args[i];
                     m_VarMap[m_args[i]] = arg;
                 }
             }
             for (int i = m_args.Length; i < args.Count; i++)
             {
-                var arg = new GetVarFunction(args[i]);
+                Variable val;
+
+                if (m_refMap.Contains(i))
+                {
+                    val = args[i];
+                }
+                else
+                {
+                    val = new Variable();
+                    val.Assign(args[i]);
+                }
+                var arg = new GetVarFunction(val);
                 m_VarMap[args[i].ParamName] = arg;
             }
 
@@ -982,6 +1030,7 @@ namespace AliceScript
                 {
                     string key = elem.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ?
                         elem.Key.Substring(prefix.Length) : elem.Key;
+
                     m_VarMap[key] = elem.Value;
                 }
             }
@@ -1021,11 +1070,7 @@ namespace AliceScript
         public Variable ARun(List<Variable> args = null, ParsingScript script = null,
                             AliceScriptClass.ClassInstance instance = null, Variable current = null)
         {
-            List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
-            // 1. Add passed arguments as local variables to the Parser.
-            RegisterArguments(args, args2, current);
 
-            // 2. Execute the body of the function.
             Variable result = null;
             ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
@@ -1038,6 +1083,11 @@ namespace AliceScript
             }
             tempScript.Tag = m_tag;
             tempScript.Variables = m_VarMap;
+            List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
+            // ひとまず引数をローカルに追加
+            RegisterArguments(args, args2, current,tempScript);
+
+            // さて実行
 
 
             while (tempScript.Pointer < m_body.Length - 1 &&
@@ -1137,6 +1187,7 @@ namespace AliceScript
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;
         private List<Variable> m_defaultArgs = new List<Variable>();
+        private List<int> m_refMap = new List<int>();
         private Dictionary<string, ParserFunction> m_VarMap = new Dictionary<string, ParserFunction>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
         private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();

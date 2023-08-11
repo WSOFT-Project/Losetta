@@ -1005,7 +1005,16 @@ namespace AliceScript
                     {
                         v.Value.Parent = script;
                     }
-                    v.Value.Parent.Variables[name] = local;
+                    if (local is GetVarFunction g2)
+                    {
+                        v.Value.Assign(g2.Value);
+                    }
+                    /*
+                    if (v.Value.Parent.Variables[name] is GetVarFunction g && local is GetVarFunction g2)
+                    {
+                        g.Value.Assign(g2.Value);
+                    }*/
+                    //v.Value.Parent.Variables[name] = local;
                 }
                 else
                 {

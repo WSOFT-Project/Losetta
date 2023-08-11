@@ -265,6 +265,14 @@
         /// <summary>
         /// その操作は禁止されています
         /// </summary>
-        FORBIDDEN_OPERATION = 0x042
+        FORBIDDEN_OPERATION = 0x042,
+        /// <summary>
+        /// この引数は特定のキーワードとともに渡す必要があります。
+        /// </summary>
+        ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD=0x043,
+        /// <summary>
+        /// この引数に特定のキーワードを使用することはできません。
+        /// </summary>
+        ARGUMENT_CANT_USE_WITH_KEYWORD=0x044
     }
 }
