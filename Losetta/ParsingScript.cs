@@ -790,6 +790,14 @@ namespace AliceScript
                 {
                     OnThrowError("ファイル"+ (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ")+"が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source,fileNotFoundExc.HelpLink);
                 }
+                catch (IndexOutOfRangeException indexOutOfRangeExc)
+                {
+                    OnThrowError("インデックスが配列の境界外です。",Exceptions.INDEX_OUT_OF_RANGE,indexOutOfRangeExc.Source);
+                }
+                catch(Exception otherExc)
+                {
+                    OnThrowError(otherExc.Message,Exceptions.NONE,otherExc.Source,otherExc.HelpLink);
+                }
                
 #endif
             }

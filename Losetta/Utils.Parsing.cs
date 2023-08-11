@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -1214,14 +1215,20 @@ namespace AliceScript
             return null;
         }
 
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom,int max=0)
         {
             int end = 0;
-            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; },callFrom);
+            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; },callFrom,max);
         }
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals,FunctionBase callFrom)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals,FunctionBase callFrom,int max=0)
         {
             List<Variable> indices = new List<Variable>();
+
+            if (max != 0)
+            {
+                //高度な配列添え字
+                varName = Regex.Replace(varName, "(.*)\\[\\^([0-9]*)\\]", "$1["+max+"-$2]");
+            }
 
             int argStart = varName.IndexOf(Constants.START_ARRAY);
             if (argStart < 0)
@@ -1285,9 +1292,7 @@ namespace AliceScript
 
                 if (arrayIndex < 0 || arrayIndex >= tupleSize)
                 {
-                    ThrowErrorMsg("インデックス: [" + index.AsString() +
-                                  "] は配列の長さ[" + tupleSize + "]を超えています", Exceptions.INDEX_OUT_OF_RANGE, script, index.AsString());
-                    return currLevel;
+                    throw new IndexOutOfRangeException("インデックス `"+index.AsString()+"`は配列の境界外です。(`"+tupleSize+"`以上)");
                 }
                 switch (currLevel.Type)
                 {

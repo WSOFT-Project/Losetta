@@ -1451,75 +1451,69 @@ namespace AliceScript
         {
             m_value = value;
             this.Name = "GetVar";
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += GetVarFunction_Run;
         }
 
-        protected override Variable Evaluate(ParsingScript script)
+        private void GetVarFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            // First check if this element is part of an array:
-            if (script.TryPrev() == Constants.START_ARRAY)
+            // 要素が配列の一部かを確認
+            if (e.Script.TryPrev() == Constants.START_ARRAY)
             {
 
                 //配列添え字演算子を使用できないケースではじく処理を記述
+                //それぞれの配列の最大長さを取得
+                int max = 0;
                 switch (m_value.Type)
                 {
                     case Variable.VarType.ARRAY:
                         {
-                            if (m_value.Tuple == null || m_value.Tuple.Count == 0)
-                            {
-                                throw new ArgumentException("指定された配列には要素がありません");
-                            }
                             break;
                         }
 
                     case Variable.VarType.DELEGATE:
                         {
-                            if (m_value.Delegate == null || m_value.Delegate.Length == 0)
-                            {
-                                throw new ArgumentException("指定されたデリゲートには要素がありません");
-                            }
                             break;
                         }
                     case Variable.VarType.STRING:
                         {
-                            if (string.IsNullOrEmpty(m_value.String))
-                            {
-                                throw new ArgumentException("指定された文字列は空です");
-                            }
                             break;
                         }
                     default:
                         {
-                            throw new ArgumentException("指定された変数で、配列添え字演算子を使用することができません");
+                            throw new ScriptException("この変数で配列添え字演算子を使用することはできません。",Exceptions.VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT,e.Script);
                         }
                 }
 
                 if (m_arrayIndices == null)
                 {
-                    string startName = script.Substr(script.Pointer - 1);
-                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; }, this);
+                    string startName = e.Script.Substr(e.Script.Pointer - 1);
+                    m_arrayIndices = Utils.GetArrayIndices(e.Script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; }, this);
                 }
 
-                script.Forward(m_delta);
-                while (script.MoveForwardIf(Constants.END_ARRAY))
+                e.Script.Forward(m_delta);
+                while (e.Script.MoveForwardIf(Constants.END_ARRAY))
                 {
                 }
 
-                Variable result = Utils.ExtractArrayElement(m_value, m_arrayIndices, script);
-                if (script.Prev == '.')
+                Variable result = Utils.ExtractArrayElement(m_value, m_arrayIndices, e.Script);
+                if (e.Script.Prev == '.')
                 {
-                    script.Backward();
+                    e.Script.Backward();
                 }
 
-                if (script.TryCurrent() != '.')
+                if (e.Script.TryCurrent() != '.')
                 {
-                    return result;
+                    e.Return =result;
+                    return;
                 }
-                script.Forward();
+                e.Script.Forward();
 
-                m_propName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
-                Variable propValue = result.GetProperty(m_propName, script);
-                Utils.CheckNotNull(propValue, m_propName, script);
-                return propValue;
+                m_propName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
+                Variable propValue = result.GetProperty(m_propName, e.Script);
+                Utils.CheckNotNull(propValue, m_propName, e.Script);
+                e.Return=propValue;
+                return;
             }
 
             // Now check that this is an object:
@@ -1528,99 +1522,16 @@ namespace AliceScript
                 string temp = m_propName;
                 m_propName = null; // Need this to reset for recursive calls
                 Variable propValue = m_value.Type == Variable.VarType.ENUM ?
-                                     m_value.GetEnumProperty(temp, script) :
-                                     m_value.GetProperty(temp, script);
-                Utils.CheckNotNull(propValue, temp, script);
-                return EvaluateFunction(propValue, script, m_propName, this);
+                                     m_value.GetEnumProperty(temp, e.Script) :
+                                     m_value.GetProperty(temp, e.Script);
+                Utils.CheckNotNull(propValue, temp, e.Script);
+                e.Return = EvaluateFunction(propValue, e.Script, m_propName, this);
+                return;
             }
 
             // Otherwise just return the stored value.
-            return m_value;
+            e.Return=m_value;
         }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            // First check if this element is part of an array:
-            if (script.TryPrev() == Constants.START_ARRAY)
-            {
-                //配列添え字演算子を使用できないケースではじく処理を記述
-                switch (m_value.Type)
-                {
-                    case Variable.VarType.ARRAY:
-                        {
-                            if (m_value.Tuple == null || m_value.Tuple.Count == 0)
-                            {
-                                throw new ArgumentException("指定された配列には要素がありません");
-                            }
-                            break;
-                        }
-
-                    case Variable.VarType.DELEGATE:
-                        {
-                            if (m_value.Delegate == null || m_value.Delegate.Length == 0)
-                            {
-                                throw new ArgumentException("指定されたデリゲートには要素がありません");
-                            }
-                            break;
-                        }
-                    case Variable.VarType.STRING:
-                        {
-                            if (string.IsNullOrEmpty(m_value.String))
-                            {
-                                throw new ArgumentException("指定された文字列は空です");
-                            }
-                            break;
-                        }
-                    default:
-                        {
-                            throw new ArgumentException("指定された変数で、配列添え字演算子を使用することができません");
-                        }
-                }
-
-                if (m_arrayIndices == null)
-                {
-                    string startName = script.Substr(script.Pointer - 1);
-                    m_arrayIndices = Utils.GetArrayIndices(script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; }, this);
-                }
-
-                script.Forward(m_delta);
-                while (script.MoveForwardIf(Constants.END_ARRAY))
-                {
-                }
-
-                Variable result = Utils.ExtractArrayElement(m_value, m_arrayIndices, script);
-                if (script.Prev == '.')
-                {
-                    script.Backward();
-                }
-                if (script.TryCurrent() != '.')
-                {
-                    return result;
-                }
-
-                script.Forward();
-                m_propName = Utils.GetToken(script, Constants.NEXT_OR_END_ARRAY);
-                Variable propValue = await result.GetPropertyAsync(m_propName, script);
-                Utils.CheckNotNull(propValue, m_propName, script);
-                return propValue;
-            }
-
-            // Now check that this is an object:
-            if (!string.IsNullOrWhiteSpace(m_propName))
-            {
-                string temp = m_propName;
-                m_propName = null; // Need this to reset for recursive calls
-
-                Variable propValue = m_value.Type == Variable.VarType.ENUM ?
-                         m_value.GetEnumProperty(temp, script) :
-                         await m_value.GetPropertyAsync(temp, script);
-                Utils.CheckNotNull(propValue, temp, script);
-                return EvaluateFunction(propValue, script, m_propName, this);
-            }
-
-            // Otherwise just return the stored value.
-            return m_value;
-        }
-
         public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName, FunctionBase callFrom)
         {
             if (var != null && var.CustomFunctionGet != null)

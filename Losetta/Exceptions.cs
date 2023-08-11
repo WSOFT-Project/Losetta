@@ -273,6 +273,10 @@
         /// <summary>
         /// この引数に特定のキーワードを使用することはできません。
         /// </summary>
-        ARGUMENT_CANT_USE_WITH_KEYWORD=0x044
+        ARGUMENT_CANT_USE_WITH_KEYWORD=0x044,
+        /// <summary>
+        /// この変数で配列添え字演算子を使用することはできません。
+        /// </summary>
+        VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT=0x045
     }
 }

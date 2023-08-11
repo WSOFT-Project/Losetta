@@ -137,8 +137,11 @@ namespace AliceScript
 
             string arrayName = name;
 
+            string varName = arrayName.Substring(0,arrayStart);
+            Variable ary = Utils.GetItem(script.GetTempScript(varName));
+            int max = ary == null ? 0 : ary.Count;
             int delta = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; },null);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; },null,max);
 
             if (arrayIndices.Count == 0)
             {

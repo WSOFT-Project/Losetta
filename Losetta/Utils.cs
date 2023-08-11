@@ -324,7 +324,7 @@ namespace AliceScript
             double num = 0;
             if (script.Tag is string s && s == "DELEGATE") { return 0; }
             if (!CanConvertToDouble(str, out num) &&
-                script != null)
+                script != null && str!=Constants.END_ARRAY.ToString())
             {
                 ProcessErrorMsg(str, script);
             }
@@ -395,7 +395,7 @@ namespace AliceScript
                                             Exceptions.COULDNT_FIND_VARIABLE;
                 string token = Constants.GetRealName(str);
 
-                string msg = entity + ":[" + token + "]は定義されていないか、存在しません";
+                string msg = entity + " `" + token + "`は定義されていないか、存在しません";
 
                 ThrowErrorMsg(msg, ex, script, str);
             }
