@@ -1009,16 +1009,29 @@ namespace AliceScript
             {
                 Variable val;
 
+                bool refd = args[i].Keywords.Contains(Constants.REF);
                 if (m_refMap.Contains(i))
                 {
-                    val = args[i];
+                    if (refd)
+                    {
+                        val = args[i];
+                    }
+                    else
+                    {
+                        throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
+                    }
                 }
                 else
                 {
+                    if (refd)
+                    {
+                        throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD, script);
+                    }
                     val = new Variable();
                     val.Assign(args[i]);
                 }
                 var arg = new GetVarFunction(val);
+                arg.Name = m_args[i];
                 m_VarMap[args[i].ParamName] = arg;
             }
 
