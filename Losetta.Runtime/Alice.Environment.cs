@@ -407,7 +407,7 @@
             arch_name = "x86";
 #elif RELEASE_WIN_ARM || RELEASE_LINUX_ARM
             arch_name = "ARM32";
-#elif RELEASE_WIN_ARM64 || RELEASE_LINUX_ARM64
+#elif RELEASE_WIN_ARM64 || RELEASE_LINUX_ARM64 || RELEASE_OSX_ARM64
             arch_name = "ARM64";
 #elif DEBUG
             arch_name = "Debug";
@@ -432,7 +432,7 @@
 
 #if RELEASE_WIN_X64 || RELEASE_WIN_X86 || RELEASE_WIN_ARM || RELEASE_WIN_ARM64
             arch_name = "Windows";
-#elif RELEASE_OSX_X64
+#elif RELEASE_OSX_X64 || RELEASE_OSX_ARM64
             arch_name = "OSX";
 #elif RELEASE_LINUX_X64 || RELEASE_LINUX_ARM || RELEASE_LINUX_ARM64
             arch_name = "Linux";
