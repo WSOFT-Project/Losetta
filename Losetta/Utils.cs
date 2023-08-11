@@ -211,6 +211,10 @@ namespace AliceScript
             var realArgs = custFunc.RealArgs;
             for (int i = 0; i < args.Count && i < realArgs.Length; i++)
             {
+                if (args[i] == null)
+                {
+                    throw new ScriptException("関数 `"+functionName+"` の`"+i+"`番目の引数が不正です。",Exceptions.INVAILD_ARGUMENT_FUNCTION);
+                }
                 string name = args[i].CurrentAssign;
                 args[i].ParamName = string.IsNullOrWhiteSpace(name) ? realArgs[i] : name;
             }
