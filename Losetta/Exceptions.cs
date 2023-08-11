@@ -277,6 +277,22 @@
         /// <summary>
         /// この変数で配列添え字演算子を使用することはできません。
         /// </summary>
-        VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT=0x045
+        VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT=0x045,
+        /// <summary>
+        /// 関数のシグネチャが不正か、処理できませんでした。
+        /// </summary>
+        INVALID_FUNCTION_SIGNATURE=0x046,
+        /// <summary>
+        /// 基底クラスを取得できませんでした。
+        /// </summary>
+        COULDNT_EXTRACT_BASE_CLASSES=0x047,
+        /// <summary>
+        /// 名前空間はネストできません。
+        /// </summary>
+        NAMESPACE_CANT_BE_NESTED=0x048,
+        /// <summary>
+        /// クラスが見つかりません。
+        /// </summary>
+        COULDNT_FIND_CLASS=0x049
     }
 }

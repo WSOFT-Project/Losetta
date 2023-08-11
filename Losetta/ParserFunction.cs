@@ -82,7 +82,7 @@ namespace AliceScript
             {
                 string problem = (!string.IsNullOrWhiteSpace(action) ? action : ch.ToString());
                 string restData = ch.ToString() + script.Rest;
-                throw new ArgumentException("Couldn't parse [" + problem + "] in " + restData + "...");
+                throw new ScriptException("`"+restData+"` 内の `"+problem+"` をパースできませんでした。",Exceptions.COULDNT_PARSE,script);
             }
 
             // Function not found, will try to parse this as a string in quotes or a number.
@@ -938,7 +938,7 @@ namespace AliceScript
             namespaceName = Constants.ConvertName(namespaceName);
             if (!string.IsNullOrWhiteSpace(s_namespace))
             {
-                throw new ArgumentException("Already inside of namespace [" + s_namespace + "].");
+                throw new ScriptException("名前空間 `"+s_namespace+"` をネストすることはできません。",Exceptions.NAMESPACE_CANT_BE_NESTED);
             }
 
             StackLevel level;

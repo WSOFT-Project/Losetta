@@ -287,7 +287,7 @@ namespace AliceScript
                 if (!Int32.TryParse(numberVar.String, NumberStyles.Number,
                                      CultureInfo.InvariantCulture, out num))
                 {
-                    throw new ArgumentException("Expected an integer instead of [" + numberVar.AsString() + "]");
+                    throw new ScriptException("`"+numberVar.AsString()+"` は整数である必要があります。",Exceptions.EXPECTED_INTEGER);
                 }
                 return num;
             }

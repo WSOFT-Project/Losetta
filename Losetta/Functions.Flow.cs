@@ -232,7 +232,7 @@ namespace AliceScript
                 var bc = AliceScriptClass.GetClass(baseClass, script);
                 if (bc == null)
                 {
-                    throw new ArgumentException("継承元クラスである [" + baseClass + "] が存在しません");
+                    throw new ScriptException(" `"+className+"` の基底クラス `"+baseClass+"` が見つかりませんでした。",Exceptions.COULDNT_FIND_CLASS);
                 }
 
                 foreach (var entry in bc.m_classProperties)
@@ -391,7 +391,7 @@ namespace AliceScript
                 m_cscsClass = AliceScriptClass.GetClass(className, script);
                 if (m_cscsClass == null)
                 {
-                    throw new ArgumentException("継承元クラスである [" + className + "] が存在しません");
+                    throw new ScriptException("基底クラス `"+ className + "` が見つかりませんでした。",Exceptions.COULDNT_FIND_CLASS);
                 }
 
                 // Copy over all the properties defined for this class.
@@ -902,8 +902,7 @@ namespace AliceScript
                     }
                     else if (namedParameters)
                     {
-                        throw new ArgumentException("関数におけるすべての引数: [" + m_name +
-                         "] はarg=valueの型である必要があります。");
+                        throw new ScriptException("関数の引数と値 `"+m_name+"` は一対一で一致する必要があります。",Exceptions.INVAILD_ARGUMENT_FUNCTION);
                     }
                 }
             }
@@ -928,8 +927,7 @@ namespace AliceScript
                             int defIndex = -1;
                             if (!m_defArgMap.TryGetValue(i, out defIndex))
                             {
-                                throw new ArgumentException("関数 [" + m_name + "]に引数 [" + m_args[i] +
-                                 "] がありません");
+                                throw new ScriptException("関数 `"+m_name+"` で引数 `" + m_args[i]+"` が指定されていません。",Exceptions.INCOMPLETE_ARGUMENTS);
                             }
                             args[i] = m_defaultArgs[defIndex];
                         }
@@ -941,8 +939,7 @@ namespace AliceScript
                 int defIndex = -1;
                 if (!m_defArgMap.TryGetValue(i, out defIndex))
                 {
-                    throw new ArgumentException("関数 [" + m_name + "]に引数 [" + m_args[i] +
-                                 "] がありません");
+                    throw new ScriptException("関数 `" + m_name + "` で引数 `" + m_args[i] + "` が指定されていません。", Exceptions.INCOMPLETE_ARGUMENTS);
                 }
                 args.Add(m_defaultArgs[defIndex]);
             }

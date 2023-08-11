@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace AliceScript
 {
@@ -927,8 +929,7 @@ namespace AliceScript
                     }
                     else
                     {
-                        throw new ScriptException("インデックス: [" + entry.Value +
-                                  "] は配列の長さ[" + m_tuple.Count + "]を超えています", Exceptions.INDEX_OUT_OF_RANGE);
+                        throw new IndexOutOfRangeException("インデックス `" + entry.Value + "`は配列の境界 `" + m_tuple.Count + "` 外です。");
                     }
                 }
             }
@@ -1397,8 +1398,7 @@ namespace AliceScript
         {
             if (index >= Count)
             {
-                throw new ArgumentException("There are only [" + Count +
-                                             "] but " + index + " requested.");
+                throw new IndexOutOfRangeException("インデックス `" + index + "`は配列の境界 `" + Count + "` 外です。");
 
             }
             if (Type == VarType.ARRAY)

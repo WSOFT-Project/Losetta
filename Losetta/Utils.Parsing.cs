@@ -118,8 +118,7 @@ namespace AliceScript
                 int qend = script.Find(curr, script.Pointer + 1);
                 if (qend == -1)
                 {
-                    throw new ArgumentException("Unmatched quotes in [" +
-                                           script.FromPrev() + "]");
+                    throw new ScriptException("`"+script.FromPrev()+"` で、クオーテーションが不均等です。",Exceptions.UNBALANCED_QUOTES,script);
                 }
                 string result = script.Substr(script.Pointer + 1, qend - script.Pointer - 1);
                 script.Pointer = qend + 1;
@@ -457,7 +456,7 @@ namespace AliceScript
 
             if (endArgs < 0 && !isLambda)
             {
-                throw new ArgumentException("Couldn't extract function signature");
+                throw new ScriptException("関数のシグネチャを解析できませんでした。",Exceptions.INVALID_FUNCTION_SIGNATURE);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -483,7 +482,7 @@ namespace AliceScript
                     string item = collect.ToString().Trim();
                     if (item.Length == 0)
                     {
-                        throw new ArgumentException("Empty argument in function signature [" + argStr + "]");
+                        throw new ScriptException("関数のシグネチャが空でした。",Exceptions.INVALID_FUNCTION_SIGNATURE,script);
                     }
                     args.Add(item);
                     collect.Clear();
@@ -494,7 +493,7 @@ namespace AliceScript
 
             if (curlyLevel != 0)
             {
-                throw new ArgumentException("Unbalanced curly braces in function signature [" + argStr + "]");
+                throw new ScriptException("関数のシグネチャ `"+argStr+"` 内の中括弧が不均等です。",Exceptions.UNBALANCED_CURLY_BRACES);
             }
             if (collect.Length > 0)
             {
@@ -524,7 +523,7 @@ namespace AliceScript
             int endArgs = script.FindFirstOf(Constants.START_GROUP.ToString());
             if (endArgs < 0)
             {
-                throw new ArgumentException("Couldn't extract base classes");
+                throw new ScriptException("基底クラスを取得できませんでした。",Exceptions.COULDNT_EXTRACT_BASE_CLASSES,script);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -1226,7 +1225,7 @@ namespace AliceScript
 
             if (max != 0)
             {
-                //高度な配列添え字
+                //逆からインデックス
                 varName = Regex.Replace(varName, "(.*)\\[\\^([0-9]*)\\]", "$1["+max+"-$2]");
             }
 
@@ -1292,7 +1291,7 @@ namespace AliceScript
 
                 if (arrayIndex < 0 || arrayIndex >= tupleSize)
                 {
-                    throw new IndexOutOfRangeException("インデックス `"+index.AsString()+"`は配列の境界外です。(`"+tupleSize+"`以上)");
+                    throw new IndexOutOfRangeException("インデックス `"+index.AsString()+"`は配列の境界 `"+tupleSize+"` 外です。");
                 }
                 switch (currLevel.Type)
                 {
