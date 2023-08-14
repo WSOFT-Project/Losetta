@@ -831,7 +831,7 @@ namespace AliceScript
             }
             if (args.Count + m_defaultArgs.Count < m_args.Length)
             {
-                throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
+                throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(args, e.Script);
             //このCustomFunctionに子があればそれも実行する
@@ -940,7 +940,8 @@ namespace AliceScript
                     val.Assign(entry.Value);
                     var arg = new GetVarFunction(val);
                     arg.Name = entry.Key;
-                    m_VarMap[entry.Key] = arg;
+                    //m_VarMap[entry.Key] = arg;
+                    script.Variables[entry.Key] = arg;
                 }
             }
 
@@ -958,7 +959,8 @@ namespace AliceScript
                     }
                     var arg = new GetVarFunction(parmsarg);
                     arg.Name = m_args[i];
-                    m_VarMap[m_args[i]] = arg;
+                    //m_VarMap[m_args[i]] = arg;
+                    script.Variables[m_args[i]] = arg;
                 }
                 else
                 {
@@ -987,7 +989,8 @@ namespace AliceScript
                     }
                     var arg = new GetVarFunction(val);
                     arg.Name = m_args[i];
-                    m_VarMap[m_args[i]] = arg;
+                    //m_VarMap[m_args[i]] = arg;
+                    script.Variables[m_args[i]] = arg;
                 }
             }
             for (int i = m_args.Length; i < args.Count; i++)
@@ -1017,7 +1020,8 @@ namespace AliceScript
                 }
                 var arg = new GetVarFunction(val);
                 arg.Name = m_args[i];
-                m_VarMap[args[i].ParamName] = arg;
+                //m_VarMap[args[i].ParamName] = arg;
+                script.Variables[args[i].ParamName] = arg;
             }
 
             if (NamespaceData != null)
@@ -1029,7 +1033,8 @@ namespace AliceScript
                     string key = elem.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ?
                         elem.Key.Substring(prefix.Length) : elem.Key;
 
-                    m_VarMap[key] = elem.Value;
+                    //m_VarMap[key] = elem.Value;
+                    script.Variables[key] = elem.Value;
                 }
             }
 
@@ -1080,7 +1085,7 @@ namespace AliceScript
                 tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
             }
             tempScript.Tag = m_tag;
-            tempScript.Variables = m_VarMap;
+            //tempScript.Variables = m_VarMap;
             List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
             // ひとまず引数をローカルに追加
             RegisterArguments(args, args2, current,tempScript);
@@ -1186,7 +1191,7 @@ namespace AliceScript
         protected int m_parentOffset = 0;
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
-        private Dictionary<string, ParserFunction> m_VarMap = new Dictionary<string, ParserFunction>();
+        //private Dictionary<string, ParserFunction> m_VarMap = new Dictionary<string, ParserFunction>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
         private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
 
@@ -1413,7 +1418,7 @@ namespace AliceScript
             m_value = value;
             this.Name = "Variable";
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            //this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
             this.Run += GetVarFunction_Run;
         }
 
