@@ -82,9 +82,9 @@
                 ParsingScript mainScript = script.GetTempScript(body);
                 result = mainScript.Process();
 
-                if (result.IsReturn ||
+                if (result !=null && (result.IsReturn ||
                     result.Type == Variable.VarType.BREAK ||
-                    result.Type == Variable.VarType.CONTINUE)
+                    result.Type == Variable.VarType.CONTINUE))
                 {
                     // We are here from the middle of the if-block. Skip it.
                     script.Pointer = startIfCondition;
@@ -93,9 +93,9 @@
                 script.SkipRestBlocks();
 
                 //return result;
-                return result.IsReturn ||
+                return result!=null&&(result.IsReturn ||
                        result.Type == Variable.VarType.BREAK ||
-                       result.Type == Variable.VarType.CONTINUE ? result : Variable.EmptyInstance;
+                       result.Type == Variable.VarType.CONTINUE) ? result : Variable.EmptyInstance;
             }
 
             // We are in Else. Skip everything in the If statement.
