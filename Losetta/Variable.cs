@@ -446,14 +446,15 @@ namespace AliceScript
                             case Variable.VarType.STRING:
                                 {
                                     double d = 0.0;
-                                    if (double.TryParse(String, out d))
+                                    if (Utils.CanConvertToDouble(String, out d))
                                     {
                                         return new Variable(d);
                                     }
-                                    else
+                                    else if(throwError)
                                     {
-                                        throw new ScriptException("引数である" + String + "は有効な数値の形式ではありません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
+                                        throw new ScriptException("文字列 `" + String + "` は有効な数値の形式ではありません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
                                     }
+                                    break;
                                 }
 
                         }

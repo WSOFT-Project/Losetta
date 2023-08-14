@@ -962,6 +962,10 @@ namespace AliceScript
             {
                 tempScript.m_stacktrace.Add(new StackInfo(callFrom, this.OriginalLine, this.OriginalLineNumber, this.Filename));
             }
+            else
+            {
+          //      tempScript.m_stacktrace.Add(new StackInfo(ProcessingFunction, this.OriginalLine, this.OriginalLineNumber, this.Filename));
+            }
 
             return tempScript;
         }

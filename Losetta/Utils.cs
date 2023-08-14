@@ -322,13 +322,13 @@ namespace AliceScript
             }
             return args[index];
         }
-        public static double ConvertToDouble(object obj, ParsingScript script = null)
+        public static double ConvertToDouble(object obj, ParsingScript script = null,bool throwError=true)
         {
             string str = obj.ToString().ToLower();
             double num = 0;
             if (script.Tag is string s && s == "DELEGATE") { return 0; }
             if (!CanConvertToDouble(str, out num) &&
-                script != null && str!=Constants.END_ARRAY.ToString())
+                script != null && str!=Constants.END_ARRAY.ToString() && throwError)
             {
                 ProcessErrorMsg(str, script);
             }

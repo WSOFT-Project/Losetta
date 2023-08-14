@@ -1210,27 +1210,7 @@ namespace AliceScript
             {
                 bool sq = (Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1);
                 bool dq = (Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE);
-                Name = "ParseScript";
-                if (dq)
-                {
-                    int index = 0;
-                    string split_string = "";
-
-                    while (Item.Length > index && Item[index] == '\"')
-                    {
-                        split_string += '\"';
-                        index++;
-                    }
-                    if (split_string.Length > 2)
-                    {
-                        MatchCollection mc = Regex.Matches(Item, "(?<=" + split_string + @")[^\(\)]+(?=" + split_string + ")");
-                        foreach (Match match in mc)
-                        {
-                            e.Return = new Variable(match.Value);
-                            return;
-                        }
-                    }
-                }
+                Name = "Literal";
                 if (dq || sq)
                 {
                     //文字列型
@@ -1242,6 +1222,8 @@ namespace AliceScript
                         int blackCount = 0;
                         bool beforeEscape = false;
                         var nowBlack = new StringBuilder();
+
+                        Name = "StringInterpolationLiteral";
 
                         foreach (char r in result)
                         {
@@ -1275,7 +1257,7 @@ namespace AliceScript
                                             blackCount--;
                                             //この波かっこを抜けるとき
                                             string code = nowBlack.ToString();
-                                            ParsingScript tempScript = e.Script.GetTempScript(code, this);
+                                            ParsingScript tempScript = e.Script.GetTempScript(code);
                                             var rrr = tempScript.Process();
                                             if (rrr == null)
                                             {
