@@ -270,7 +270,7 @@ namespace AliceScript
 
                 if (action != null && action != Constants.END_ARG_STR && token != Constants.DEFAULT)
                 {
-                    throw new ScriptException("次のアクションで引数が不完全です。[" + action + "]", Exceptions.INSUFFICIENT_ARGUMETS, script);
+                   // throw new ScriptException("次のアクションで引数が不完全です。[" + action + "]", Exceptions.INSUFFICIENT_ARGUMETS, script);
                 }
 
                 // 数値結果がない場合は、数式ではありません

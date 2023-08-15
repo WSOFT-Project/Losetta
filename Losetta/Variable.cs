@@ -657,22 +657,36 @@ namespace AliceScript
             return m_bool;
         }
 
-        public virtual int AsInt()
+        public virtual int AsInt(bool check = true)
         {
-            Utils.CheckInteger(this,null);
+            if (check)
+            {
+                Utils.CheckInteger(this, null);
+            }
             return (int)Value;
         }
-        public virtual float AsFloat()
+        public virtual float AsFloat(bool check = true)
         {
+            if (check)
+            {
+                Utils.CheckNumber(this, null);
+            }
             return (float)Value;
         }
-        public virtual long AsLong()
+        public virtual long AsLong(bool check = true)
         {
+            if (check)
+            {
+                Utils.CheckNumber(this, null);
+            }
             return (long)Value;
         }
-        public virtual double AsDouble()
+        public virtual double AsDouble(bool check=true)
         {
-            Utils.CheckNumber(this,null);
+            if (check)
+            {
+                Utils.CheckNumber(this, null);
+            }
             return Value;
         }
 
@@ -916,6 +930,11 @@ namespace AliceScript
                 case VarType.ARRAY:
                     {
                         var sb = new StringBuilder();
+                        if (isList)
+                        {
+                            sb.Append(Constants.START_ARRAY.ToString() +
+                                     (sameLine ? "" : Environment.NewLine));
+                        }
                         int count = maxCount < 0 ? m_tuple.Count : Math.Min(maxCount, m_tuple.Count);
                         int i = 0;
                         for (; i < count; i++)
