@@ -189,7 +189,7 @@ namespace AliceScript
             {
                 string[] args = Utils.GetFunctionSignature(script);
                 script.MoveForwardIf('{');
-                string body = Utils.GetBodyBetween(script, '{', '}');
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 script.MoveForwardIf('}');
 
                 int parentOffset = script.Pointer +
@@ -1122,7 +1122,7 @@ namespace AliceScript
         }
 
         public static string GetBodyBetween(ParsingScript script, char open = Constants.START_ARG,
-                                            char close = Constants.END_ARG, string end = "\0")
+                                            char close = Constants.END_ARG, string end = "\0",bool blockMode=false)
         {
             // We are supposed to be one char after the beginning of the string, i.e.
             // we must not have the opening char as the first one.
@@ -1179,6 +1179,10 @@ namespace AliceScript
                     {
                         sb.Remove(sb.Length - 1, 1);
                     }
+                    break;
+                }
+                else if(blockMode && braces == 0)
+                {
                     break;
                 }
             }

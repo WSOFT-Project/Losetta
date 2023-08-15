@@ -78,10 +78,13 @@ namespace AliceScript
         public FunctionCreator()
         {
             this.Name = Constants.FUNCTION;
+            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            this.Run += FunctionCreator_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
         {
-            string funcName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
+            string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             bool? mode = null;
             bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
             bool isCommand = this.Keywords.Contains(Constants.COMMAND);
@@ -98,31 +101,31 @@ namespace AliceScript
 
             if (string.IsNullOrWhiteSpace(funcName))
             {
-                throw new ScriptException("関数名を空にすることはできません", Exceptions.ILLEGAL_VARIABLE_NAME, script);
+                throw new ScriptException("関数名を空にすることはできません", Exceptions.ILLEGAL_VARIABLE_NAME, e.Script);
             }
 
-            string[] args = Utils.GetFunctionSignature(script);
+            string[] args = Utils.GetFunctionSignature(e.Script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = new string[0];
             }
 
-            script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+            e.Script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
             /*string line = */
-            script.GetOriginalLine(out _);
+            e.Script.GetOriginalLine(out _);
 
-            int parentOffset = script.Pointer;
+            int parentOffset = e.Script.Pointer;
 
-            if (script.CurrentClass != null)
+            if (e.Script.CurrentClass != null)
             {
-                parentOffset += script.CurrentClass.ParentOffset;
+                parentOffset += e.Script.CurrentClass.ParentOffset;
             }
 
-            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
-            script.MoveForwardIf(Constants.END_GROUP);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", false);
+            e.Script.MoveForwardIf(Constants.END_GROUP);
 
-            CustomFunction customFunc = new CustomFunction(funcName, body, args, script);
-            customFunc.ParentScript = script;
+            CustomFunction customFunc = new CustomFunction(funcName, body, args, e.Script);
+            customFunc.ParentScript = e.Script;
             customFunc.ParentOffset = parentOffset;
             if (isCommand)
             {
@@ -148,27 +151,26 @@ namespace AliceScript
                 }
                 else
                 {
-                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL, script);
+                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL, e.Script);
                 }
             }
             else
-            if (script.CurrentClass != null)
+            if (e.Script.CurrentClass != null)
             {
-                script.CurrentClass.AddMethod(funcName, args, customFunc);
+                e.Script.CurrentClass.AddMethod(funcName, args, customFunc);
             }
             else
             {
-                if (!FunctionExists(funcName, script) || (mode == true && FunctionIsVirtual(funcName, script)))
+                if (!FunctionExists(funcName, e.Script) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
                 {
-                    FunctionBaseManerger.Add(customFunc, funcName, script, isGlobal);
+                    FunctionBaseManerger.Add(customFunc, funcName, e.Script, isGlobal);
                 }
                 else
                 {
-                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, script);
+                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, e.Script);
                 }
             }
 
-            return Variable.EmptyInstance;
         }
 
         private bool FunctionIsVirtual(string name, ParsingScript script)

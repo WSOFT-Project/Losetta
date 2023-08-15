@@ -78,7 +78,7 @@
             if (isTrue)
             {
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+                                                       Constants.END_GROUP,"\0",true);
                 ParsingScript mainScript = script.GetTempScript(body);
                 result = mainScript.Process();
 
@@ -115,7 +115,7 @@
             {
                 script.Pointer = nextData.Pointer + 1;
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+                                                       Constants.END_GROUP, "\0", true);
                 ParsingScript mainScript = script.GetTempScript(body);
                 result = mainScript.Process();
             }
@@ -172,8 +172,7 @@
                 }
 
                 e.Script.Pointer = startForCondition;
-                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 ParsingScript mainScript = initScript.GetTempScript(body);
                 //mainScript.Variables = initScript.Variables;
                 Variable result = mainScript.Process();
@@ -250,8 +249,7 @@
                 e.Script.Pointer = startForCondition;
                 Variable current = arrayValue.GetValue(i);
 
-                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 ParsingScript mainScript = e.Script.GetTempScript(body);
                 ParserFunction.AddGlobalOrLocalVariable(varName,
                                new GetVarFunction(current), mainScript, false, registVar, false);
@@ -353,8 +351,7 @@
             {
                 e.Script.Pointer = startDoCondition;
 
-                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 ParsingScript mainScript = e.Script.GetTempScript(body);
                 result = mainScript.ProcessForWhile();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
@@ -404,8 +401,7 @@
                 }
                 if (nextToken == Constants.DEFAULT && !caseDone)
                 {
-                    string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+                    string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                     ParsingScript mainScript = e.Script.GetTempScript(body);
                     result = mainScript.Process();
                     break;
@@ -418,8 +414,7 @@
                     if (switchValue.Equals(caseValue))
                     {
                         caseDone = true;
-                        string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+                        string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                         ParsingScript mainScript = e.Script.GetTempScript(body);
                         result = mainScript.Process();
                         if (mainScript.Prev == '}')
@@ -459,8 +454,7 @@
             }
             e.Script.MoveForwardIf(':');
 
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                       Constants.END_GROUP);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = e.Script.GetTempScript(body);
             Variable result = mainScript.Process();
             e.Script.MoveBackIfPrevious('}');
@@ -498,7 +492,7 @@
                 parentOffset += e.Script.CurrentClass.ParentOffset;
             }
 
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
 
             e.Script.MoveForwardIf(Constants.END_GROUP);
             CustomFunction customFunc = new CustomFunction("", body, args, e.Script);
@@ -525,8 +519,7 @@
             Variable result = null;
 
             // tryブロック内のスクリプト
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                   Constants.END_GROUP);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = e.Script.GetTempScript(body);
             mainScript.InTryBlock = true;
 
@@ -546,8 +539,7 @@
 
             string exceptionName = Utils.GetNextToken(e.Script);
             e.Script.Forward(); // skip closing parenthesis
-            string body2 = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                   Constants.END_GROUP);
+            string body2 = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript catchScript = e.Script.GetTempScript(body2);
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
