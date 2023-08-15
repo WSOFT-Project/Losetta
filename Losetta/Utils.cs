@@ -19,8 +19,7 @@ namespace AliceScript
             CheckInteger(variable, script);
             if (variable.Value < 0)
             {
-                ThrowErrorMsg("次の数の代わりに負でない整数である必要があります [" +
-                              variable.Value + "]", Exceptions.EXPECTED_NON_NEGATIVE_INTEGER, script, script.Current.ToString());
+                ThrowErrorMsg("負でない整数が必要な場所に `" +variable.Value + "`が渡されました。", Exceptions.EXPECTED_NON_NEGATIVE_INTEGER, script);
             }
         }
         public static void CheckInteger(Variable variable, ParsingScript script)
@@ -28,16 +27,14 @@ namespace AliceScript
             CheckNumber(variable, script);
             if (variable.Value % 1 != 0.0)
             {
-                ThrowErrorMsg("次の数の代わりに整数である必要があります  [" +
-                              variable.Value + "]", Exceptions.EXPECTED_INTEGER, script, script.Current.ToString());
+                ThrowErrorMsg("整数が必要な場所に `" +variable.Value + "`が渡されました。", Exceptions.EXPECTED_INTEGER, script);
             }
         }
         public static void CheckNumber(Variable variable, ParsingScript script)
         {
             if (variable.Type != Variable.VarType.NUMBER)
             {
-                ThrowErrorMsg("次の代わりに数値型である必要があります  [" +
-                              variable.AsString() + "]", Exceptions.WRONG_TYPE_VARIABLE, script, script.Current.ToString());
+                ThrowErrorMsg("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE, script);
             }
         }
         public static void CheckNotNull(string name, ParserFunction func, ParsingScript script)
@@ -45,7 +42,7 @@ namespace AliceScript
             if (func == null)
             {
                 string realName = Constants.GetRealName(name);
-                ThrowErrorMsg("次の変数または関数は存在しません [" + realName + "]", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script, name);
+                ThrowErrorMsg("次の変数または関数は存在しません [" + realName + "]", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
             }
         }
         public static bool CheckNotNull(object obj, string name, ParsingScript script)
@@ -53,7 +50,7 @@ namespace AliceScript
             if (obj == null)
             {
                 string realName = Constants.GetRealName(name);
-                ThrowErrorMsg("次のオブジェクトは存在しません [" + realName + "]", Exceptions.OBJECT_DOESNT_EXIST, script, name);
+                ThrowErrorMsg("次のオブジェクトは存在しません [" + realName + "]", Exceptions.OBJECT_DOESNT_EXIST, script);
                 return false;
             }
             return true;
@@ -94,7 +91,7 @@ namespace AliceScript
             }
         }
 
-        public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script, string token)
+        public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script,string token=null)
         {
             /*
              * TODO:ThrowErrorMSGの引継ぎ等

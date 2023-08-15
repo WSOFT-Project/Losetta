@@ -1,4 +1,6 @@
-﻿namespace AliceScript.NameSpaces
+﻿using System.Text;
+
+namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
     internal static class Alice_Initer
@@ -800,7 +802,16 @@
 
         private void Str_ReplaceFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.AsString().Replace(e.Args[0].AsString(), e.Args[1].AsString()));
+            if(e.Args.Count > 3)
+            {
+                var sb = new StringBuilder(e.CurentVariable.AsString());
+                sb.Replace(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsInt(), e.Args[3].AsInt());
+                e.Return = new Variable(sb.ToString());
+            }
+            else
+            {
+                e.Return = new Variable(e.CurentVariable.AsString().Replace(e.Args[0].AsString(), e.Args[1].AsString()));
+            }
         }
     }
 

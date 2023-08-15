@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -257,21 +255,21 @@ namespace AliceScript
         public void Assign(Variable v)
         {
             m_bool = v.m_bool;
-            m_byteArray= v.m_byteArray;
+            m_byteArray = v.m_byteArray;
             m_customFunctionGet = v.m_customFunctionGet;
             m_customFunctionSet = v.m_customFunctionSet;
-            m_datetime= v.m_datetime;
-            m_delegate= v.m_delegate;
-            m_dictionary= v.m_dictionary;
-            m_enumMap= v.m_enumMap;
-            m_keyMappings= v.m_keyMappings;
-            m_object= v.m_object;
-            m_propertyMap= v.m_propertyMap;
-            m_propertyStringMap= v.m_propertyStringMap;
-            m_string= v.m_string;
-            m_tuple= v.m_tuple;
-            m_type= v.m_type;
-            m_value= v.m_value;
+            m_datetime = v.m_datetime;
+            m_delegate = v.m_delegate;
+            m_dictionary = v.m_dictionary;
+            m_enumMap = v.m_enumMap;
+            m_keyMappings = v.m_keyMappings;
+            m_object = v.m_object;
+            m_propertyMap = v.m_propertyMap;
+            m_propertyStringMap = v.m_propertyStringMap;
+            m_string = v.m_string;
+            m_tuple = v.m_tuple;
+            m_type = v.m_type;
+            m_value = v.m_value;
         }
         public static Variable NewEmpty()
         {
@@ -450,7 +448,7 @@ namespace AliceScript
                                     {
                                         return new Variable(d);
                                     }
-                                    else if(throwError)
+                                    else if (throwError)
                                     {
                                         throw new ScriptException("文字列 `" + String + "` は有効な数値の形式ではありません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
                                     }
@@ -661,6 +659,7 @@ namespace AliceScript
 
         public virtual int AsInt()
         {
+            Utils.CheckInteger(this,null);
             return (int)Value;
         }
         public virtual float AsFloat()
@@ -673,6 +672,7 @@ namespace AliceScript
         }
         public virtual double AsDouble()
         {
+            Utils.CheckNumber(this,null);
             return Value;
         }
 
@@ -843,169 +843,115 @@ namespace AliceScript
                                        bool sameLine = true,
                                        int maxCount = -1)
         {
-            if (Type == VarType.BOOLEAN)
+            switch (Type)
             {
-                if (m_bool)
-                {
-                    return Constants.TRUE;
-                }
-                else
-                {
-                    return Constants.FALSE;
-                }
-            }
-            if (Type == VarType.NUMBER)
-            {
-                return Value.ToString();
-            }
-            if (Type == VarType.STRING)
-            {
-                return m_string == null ? "" : m_string;
-            }
-            if (Type == VarType.OBJECT)
-            {
-                return ObjectToString();
-            }
-            if (Type == VarType.BYTES)
-            {
-                return Encoding.Unicode.GetString(m_byteArray, 0, m_byteArray.Length);
-            }
-            /*
-            if (Type == VarType.TYPE)
-            {
-                TODO:TypeToString
-                return Constants.TypeToString(VariableType);
-            }
-            */
-
-            StringBuilder sb = new StringBuilder();
-            if (Type == VarType.ENUM)
-            {
-                sb.Append(Constants.START_GROUP.ToString() + " ");
-                foreach (string key in m_propertyMap.Keys)
-                {
-                    sb.Append(key + " ");
-                }
-                sb.Append(Constants.END_GROUP.ToString());
-                return sb.ToString();
-            }
-
-            if (Type == VarType.UNDEFINED)
-            {
-                return Constants.UNDEFINED;
-            }
-            if (Type == VarType.NONE || m_tuple == null)
-            {
-                return string.Empty;
-            }
-
-            if (isList)
-            {
-                sb.Append(Constants.START_ARRAY.ToString() +
-                         (sameLine ? "" : Environment.NewLine));
-            }
-
-            int count = maxCount < 0 ? m_tuple.Count : Math.Min(maxCount, m_tuple.Count);
-            int i = 0;
-            if (m_dictionary.Count > 0)
-            {
-                count = maxCount < 0 ? m_dictionary.Count : Math.Min(maxCount, m_dictionary.Count);
-                foreach (KeyValuePair<string, int> entry in m_dictionary)
-                {
-                    if (entry.Value >= 0 && entry.Value < m_tuple.Count)
+                case VarType.BOOLEAN:
+                    return m_bool ? Constants.TRUE : Constants.FALSE;
+                case VarType.NUMBER:
+                    return Value.ToString();
+                case VarType.STRING:
+                    return m_string;
+                case VarType.BYTES:
+                    return Encoding.Unicode.GetString(m_byteArray, 0, m_byteArray.Length);
+                case VarType.UNDEFINED:
+                    return Constants.UNDEFINED;
+                case VarType.ENUM:
                     {
-                        string value = m_tuple[entry.Value].AsString(isList, sameLine, maxCount);
-                        string realKey = entry.Key;
-                        m_keyMappings.TryGetValue(entry.Key.ToLower(), out realKey);
-
-                        sb.Append("\"" + realKey + "\" : " + value);
-                        if (i++ < count - 1)
+                        var sb = new StringBuilder();
+                        sb.Append(Constants.START_GROUP.ToString() + " ");
+                        foreach (string key in m_propertyMap.Keys)
                         {
-                            sb.Append(sameLine ? ", " : Environment.NewLine);
+                            sb.Append(key + " ");
+                        }
+                        sb.Append(Constants.END_GROUP.ToString());
+                        return sb.ToString();
+                    }
+                case VarType.OBJECT:
+                    {
+                        var sb = new StringBuilder();
+                        if (m_object != null)
+                        {
+                            sb.Append(m_object.ToString());
                         }
                         else
                         {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        throw new IndexOutOfRangeException("インデックス `" + entry.Value + "`は配列の境界 `" + m_tuple.Count + "` 外です。");
-                    }
-                }
-            }
-            else
-            {
-                for (; i < count; i++)
-                {
-                    Variable arg = m_tuple[i];
-                    sb.Append(arg.AsString(isList, sameLine, maxCount));
-                    if (i != count - 1)
-                    {
-                        sb.Append(sameLine ? ", " : Environment.NewLine);
-                    }
-                }
-            }
-            if (count < m_tuple.Count)
-            {
-                sb.Append(" ...");
-            }
-            if (isList)
-            {
-                sb.Append(Constants.END_ARRAY.ToString() +
-                         (sameLine ? "" : Environment.NewLine));
-            }
+                            sb.Append((m_object != null ? (m_object.ToString() + " ") : "") +
+                                       Constants.START_ARRAY.ToString());
 
-            return sb.ToString();
-        }
-
-        private string ObjectToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            if (m_object != null)
-            {
-                sb.Append(m_object.ToString());
-            }
-            else
-            {
-                sb.Append((m_object != null ? (m_object.ToString() + " ") : "") +
-                           Constants.START_ARRAY.ToString());
-
-                List<string> allProps = GetAllProperties();
-                for (int i = 0; i < allProps.Count; i++)
-                {
-                    string prop = allProps[i];
-                    if (prop.Equals(Constants.OBJECT_PROPERTIES, StringComparison.OrdinalIgnoreCase))
-                    {
-                        sb.Append(prop);
-                        continue;
-                    }
-                    Variable propValue = GetProperty(prop);
-                    string value = "";
-                    if (propValue != null && propValue != Variable.EmptyInstance)
-                    {
-                        value = propValue.AsString();
-                        if (!string.IsNullOrEmpty(value))
-                        {
-                            if (propValue.Type == VarType.STRING &&
-                               !prop.Equals(Constants.OBJECT_TYPE, StringComparison.OrdinalIgnoreCase))
+                            List<string> allProps = GetAllProperties();
+                            for (int i = 0; i < allProps.Count; i++)
                             {
-                                value = "\"" + value + "\"";
+                                string prop = allProps[i];
+                                if (prop.Equals(Constants.OBJECT_PROPERTIES, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    sb.Append(prop);
+                                    continue;
+                                }
+                                Variable propValue = GetProperty(prop);
+                                string value = "";
+                                if (propValue != null && propValue != Variable.EmptyInstance)
+                                {
+                                    value = propValue.AsString();
+                                    if (!string.IsNullOrEmpty(value))
+                                    {
+                                        if (propValue.Type == VarType.STRING &&
+                                           !prop.Equals(Constants.OBJECT_TYPE, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            value = "\"" + value + "\"";
+                                        }
+                                        value = ": " + value;
+                                    }
+                                }
+                                sb.Append(prop + value);
+                                if (i < allProps.Count - 1)
+                                {
+                                    sb.Append(", ");
+                                }
                             }
-                            value = ": " + value;
+
+                            sb.Append(Constants.END_GROUP.ToString());
+                        }
+                        return sb.ToString();
+                    }
+                case VarType.ARRAY:
+                    {
+                        var sb = new StringBuilder();
+                        int count = maxCount < 0 ? m_tuple.Count : Math.Min(maxCount, m_tuple.Count);
+                        int i = 0;
+                        for (; i < count; i++)
+                        {
+                            Variable arg = m_tuple[i];
+                            sb.Append(arg.AsString(isList, sameLine, maxCount));
+                            if (i != count - 1)
+                            {
+                                sb.Append(sameLine ? ", " : Environment.NewLine);
+                            }
+                        }
+                        if (count < m_tuple.Count)
+                        {
+                            sb.Append(" ...");
+                        }
+                        if (isList)
+                        {
+                            sb.Append(Constants.END_ARRAY.ToString() +
+                                     (sameLine ? "" : Environment.NewLine));
+                        }
+                        return sb.ToString();
+                    }
+                default:
+                    {
+                        if (IsNull())
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return string.Empty;
                         }
                     }
-                    sb.Append(prop + value);
-                    if (i < allProps.Count - 1)
-                    {
-                        sb.Append(", ");
-                    }
-                }
-
-                sb.Append(Constants.END_GROUP.ToString());
             }
-            return sb.ToString();
         }
+
         public void Activate()
         {
             switch (Type)
@@ -1092,7 +1038,7 @@ namespace AliceScript
                 if (!result.Writable)
                 {
                     Utils.ThrowErrorMsg("プロパティ:[" + propName + "]は読み取り専用です", Exceptions.PROPERTY_IS_READ_ONLY,
-                        script, propName);
+                        script);
                 }
                 if (result.CustomFunctionSet != null)
                 {
@@ -1102,7 +1048,7 @@ namespace AliceScript
                 }
                 if (!string.IsNullOrWhiteSpace(result.CustomSet))
                 {
-                    return ParsingScript.RunString(result.CustomSet,script);
+                    return ParsingScript.RunString(result.CustomSet, script);
                 }
             }
 
@@ -1577,7 +1523,7 @@ namespace AliceScript
         public List<string> Keywords
         {
             get => m_keywords;
-            set=>m_keywords = value;
+            set => m_keywords = value;
         }
 
         /// <summary>
