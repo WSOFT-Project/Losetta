@@ -933,11 +933,86 @@ namespace AliceScript
         }
         public void SkipBlock()
         {
-            Interpreter.SkipBlock(this);
+            int blockStart = this.Pointer;
+            int startCount = 0;
+            int endCount = 0;
+            bool inQuotes = false;
+            bool inQuotes1 = false;
+            bool inQuotes2 = false;
+            char previous = Constants.EMPTY;
+            char prevprev = Constants.EMPTY;
+            while (startCount == 0 || startCount > endCount)
+            {
+                if (!this.StillValid())
+                {
+                    throw new ScriptException("次のブロックを実行できませんでした [" +
+                    this.Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, this);
+                }
+                char currentChar = this.CurrentAndForward();
+                switch (currentChar)
+                {
+                    case Constants.QUOTE1:
+                        if (!inQuotes2 && (previous != '\\' || prevprev == '\\'))
+                        {
+                            inQuotes = inQuotes1 = !inQuotes1;
+                        }
+                        break;
+                    case Constants.QUOTE:
+                        if (!inQuotes1 && (previous != '\\' || prevprev == '\\'))
+                        {
+                            inQuotes = inQuotes2 = !inQuotes2;
+                        }
+                        break;
+                    case Constants.START_GROUP:
+                        if (!inQuotes)
+                        {
+                            startCount++;
+                        }
+                        break;
+                    case Constants.END_GROUP:
+                        if (!inQuotes)
+                        {
+                            endCount++;
+                        }
+                        break;
+                }
+                prevprev = previous;
+                previous = currentChar;
+            }
+            if (startCount > endCount)
+            {
+                throw new ScriptException("波括弧が不足しています", Exceptions.NEED_BRACKETS, this);
+            }
+            else if (startCount < endCount)
+            {
+                throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, this);
+            }
         }
         public void SkipRestBlocks()
         {
-            Interpreter.SkipRestBlocks(this);
+            while (StillValid())
+            {
+                int endOfToken = this.Pointer;
+                ParsingScript nextData = new ParsingScript(this);
+                string nextToken = Utils.GetNextToken(nextData);
+                if (Constants.ELSE_IF != nextToken &&
+                    Constants.ELSE != nextToken)
+                {
+                    return;
+                }
+                this.Pointer = nextData.Pointer;
+                SkipBlock();
+            }
+        }
+        /// <summary>
+        /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
+        /// </summary>
+        /// <returns>ブロックの値</returns>
+        public Variable ProcessBlock()
+        {
+            string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+            ParsingScript mainScript = this.GetTempScript(body);
+            return mainScript.Process();
         }
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {

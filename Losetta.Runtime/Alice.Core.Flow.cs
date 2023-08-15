@@ -77,10 +77,7 @@
 
             if (isTrue)
             {
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP,"\0",false);
-                ParsingScript mainScript = script.GetTempScript(body);
-                result = mainScript.Process();
+                result = script.ProcessBlock();
 
                 if (result !=null && (result.IsReturn ||
                     result.Type == Variable.VarType.BREAK ||
@@ -90,7 +87,9 @@
                     script.Pointer = startIfCondition;
                     script.SkipBlock();
                 }
+                script.Forward();
                 script.SkipRestBlocks();
+                //script.SkipBlock();
 
                 //return result;
                 return result!=null&&(result.IsReturn ||
@@ -114,10 +113,7 @@
             else if (Constants.ELSE == nextToken)
             {
                 script.Pointer = nextData.Pointer + 1;
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP, "\0", false);
-                ParsingScript mainScript = script.GetTempScript(body);
-                result = mainScript.Process();
+                result = script.ProcessBlock();
             }
             if (result == null)
             {
@@ -280,30 +276,6 @@
             this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             this.Run += WhileStatement_Run;
         }
-        private Variable ProcessBlock(ParsingScript script)
-        {
-            int blockStart = script.Pointer;
-            Variable result = null;
-
-            while (script.StillValid())
-            {
-                int endGroupRead = script.GoToNextStatement();
-                if (endGroupRead > 0 || !script.StillValid())
-                {
-                    return result != null ? result : new Variable();
-                }
-
-                result = script.Execute();
-
-                if (result.IsReturn ||
-                    result.Type == Variable.VarType.BREAK ||
-                    result.Type == Variable.VarType.CONTINUE)
-                {
-                    return result;
-                }
-            }
-            return result;
-        }
         private void WhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
             int startWhileCondition = e.Script.Pointer;
@@ -322,7 +294,7 @@
                     break;
                 }
 
-                result = ProcessBlock(e.Script);
+                result = e.Script.ProcessBlock();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     e.Script.Pointer = startWhileCondition;
@@ -405,9 +377,7 @@
                 }
                 if (nextToken == Constants.DEFAULT && !caseDone)
                 {
-                    string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-                    ParsingScript mainScript = e.Script.GetTempScript(body);
-                    result = mainScript.Process();
+                    e.Script.ProcessBlock();
                     break;
                 }
                 if (!caseDone)
@@ -458,12 +428,8 @@
             }
             e.Script.MoveForwardIf(':');
 
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-            ParsingScript mainScript = e.Script.GetTempScript(body);
-            Variable result = mainScript.Process();
+            e.Return=e.Script.ProcessBlock();
             e.Script.MoveBackIfPrevious('}');
-
-            e.Return=result;
         }
 
     }
