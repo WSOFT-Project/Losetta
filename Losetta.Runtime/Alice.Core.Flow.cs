@@ -78,7 +78,7 @@
             if (isTrue)
             {
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP,"\0",true);
+                                                       Constants.END_GROUP,"\0",false);
                 ParsingScript mainScript = script.GetTempScript(body);
                 result = mainScript.Process();
 
@@ -115,7 +115,7 @@
             {
                 script.Pointer = nextData.Pointer + 1;
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP,
-                                                       Constants.END_GROUP, "\0", true);
+                                                       Constants.END_GROUP, "\0", false);
                 ParsingScript mainScript = script.GetTempScript(body);
                 result = mainScript.Process();
             }
@@ -165,6 +165,10 @@
             while (stillValid)
             {
                 Variable condResult = condScript.Execute(null, 0); condScript.Tag = "COND";
+                if (condResult == null)
+                {
+                    condResult = Variable.EmptyInstance;
+                }
                 stillValid = condResult.AsBool();
                 if (!stillValid)
                 {

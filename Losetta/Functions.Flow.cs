@@ -1221,18 +1221,18 @@ namespace AliceScript
                 if (dq || sq)
                 {
                     //文字列型
-                    string result = Item.Substring(1, Item.Length - 2);
+                    string baseString = Item.Substring(1, Item.Length - 2);
+                    StringBuilder result = new StringBuilder();
                     //文字列補間
                     if (DetectionStringFormat)
                     {
-                        var stb = new StringBuilder();
                         int blackCount = 0;
                         bool beforeEscape = false;
                         var nowBlack = new StringBuilder();
 
                         Name = "StringInterpolationLiteral";
 
-                        foreach (char r in result)
+                        foreach (char r in baseString)
                         {
                             switch (r)
                             {
@@ -1246,7 +1246,7 @@ namespace AliceScript
                                             }
                                             else
                                             {
-                                                stb.Append(r);
+                                                result.Append(r);
                                             }
                                         }
                                         else
@@ -1270,7 +1270,7 @@ namespace AliceScript
                                             {
                                                 rrr = Variable.EmptyInstance;
                                             }
-                                            stb.Append(rrr.AsString());
+                                            result.Append(rrr.AsString());
                                             nowBlack.Clear();
                                         }
                                         else
@@ -1282,7 +1282,7 @@ namespace AliceScript
                                             }
                                             else
                                             {
-                                                stb.Append(r);
+                                                result.Append(r);
                                             }
                                         }
                                         beforeEscape = false;
@@ -1302,7 +1302,7 @@ namespace AliceScript
                                         }
                                         else
                                         {
-                                            stb.Append(r);
+                                            result.Append(r);
                                         }
                                         break;
                                     }
@@ -1316,50 +1316,54 @@ namespace AliceScript
                         {
                             throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, e.Script);
                         }
-                        result = stb.ToString();
+
+                    }
+                    else
+                    {
+                        result.Append(baseString);
                     }
                     //[\\]は一時的に0x0011(装置制御1)に割り当てられます
-                    result = result.Replace("\\\\", "\u0011");
-                    result = result.Replace("\\'", "'");
+                    result.Replace("\\\\", "\u0011");
+                     result.Replace("\\'", "'");
                     //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識します
                     if (dq)
                     {
-                        result = result.Replace("\\\"", "\"");
-                        result = result.Replace("\\n", "\n");
-                        result = result.Replace("\\0", "\0");
-                        result = result.Replace("\\a", "\a");
-                        result = result.Replace("\\b", "\b");
-                        result = result.Replace("\\f", "\f");
-                        result = result.Replace("\\r", "\r");
-                        result = result.Replace("\\t", "\t");
-                        result = result.Replace("\\v", "\v");
+                         result.Replace("\\\"", "\"");
+                         result.Replace("\\n", "\n");
+                         result.Replace("\\0", "\0");
+                        result.Replace("\\a", "\a");
+                        result.Replace("\\b", "\b");
+                        result.Replace("\\f", "\f");
+                        result.Replace("\\r", "\r");
+                        result.Replace("\\t", "\t");
+                        result.Replace("\\v", "\v");
                         //UTF-16文字コードを文字に置き換えます
-                        MatchCollection mc = Regex.Matches(result, @"\\u[0-9a-f]{4}");
+                        MatchCollection mc = Regex.Matches(result.ToString(), @"\\u[0-9a-f]{4}");
                         foreach (Match match in mc)
                         {
-                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
+                             result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
                         }
                         //UTF-32文字コードを文字に置き換えます
-                        mc = Regex.Matches(result, @"\\U[0-9A-F]{8}");
+                        mc = Regex.Matches(result.ToString(), @"\\U[0-9A-F]{8}");
                         foreach (Match match in mc)
                         {
-                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
+                            result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
                         }
                     }
                     //[\\]を\に置き換えます(装置制御1から[\]に置き換えます)
-                    result = result.Replace("\u0011", "\\");
+                    result.Replace("\u0011", "\\");
 
 
 
                     if (DetectionUTF8_Literal)
                     {
                         //UTF-8リテラルの時はUTF-8バイナリを返す
-                        e.Return = new Variable(Encoding.UTF8.GetBytes(result));
+                        e.Return = new Variable(Encoding.UTF8.GetBytes(result.ToString()));
                         return;
                     }
                     else
                     {
-                        e.Return = new Variable(result);
+                        e.Return = new Variable(result.ToString());
                         return;
                     }
 
