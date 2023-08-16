@@ -394,6 +394,7 @@ namespace AliceScript
             }
             return path;
         }
+
         public bool TryGetVariable(string name, out ParserFunction function)
         {
             if (Variables.TryGetValue(name, out function))
@@ -409,24 +410,6 @@ namespace AliceScript
             }
             return false;
         }
-        public bool ContainsVariable(string name, out ParserFunction func)
-        {
-            if (Variables.ContainsKey(name))
-            {
-                func = Variables[name];
-                return true;
-            }
-            else
-            {
-                if (ParentScript != null && ParentScript.ContainsVariable(name, out var f))
-                {
-                    func = f;
-                    return true;
-                }
-            }
-            func = null;
-            return false;
-        }
         public bool TryGetConst(string name, out ParserFunction function)
         {
             if (Consts.TryGetValue(name, out function))
@@ -436,21 +419,6 @@ namespace AliceScript
             else
             {
                 if (ParentScript != null && ParentScript.TryGetConst(name, out function))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public bool ContainsConst(string name)
-        {
-            if (Consts.ContainsKey(name))
-            {
-                return true;
-            }
-            else
-            {
-                if (ParentScript != null && ParentScript.ContainsConst(name))
                 {
                     return true;
                 }
@@ -472,20 +440,9 @@ namespace AliceScript
             }
             return false;
         }
-        public bool ContainsFunction(string name)
+        public bool TryGetLocal(string name,out ParserFunction function)
         {
-            if (Functions.ContainsKey(name))
-            {
-                return true;
-            }
-            else
-            {
-                if (ParentScript != null && ParentScript.ContainsFunction(name))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return (TryGetVariable(name, out function) || TryGetFunction(name, out function) || TryGetFunction(name, out function));
         }
         public bool StartsWith(string str, bool caseSensitive = true)
         {
@@ -725,7 +682,7 @@ namespace AliceScript
         public bool ContainsSymbol(string symbol)
         {
             bool b = m_defines.Contains(symbol);
-            if (!b && m_defines.Contains(Constants.RESET_DEFINES) && ParentScript!=null)
+            if (!b && !m_defines.Contains(Constants.RESET_DEFINES) && ParentScript!=null)
             {
                 return ParentScript.ContainsSymbol(symbol);
             }

@@ -571,10 +571,10 @@ namespace AliceScript
             return null;
         }
 
-        public static bool FunctionExists(string item, ParsingScript script)
+        public static bool FunctionExists(string item, ParsingScript script,out ParserFunction func,bool continueConst=false)
         {
             // If it is not defined locally, then check globally:
-            return LocalNameExists(item, script) || GlobalNameExists(item);
+            return (script != null && script.TryGetLocal(item, out func)) || TryGetGlobal(item,out func,continueConst);
         }
 
         public static void AddGlobalOrLocalVariable(string name, GetVarFunction function,
@@ -583,20 +583,9 @@ namespace AliceScript
             name = Constants.ConvertName(name);
             Utils.CheckLegalName(name, script);
 
-            Dictionary<string, ParserFunction> lastLevel = GetLastLevel();
-            if (!globalOnly && lastLevel != null && s_lastExecutionLevel.IsNamespace && !string.IsNullOrWhiteSpace(s_namespace))
-            {
-                name = s_namespacePrefix + name;
-            }
 
             function.Name = Constants.GetRealName(name);
             function.Value.ParamName = function.Name;
-
-            if (!globalOnly && !localIfPossible && script != null && script.StackLevel != null && !GlobalNameExists(name))
-            {
-                script.StackLevel.Variables[name] = function;
-            }
-
 
             if (globalOnly)
             {
@@ -661,65 +650,19 @@ namespace AliceScript
             }
         }
 
-        public static string GetVariables(ParsingScript script)
+        public static bool TryGetGlobal(string name,out ParserFunction function,bool continueConst=false)
         {
-            StringBuilder sb = new StringBuilder();
-            // Locals, if any:
-            if (s_lastExecutionLevel != null)
-            {
-                Dictionary<string, ParserFunction> locals = s_lastExecutionLevel.Variables;
-                GetVariables(locals, sb, true);
-            }
-
-            // Variables in the local file scope:
-            if (script != null && script.Filename != null)
-            {
-                Dictionary<string, ParserFunction> localScope;
-                string scopeName = Path.GetFileName(script.Filename);
-                if (s_localScope.TryGetValue(scopeName, out localScope))
-                {
-                    GetVariables(localScope, sb, true);
-                }
-            }
-
-            // Globals:
-            GetVariables(s_variables, sb, false);
-
-            return sb.ToString().Trim();
-        }
-
-        private static Dictionary<string, ParserFunction> GetLastLevel()
-        {
-            lock (s_variables)
-            {
-                if (s_lastExecutionLevel == null || s_locals.Count <= StackLevelDelta)
-                {
-                    return null;
-                }
-                var result = s_lastExecutionLevel.Variables;
-                return result;
-            }
-        }
-
-        public static bool LocalNameExists(string name, ParsingScript script)
-        {
-            if (script != null && (script.ContainsVariable(name, out _) || script.ContainsFunction(name) || script.ContainsConst(name)))
+            name = Constants.ConvertName(name);
+            if(s_variables.TryGetValue(name, out function) || s_functions.TryGetValue(name, out function))
             {
                 return true;
             }
-            Dictionary<string, ParserFunction> lastLevel = GetLastLevel();
-            if (lastLevel == null)
+            if (Constants.CONSTS.TryGetValue(name,out var v) && !continueConst)
             {
-                return false;
+                function = new GetVarFunction(v);
+                return true;
             }
-            name = Constants.ConvertName(name);
-            return lastLevel.ContainsKey(name);
-        }
-
-        public static bool GlobalNameExists(string name)
-        {
-            name = Constants.ConvertName(name);
-            return s_variables.ContainsKey(name) || s_functions.ContainsKey(name) || Constants.CONSTS.ContainsKey(name);
+            return false;
         }
 
         public static Variable RegisterEnum(string varName, string enumName, ParsingScript script = null)
@@ -769,7 +712,7 @@ namespace AliceScript
             }
             else
             {
-                throw new ScriptException("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
             }
         }
         public static void RegisterScriptFunction(string name, ParserFunction function, ParsingScript script, bool isNative = true, bool isLocal = true)
@@ -788,7 +731,7 @@ namespace AliceScript
                 }
             }
             ParserFunction impl = null;
-            if (isLocal && (!script.ContainsFunction(name) || (script.TryGetFunction(name, out impl) && impl.IsVirtual)))
+            if (isLocal && (!FunctionExists(name,script,out impl,true) || impl.IsVirtual))
             {
                 //ローカル関数でまだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 script.Functions[name] = function;
@@ -811,7 +754,7 @@ namespace AliceScript
             }
             else
             {
-                throw new ScriptException("指定された関数はすでに登録されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
             }
         }
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
@@ -859,26 +802,6 @@ namespace AliceScript
                 vars.Add(var);
             }
         }
-
-        public static List<Variable> VariablesSnaphot(ParsingScript script = null, bool includeGlobals = false)
-        {
-            List<Variable> vars = new List<Variable>();
-            if (includeGlobals)
-            {
-                AddVariables(vars, s_variables);
-            }
-            Dictionary<string, ParserFunction> lastLevel = GetLastLevel();
-            if (lastLevel != null)
-            {
-                AddVariables(vars, lastLevel);
-            }
-            if (script != null && script.StackLevel != null)
-            {
-                AddVariables(vars, script.StackLevel.Variables);
-            }
-            return vars;
-        }
-
 
         public static void AddLocalScopeVariable(string name, string scopeName, ParserFunction variable)
         {
@@ -989,7 +912,8 @@ namespace AliceScript
                 {
                     ((GetVarFunction)local).Value.ParamName = local.Name;
                 }
-                bool exists = script.ContainsVariable(name, out var func);
+                //bool exists = script.ContainsVariable(name, out var func);
+                bool exists = FunctionExists(name, script,out var func);
                 bool unneed = script.ContainsSymbol(Constants.UNNEED_VAR);
 
                 if (exists && registVar)
@@ -1000,7 +924,7 @@ namespace AliceScript
                 {
                     throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
                 }
-                if (func is GetVarFunction v)
+                if (func!=null &&func is GetVarFunction v)
                 {
                     //代入の場合
                     if (v.Value.Parent == null)

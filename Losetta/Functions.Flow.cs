@@ -160,7 +160,7 @@ namespace AliceScript
             }
             else
             {
-                if (!FunctionExists(funcName, e.Script) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
+                if (!FunctionExists(funcName, e.Script,out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
                 {
                     FunctionBaseManerger.Add(customFunc, funcName, e.Script, isGlobal);
                 }
@@ -1902,7 +1902,7 @@ namespace AliceScript
             if (registConst)
             {
                 //定数定義
-                if (!FunctionExists(m_name, script))
+                if (!FunctionExists(m_name, script,out var func))
                 {
                     // Check if the variable to be set has the form of x[a][b]...,
                     // meaning that this is an array element.
