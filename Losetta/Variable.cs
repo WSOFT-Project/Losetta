@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Text;
 
 namespace AliceScript
 {
@@ -148,25 +149,14 @@ namespace AliceScript
             this.Tuple = new VariableCollection();
             this.Tuple.AddRange(a);
         }
-        public Variable(List<string> a)
+        public Variable(IEnumerable<string> a)
         {
             this.Tuple = new VariableCollection();
             VariableCollection tuple = new VariableCollection();
             tuple.Type = new TypeObject(Variable.VarType.STRING);
-            for (int i = 0; i < a.Count; i++)
+            foreach(string s in a)
             {
-                tuple.Add(new Variable(a[i]));
-            }
-            this.Tuple.AddRange(tuple);
-        }
-        public Variable(string[] a)
-        {
-            this.Tuple = new VariableCollection();
-            VariableCollection tuple = new VariableCollection();
-            tuple.Type = new TypeObject(Variable.VarType.STRING);
-            for (int i = 0; i < a.Count(); i++)
-            {
-                tuple.Add(new Variable(a[i]));
+                tuple.Add(new Variable(s));
             }
             this.Tuple.AddRange(tuple);
         }
@@ -181,35 +171,6 @@ namespace AliceScript
             }
             this.Tuple.AddRange(tuple);
         }
-        public Variable(Dictionary<string, string> a)
-        {
-            this.Tuple = new VariableCollection();
-            List<Variable> tuple = new List<Variable>(a.Count);
-            foreach (string key in a.Keys)
-            {
-                string lower = key.ToLower();
-                m_keyMappings[lower] = key;
-                m_dictionary[lower] = tuple.Count;
-                tuple.Add(new Variable(a[key]));
-            }
-            this.Tuple = new VariableCollection();
-            this.Tuple.AddRange(tuple);
-        }
-        public Variable(Dictionary<string, double> a)
-        {
-            this.Tuple = new VariableCollection();
-            List<Variable> tuple = new List<Variable>(a.Count);
-            foreach (string key in a.Keys)
-            {
-                string lower = key.ToLower();
-                m_keyMappings[lower] = key;
-                m_dictionary[lower] = tuple.Count;
-                tuple.Add(new Variable(a[key]));
-            }
-            this.Tuple = new VariableCollection();
-            this.Tuple.AddRange(tuple);
-        }
-
         public Variable(object o)
         {
             Object = o;
@@ -616,7 +577,7 @@ namespace AliceScript
 
             if (indexVar.Type == VarType.NUMBER)
             {
-                Utils.CheckNonNegativeInt(indexVar, null);
+                Utils.CheckNumInRange(indexVar,true,0);
                 return (int)indexVar.Value;
             }
 
@@ -661,7 +622,7 @@ namespace AliceScript
         {
             if (check)
             {
-                Utils.CheckInteger(this, null);
+                Utils.CheckNumInRange(this,true);
             }
             return (int)Value;
         }
@@ -1056,8 +1017,7 @@ namespace AliceScript
             {
                 if (!result.Writable)
                 {
-                    Utils.ThrowErrorMsg("プロパティ:[" + propName + "]は読み取り専用です", Exceptions.PROPERTY_IS_READ_ONLY,
-                        script);
+                    throw new ScriptException("プロパティ:[" + propName + "]は読み取り専用です", Exceptions.PROPERTY_IS_READ_ONLY,script);
                 }
                 if (result.CustomFunctionSet != null)
                 {

@@ -14,25 +14,30 @@ namespace AliceScript
             }
         }
 
-        public static void CheckNonNegativeInt(Variable variable, ParsingScript script)
-        {
-            CheckInteger(variable, script);
-            if (variable.Value < 0)
-            {
-                ThrowErrorMsg("負でない整数が必要な場所に `" +variable.Value + "`が渡されました。", Exceptions.EXPECTED_NON_NEGATIVE_INTEGER, script);
-            }
-        }
-        public static void CheckInteger(Variable variable, ParsingScript script)
+        /// <summary>
+        /// 指定した変数が数値を表し、かつ特定範囲内にあるかどうかを確認し、条件を満たさない場合に例外を発生します。
+        /// </summary>
+        /// <param name="variable">確認する変数</param>
+        /// <param name="min">特定範囲の最小値</param>
+        /// <param name="max">特定範囲の最大値</param>
+        /// <param name="needInteger">整数かつInt32の範囲内である必要がある場合はtrue。この値は省略できます。</param>
+        /// <param name="script">確認元のスクリプト</param>
+        public static void CheckNumInRange(Variable variable,bool needInteger = false,double? min=null,double? max = null,ParsingScript script=null)
         {
             CheckNumber(variable, script);
-            if (variable.Value % 1 != 0.0)
+            double trueMax = max==null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
+            double trueMin = max == null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
+            bool type = !needInteger || variable.Value % 1 != 0.0;
+            bool less = variable.Value < trueMin;
+            bool over = variable.Value > trueMax;
+            if (type || less || over)
             {
-                ThrowErrorMsg("整数が必要な場所に `" +variable.Value + "`が渡されました。", Exceptions.EXPECTED_INTEGER, script);
+                throw new ScriptException($"数値は {(min != null ? min + "以上" : string.Empty)} {(max != null ? max + "以下" : string.Empty)}の{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
             }
         }
-        public static void CheckNumber(Variable variable, ParsingScript script)
+        public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
         {
-            if (variable.Type != Variable.VarType.NUMBER)
+            if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || variable.Value != double.NaN))
             {
                 ThrowErrorMsg("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE, script);
             }
@@ -278,20 +283,6 @@ namespace AliceScript
                 return defaultValue;
             }
             Variable numberVar = args[index];
-            if (numberVar.Type != Variable.VarType.NUMBER)
-            {
-                if (string.IsNullOrWhiteSpace(numberVar.String))
-                {
-                    return defaultValue;
-                }
-                int num;
-                if (!Int32.TryParse(numberVar.String, NumberStyles.Number,
-                                     CultureInfo.InvariantCulture, out num))
-                {
-                    throw new ScriptException("`"+numberVar.AsString()+"` は整数である必要があります。",Exceptions.EXPECTED_INTEGER);
-                }
-                return num;
-            }
             return numberVar.AsInt();
         }
 

@@ -99,7 +99,7 @@
 
             // We are in Else. Skip everything in the If statement.
             script.SkipBlock();
-
+            //script.Backward();
             ParsingScript nextData = new ParsingScript(script);
             nextData.ParentScript = script;
 
@@ -113,7 +113,7 @@
             else if (Constants.ELSE == nextToken)
             {
                 script.Pointer = nextData.Pointer + 1;
-                result = script.ProcessBlock();
+                result = script.ProcessBlock(false);
             }
             if (result == null)
             {

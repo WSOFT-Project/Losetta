@@ -235,6 +235,7 @@ namespace AliceScript
         public char Prev => m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
         public char PrevPrev => m_from >= 2 ? m_data[m_from - 2] : Constants.EMPTY;
         public char Next => m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
+        public char NextNext => m_from + 2 < m_data.Length ? m_data[m_from + 2] : Constants.EMPTY;
         public Dictionary<int, int> Char2Line
         {
             get => m_char2Line;
@@ -1008,9 +1009,9 @@ namespace AliceScript
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
         /// </summary>
         /// <returns>ブロックの値</returns>
-        public Variable ProcessBlock()
+        public Variable ProcessBlock(bool blockmode=true)
         {
-            string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+            string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", blockmode);
             ParsingScript mainScript = this.GetTempScript(body);
             return mainScript.Process();
         }

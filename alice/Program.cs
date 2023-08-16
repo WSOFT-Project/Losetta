@@ -12,6 +12,7 @@ namespace alice
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
+
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
             CreateAliceDirectory(false);
@@ -192,6 +193,8 @@ namespace alice
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), Properties.Resources.shell, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "update"), Properties.Resources.update, Encoding.UTF8);
+
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "path"), Properties.Resources.path, Encoding.UTF8);
             }
         }
         internal static bool BuildPackage(string fn, string outfilename, int num = 1)

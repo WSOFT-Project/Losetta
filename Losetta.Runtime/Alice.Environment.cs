@@ -476,17 +476,19 @@
         {
             this.Name = "env_get_environmentvariable";
             this.Run += Env_get_envirnomentVariable_Run;
+            this.MinimumArgCounts = 1;
         }
 
         private void Env_get_envirnomentVariable_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args.Count > 0)
+            if (e.Args.Count > 1)
             {
-                e.Return = new Variable(Environment.GetEnvironmentVariable(e.Args[0].AsString()));
+                Utils.CheckNumInRange(e.Args[1],true,0,2);
+                e.Return = new Variable(Environment.GetEnvironmentVariable(e.Args[0].AsString(), (EnvironmentVariableTarget)e.Args[1].AsInt()));
             }
             else
             {
-                e.Return = new Variable(Environment.GetEnvironmentVariables().Keys);
+                e.Return = new Variable(Environment.GetEnvironmentVariable(e.Args[0].AsString()));
             }
         }
     }
@@ -501,7 +503,15 @@
 
         private void Env_get_envirnomentVariable_Run(object sender, FunctionBaseEventArgs e)
         {
-            Environment.SetEnvironmentVariable(e.Args[0].AsString(), e.Args[1].AsString());
+            if (e.Args.Count > 2)
+            {
+                Utils.CheckNumInRange(e.Args[2], true, 0, 2);
+                Environment.SetEnvironmentVariable(e.Args[0].AsString(), e.Args[1].AsString(), (EnvironmentVariableTarget)e.Args[2].AsInt());
+            }
+            else
+            {
+                Environment.SetEnvironmentVariable(e.Args[0].AsString(), e.Args[1].AsString());
+            }
         }
     }
 }

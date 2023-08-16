@@ -83,21 +83,9 @@
         /// </summary>
         EXPECTED_ARRRAY = 0x00f,
         /// <summary>
-        /// 数値型である必要があります
+        /// 数値は範囲外です
         /// </summary>
-        EXPECTED_NUMBER = 0x010,
-        /// <summary>
-        /// 整数型である必要があります
-        /// </summary>
-        EXPECTED_INTEGER = 0x011,
-        /// <summary>
-        /// 負でない整数である必要があります
-        /// </summary>
-        EXPECTED_NON_NEGATIVE_INTEGER = 0x012,
-        /// <summary>
-        /// 自然数である必要があります
-        /// </summary>
-        EXPECTED_NATURAL_NUMBER = 0x013,
+        NUMBER_OUT_OF_RANGE = 0x012,
         /// <summary>
         /// 引数が不足しています
         /// </summary>
