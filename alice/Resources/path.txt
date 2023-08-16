@@ -4,9 +4,15 @@ using Alice.IO;
 
 print("AliceScript パス設定ツール");
 
-var isMachine = env_commandLine().Contains("machine");
+var isMachine = env_commandLineArgs().Contains("machine");
 var isWin = env_impl_target() == "Windows";
 var pwd=directory_current();
+
+if(!isWin)
+{
+	print("Windows以外の環境では、この機能は使用できません。");
+	exit;
+}
 
 print("現在の作業ディレクトリへのパスを通します。");
 if(isMachine)
@@ -24,11 +30,7 @@ if(console_readKey() != "y")
 }
 print();
 
-var split_char = ":";
-if(isWin)
-{
-	split_char = ":";
-}
+var split_char = ";";
 if(isMachine)
 {
 	var base = env_get_environmentvariable("Path",2);

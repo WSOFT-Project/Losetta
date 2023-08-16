@@ -98,8 +98,16 @@ namespace alice.Properties {
         ///
         ///print(&quot;AliceScript パス設定ツール&quot;);
         ///
-        ///var isMachine = env_commandLine.Contains(&quot;machine&quot;);
+        ///var isMachine = env_commandLineArgs().Contains(&quot;machine&quot;);
         ///var isWin = env_impl_target() == &quot;Windows&quot;;
+        ///var pwd=directory_current();
+        ///
+        ///if(!isWin)
+        ///{
+        ///	print(&quot;Windows以外の環境では、この機能は使用できません。&quot;);
+        ///	exit;
+        ///}
+        ///
         ///print(&quot;現在の作業ディレクトリへのパスを通します。&quot;);
         ///if(isMachine)
         ///{
@@ -107,20 +115,11 @@ namespace alice.Properties {
         ///}
         ///
         ///print(&quot;よろしければ\&quot;y\&quot;を、キャンセルする場合はそれ以外のキーを押してください。&quot;);
-        ///if(console_readKey != &quot;y&quot;)
-        ///{
-        ///	print(&quot;キャンセルされました。&quot;);
-        ///	exit;
-        ///}
+        ///write(&quot;Y/N&gt;&quot;);
         ///
-        ///var split_char = &quot;:&quot;;
-        ///if(isWin)
+        ///if(console_readKey() != &quot;y&quot;)
         ///{
-        ///	split_char = &quot;:&quot;;
-        ///}
-        ///if(isMachine)
-        ///{
-        ///	var base = env_get_enviro [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///	print(&quot;キャンセルさ [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string path {
             get {
