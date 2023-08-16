@@ -233,6 +233,7 @@
 
         // シンボル
         public const string UNNEED_VAR = "unneed_var";
+        public const string RESET_DEFINES = "reset_defines";
         //includeしたファイルにもシンボルを引き継ぐ
         public const string FOLLOW_INCLUDE = "follow_include";
         public const string DISABLE_USING = "disable_using";

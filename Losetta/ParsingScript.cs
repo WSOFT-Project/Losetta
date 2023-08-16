@@ -15,6 +15,7 @@ namespace AliceScript
         private AlicePackage m_package = null;//現在のスクリプトが実行されているパッケージ
         private List<string> m_defines = new List<string>();// 現在のスクリプトで宣言されたシンボル
         private static ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
+        private ParsingScript m_parentScript = m_toplevel_script;// このスクリプトの親
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
@@ -292,7 +293,17 @@ namespace AliceScript
         public bool InTryBlock;
         public string MainFilename;
 
-        public ParsingScript ParentScript = m_toplevel_script;
+        public ParsingScript ParentScript
+        {
+            get
+            {
+                return m_parentScript;
+            }
+            set
+            {
+                m_parentScript = value;
+            }
+        }
 
         public AliceScriptClass CurrentClass { get; set; }
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
@@ -707,13 +718,17 @@ namespace AliceScript
         }
 
         /// <summary>
-        /// シンボルがこのスクリプトで定義されているかどうかを判定します
+        /// シンボルがこのスクリプトまたは親スクリプトで定義されているかどうかを判定します
         /// </summary>
         /// <param name="symbol">シンボル</param>
         /// <returns>定義されている場合はTrue、それ以外の場合はFalse。</returns>
         public bool ContainsSymbol(string symbol)
         {
             bool b = m_defines.Contains(symbol);
+            if (!b && m_defines.Contains(Constants.RESET_DEFINES) && ParentScript!=null)
+            {
+                return ParentScript.ContainsSymbol(symbol);
+            }
             return b;
         }
 
@@ -1055,10 +1070,6 @@ namespace AliceScript
                 Dictionary<int, int> char2Line;
                 var includeScript = Utils.ConvertToScript(includeFile, out char2Line, out var def, pathname);
                 ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
-                if (this.ContainsSymbol(Constants.FOLLOW_INCLUDE))
-                {
-                    tempScript.Defines = def;
-                }
                 tempScript.Filename = pathname;
                 tempScript.OriginalScript = includeFile.Replace(Environment.NewLine, Constants.END_LINE.ToString());
                 tempScript.ParentScript = this;
@@ -1067,6 +1078,11 @@ namespace AliceScript
                 tempScript.Generation = this.Generation + 1;
                 tempScript.ThrowError = this.ThrowError;
                 tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(this.m_stacktrace);
+
+                if (!this.ContainsSymbol(Constants.FOLLOW_INCLUDE))
+                {
+                    tempScript.Defines.Add(Constants.RESET_DEFINES);
+                }
 
                 if (callFrom != null)
                 {
