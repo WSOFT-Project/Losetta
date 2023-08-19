@@ -325,51 +325,44 @@ namespace AliceScript
 
         public static bool CanConvertToDouble(string str, out double num)
         {
-            num = 0;
             //文字列を小文字に置き換え
             str = str.ToLower();
             if(str.StartsWith("_") || str.EndsWith("_") || str.Contains("_.") || str.Contains("._"))
             {
-                throw new ScriptException("数値型リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません",Exceptions.INVALID_NUMERIC_REPRESENTATION);
+                throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません",Exceptions.INVALID_NUMERIC_REPRESENTATION);
+            }
+            if(str.Length - str.Replace(".","").Length > 1)
+            {
+                throw new ScriptException("数値リテラルで小数点は一度のみ使用できます", Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
             str = str.Replace("_","");
             //0xから始まる実数の16進表現を確認します
-            System.Text.RegularExpressions.MatchCollection mc =
-    System.Text.RegularExpressions.Regex.Matches(
-    str, @"0x[0-9a-f]+");
-            foreach (System.Text.RegularExpressions.Match m in mc)
+            try
             {
-                try
+                if (str.StartsWith("0x"))
                 {
-                    //16進表現では浮動小数点型の表現ができないためdoubleと最も近い精度である整数値型long(Int64)を使用します
-                    num = long.Parse(m.Value.Substring(2), NumberStyles.HexNumber);
+                    num = Convert.ToInt32(str.Substring(2), 16);
                     return true;
                 }
-                catch
+                else if (str.StartsWith("0o"))
                 {
-                    return false;
+                    num = Convert.ToInt32(str.Substring(2), 8);
+                    return true;
+                }
+                else if (str.StartsWith("0b"))
+                {
+                    num = Convert.ToInt32(str.Substring(2), 2);
+                    return true;
                 }
             }
-            //0bから始まる実数の2進表現を確認します
-            mc = System.Text.RegularExpressions.Regex.Matches(
-    str, @"0b[0-9a-f]+");
-            foreach (System.Text.RegularExpressions.Match m in mc)
+            catch(FormatException)
             {
-                try
-                {
-                    //2進表現では浮動小数点型の表現ができないためdoubleと最も近い精度である整数値型long(Int64)を使用します
-                    num = Convert.ToInt64(m.Value.Substring(2), 2);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
+                throw new ScriptException("無効な数値表現です",Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
             return Double.TryParse(str, NumberStyles.Number |
-                                        NumberStyles.AllowExponent |
-                                        NumberStyles.Float,
-                                        CultureInfo.InvariantCulture, out num);
+                                    NumberStyles.AllowExponent |
+                                    NumberStyles.Float,
+                                    CultureInfo.InvariantCulture, out num);
         }
 
         public static void ProcessErrorMsg(string str, ParsingScript script)
