@@ -1318,7 +1318,7 @@ namespace AliceScript
                         }
                         result = stb.ToString();
                     }
-                    //[\\]は一時的に0x0011(装置制御1)に割り当てられます
+                    //[\\]は一時的に0x0011(装置制御1)に割り当てます
                     result = result.Replace("\\\\", "\u0011");
                     result = result.Replace("\\'", "'");
                     //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識します
