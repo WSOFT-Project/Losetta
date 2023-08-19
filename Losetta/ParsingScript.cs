@@ -442,7 +442,7 @@ namespace AliceScript
         }
         public bool TryGetLocal(string name,out ParserFunction function)
         {
-            return (TryGetVariable(name, out function) || TryGetFunction(name, out function) || TryGetFunction(name, out function));
+            return (TryGetVariable(name, out function) || TryGetConst(name, out function) || TryGetFunction(name, out function));
         }
         public bool StartsWith(string str, bool caseSensitive = true)
         {

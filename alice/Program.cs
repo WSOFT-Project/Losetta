@@ -1,4 +1,5 @@
 ﻿using AliceScript;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
 
@@ -13,6 +14,7 @@ namespace alice
         private static void Main(string[] args)
         {
 
+            
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
             CreateAliceDirectory(false);
@@ -129,7 +131,7 @@ namespace alice
             else
             {
                 ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
-                Interpreter.Instance.OnOutput -= Instance_OnOutput;
+                Interpreter.Instance.OnOutput -= Instance_OnOutput; 
                 Shell.Do();
             }
         }

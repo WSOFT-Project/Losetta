@@ -1636,7 +1636,7 @@ namespace AliceScript
                 currentValue = func.GetValue(e.Script);
             }
 
-            currentValue = currentValue.DeepClone();
+            //currentValue = currentValue.DeepClone();
             Variable left = currentValue;
 
             if (arrayIndices.Count > 0)
@@ -1648,14 +1648,10 @@ namespace AliceScript
             {
                 if (left.IsNull())
                 {
-                    e.Return = right;
-                    return;
+                    left.Assign(right);
                 }
-                else
-                {
-                    e.Return = left;
-                    return;
-                }
+                e.Return = left;
+                return;
             }
             else if (left.Type == Variable.VarType.NUMBER)
             {

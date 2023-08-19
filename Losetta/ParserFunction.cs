@@ -720,16 +720,6 @@ namespace AliceScript
             name = Constants.ConvertName(name);
             function.Name = Constants.GetRealName(name);
 
-            if (!string.IsNullOrWhiteSpace(s_namespace))
-            {
-                StackLevel level;
-                if (s_namespaces.TryGetValue(s_namespace, out level) &&
-                   function is CustomFunction)
-                {
-                    ((CustomFunction)function).NamespaceData = level;
-                    name = s_namespacePrefix + name;
-                }
-            }
             ParserFunction impl = null;
             if (isLocal && (!FunctionExists(name,script,out impl,true) || impl.IsVirtual))
             {
