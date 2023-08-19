@@ -1333,14 +1333,20 @@ namespace AliceScript
                         result = result.Replace("\\r", "\r");
                         result = result.Replace("\\t", "\t");
                         result = result.Replace("\\v", "\v");
-                        //UTF-16文字コードを文字に置き換えます
-                        MatchCollection mc = Regex.Matches(result, @"\\u[0-9a-f]{4}");
+                        //UTF-16文字コードの置き換え
+                        MatchCollection mc = Regex.Matches(result, @"\\u[0-9a-fA-F]{4}");
                         foreach (Match match in mc)
                         {
                             result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
                         }
-                        //UTF-32文字コードを文字に置き換えます
-                        mc = Regex.Matches(result, @"\\U[0-9A-F]{8}");
+                        //可変長UTF-16文字コードの置き換え
+                        mc = Regex.Matches(result, @"\\x[0-9a-fA-F]{1,4}");
+                        foreach (Match match in mc)
+                        {
+                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
+                        }
+                        //UTF-32文字コードの置き換え
+                        mc = Regex.Matches(result, @"\\U[0-9a-fA-F]{8}");
                         foreach (Match match in mc)
                         {
                             result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
