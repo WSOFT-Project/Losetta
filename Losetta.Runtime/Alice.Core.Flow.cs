@@ -377,7 +377,7 @@
                 }
                 if (nextToken == Constants.DEFAULT && !caseDone)
                 {
-                    e.Script.ProcessBlock();
+                    e.Script.ProcessBlock(false);
                     break;
                 }
                 if (!caseDone)
@@ -388,7 +388,7 @@
                     if (switchValue.Equals(caseValue))
                     {
                         caseDone = true;
-                        string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+                        string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", false);
                         ParsingScript mainScript = e.Script.GetTempScript(body);
                         result = mainScript.Process();
                         if (mainScript.Prev == '}')

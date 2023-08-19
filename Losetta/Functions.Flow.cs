@@ -160,7 +160,7 @@ namespace AliceScript
             }
             else
             {
-                if (!FunctionExists(funcName, e.Script,out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
+                if (!FunctionExists(funcName, e.Script, out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
                 {
                     FunctionBaseManerger.Add(customFunc, funcName, e.Script, isGlobal);
                 }
@@ -1653,25 +1653,39 @@ namespace AliceScript
                 e.Return = left;
                 return;
             }
-            else if (left.Type == Variable.VarType.NUMBER)
-            {
-                NumberOperator(left, right, m_action);
-            }
-            else if (left.Type == Variable.VarType.ARRAY)
-            {
-                ArrayOperator(left, right, m_action, e.Script);
-            }
-            else if (left.Type == Variable.VarType.DELEGATE)
-            {
-                DelegateOperator(left, right, m_action, e.Script);
-            }
-            else if (left.Type == Variable.VarType.OBJECT && left.Object is ObjectBase obj)
-            {
-                obj.Operator(left, right, m_action, e.Script);
-            }
             else
             {
-                StringOperator(left, right, m_action);
+                switch (left.Type)
+                {
+                    case Variable.VarType.NUMBER:
+                        {
+                            NumberOperator(left, right, m_action);
+                            break;
+                        }
+                    case Variable.VarType.ARRAY:
+                        {
+                            ArrayOperator(left, right, m_action, e.Script);
+                            break;
+                        }
+                    case Variable.VarType.DELEGATE:
+                        {
+                            DelegateOperator(left, right, m_action, e.Script);
+                            break;
+                        }
+                    case Variable.VarType.OBJECT:
+                        {
+                            if (left.Object is ObjectBase obj)
+                            {
+                                obj.Operator(left, right, m_action, e.Script);
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            StringOperator(left, right, m_action);
+                            break;
+                        }
+                }
             }
 
             if (arrayIndices.Count > 0)
@@ -1898,7 +1912,7 @@ namespace AliceScript
             if (registConst)
             {
                 //定数定義
-                if (!FunctionExists(m_name, script,out var func))
+                if (!FunctionExists(m_name, script, out var func))
                 {
                     // Check if the variable to be set has the form of x[a][b]...,
                     // meaning that this is an array element.
