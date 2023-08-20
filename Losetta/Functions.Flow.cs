@@ -1119,34 +1119,6 @@ namespace AliceScript
             return result;
         }
 
-        public static Task<Variable> ARun(string functionName,
-             Variable arg1 = null, Variable arg2 = null, Variable arg3 = null, ParsingScript script = null)
-        {
-            CustomFunction customFunction = ParserFunction.GetFunction(functionName, null) as CustomFunction;
-
-            if (customFunction == null)
-            {
-                return null;
-            }
-
-            List<Variable> args = new List<Variable>();
-            if (arg1 != null)
-            {
-                args.Add(arg1);
-            }
-            if (arg2 != null)
-            {
-                args.Add(arg2);
-            }
-            if (arg3 != null)
-            {
-                args.Add(arg3);
-            }
-
-            Variable result = customFunction.ARun(args, script);
-            return Task.FromResult(result);
-        }
-
 
         public override ParserFunction NewInstance()
         {

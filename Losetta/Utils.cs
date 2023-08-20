@@ -359,9 +359,7 @@ namespace AliceScript
             {
                 throw new ScriptException("無効な数値表現です",Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
-            return Double.TryParse(str, NumberStyles.Number |
-                                    NumberStyles.AllowExponent |
-                                    NumberStyles.Float,
+            return Double.TryParse(str, NumberStyles.Float,
                                     CultureInfo.InvariantCulture, out num);
         }
 

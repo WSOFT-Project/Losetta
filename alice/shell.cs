@@ -47,10 +47,9 @@ namespace alice
         private static bool mainfile = false;
         internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
-            if (e.Message != "")
-            {
+            
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + "): " + e.Message);
+                sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + ")" + (string.IsNullOrEmpty(e.Message) ? string.Empty : ": "+ e.Message));
                 //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
                 //sb.AppendLine("説明: "+e.Message);
                 if (!string.IsNullOrWhiteSpace(e.HelpLink))
@@ -95,8 +94,7 @@ namespace alice
 
                 }
                 s_PrintingCompleted = true;
-            }
-
+            
         }
         // 文字列が表示幅より短ければ、左側と右側に何文字の空白が必要なのかを計算する。
         // 文字列が表示幅より長ければ、何文字目から表示するのかを計算する。
