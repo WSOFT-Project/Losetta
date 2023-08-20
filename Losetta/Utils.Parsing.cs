@@ -182,6 +182,7 @@ namespace AliceScript
             return var;
         }
 
+
         public static CustomFunction GetFunction(ParsingScript script, string funcName, string token)
         {
             CustomFunction customFunc = null;
@@ -1122,7 +1123,7 @@ namespace AliceScript
         }
 
         public static string GetBodyBetween(ParsingScript script, char open = Constants.START_ARG,
-                                            char close = Constants.END_ARG, string end = "\0",bool blockMode=false)
+                                            char close = Constants.END_ARG, string end = "\0",bool stepIn=true)
         {
             // We are supposed to be one char after the beginning of the string, i.e.
             // we must not have the opening char as the first one.
@@ -1134,6 +1135,11 @@ namespace AliceScript
             bool checkBraces = true;
             char prev = Constants.EMPTY;
             char prevprev = Constants.EMPTY;
+
+            if (stepIn)
+            {
+                script.MoveForwardIf(open);
+            }
 
             for (; script.StillValid(); script.Forward())
             {
@@ -1179,10 +1185,6 @@ namespace AliceScript
                     {
                         sb.Remove(sb.Length - 1, 1);
                     }
-                    break;
-                }
-                else if(blockMode && braces == 0)
-                {
                     break;
                 }
             }

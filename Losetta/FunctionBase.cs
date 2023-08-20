@@ -190,6 +190,7 @@
             {
                 fname = name;
             }
+            Utils.CheckLegalName(fname);
             if (script == null || isGlobal)
             {
                 script = ParsingScript.GetTopLevelScript(script);

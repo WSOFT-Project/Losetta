@@ -353,6 +353,7 @@ namespace AliceScript
         /// <param name="name"></param>
         public void Using(string name)
         {
+            name = name.ToLower();
             if (NameSpaceManerger.Contains(name))
             {
                 this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
@@ -981,9 +982,9 @@ namespace AliceScript
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
         /// </summary>
         /// <returns>ブロックの値</returns>
-        public Variable ProcessBlock(bool blockmode=true)
+        public Variable ProcessBlock()
         {
-            string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", blockmode);
+            string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = this.GetTempScript(body);
             return mainScript.Process();
         }

@@ -51,7 +51,7 @@ namespace AliceScript.NameSpaces
         private void UsingStatement_Run(object sender, FunctionBaseEventArgs e)
         {
             bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
-            string file = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
+            string name = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             var script = e.Script;
             if (isGlobal)
             {
@@ -60,7 +60,7 @@ namespace AliceScript.NameSpaces
             if (!e.Script.ContainsSymbol(Constants.DISABLE_USING))
             {
 
-                script.Using(file);
+                script.Using(name);
             }
             else
             {

@@ -43,17 +43,9 @@
         /// </summary>
         ITS_RESERVED_NAME = 0x005,
         /// <summary>
-        /// 先頭の文字に数字または'-'を使用することはできません
+        /// 不正な識別名です。
         /// </summary>
-        ITHAS_ILLEGAL_FIRST_CHARACTER = 0x006,
-        /// <summary>
-        /// 変数名に不正な文字が含まれています
-        /// </summary>
-        VARIABLE_NAME_CONTAINS_ILLEGAL_CHARACTER = 0x007,
-        /// <summary>
-        /// 指定された変数名は使用できません
-        /// </summary>
-        ILLEGAL_VARIABLE_NAME = 0x008,
+        ILLEGAL_IDENTIFIER = 0x006,
         /// <summary>
         /// 引数が不完全です
         /// </summary>
@@ -131,9 +123,9 @@
         /// </summary>
         TOO_MANY_REPETITIONS = 0x01e,
         /// <summary>
-        /// Catchステートメントがありません
+        /// Tryブロックにハンドラーがありません
         /// </summary>
-        MISSING_CATCH_STATEMENT = 0x01f,
+        TRY_BLOCK_MISSING_HANDLERS = 0x01f,
         /// <summary>
         /// ブロックを実行できませんでした
         /// </summary>
@@ -174,10 +166,6 @@
         /// このプロパティに代入することはできません
         /// </summary>
         COULDNT_ASSIGN_THIS_PROPERTY = 0x02c,
-        /// <summary>
-        /// 変数名に使用できない文字が含まれています
-        /// </summary>
-        CONTAINS_ILLEGAL_CHARACTER = 0x02d,
         /// <summary>
         /// プロパティは読み取り専用です
         /// </summary>

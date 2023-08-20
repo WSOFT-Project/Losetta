@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -98,11 +97,6 @@ namespace AliceScript
 
             funcName = Constants.ConvertName(funcName);
 
-            if (string.IsNullOrWhiteSpace(funcName))
-            {
-                throw new ScriptException("関数名を空にすることはできません", Exceptions.ILLEGAL_VARIABLE_NAME, e.Script);
-            }
-
             string[] args = Utils.GetFunctionSignature(e.Script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
@@ -120,7 +114,7 @@ namespace AliceScript
                 parentOffset += e.Script.CurrentClass.ParentOffset;
             }
 
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", false);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
             e.Script.MoveForwardIf(Constants.END_GROUP);
 
             CustomFunction customFunc = new CustomFunction(funcName, body, args, e.Script);
@@ -1185,198 +1179,165 @@ namespace AliceScript
         private void StringOrNumberFunction_Run(object sender, FunctionBaseEventArgs e)
         {
             // 文字列型かどうか確認
-            if (Item.Length > 1)
+            if (!string.IsNullOrEmpty(Item))
             {
-                bool sq = (Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1);
-                bool dq = (Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE);
-                Name = "Literal";
-                if (dq || sq)
+                if (StringMode)
                 {
-                    //文字列型
-                    string result = Item.Substring(1, Item.Length - 2);
-                    //文字列補間
-                    if (DetectionStringFormat)
+                    bool sq = (Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1);
+                    bool dq = (Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE);
+                    Name = "StringLiteral";
+                    if (dq || sq)
                     {
-                        var stb = new StringBuilder();
-                        int blackCount = 0;
-                        bool beforeEscape = false;
-                        var nowBlack = new StringBuilder();
-
-                        Name = "StringInterpolationLiteral";
-
-                        foreach (char r in result)
+                        //文字列型
+                        string result = Item.Substring(1, Item.Length - 2);
+                        //文字列補間
+                        
+                        //[\\]は一時的に0x0011(装置制御1)に割り当てます
+                        result = result.Replace("\\\\", "\u0011");
+                        result = result.Replace("\\'", "'");
+                        //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識します
+                        if (dq)
                         {
-                            switch (r)
+                            result = result.Replace("\\\"", "\"");
+                            result = result.Replace("\\n", "\n");
+                            result = result.Replace("\\0", "\0");
+                            result = result.Replace("\\a", "\a");
+                            result = result.Replace("\\b", "\b");
+                            result = result.Replace("\\f", "\f");
+                            result = result.Replace("\\r", "\r");
+                            result = result.Replace("\\t", "\t");
+                            result = result.Replace("\\v", "\v");
+                            result = Utils.ConvertUnicodeLiteral(result);
+                        }
+                        //[\\]を\に置き換えます(装置制御1から[\]に置き換えます)
+                        result = result.Replace("\u0011", "\\");
+
+                        if (DetectionStringFormat)
+                        {
+                            var stb = new StringBuilder();
+                            int blackCount = 0;
+                            bool beforeEscape = false;
+                            var nowBlack = new StringBuilder();
+
+                            Name = "StringInterpolationLiteral";
+
+                            foreach (char r in result)
                             {
-                                case Constants.START_GROUP:
-                                    {
-                                        if (blackCount == 0)
+                                switch (r)
+                                {
+                                    case Constants.START_GROUP:
                                         {
-                                            if (!beforeEscape)
+                                            if (blackCount == 0)
                                             {
-                                                blackCount++;
+                                                if (!beforeEscape)
+                                                {
+                                                    blackCount++;
+                                                }
+                                                else
+                                                {
+                                                    stb.Append(r);
+                                                }
                                             }
                                             else
                                             {
-                                                stb.Append(r);
+                                                nowBlack.Append(r);
+                                                blackCount++;
                                             }
+                                            beforeEscape = false;
+                                            break;
                                         }
-                                        else
+                                    case Constants.END_GROUP:
                                         {
-                                            nowBlack.Append(r);
-                                            blackCount++;
-                                        }
-                                        beforeEscape = false;
-                                        break;
-                                    }
-                                case Constants.END_GROUP:
-                                    {
-                                        if (blackCount == 1)
-                                        {
-                                            blackCount--;
-                                            //この波かっこを抜けるとき
-                                            string code = nowBlack.ToString();
-                                            ParsingScript tempScript = e.Script.GetTempScript(code);
-                                            var rrr = tempScript.Process();
-                                            if (rrr == null)
-                                            {
-                                                rrr = Variable.EmptyInstance;
-                                            }
-                                            stb.Append(rrr.AsString());
-                                            nowBlack.Clear();
-                                        }
-                                        else
-                                        {
-                                            if (!beforeEscape)
+                                            if (blackCount == 1)
                                             {
                                                 blackCount--;
+                                                //この波かっこを抜けるとき
+                                                string code = nowBlack.ToString();
+                                                ParsingScript tempScript = e.Script.GetTempScript(code);
+                                                var rrr = tempScript.Process();
+                                                if (rrr == null)
+                                                {
+                                                    rrr = Variable.EmptyInstance;
+                                                }
+                                                stb.Append(rrr.AsString());
+                                                nowBlack.Clear();
+                                            }
+                                            else
+                                            {
+                                                if (!beforeEscape)
+                                                {
+                                                    blackCount--;
+                                                    nowBlack.Append(r);
+                                                }
+                                                else
+                                                {
+                                                    stb.Append(r);
+                                                }
+                                            }
+                                            beforeEscape = false;
+                                            break;
+                                        }
+                                    case '\\':
+                                        {
+                                            beforeEscape = !beforeEscape;
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            beforeEscape = false;
+                                            if (blackCount > 0)
+                                            {
                                                 nowBlack.Append(r);
                                             }
                                             else
                                             {
                                                 stb.Append(r);
                                             }
+                                            break;
                                         }
-                                        beforeEscape = false;
-                                        break;
-                                    }
-                                case '\\':
-                                    {
-                                        beforeEscape = !beforeEscape;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        beforeEscape = false;
-                                        if (blackCount > 0)
-                                        {
-                                            nowBlack.Append(r);
-                                        }
-                                        else
-                                        {
-                                            stb.Append(r);
-                                        }
-                                        break;
-                                    }
+                                }
                             }
+                            if (blackCount > 0)
+                            {
+                                throw new ScriptException("波括弧が不足しています", Exceptions.NEED_BRACKETS, e.Script);
+                            }
+                            else if (blackCount < 0)
+                            {
+                                throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, e.Script);
+                            }
+                            result = stb.ToString();
                         }
-                        if (blackCount > 0)
+
+                        if (DetectionUTF8_Literal)
                         {
-                            throw new ScriptException("波括弧が不足しています", Exceptions.NEED_BRACKETS, e.Script);
+                            //UTF-8リテラルの時はUTF-8バイナリを返す
+                            e.Return = new Variable(Encoding.UTF8.GetBytes(result));
+                            return;
                         }
-                        else if (blackCount < 0)
+                        else
                         {
-                            throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, e.Script);
-                        }
-                        result = stb.ToString();
-                    }
-                    //[\\]は一時的に0x0011(装置制御1)に割り当てます
-                    result = result.Replace("\\\\", "\u0011");
-                    result = result.Replace("\\'", "'");
-                    //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識します
-                    if (dq)
-                    {
-                        result = result.Replace("\\\"", "\"");
-                        result = result.Replace("\\n", "\n");
-                        result = result.Replace("\\0", "\0");
-                        result = result.Replace("\\a", "\a");
-                        result = result.Replace("\\b", "\b");
-                        result = result.Replace("\\f", "\f");
-                        result = result.Replace("\\r", "\r");
-                        result = result.Replace("\\t", "\t");
-                        result = result.Replace("\\v", "\v");
-                        //UTF-16文字コードの置き換え
-                        MatchCollection mc = Regex.Matches(result, @"\\u[0-9a-fA-F]{4}");
-                        foreach (Match match in mc)
-                        {
-                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
-                        }
-                        //可変長UTF-16文字コードの置き換え
-                        mc = Regex.Matches(result, @"\\x[0-9a-fA-F]{1,4}");
-                        foreach (Match match in mc)
-                        {
-                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
-                        }
-                        //UTF-32文字コードの置き換え
-                        mc = Regex.Matches(result, @"\\U[0-9a-fA-F]{8}");
-                        foreach (Match match in mc)
-                        {
-                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
+                            e.Return = new Variable(result);
+                            return;
                         }
                     }
-                    //[\\]を\に置き換えます(装置制御1から[\]に置き換えます)
-                    result = result.Replace("\u0011", "\\");
-
-
-
-                    if (DetectionUTF8_Literal)
-                    {
-                        //UTF-8リテラルの時はUTF-8バイナリを返す
-                        e.Return = new Variable(Encoding.UTF8.GetBytes(result));
-                        return;
-                    }
-                    else
-                    {
-                        e.Return = new Variable(result);
-                        return;
-                    }
-
+                }
+                else
+                {
+                    // 数値として処理
+                    Name = "NumberLiteral";
+                    double num = Utils.ConvertToDouble(Item, e.Script);
+                    e.Return = new Variable(num);
                 }
             }
-            //Nullとして処理
-            if (string.IsNullOrEmpty(Item))
-            {
-                Name = "NullLiteral";
-                e.Return = Variable.EmptyInstance;
-                return;
-            }
-            // 数値として処理
-            double num = Utils.ConvertToDouble(Item, e.Script);
-            Name = "NumberLiteral";
-            e.Return = new Variable(num);
+
         }
 
-
+        public bool StringMode { get; set; }
         public string Item { private get; set; }
         public bool DetectionUTF8_Literal { get; set; }
         public bool DetectionStringFormat { get; set; }
 
-        private static string ConvertUnicodeToChar(string charCode, bool mode = true)
-        {
-            if (mode)
-            {
-                int charCode16 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                char c = Convert.ToChar(charCode16);  // 数値(文字コード) -> 文字
-                return c.ToString();
-            }
-            else
-            {
-                //UTF-32モード
-                int charCode32 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                return Char.ConvertFromUtf32(charCode32);
-            }
 
-        }
     }
     internal class IdentityFunction : ParserFunction
     {
@@ -1531,7 +1492,7 @@ namespace AliceScript
                 Name = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             }
 
-            Utils.CheckForValidName(Name, e.Script);
+            Utils.CheckLegalName(Name);
 
             // Value to be added to the variable:
             int valueDelta = m_action == Constants.INCREMENT ? 1 : -1;
@@ -1889,6 +1850,7 @@ namespace AliceScript
             }
             if (registConst)
             {
+                Utils.CheckLegalName(m_name);
                 //定数定義
                 if (!FunctionExists(m_name, script, out var func))
                 {
@@ -1990,7 +1952,7 @@ namespace AliceScript
                 return null;
             }
 
-            Utils.CheckForValidName(varName, script);
+            Utils.CheckLegalName(varName);
 
             string name = varName.Substring(0, ind);
             string prop = varName.Substring(ind + 1);

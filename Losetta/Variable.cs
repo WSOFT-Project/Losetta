@@ -615,6 +615,8 @@ namespace AliceScript
 
         public virtual bool AsBool()
         {
+            if (Type != VarType.BOOLEAN)
+                throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE);
             return m_bool;
         }
 

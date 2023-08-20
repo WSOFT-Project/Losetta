@@ -26,7 +26,6 @@
                 space.Add(new Interpreter_GetScriptFunc());
                 space.Add(new gc_collectFunc());
                 space.Add(new gc_gettotalmemoryFunc());
-                space.Add(new gc_collectafterexecuteFunc());
                 space.Add(new TypeObject());
 
                 NameSpaceManerger.Add(space);
@@ -106,24 +105,6 @@
         }
     }
 
-    internal class gc_collectafterexecuteFunc : FunctionBase
-    {
-        public gc_collectafterexecuteFunc()
-        {
-            this.Name = "gc_collectafterexecute";
-            this.MinimumArgCounts = 0;
-            this.Run += Gc_collectafterexecuteFunc_Run;
-        }
-
-        private void Gc_collectafterexecuteFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count > 0)
-            {
-                AliceScript.Interop.GCManerger.CollectAfterExecute = e.Args[0].AsBool();
-            }
-            e.Return = new Variable(Interop.GCManerger.CollectAfterExecute);
-        }
-    }
 
     internal class Interpreter_Reset_VariablesFunc : FunctionBase
     {

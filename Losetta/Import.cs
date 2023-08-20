@@ -7,6 +7,7 @@
         public static void Add(NameSpace space, string name = null)
         {
             if (name == null) { name = space.Name; }
+            name=name.ToLower();
             if (NameSpaces.ContainsKey(name))
             {
                 //既に存在する場合はマージ

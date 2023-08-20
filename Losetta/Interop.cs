@@ -52,10 +52,6 @@ namespace AliceScript.Interop
         }
         private static List<int> Loadeds = new List<int>();
     }
-    public static class GCManerger
-    {
-        public static bool CollectAfterExecute = false;
-    }
     public interface ILibrary
     {
         string Name { get; }

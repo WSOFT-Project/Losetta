@@ -260,21 +260,7 @@ namespace AliceScript
                 toParse.MainFilename = toParse.Filename;
             }
 
-            Variable result = toParse.Process();
-
-            /*
-            while (toParse.Pointer < data.Length)
-            {
-                result = toParse.Execute();
-                toParse.GoToNextStatement();
-            }
-            //これでこのスクリプトの処理は終わり
-            if (Interop.GCManerger.CollectAfterExecute)
-            {
-                GC.Collect();
-            }
-            */
-            return result;
+            return toParse.Process();
         }
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
         {

@@ -167,7 +167,7 @@ namespace alice.Properties {
         /// <summary>
         ///   using Alice.Environment;
         ///
-        ///print($&quot;{env_lang_name()} Version {env_lang_version()} ({env_impl_name()} v{env_impl_version()} on {env_impl_target()}-{env_impl_architecture()}&quot;); に類似しているローカライズされた文字列を検索します。
+        ///print($&quot;{env_lang_name()} Version {env_lang_version()} ({env_impl_name()} v{env_impl_version()} on {env_impl_target()}-{env_impl_architecture()})&quot;); に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string version {
             get {

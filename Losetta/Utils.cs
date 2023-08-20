@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -68,33 +69,7 @@ namespace AliceScript
                 ThrowErrorMsg("関数の定義が不完全です", Exceptions.INCOMPLETE_FUNCTION_DEFINITION, script, script.Prev.ToString());
             }
         }
-        public static void CheckForValidName(string name, ParsingScript script)
-        {
-            if (string.IsNullOrWhiteSpace(name) || (!Char.IsLetter(name[0]) && name[0] != '_'))
-            {
-                ThrowErrorMsg("変数名として次の名前は使用できません: [" + name + "]", Exceptions.ILLEGAL_VARIABLE_NAME,
-                              script, name);
-            }
-
-            string illegals = "\"'?!";
-            int first = name.IndexOfAny(illegals.ToCharArray());
-            if (first >= 0)
-            {
-                var ind = name.IndexOf('[');
-                if (ind < 0 || ind > first)
-                {
-                    for (int i = 0; i < illegals.Length; i++)
-                    {
-                        char ch = illegals[i];
-                        if (name.Contains(ch))
-                        {
-                            ThrowErrorMsg("[" + name + "]のうち、変数名として [" + ch + "]は使用できません", Exceptions.CONTAINS_ILLEGAL_CHARACTER,
-                                          script, name);
-                        }
-                    }
-                }
-            }
-        }
+      
 
         public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script,string token=null)
         {
@@ -152,29 +127,21 @@ namespace AliceScript
             ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
         }
 
-        public static bool CheckLegalName(string name, ParsingScript script = null, bool throwError = true)
+        public static void CheckLegalName(string name)
         {
             if (string.IsNullOrEmpty(name))
             {
-                return false;
+                Utils.ThrowErrorMsg("識別子を空にすることはできません", Exceptions.ILLEGAL_IDENTIFIER, null, name);
             }
             if (Constants.CheckReserved(name))
             {
-                if (!throwError)
-                {
-                    return false;
-                }
-                Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, script, name);
+                Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
             }
-            if (Char.IsDigit(name[0]) || name[0] == '-')
+
+            if (!Constants.IDENTIFIER_PATTERN.IsMatch(name))
             {
-                if (!throwError)
-                {
-                    return false;
-                }
-                Utils.ThrowErrorMsg(name + "として定義されていますが、[" + name[0] + "]を変数名の先端に使用することはできません", Exceptions.ITHAS_ILLEGAL_FIRST_CHARACTER, null, name);
+                Utils.ThrowErrorMsg($"識別子`{name}`には使用できない文字が含まれています", Exceptions.ILLEGAL_IDENTIFIER, null, name);
             }
-            return true;
         }
 
         public static ParsingScript GetTempScript(string str, ParserFunction.StackLevel stackLevel, string name = "",
@@ -385,6 +352,44 @@ namespace AliceScript
 
         }
 
+        public static string ConvertUnicodeLiteral(string input)
+        {
+            if (input.Contains("\\"))
+            {
+                //UTF-16文字コードの置き換え
+                foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
+                {
+                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
+                }
+                //可変長UTF-16文字コードの置き換え
+                foreach (Match match in Constants.UTF16_VARIABLE_LITERAL.Matches(input))
+                {
+                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
+                }
+                //UTF-32文字コードの置き換え
+                foreach (Match match in Constants.UTF32_LITERAL.Matches(input))
+                {
+                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
+                }
+            }
+            return input;
+        }
+        private static string ConvertUnicodeToChar(string charCode, bool mode = true)
+        {
+            if (mode)
+            {
+                int charCode16 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
+                char c = Convert.ToChar(charCode16);  // 数値(文字コード) -> 文字
+                return c.ToString();
+            }
+            else
+            {
+                //UTF-32モード
+                int charCode32 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
+                return Char.ConvertFromUtf32(charCode32);
+            }
+
+        }
         public static int GetNumberOfDigits(string data, int itemNumber = -1)
         {
             if (itemNumber >= 0)

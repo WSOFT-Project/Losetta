@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using System.Text.RegularExpressions;
+
+namespace AliceScript
 {
     public partial class Constants
     {
@@ -64,6 +66,7 @@
         public const string ELSE = "else";
         public const string ELSE_IF = "elif";
         public const string FOR = "for";
+        public const string FINALLY = "finally";
         public const string FUNCTION = "function";
         public const string CLASS = "class";
         public const string ENUM = "enum";
@@ -79,6 +82,7 @@
         public const string TYPE = "type";
         public const string TYPE_OF = "typeOf";
         public const string WHILE = "while";
+        public const string WHEN = "when";
 
         public const string TRUE = "true";
         public const string FALSE = "false";
@@ -221,7 +225,17 @@
 
         //最上位の名前空間
         public const string TOP_NAMESPACE = "Alice";
-        
+
+        /// <summary>
+        /// 変数・定数・関数名などの識別子がとるパターン
+        /// </summary>
+        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}]*$", RegexOptions.Compiled);
+
+        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}",RegexOptions.Compiled);
+
+        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}",RegexOptions.Compiled);
+
+        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}",RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";
@@ -273,16 +287,6 @@
         public static List<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new List<Variable.VarType>()
         {
             Variable.VarType.ARRAY,Variable.VarType.DELEGATE,Variable.VarType.STRING
-        };
-        //予約語
-        public static List<string> RESERVED = new List<string>
-        {
-            BREAK, CONTINUE, CLASS, NEW, FUNCTION, IF, ELSE, ELSE_IF, INCLUDE,IMPORT, FOR,FOREACH, WHILE,
-            RETURN, THROW, TRY, CATCH, COMMENT, TRUE, FALSE, TYPE,
-            ASSIGNMENT, AND, OR, EQUAL, NOT_EQUAL, LESS, LESS_EQ, GREATER, GREATER_EQ,
-            ADD_ASSIGN, SUBT_ASSIGN, MULT_ASSIGN, DIV_ASSIGN,
-            SWITCH, CASE, DEFAULT, NAN, UNDEFINED,NULL,
-            NEXT_ARG.ToString(), START_GROUP.ToString(), END_GROUP.ToString(), END_STATEMENT.ToString()
         };
         //インタプリタに最初から定義される定数
         public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> {
@@ -348,7 +352,7 @@
 
         public static bool CheckReserved(string name)
         {
-            return Constants.RESERVED.Contains(name);
+            return Constants.KEYWORD.Contains(name);
         }
 
         public static string GetRealName(string name)
