@@ -489,7 +489,7 @@
             Variable result = null;
 
             // tryブロック内のスクリプト
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", false);
             ParsingScript mainScript = e.Script.GetTempScript(body);
             mainScript.InTryBlock = true;
 
@@ -506,16 +506,22 @@
             {
                 throw new ScriptException("Catchステートメントがありません", Exceptions.MISSING_CATCH_STATEMENT, e.Script);
             }
-
-            string exceptionName = Utils.GetNextToken(e.Script);
-            e.Script.Forward(); // skip closing parenthesis
-            string body2 = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+            string exceptionName = null;
+            if (e.Script.Prev == '(')
+            {
+                exceptionName = Utils.GetNextToken(e.Script);
+                e.Script.Forward(); // skip closing parenthesis
+            }
+            string body2 = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", false);
             ParsingScript catchScript = e.Script.GetTempScript(body2);
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
             {
                 GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
-                catchScript.Variables.Add(exceptionName, excMsgFunc);
+                if (exceptionName != null)
+                {
+                    catchScript.Variables.Add(exceptionName, excMsgFunc);
+                }
                 result = catchScript.Process();
                 e.Handled = true;
             };

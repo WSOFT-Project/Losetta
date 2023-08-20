@@ -30,7 +30,7 @@
         }
         public override string ToString()
         {
-            return "[0x" + ((int)ErrorCode).ToString("x3") + "]" + ErrorCode.ToString() + (string.IsNullOrWhiteSpace(Message) ? string.Empty : " : " + Message);
+            return ErrorCode.ToString() + "(0x" + ((int)ErrorCode).ToString("x3")+")"+ (string.IsNullOrWhiteSpace(Message) ? string.Empty : ": " + Message);
         }
 
         private class Exception_Constractor : FunctionBase
