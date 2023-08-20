@@ -466,7 +466,7 @@ namespace AliceScript
             return true;
         }
         public int Find(char ch, int from = -1)
-        { return m_data.IndexOf(ch, from < 0 ? m_from : from); }
+        { return m_data.IndexOf(ch.ToString(), from < 0 ? m_from : from, StringComparison.Ordinal); }
 
         public int FindFirstOf(string str, int from = -1)
         { return FindFirstOf(str.ToCharArray(), from); }
@@ -735,7 +735,7 @@ namespace AliceScript
             toArray = toArray == null ? Constants.END_PARSE_ARRAY : toArray;
             Pointer = from < 0 ? Pointer : from;
 
-            if (!m_data.EndsWith(Constants.END_STATEMENT.ToString()))
+            if (!m_data.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
             {
                 m_data += Constants.END_STATEMENT;
             }
@@ -811,7 +811,7 @@ namespace AliceScript
             toArray = toArray == null ? Constants.END_PARSE_ARRAY : toArray;
             Pointer = from < 0 ? Pointer : from;
 
-            if (!m_data.EndsWith(Constants.END_STATEMENT.ToString()))
+            if (!m_data.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
             {
                 m_data += Constants.END_STATEMENT;
             }

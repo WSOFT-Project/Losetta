@@ -92,7 +92,7 @@ namespace AliceScript
                 stringOrNumberFunction.StringMode = false;
                 return stringOrNumberFunction;
             }
-            if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL))
+            if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL, StringComparison.Ordinal))
             {
                 item = item.Substring(Constants.UTF8_LITERAL.Length);
                 stringOrNumberFunction.DetectionUTF8_Literal = true;
@@ -122,7 +122,7 @@ namespace AliceScript
 
         public static ParserFunction GetArrayFunction(string name, ParsingScript script, string action)
         {
-            int arrayStart = name.IndexOf(Constants.START_ARRAY);
+            int arrayStart = name.IndexOf(Constants.START_ARRAY, StringComparison.Ordinal);
             if (arrayStart < 0)
             {
                 return null;
@@ -180,7 +180,7 @@ namespace AliceScript
                 name = script.ClassInstance.InstanceName + "." + name;
             }
             //int ind = name.LastIndexOf('.');
-            int ind = name.IndexOf('.');
+            int ind = name.IndexOf('.', StringComparison.Ordinal);
             if (ind <= 0)
             {
                 return null;
@@ -228,7 +228,7 @@ namespace AliceScript
 
         private static bool ActionForUndefined(string action)
         {
-            return !string.IsNullOrWhiteSpace(action) && action.EndsWith("=") && action.Length > 1;
+            return !string.IsNullOrWhiteSpace(action) && action.EndsWith("=", StringComparison.Ordinal) && action.Length > 1;
         }
         public static ParserFunction GetLambdaFunction(ParsingScript script, string item, char ch, ref string action)
         {
@@ -262,7 +262,7 @@ namespace AliceScript
                 return null;
             }
 
-            if (false && ActionForUndefined(action) && script.Rest.StartsWith(Constants.UNDEFINED))
+            if (false && ActionForUndefined(action) && script.Rest.StartsWith(Constants.UNDEFINED, StringComparison.Ordinal))
             {
                 IsUndefinedFunction undef = new IsUndefinedFunction(name, action);
                 return undef;
@@ -312,7 +312,7 @@ namespace AliceScript
                 return null;
             }
 
-            int ind = nameSpace.IndexOf('.');
+            int ind = nameSpace.IndexOf('.',StringComparison.Ordinal);
             string prop = "";
             if (ind >= 0)
             {
@@ -480,7 +480,7 @@ namespace AliceScript
                 foreach (string nsn in NameSpaceManerger.NameSpaces.Keys)
                 {
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
-                    if (name.StartsWith(nsn.ToLower() + ".") && nsn.Length > namespacename.Length)
+                    if (name.StartsWith(nsn.ToLower() + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
                     {
                         namespacename = nsn.ToLower();
                     }
@@ -489,12 +489,12 @@ namespace AliceScript
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower())).FirstOrDefault();
+                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (fc != null)
                     {
                         return fc;
                     }
-                    var cc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower())).FirstOrDefault();
+                    var cc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cc != null)
                     {
                         return new GetVarFunction(new Variable(new TypeObject(cc)));

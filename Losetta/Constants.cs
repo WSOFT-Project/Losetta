@@ -237,6 +237,8 @@ namespace AliceScript
 
         public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}",RegexOptions.Compiled);
 
+        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]",RegexOptions.Compiled);
+
         // キーワード
         public const string PUBLIC = "public";
         public const string VAR = "var";

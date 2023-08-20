@@ -145,22 +145,22 @@ namespace alice
         private static List<string> throw_redirect_files = new List<string>();
         private static string ListToString(List<string> list)
         {
-            string s = "{";
+            var sb = new StringBuilder(Constants.START_GROUP);
             bool isFirst = true;
             foreach (string v in list)
             {
                 if (isFirst)
                 {
-                    s += " " + v;
+                    sb.Append($" {v}");
                     isFirst = false;
                 }
                 else
                 {
-                    s += "," + v;
+                    sb.Append($",{v}");
                 }
             }
-            s += " }";
-            return s;
+            sb.Append(Constants.END_GROUP);
+            return sb.ToString();
         }
         internal static string GetScriptPath(string path)
         {

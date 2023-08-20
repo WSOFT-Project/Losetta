@@ -947,7 +947,7 @@ namespace AliceScript.NameSpaces
         {
             if (EndWith)
             {
-                if (e.CurentVariable.AsString().EndsWith(e.Args[0].AsString()))
+                if (e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal))
                 {
                     e.Return = Variable.True;
                 }
@@ -958,7 +958,7 @@ namespace AliceScript.NameSpaces
             }
             else
             {
-                if (e.CurentVariable.AsString().StartsWith(e.Args[0].AsString()))
+                if (e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal))
                 {
                     e.Return = Variable.True;
                 }

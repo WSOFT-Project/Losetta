@@ -238,7 +238,7 @@ namespace alice
                 // The user has changed something in the input field
                 tabFileIndex = 0;
             }
-            if (tabFileIndex == 0 || script.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            if (tabFileIndex == 0 || script.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
             {
                 // The user pressed tab the first time or pressed it on a directory
                 string path = "";
@@ -270,7 +270,7 @@ namespace alice
                 NEXT_CMD nextCmd = NEXT_CMD.NONE;
                 script = previous + GetConsoleLine(ref nextCmd, init).Trim();
 
-                if (script.EndsWith(Constants.CONTINUE_LINE.ToString()))
+                if (script.EndsWith(Constants.CONTINUE_LINE.ToString(), StringComparison.Ordinal))
                 {
                     previous = script.Remove(script.Length - 1);
                     init = "";
@@ -311,7 +311,7 @@ namespace alice
                 {
                     commands.Add(script);
                 }
-                if (!script.EndsWith(Constants.END_STATEMENT.ToString()))
+                if (!script.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
                 {
                     script += Constants.END_STATEMENT;
                 }

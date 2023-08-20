@@ -986,7 +986,7 @@ namespace AliceScript
                         case "if":
                             {
                                 inIf = true;
-                                if (arg.StartsWith("!"))
+                                if (arg.StartsWith("!", StringComparison.Ordinal))
                                 {
                                     If = !defines.Contains(arg.TrimStart('!'));
                                 }
@@ -1194,7 +1194,7 @@ namespace AliceScript
         public static string IsNotSign(string data)
         {
             //return data.StartsWith(Constants.NOT) ? Constants.NOT : null;
-            return data.StartsWith(Constants.NOT) && !data.StartsWith(Constants.NOT_EQUAL) ? Constants.NOT : null;
+            return data.StartsWith(Constants.NOT, StringComparison.Ordinal) && !data.StartsWith(Constants.NOT_EQUAL, StringComparison.Ordinal) ? Constants.NOT : null;
         }
 
         public static string ValidAction(string rest)
@@ -1212,7 +1212,7 @@ namespace AliceScript
         {
             foreach (string item in items)
             {
-                if (data.StartsWith(item))
+                if (data.StartsWith(item, StringComparison.Ordinal))
                 {
                     return item;
                 }
@@ -1232,10 +1232,10 @@ namespace AliceScript
             if (max != 0)
             {
                 //逆からインデックス
-                varName = Regex.Replace(varName, "(.*)\\[\\^([0-9]*)\\]", "$1["+max+"-$2]");
+                varName = Constants.REVERSE_INDEXER.Replace(varName, "$1["+max+"-$2]");
             }
 
-            int argStart = varName.IndexOf(Constants.START_ARRAY);
+            int argStart = varName.IndexOf(Constants.START_ARRAY, StringComparison.Ordinal);
             if (argStart < 0)
             {
                 return indices;

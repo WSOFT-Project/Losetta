@@ -222,7 +222,7 @@ namespace AliceScript
                     List<ZipArchiveEntry> deletes = new List<ZipArchiveEntry>();
                     foreach (ZipArchiveEntry entry in a.Entries)
                     {
-                        if (entry.Name.EndsWith(".alice"))
+                        if (entry.Name.EndsWith(".alice", StringComparison.Ordinal))
                         {
                             Stream sw = entry.Open();
                             string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _);

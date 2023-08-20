@@ -718,16 +718,16 @@ namespace AliceScript
                 case "<":
                     string arg1 = leftCell.AsString();
                     string arg2 = rightCell.AsString();
-                    return new Variable(string.Compare(arg1, arg2) < 0);
+                    return new Variable(string.Compare(arg1, arg2, StringComparison.Ordinal) < 0);
                 case ">":
                     return new Variable(
-                     string.Compare(leftCell.AsString(), rightCell.AsString()) > 0);
+                     string.Compare(leftCell.AsString(), rightCell.AsString(), StringComparison.Ordinal) > 0);
                 case "<=":
                     return new Variable(
-                      string.Compare(leftCell.AsString(), rightCell.AsString()) <= 0);
+                      string.Compare(leftCell.AsString(), rightCell.AsString(), StringComparison.Ordinal) <= 0);
                 case ">=":
                     return new Variable(
-                      string.Compare(leftCell.AsString(), rightCell.AsString()) >= 0);
+                      string.Compare(leftCell.AsString(), rightCell.AsString(), StringComparison.Ordinal) >= 0);
                 case ":":
                     leftCell.SetHashVariable(leftCell.AsString(), rightCell);
                     break;

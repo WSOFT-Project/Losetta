@@ -311,7 +311,7 @@ namespace AliceScript
                 foreach (string nsn in NameSpaceManerger.NameSpaces.Keys)
                 {
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
-                    if (name.StartsWith(nsn.ToLower() + ".") && nsn.Length > namespacename.Length)
+                    if (name.StartsWith(nsn.ToLower() + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
                     {
                         namespacename = nsn.ToLower();
                     }
@@ -320,7 +320,7 @@ namespace AliceScript
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower())).FirstOrDefault();
+                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cfc != null)
                     {
                         return cfc;
@@ -709,7 +709,7 @@ namespace AliceScript
                             options.Add(oldtoken);
                         }
                         else
-                        if (option.StartsWith("=") || option.EndsWith("="))
+                        if (option.StartsWith("=", StringComparison.Ordinal) || option.EndsWith("=", StringComparison.Ordinal))
                         {
                             oldtoken += option;
                             connectnexttoken = true;
@@ -763,7 +763,7 @@ namespace AliceScript
                         m_typArgMap.Add(i, reqType);
                     }
 
-                    int ind = arg.IndexOf('=');
+                    int ind = arg.IndexOf('=', StringComparison.Ordinal);
                     if (ind > 0)
                     {
 
@@ -1192,12 +1192,12 @@ namespace AliceScript
                         string result = Item.Substring(1, Item.Length - 2);
                         //文字列補間
                         
-                        //[\\]は一時的に0x0011(装置制御1)に割り当てます
-                        result = result.Replace("\\\\", "\u0011");
                         result = result.Replace("\\'", "'");
-                        //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識します
+                        //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識
                         if (dq)
                         {
+                            //[\\]は一時的に0x0011(装置制御1)に割り当て
+                            result = result.Replace("\\\\", "\u0011");
                             result = result.Replace("\\\"", "\"");
                             result = result.Replace("\\n", "\n");
                             result = result.Replace("\\0", "\0");
@@ -1209,8 +1209,6 @@ namespace AliceScript
                             result = result.Replace("\\v", "\v");
                             result = Utils.ConvertUnicodeLiteral(result);
                         }
-                        //[\\]を\に置き換えます(装置制御1から[\]に置き換えます)
-                        result = result.Replace("\u0011", "\\");
 
                         if (DetectionStringFormat)
                         {
@@ -1218,6 +1216,7 @@ namespace AliceScript
                             int blackCount = 0;
                             bool beforeEscape = false;
                             var nowBlack = new StringBuilder();
+
 
                             Name = "StringInterpolationLiteral";
 
@@ -1308,6 +1307,11 @@ namespace AliceScript
                             result = stb.ToString();
                         }
 
+                        if (dq)
+                        {
+                            //[\\]を\に置き換えます(装置制御1から[\]に置き換え)
+                            result = result.Replace("\u0011", "\\");
+                        }
                         if (DetectionUTF8_Literal)
                         {
                             //UTF-8リテラルの時はUTF-8バイナリを返す
@@ -1946,7 +1950,7 @@ namespace AliceScript
                 return varValue.DeepClone();
             }
 
-            int ind = varName.IndexOf('.');
+            int ind = varName.IndexOf('.', StringComparison.Ordinal);
             if (ind <= 0)
             {
                 return null;

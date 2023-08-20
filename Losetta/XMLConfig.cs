@@ -94,7 +94,7 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -127,7 +127,7 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -165,7 +165,7 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -199,7 +199,7 @@ namespace AliceScript
             try
             {
 
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
@@ -232,7 +232,7 @@ namespace AliceScript
             value = SecurityElement.Escape(value);
 
 
-            if (path.EndsWith("/")) { path = path + "/default"; }
+            if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
             XmlDocument xml = new XmlDocument();
 
             xml.LoadXml(xmlText);
@@ -290,7 +290,7 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
                 xml.SelectSingleNode("package/" + path).ParentNode.RemoveChild(xml.SelectSingleNode("package/" + path));

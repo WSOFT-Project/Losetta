@@ -971,7 +971,7 @@ namespace AliceScript
 
         public Variable SetProperty(string propName, Variable value, ParsingScript script, string baseName = "")
         {
-            int ind = propName.IndexOf('.');
+            int ind = propName.IndexOf('.', StringComparison.Ordinal);
             if (ind > 0)
             { // The case a.b.c = ... is dealt here recursively
                 string varName = propName.Substring(0, ind);
@@ -985,7 +985,7 @@ namespace AliceScript
 
         public async Task<Variable> SetPropertyAsync(string propName, Variable value, ParsingScript script, string baseName = "")
         {
-            int ind = propName.IndexOf('.');
+            int ind = propName.IndexOf('.', StringComparison.Ordinal);
             if (ind > 0)
             { // The case a.b.c = ... is dealt here recursively
                 string varName = propName.Substring(0, ind);
@@ -1115,7 +1115,7 @@ namespace AliceScript
         {
             Variable result = Variable.EmptyInstance;
 
-            int ind = propName.IndexOf('.');
+            int ind = propName.IndexOf('.', StringComparison.Ordinal);
             if (ind > 0)
             { //x=a.b.cの場合はここで再帰的に処理
                 string varName = propName.Substring(0, ind);
@@ -1160,7 +1160,7 @@ namespace AliceScript
         {
             Variable result = Variable.EmptyInstance;
 
-            int ind = propName.IndexOf('.');
+            int ind = propName.IndexOf('.', StringComparison.Ordinal);
             if (ind > 0)
             { // The case x = a.b.c ... is dealt here recursively
                 string varName = propName.Substring(0, ind);

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace AliceScript.NameSpaces
 {
@@ -144,10 +145,10 @@ namespace AliceScript.NameSpaces
         public static void AddDebugOutput(string text, ParsingScript script = null,
                                      bool addLine = true, bool addSpace = true, string start = "", string indent = "    ")
         {
-            string indents = "";
+            var indents = new StringBuilder();
             for (int i = 0; i < Debug_IndentFunction.IndentLevel; i++)
             {
-                indents += indent;
+                indents.Append(indent);
             }
             string output = indents + text + (addLine ? Environment.NewLine : string.Empty);
             Interpreter.Instance.AppendDebug(output);

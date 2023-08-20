@@ -97,22 +97,7 @@ namespace AliceScript
 
             var currentLineNumber = lineNumber;
             var line = lines[lineNumber].Trim();
-            var collectMore = line.Length < 3 || minLines > 1;
-            var lineContents = line;
 
-            while (collectMore && currentLineNumber > 0)
-            {
-                line = lines[--currentLineNumber].Trim();
-                collectMore = line.Length < 2 || (minLines > lineNumber - currentLineNumber + 1);
-                lineContents = line + "  " + lineContents;
-            }
-
-            if (lines.Length > 1)
-            {
-                string lineStr = currentLineNumber == lineNumber ? "行: " + (lineNumber + 1) :
-                                 "行" + (currentLineNumber + 1) + "-" + (lineNumber + 1);
-                msg += " " + lineStr + ": " + lineContents;
-            }
 
             StringBuilder stack = new StringBuilder();
             stack.AppendLine("" + currentLineNumber);
@@ -294,7 +279,7 @@ namespace AliceScript
         {
             //文字列を小文字に置き換え
             str = str.ToLower();
-            if(str.StartsWith("_") || str.EndsWith("_") || str.Contains("_.") || str.Contains("._"))
+            if(str.StartsWith("_", StringComparison.Ordinal) || str.EndsWith("_", StringComparison.Ordinal) || str.Contains("_.") || str.Contains("._"))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません",Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
@@ -306,17 +291,17 @@ namespace AliceScript
             //0xから始まる実数の16進表現を確認します
             try
             {
-                if (str.StartsWith("0x"))
+                if (str.StartsWith("0x", StringComparison.Ordinal))
                 {
                     num = Convert.ToInt32(str.Substring(2), 16);
                     return true;
                 }
-                else if (str.StartsWith("0o"))
+                else if (str.StartsWith("0o", StringComparison.Ordinal))
                 {
                     num = Convert.ToInt32(str.Substring(2), 8);
                     return true;
                 }
-                else if (str.StartsWith("0b"))
+                else if (str.StartsWith("0b", StringComparison.Ordinal))
                 {
                     num = Convert.ToInt32(str.Substring(2), 2);
                     return true;
@@ -407,7 +392,7 @@ namespace AliceScript
                 return min;
             }
 
-            int index = data.IndexOf(".");
+            int index = data.IndexOf(".", StringComparison.Ordinal);
             if (index < 0 || index >= data.Length - 1)
             {
                 return 0;
