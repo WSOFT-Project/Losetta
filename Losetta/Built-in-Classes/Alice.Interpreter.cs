@@ -528,7 +528,7 @@
             }
             private void Interpreter_ScriptObject_Constructor_Run(object sender, FunctionBaseEventArgs e)
             {
-                List<string> defines; Dictionary<int, int> char2Line;
+                HashSet<string> defines; Dictionary<int, int> char2Line;
                 string code = Utils.ConvertToScript(e.Args[0].AsString(), out char2Line, out defines);
                 var script = new ParsingScript(code, 0, char2Line);
                 script.Defines = defines;

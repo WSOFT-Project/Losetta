@@ -1515,7 +1515,7 @@ namespace AliceScript
             Variable right = Utils.GetItem(e.Script);
 
 
-            Variable currentValue = ParserFunction.GetObjectFunction(m_name, e.Script, new List<string>())?.GetValue(e.Script);
+            Variable currentValue = ParserFunction.GetObjectFunction(m_name, e.Script, new HashSet<string>())?.GetValue(e.Script);
             bool isobj = true;
             List<Variable> arrayIndices = new List<Variable>();
             if (currentValue == null)

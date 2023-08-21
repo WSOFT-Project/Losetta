@@ -1514,7 +1514,7 @@ namespace AliceScript
         public string CustomGet { get; set; }
         public string CustomSet { get; set; }
         public object Tag { get; set; }
-        public List<string> Keywords
+        public HashSet<string> Keywords
         {
             get => m_keywords;
             set => m_keywords = value;
@@ -1548,7 +1548,7 @@ namespace AliceScript
         private CustomFunction m_customFunctionSet;
         protected VariableCollection m_tuple;
         protected byte[] m_byteArray;
-        private List<string> m_keywords = new List<string>();
+        private HashSet<string> m_keywords = new HashSet<string>();
         private Dictionary<string, int> m_dictionary = new Dictionary<string, int>();
         private Dictionary<string, string> m_keyMappings = new Dictionary<string, string>();
         private Dictionary<string, string> m_propertyStringMap = new Dictionary<string, string>();

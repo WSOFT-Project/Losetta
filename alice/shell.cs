@@ -81,6 +81,20 @@ namespace alice
                     if (Program.IsDebugMode)
                     {
                         Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
+                    PauseInput:
+                    switch (Console.ReadKey().Key)
+                    {
+                        case ConsoleKey.Enter:
+                            {
+                                e.Handled = true;
+                                break;
+                            }
+                        case ConsoleKey.D:
+                            {
+                                DumpLocalVariables(e.Script);
+                                goto PauseInput;
+                            }
+                    }
                         e.Handled = Console.ReadKey().Key.HasFlag(ConsoleKey.Enter);
                         Console.WriteLine();
                     }
@@ -124,6 +138,7 @@ namespace alice
         public static void DumpLocalVariables(ParsingScript script)
         {
             if (script == null) { return; }
+                DumpLocalVariables(script.ParentScript);
             Dictionary<string, ParserFunction> dic = new Dictionary<string, ParserFunction>();
             AddDictionaryScriptVariables(script, ref dic);
             if (dic.Count <= 0)

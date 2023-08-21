@@ -13,7 +13,7 @@ namespace AliceScript
         private int m_generation = 1;   // スクリプトの世代
         private object m_tag;           // 現在のスクリプトに関連付けられたオブジェクト。これは多用途で使用されます
         private AlicePackage m_package = null;//現在のスクリプトが実行されているパッケージ
-        private List<string> m_defines = new List<string>();// 現在のスクリプトで宣言されたシンボル
+        private HashSet<string> m_defines = new HashSet<string>();// 現在のスクリプトで宣言されたシンボル
         private static ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
         private ParsingScript m_parentScript = m_toplevel_script;// このスクリプトの親
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
@@ -45,7 +45,7 @@ namespace AliceScript
         /// <summary>
         /// このスクリプトで宣言されたシンボル
         /// </summary>
-        public List<string> Defines
+        public HashSet<string> Defines
         {
             get => m_defines;
             set => m_defines = value;

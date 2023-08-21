@@ -188,7 +188,7 @@ namespace AliceScript
 
         public static string[] ACTIONS = (OPER_ACTIONS.Union(MATH_ACTIONS)).ToArray();
 
-        public static string[] CORE_OPERATORS = (new List<string> { TRY, FOR, WHILE }).ToArray();
+        public static string[] CORE_OPERATORS = { TRY, FOR, WHILE };
 
         // ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
         public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
@@ -265,32 +265,32 @@ namespace AliceScript
 
 
         // 関数呼び出し時に丸括弧が不要な関数
-        public static List<string> FUNCT_WITH_SPACE = new List<string>
+        public static HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
             FUNCTION, NAMESPACE, NEW, PRINT
         };
         //関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
-        public static List<string> FUNCT_WITH_SPACE_ONCE = new List<string>
+        public static HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
         {
             CASE, RETURN, THROW, TYPE_OF
         };
 
         // 言語構造の予約。これらを演算したり返すことは無意味
-        public static List<string> CONTROL_FLOW = new List<string>
+        public static HashSet<string> CONTROL_FLOW = new HashSet<string>
         {
             BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,FOREACH, FUNCTION, IF, INCLUDE, NEW,IMPORT,
             RETURN, THROW, TRY, WHILE
         };
 
         // Nullをとりえない変数の型
-        public static List<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new List<Variable.VarType>()
+        public static HashSet<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.NUMBER,Variable.VarType.BOOLEAN
         };
 
         //配列添え字演算子を使用できる変数の型
-        public static List<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new List<Variable.VarType>()
+        public static HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.ARRAY,Variable.VarType.DELEGATE,Variable.VarType.STRING
         };
@@ -324,16 +324,16 @@ namespace AliceScript
 
         };
 
-        public static List<string> KEYWORD = new List<string>
+        public static HashSet<string> KEYWORD = new HashSet<string>
         {
             PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
         //型指定修飾子
-        public static List<string> TYPE_MODIFER = new List<string>{
+        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
              "string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
         //算術演算子
-        public static List<string> ARITHMETIC_EXPR = new List<string>
+        public static HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
         {
             "*", "*=" , "+", "+=" , "-", "-=", "/", "/=", "%", "%=", ">", "<", ">=", "<="
         };

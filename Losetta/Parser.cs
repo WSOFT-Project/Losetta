@@ -63,11 +63,11 @@ namespace AliceScript
 
             do
             { // Main processing cycle of the first part.
-                List<string> keywords = new List<string>();
+                HashSet<string> keywords = new HashSet<string>();
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
 
-                if (!Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next) && Constants.KEYWORD.Contains(token) && !keywords.Contains(token))
+                if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
                 {
                     keywords.Add(token);
                     goto ExtractNextToken;

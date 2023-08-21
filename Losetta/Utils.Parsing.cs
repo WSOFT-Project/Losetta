@@ -538,7 +538,7 @@ namespace AliceScript
 
 
 
-        public static bool EndsWithFunction(string buffer, List<string> functions)
+        public static bool EndsWithFunction(string buffer, HashSet<string> functions)
         {
             foreach (string key in functions)
             {
@@ -679,7 +679,7 @@ namespace AliceScript
             }
             return args;
         }
-        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out List<string> defines, string filename = "")
+        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, string filename = "")
         {
             string curlyErrorMsg = "波括弧が不均等です";
             string bracketErrorMsg = "角括弧が不均等です";
@@ -691,7 +691,7 @@ namespace AliceScript
             var pragmaCommand = new StringBuilder();
             var pragmaArgs = new StringBuilder();
 
-            defines = new List<string>();
+            defines = new HashSet<string>();
 
             char2Line = new Dictionary<int, int>();
 
@@ -969,7 +969,10 @@ namespace AliceScript
                             {
                                 string str = SafeReader.ReadAllText(arg, out _);
                                 str = ConvertToScript(str, out _, out var def, Path.GetFileName(arg));
-                                defines.AddRange(def);
+                                foreach(var d in def)
+                                {
+                                    defines.Add(d);
+                                }
                                 sb.Append(str);
                                 break;
                             }

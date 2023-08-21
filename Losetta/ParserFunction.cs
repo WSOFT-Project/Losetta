@@ -9,24 +9,24 @@
         /// </summary>
         public bool IsVirtual { get; set; }
 
-        public List<string> Keywords
+        public HashSet<string> Keywords
         {
             get => m_keywords;
             set => m_keywords = value;
         }
 
-        private List<string> m_keywords = new List<string>();
+        private HashSet<string> m_keywords = new HashSet<string>();
 
         public ParserFunction()
         {
             m_impl = this;
         }
 
-        public ParserFunction(ParsingScript script, string item, char ch, ref string action, List<string> keywords = null)
+        public ParserFunction(ParsingScript script, string item, char ch, ref string action, HashSet<string> keywords = null)
         {
             if (keywords == null)
             {
-                keywords = new List<string>();
+                keywords = new HashSet<string>();
             }
 
 
@@ -165,7 +165,7 @@
             return varFunc;
         }
 
-        public static ParserFunction GetObjectFunction(string name, ParsingScript script, List<string> keywords)
+        public static ParserFunction GetObjectFunction(string name, ParsingScript script, HashSet<string> keywords)
         {
             if (script.CurrentClass != null && script.CurrentClass.Name == name)
             {
@@ -347,7 +347,7 @@
             return impl;
         }
 
-        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false, List<string> keywords = null)
+        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
         {
             if (!force && script != null && script.TryPrev() == Constants.START_ARG)
             {
