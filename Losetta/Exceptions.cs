@@ -79,6 +79,10 @@
         /// </summary>
         NUMBER_OUT_OF_RANGE = 0x012,
         /// <summary>
+        /// 型が一致しません
+        /// </summary>
+        TYPE_MISMATCH = 0x013,
+        /// <summary>
         /// 引数が不足しています
         /// </summary>
         INSUFFICIENT_ARGUMETS = 0x014,

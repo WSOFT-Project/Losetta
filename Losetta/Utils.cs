@@ -118,10 +118,11 @@ namespace AliceScript
             {
                 Utils.ThrowErrorMsg("識別子を空にすることはできません", Exceptions.ILLEGAL_IDENTIFIER, null, name);
             }
+            /*
             if (Constants.CheckReserved(name))
             {
                 Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
-            }
+            }*/
 
             if (!Constants.IDENTIFIER_PATTERN.IsMatch(name))
             {

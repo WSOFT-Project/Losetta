@@ -67,9 +67,9 @@ namespace AliceScript
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
 
-                if (Constants.KEYWORD.Contains(token.Trim()) && !keywords.Contains(token.Trim()))
+                if (!Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next) && Constants.KEYWORD.Contains(token) && !keywords.Contains(token))
                 {
-                    keywords.Add(token.Trim());
+                    keywords.Add(token);
                     goto ExtractNextToken;
                 }
                 if (string.IsNullOrEmpty(token) && script.StillValid())

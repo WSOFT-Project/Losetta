@@ -215,6 +215,7 @@ namespace AliceScript
 
         public static string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
         public static char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
+        public static string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
         public static char[] TOKENS_SEPARATION = ",;)".ToCharArray();
         public static string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
@@ -252,6 +253,8 @@ namespace AliceScript
         public const string RESET_DEFINES = "reset_defines";
         //includeしたファイルにもシンボルを引き継ぐ
         public const string FOLLOW_INCLUDE = "follow_include";
+        //varキーワードの型推論を有効にする
+        public const string TYPE_INFERENCE = "type_inference";
         public const string DISABLE_USING = "disable_using";
         public const string DISABLE_IMPORT = "disable_import";
         public const string DISABLE_INCLUDE = "disable_include";
@@ -260,10 +263,6 @@ namespace AliceScript
 
         public const string HELP_LINK = "https://a.wsoft.ws/alice/exceptions/0x";
 
-        public static List<string> KEYWORD = new List<string>
-        {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF
-        };
 
         // 関数呼び出し時に丸括弧が不要な関数
         public static List<string> FUNCT_WITH_SPACE = new List<string>
@@ -284,6 +283,11 @@ namespace AliceScript
             RETURN, THROW, TRY, WHILE
         };
 
+        // Nullをとりえない変数の型
+        public static List<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new List<Variable.VarType>()
+        {
+            Variable.VarType.NUMBER,Variable.VarType.BOOLEAN
+        };
 
         //配列添え字演算子を使用できる変数の型
         public static List<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new List<Variable.VarType>()
@@ -318,6 +322,11 @@ namespace AliceScript
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
             //{"type",Variable.AsType(Variable.VarType.TYPE) }
 
+        };
+
+        public static List<string> KEYWORD = new List<string>
+        {
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
         //型指定修飾子
         public static List<string> TYPE_MODIFER = new List<string>{

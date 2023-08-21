@@ -6,7 +6,6 @@
         {
             NameSpace space = new NameSpace("Alice.Legacy");
 
-            space.Add(new DefineLocalFunction());
             space.Add(new AddVariablesToHashFunction());
             space.Add(new AddVariableToHashFunction());
             space.Add(new GetColumnFunction());
@@ -100,44 +99,6 @@
         }
     }
 
-    internal class DefineLocalFunction : FunctionBase
-    {
-        public DefineLocalFunction()
-        {
-            this.Name = Constants.DEFINE_LOCAL;
-            this.MinimumArgCounts = 1;
-            this.Run += DefineLocalFunction_Run;
-        }
-
-        private void DefineLocalFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string varName = Utils.GetSafeString(e.Args, 0);
-            Variable currentValue = Utils.GetSafeVariable(e.Args, 1);
-
-            if (currentValue == null)
-            {
-                currentValue = new Variable("");
-            }
-
-            if (e.Script.StackLevel != null)
-            {
-                ParserFunction.AddLocalVariable(new GetVarFunction(currentValue), e.Script, varName);
-            }
-            else if (e.Script.CurrentClass != null)
-            {
-                Utils.ThrowErrorMsg(m_name + "をクラス内で定義することはできません", Exceptions.COULDNT_DEFINE_IN_CLASS,
-                                    e.Script, m_name);
-            }
-            else
-            {
-                string scopeName = Path.GetFileName(e.Script.Filename);
-                ParserFunction.AddLocalScopeVariable(varName, scopeName,
-                                                     new GetVarFunction(currentValue));
-            }
-
-            e.Return = currentValue;
-        }
-    }
 
     internal class GetPropertiesFunction : FunctionBase, IArrayFunction
     {

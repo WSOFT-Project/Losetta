@@ -132,7 +132,6 @@ namespace AliceScript
             FunctionBaseManerger.Add(new ClassCreator());
             FunctionBaseManerger.Add(new FunctionCreator());
             FunctionBaseManerger.Add(new EnumFunction());
-            FunctionBaseManerger.Add(new NamespaceFunction());
             FunctionBaseManerger.Add(new ArrayTypeFunction());
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());

@@ -48,7 +48,7 @@ namespace AliceScript
 
         public CustomFunction Function { get; set; }
     }
-    internal class ArrayTypeFunction : FunctionBase
+    internal sealed class ArrayTypeFunction : FunctionBase
     {
         public ArrayTypeFunction()
         {
@@ -71,7 +71,7 @@ namespace AliceScript
             }
         }
     }
-    internal class FunctionCreator : FunctionBase
+    internal sealed class FunctionCreator : FunctionBase
     {
         public FunctionCreator()
         {
@@ -475,7 +475,7 @@ namespace AliceScript
         }
     }
 
-    internal class EnumFunction : FunctionBase
+    internal sealed class EnumFunction : FunctionBase
     {
         public EnumFunction()
         {
@@ -569,7 +569,7 @@ namespace AliceScript
         }
     }
 
-    public class ClassCreator : FunctionBase
+    public sealed class ClassCreator : FunctionBase
     {
         public ClassCreator()
         {
@@ -611,54 +611,6 @@ namespace AliceScript
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();
             }
-        }
-
-    }
-
-    public class NamespaceFunction : FunctionBase
-    {
-        public NamespaceFunction()
-        {
-            this.Name = Constants.NAMESPACE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += NamespaceFunction_Run;
-        }
-
-        private void NamespaceFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string namespaceName = Utils.GetToken(e.Script, Constants.NEXT_OR_END_ARRAY);
-            //Utils.CheckNotEnd(script, m_name);
-            Variable result = null;
-            try
-            {
-                e.Script.MoveForwardIf(Constants.START_GROUP);
-                string scriptExpr = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                         Constants.END_GROUP);
-                e.Script.MoveForwardIf(Constants.END_GROUP);
-
-                Dictionary<int, int> char2Line;
-                string body = Utils.ConvertToScript(scriptExpr, out char2Line, out var def);
-
-                ParsingScript tempScript = e.Script.GetTempScript(body);
-                tempScript.Defines = def;
-                tempScript.DisableBreakpoints = true;
-                tempScript.MoveForwardIf(Constants.START_GROUP);
-
-
-
-                while (tempScript.Pointer < body.Length - 1 &&
-                      (result == null || !result.IsReturn))
-                {
-                    result = tempScript.Execute();
-                    tempScript.GoToNextStatement();
-                }
-            }
-            finally
-            {
-                ParserFunction.PopNamespace();
-            }
-
-            e.Return = result;
         }
 
     }
@@ -1836,15 +1788,32 @@ namespace AliceScript
                 baseScript = script;
             }
 
-            bool registVar = this.Keywords.Contains(Constants.VAR);
-            bool registConst = this.Keywords.Contains(Constants.CONST);
-            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
 
-            script.MoveBackIfPrevious(Constants.END_ARG);
             if (varValue == null)
             {
                 return Variable.EmptyInstance;
             }
+
+            string type_modifer = null;
+
+            foreach(string str in Keywords)
+            {
+                if (Constants.TYPE_MODIFER.Contains(str))
+                {
+                    type_modifer = str;
+                    break;
+                }
+            }
+            if(type_modifer==null && script.ContainsSymbol(Constants.TYPE_INFERENCE))
+            {
+                type_modifer = Constants.VAR;
+            }
+
+            bool registVar = type_modifer != null || this.Keywords.Contains(Constants.VAR);
+            bool registConst = this.Keywords.Contains(Constants.CONST);
+            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
+
+            script.MoveBackIfPrevious(Constants.END_ARG);
             varValue.TrySetAsMap();
 
             if (script.Current == ' ' || script.Prev == ' ')
@@ -1918,7 +1887,7 @@ namespace AliceScript
 
                 if (arrayIndices.Count == 0)
                 {
-                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal);
+                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal, type_modifer);
                     Variable retVar = varValue.DeepClone();
                     retVar.CurrentAssign = m_name;
                     return retVar;
@@ -1931,7 +1900,7 @@ namespace AliceScript
 
                 ExtendArray(array, arrayIndices, 0, varValue);
 
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal);
+                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal, type_modifer);
                 return array;
             }
         }

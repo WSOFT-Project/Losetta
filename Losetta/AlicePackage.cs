@@ -239,10 +239,10 @@ namespace AliceScript
                     {
                         e.Delete();
                     }
-                    foreach (string raw in scripts.Keys)
+                    foreach(var script in scripts)
                     {
-                        var ne = a.CreateEntry(raw, CompressionLevel.NoCompression);
-                        ne.Open().Write(scripts[raw], 0, scripts[raw].Length);
+                        var ne = a.CreateEntry(script.Key, CompressionLevel.NoCompression);
+                        ne.Open().Write(script.Value, 0, script.Value.Length);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Text;
+using System.Xml.Linq;
 
 namespace AliceScript
 {
@@ -215,6 +216,14 @@ namespace AliceScript
         /// <param name="v">代入する値</param>
         public void Assign(Variable v)
         {
+            if(TypeSafe && Constants.NOT_NULLABLE_VARIABLE_TYPES.Contains(m_type) && v.IsNull())
+            {
+                throw new ScriptException($"`{m_type}`型はnullをとりえません",Exceptions.VARIABLE_IS_NULL);
+            }
+            if(TypeSafe && m_type != v.Type)
+            {
+                throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません",Exceptions.TYPE_MISMATCH);
+            }
             m_bool = v.m_bool;
             m_byteArray = v.m_byteArray;
             m_customFunctionGet = v.m_customFunctionGet;
@@ -1240,12 +1249,12 @@ namespace AliceScript
                 allSet.Add(key.ToLower());
                 all.Add(key);
             }
-            foreach (string name in Functions.Keys)
+            foreach(var fn in Functions)
             {
-                FunctionBase fb = Functions[name];
+                FunctionBase fb = fn.Value;
                 if (fb.RequestType.Match(this))
                 {
-                    all.Add(name);
+                    all.Add(fn.Key);
                 }
             }
 
@@ -1494,6 +1503,10 @@ namespace AliceScript
         public string CurrentAssign { get; set; } = "";
         public string ParamName { get; set; } = "";
 
+        /// <summary>
+        /// この変数が型安全であればTrue、それ以外の場合はFalse。
+        /// </summary>
+        public bool TypeSafe { get; set; }
         public bool Writable { get; set; } = true;
         public bool Enumerable { get; set; } = true;
         public bool Configurable { get; set; } = true;
@@ -1514,7 +1527,7 @@ namespace AliceScript
 
         public List<Variable> StackVariables { get; set; }
 
-        public static Variable EmptyInstance = new Variable();
+        public static Variable EmptyInstance => new Variable();
         public static Variable Undefined = new Variable(VarType.UNDEFINED);
 
         public virtual Variable Default()
