@@ -365,6 +365,7 @@
             bool fallThrough = e.Script.ContainsSymbol(Constants.FALL_THROUGH);
             bool needBreak = !e.Script.ContainsSymbol(Constants.CASE_WITHOUT_BREAK);
             bool caseDone = false;
+            bool nextTrue = false;
 
             int startPointer = e.Script.Pointer - 1;
 
@@ -384,16 +385,24 @@
                     e.Script.SkipBlock();
                     if (needBreak && result.Type != Variable.VarType.BREAK && !result.IsReturn)
                     {
-                        throw new ScriptException("caseブロックはbreakまたはreturnで抜ける必要があります", Exceptions.CASE_BLOCK_MISSING_BREAK);
+                        throw new ScriptException("defaultブロックはbreakまたはreturnで抜ける必要があります", Exceptions.CASE_BLOCK_MISSING_BREAK);
                     }
                 }
                 if (!caseDone || fallThrough)
                 {
                     Variable caseValue = e.Script.Execute(caseSep);
-                    e.Script.Forward(2);
-
-                    if (caseDone ||switchValue.Equals(caseValue))
+                    bool equal = switchValue.Equals(caseValue);
+                    e.Script.Forward();
+                    if (e.Script.Current != Constants.START_GROUP)
                     {
+                        //ほかの条件がある場合
+                        nextTrue = equal;
+                        continue;
+                    }
+                    e.Script.Forward();
+                    if (caseDone ||equal || nextTrue)
+                    {
+                        nextTrue = false;
                         caseDone = true;
                         result = e.Script.ProcessBlock();
                         if (!fallThrough)
