@@ -255,6 +255,8 @@ namespace AliceScript
         public const string FOLLOW_INCLUDE = "follow_include";
         //varキーワードの型推論を有効にする
         public const string TYPE_INFERENCE = "type_inference";
+        public const string FALL_THROUGH = "fall_through";
+        public const string CASE_WITHOUT_BREAK = "case_without_break";
         public const string DISABLE_USING = "disable_using";
         public const string DISABLE_IMPORT = "disable_import";
         public const string DISABLE_INCLUDE = "disable_include";

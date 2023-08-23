@@ -915,6 +915,7 @@ namespace AliceScript
             bool inQuotes2 = false;
             char previous = Constants.EMPTY;
             char prevprev = Constants.EMPTY;
+
             while (startCount == 0 || startCount > endCount)
             {
                 if (!this.StillValid())

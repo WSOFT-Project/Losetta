@@ -362,7 +362,12 @@
             Variable result = Variable.EmptyInstance;
             var caseSep = ":".ToCharArray();
 
+            bool fallThrough = e.Script.ContainsSymbol(Constants.FALL_THROUGH);
+            bool needBreak = !e.Script.ContainsSymbol(Constants.CASE_WITHOUT_BREAK);
             bool caseDone = false;
+
+            int startPointer = e.Script.Pointer - 1;
+
 
             while (e.Script.StillValid())
             {
@@ -371,26 +376,38 @@
                 {
                     break;
                 }
-                if (nextToken == Constants.DEFAULT && !caseDone)
+                if (nextToken == Constants.DEFAULT && (!caseDone || fallThrough))
                 {
-                    e.Script.ProcessBlock();
-                    break;
+                    result = e.Script.ProcessBlock();
+                    //スタート地点に帰ってブロックを終わらせる
+                    e.Script.Pointer = startPointer;
+                    e.Script.SkipBlock();
+                    if (needBreak && result.Type != Variable.VarType.BREAK && !result.IsReturn)
+                    {
+                        throw new ScriptException("caseブロックはbreakまたはreturnで抜ける必要があります", Exceptions.CASE_BLOCK_MISSING_BREAK);
+                    }
                 }
-                if (!caseDone)
+                if (!caseDone || fallThrough)
                 {
                     Variable caseValue = e.Script.Execute(caseSep);
                     e.Script.Forward(2);
 
-                    if (switchValue.Equals(caseValue))
+                    if (caseDone ||switchValue.Equals(caseValue))
                     {
                         caseDone = true;
-                        string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-                        ParsingScript mainScript = e.Script.GetTempScript(body);
-                        result = mainScript.Process();
-                        if (mainScript.Prev == '}')
+                        result = e.Script.ProcessBlock();
+                        if (!fallThrough)
                         {
+                            //スタート地点に帰ってブロックを終わらせる
+                            e.Script.Pointer = startPointer;
+                            e.Script.SkipBlock();
+                            if (needBreak && result.Type != Variable.VarType.BREAK && !result.IsReturn)
+                            {
+                                throw new ScriptException("caseブロックはbreakまたはreturnで抜ける必要があります", Exceptions.CASE_BLOCK_MISSING_BREAK);
+                            }
                             break;
                         }
+                        e.Script.SkipBlock();
                         e.Script.Forward();
                     }
                     else
@@ -400,7 +417,6 @@
                     }
                 }
             }
-            //  script.MoveForwardIfNotPrevious('}');
             e.Script.GoToNextStatement();
             e.Return = result;
         }

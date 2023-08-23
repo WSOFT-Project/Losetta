@@ -273,6 +273,10 @@
         /// <summary>
         /// クラスが見つかりません。
         /// </summary>
-        COULDNT_FIND_CLASS=0x049
+        COULDNT_FIND_CLASS=0x049,
+        /// <summary>
+        /// caseまたはdefaultブロックにbreakがありません。
+        /// </summary>
+        CASE_BLOCK_MISSING_BREAK=0x04a
     }
 }
