@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Environment_Initer
+    internal sealed class  Alice_Environment_Initer
     {
         public static void Init()
         {
@@ -43,7 +43,7 @@
         }
     }
 
-    internal class Env_CommandLineFunc : FunctionBase
+    internal sealed class Env_CommandLineFunc : FunctionBase
     {
         public Env_CommandLineFunc()
         {
@@ -76,7 +76,7 @@
             }
         }
     }
-    internal class env_currentdirFunc : FunctionBase
+    internal sealed class env_currentdirFunc : FunctionBase
     {
         public env_currentdirFunc()
         {
@@ -89,7 +89,7 @@
             e.Return = new Variable(Environment.CurrentDirectory);
         }
     }
-    internal class env_setExitCodeFunc : FunctionBase
+    internal sealed class env_setExitCodeFunc : FunctionBase
     {
         public env_setExitCodeFunc()
         {
@@ -103,7 +103,7 @@
             Environment.ExitCode = e.Args[0].AsInt();
         }
     }
-    internal class env_HasShutdownStartedFunc : FunctionBase
+    internal sealed class env_HasShutdownStartedFunc : FunctionBase
     {
         public env_HasShutdownStartedFunc()
         {
@@ -116,7 +116,7 @@
             e.Return = new Variable(Environment.HasShutdownStarted);
         }
     }
-    internal class env_Is64BitOperatingSystemFunc : FunctionBase
+    internal sealed class env_Is64BitOperatingSystemFunc : FunctionBase
     {
         public env_Is64BitOperatingSystemFunc()
         {
@@ -129,7 +129,7 @@
             e.Return = new Variable(Environment.Is64BitOperatingSystem);
         }
     }
-    internal class env_Is64BitProcessFunc : FunctionBase
+    internal sealed class env_Is64BitProcessFunc : FunctionBase
     {
         public env_Is64BitProcessFunc()
         {
@@ -142,7 +142,7 @@
             e.Return = new Variable(Environment.Is64BitProcess);
         }
     }
-    internal class env_MachineNameFunc : FunctionBase
+    internal sealed class env_MachineNameFunc : FunctionBase
     {
         public env_MachineNameFunc()
         {
@@ -155,7 +155,7 @@
             e.Return = new Variable(Environment.MachineName);
         }
     }
-    internal class env_NewLineFunc : FunctionBase
+    internal sealed class env_NewLineFunc : FunctionBase
     {
         public env_NewLineFunc()
         {
@@ -168,7 +168,7 @@
             e.Return = new Variable(Environment.NewLine);
         }
     }
-    internal class env_OS_PlatformFunc : FunctionBase
+    internal sealed class env_OS_PlatformFunc : FunctionBase
     {
         public env_OS_PlatformFunc()
         {
@@ -181,7 +181,7 @@
             e.Return = new Variable(Environment.OSVersion.Platform);
         }
     }
-    internal class env_OS_VersionFunc : FunctionBase
+    internal sealed class env_OS_VersionFunc : FunctionBase
     {
         public env_OS_VersionFunc()
         {
@@ -194,7 +194,7 @@
             e.Return = new Variable(Environment.OSVersion.VersionString);
         }
     }
-    internal class env_Process_IdFunc : FunctionBase
+    internal sealed class env_Process_IdFunc : FunctionBase
     {
         public env_Process_IdFunc()
         {
@@ -207,7 +207,7 @@
             e.Return = new Variable(Environment.ProcessId);
         }
     }
-    internal class env_Process_PathFunc : FunctionBase
+    internal sealed class env_Process_PathFunc : FunctionBase
     {
         public env_Process_PathFunc()
         {
@@ -220,7 +220,7 @@
             e.Return = new Variable(Environment.ProcessPath);
         }
     }
-    internal class env_ProcessorCountFunc : FunctionBase
+    internal sealed class env_ProcessorCountFunc : FunctionBase
     {
         public env_ProcessorCountFunc()
         {
@@ -233,7 +233,7 @@
             e.Return = new Variable(Environment.ProcessorCount);
         }
     }
-    internal class env_SystemnDirectoryFunc : FunctionBase
+    internal sealed class env_SystemnDirectoryFunc : FunctionBase
     {
         public env_SystemnDirectoryFunc()
         {
@@ -246,7 +246,7 @@
             e.Return = new Variable(Environment.SystemDirectory);
         }
     }
-    internal class env_SystemPageSizeFunc : FunctionBase
+    internal sealed class env_SystemPageSizeFunc : FunctionBase
     {
         public env_SystemPageSizeFunc()
         {
@@ -259,7 +259,7 @@
             e.Return = new Variable(Environment.SystemPageSize);
         }
     }
-    internal class env_TickCountFunc : FunctionBase
+    internal sealed class env_TickCountFunc : FunctionBase
     {
         public env_TickCountFunc()
         {
@@ -272,7 +272,7 @@
             e.Return = new Variable(Environment.TickCount64);
         }
     }
-    internal class env_UserDomainNameFunc : FunctionBase
+    internal sealed class env_UserDomainNameFunc : FunctionBase
     {
         public env_UserDomainNameFunc()
         {
@@ -285,7 +285,7 @@
             e.Return = new Variable(Environment.UserDomainName);
         }
     }
-    internal class env_UserNameFunc : FunctionBase
+    internal sealed class env_UserNameFunc : FunctionBase
     {
         public env_UserNameFunc()
         {
@@ -298,7 +298,7 @@
             e.Return = new Variable(Environment.UserName);
         }
     }
-    internal class env_WorkingSetFunc : FunctionBase
+    internal sealed class env_WorkingSetFunc : FunctionBase
     {
         public env_WorkingSetFunc()
         {
@@ -311,7 +311,7 @@
             e.Return = new Variable(Environment.WorkingSet);
         }
     }
-    internal class env_versionFunc : FunctionBase
+    internal sealed class env_versionFunc : FunctionBase
     {
         public env_versionFunc()
         {
@@ -324,7 +324,7 @@
             e.Return = new Variable(Alice.Version.ToString());
         }
     }
-    internal class env_lang_versionFunc : FunctionBase
+    internal sealed class env_lang_versionFunc : FunctionBase
     {
         public env_lang_versionFunc()
         {
@@ -337,7 +337,7 @@
             e.Return = new Variable(Alice.Version.ToString());
         }
     }
-    internal class env_lang_nameFunc : FunctionBase
+    internal sealed class env_lang_nameFunc : FunctionBase
     {
         public env_lang_nameFunc()
         {
@@ -350,7 +350,7 @@
             e.Return = new Variable(Constants.LANGUAGE);
         }
     }
-    internal class env_impl_versionFunc : FunctionBase
+    internal sealed class env_impl_versionFunc : FunctionBase
     {
         public env_impl_versionFunc()
         {
@@ -363,7 +363,7 @@
             e.Return = new Variable(Alice.ImplementationVersion.ToString());
         }
     }
-    internal class env_impl_nameFunc : FunctionBase
+    internal sealed class env_impl_nameFunc : FunctionBase
     {
         public env_impl_nameFunc()
         {
@@ -376,7 +376,7 @@
             e.Return = new Variable(Alice.ImplementationName);
         }
     }
-    internal class env_impl_locationFunc : FunctionBase
+    internal sealed class env_impl_locationFunc : FunctionBase
     {
         public env_impl_locationFunc()
         {
@@ -389,7 +389,7 @@
             e.Return = new Variable(Alice.ImplementationLocation);
         }
     }
-    internal class env_impl_architectureFunc : FunctionBase
+    internal sealed class env_impl_architectureFunc : FunctionBase
     {
         public env_impl_architectureFunc()
         {
@@ -418,7 +418,7 @@
             e.Return = new Variable(arch_name);
         }
     }
-    internal class env_impl_targetFunc : FunctionBase
+    internal sealed class env_impl_targetFunc : FunctionBase
     {
         public env_impl_targetFunc()
         {
@@ -443,7 +443,7 @@
             e.Return = new Variable(arch_name);
         }
     }
-    internal class env_clr_versionFunc : FunctionBase
+    internal sealed class env_clr_versionFunc : FunctionBase
     {
         public env_clr_versionFunc()
         {
@@ -456,7 +456,7 @@
             e.Return = new Variable(Environment.Version.ToString());
         }
     }
-    internal class env_Expand_EnvironmentVariablesFunc : FunctionBase
+    internal sealed class env_Expand_EnvironmentVariablesFunc : FunctionBase
     {
         public env_Expand_EnvironmentVariablesFunc()
         {
@@ -470,7 +470,7 @@
             e.Return = new Variable(Environment.ExpandEnvironmentVariables(e.Args[0].AsString() ?? string.Empty));
         }
     }
-    internal class env_get_envirnomentVariableFunc : FunctionBase
+    internal sealed class env_get_envirnomentVariableFunc : FunctionBase
     {
         public env_get_envirnomentVariableFunc()
         {
@@ -492,7 +492,7 @@
             }
         }
     }
-    internal class env_set_envirnomentVariableFunc : FunctionBase
+    internal sealed class env_set_envirnomentVariableFunc : FunctionBase
     {
         public env_set_envirnomentVariableFunc()
         {

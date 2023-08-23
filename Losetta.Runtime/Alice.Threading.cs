@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Threading_Initer
+    internal sealed class  Alice_Threading_Initer
     {
         public static void Init()
         {
@@ -20,7 +20,7 @@
         }
     }
 
-    internal class thread_idFunc : FunctionBase
+    internal sealed class thread_idFunc : FunctionBase
     {
         public thread_idFunc()
         {
@@ -35,7 +35,7 @@
         }
     }
 
-    internal class thread_queueFunc : FunctionBase
+    internal sealed class thread_queueFunc : FunctionBase
     {
         public thread_queueFunc()
         {
@@ -66,14 +66,14 @@
         }
     }
 
-    internal class ThreadQueueStateInfo
+    internal sealed class ThreadQueueStateInfo
     {
         public List<Variable> Args { get; set; }
         public ParsingScript Script { get; set; }
         public DelegateObject Delegate { get; set; }
     }
 
-    internal class task_runFunc : FunctionBase
+    internal sealed class task_runFunc : FunctionBase
     {
         public task_runFunc()
         {
@@ -97,7 +97,7 @@
         }
     }
 
-    internal class SignalWaitFunction : FunctionBase
+    internal sealed class SignalWaitFunction : FunctionBase
     {
         private static AutoResetEvent waitEvent = new AutoResetEvent(false);
         private bool m_isSignal;

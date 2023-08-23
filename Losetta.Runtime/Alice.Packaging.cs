@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Packaging_Initer
+    internal sealed class  Alice_Packaging_Initer
     {
         public static void Init()
         {
@@ -14,7 +14,7 @@
             NameSpaceManerger.Add(space);
         }
     }
-    internal class AlicePackageObject : ObjectBase
+    internal sealed class AlicePackageObject : ObjectBase
     {
         public AlicePackageObject(AlicePackage package)
         {
@@ -55,7 +55,7 @@
             public AlicePackageObject Host { get; set; }
         }
     }
-    internal class PackageManifestObject : ObjectBase
+    internal sealed class PackageManifestObject : ObjectBase
     {
         public PackageManifestObject(PackageManifest manifest)
         {
@@ -167,7 +167,7 @@
             public PackageManifestObject Host { get; set; }
         }
     }
-    internal class Package_GetManifestFromXmlFunc : FunctionBase
+    internal sealed class Package_GetManifestFromXmlFunc : FunctionBase
     {
         public Package_GetManifestFromXmlFunc()
         {
@@ -181,7 +181,7 @@
             e.Return = new Variable(new PackageManifestObject(AlicePackage.GetManifest(e.Args[0].AsString())));
         }
     }
-    internal class Package_CreateFromZipFileFunc : FunctionBase
+    internal sealed class Package_CreateFromZipFileFunc : FunctionBase
     {
         public Package_CreateFromZipFileFunc()
         {

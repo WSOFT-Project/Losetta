@@ -3,7 +3,7 @@
 namespace AliceScript.NameSpaces
 
 {
-    public class SingletonFunction : FunctionBase
+    internal sealed class SingletonFunction : FunctionBase
     {
         private static Dictionary<string, Variable> m_singletons =
            new Dictionary<string, Variable>();
@@ -39,7 +39,7 @@ namespace AliceScript.NameSpaces
         }
 
     }
-    internal class UsingStatement : FunctionBase
+    internal sealed class UsingStatement : FunctionBase
     {
         public UsingStatement()
         {
@@ -68,7 +68,7 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    internal class ImportFunc : FunctionBase
+    internal sealed class ImportFunc : FunctionBase
     {
         public ImportFunc()
         {
@@ -99,7 +99,7 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    internal class DelayFunc : FunctionBase
+    internal sealed class DelayFunc : FunctionBase
     {
         public DelayFunc()
         {
@@ -121,7 +121,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class ExitFunction : FunctionBase
+    internal sealed class ExitFunction : FunctionBase
     {
         public ExitFunction()
         {
@@ -142,7 +142,7 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    internal class LockFunction : FunctionBase
+    internal sealed class LockFunction : FunctionBase
     {
         public LockFunction()
         {
@@ -160,9 +160,7 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-
-    // Prints passed list of argumentsand
-    internal class PrintFunction : FunctionBase
+    internal sealed class PrintFunction : FunctionBase
     {
         public PrintFunction(bool isWrite = false)
         {
@@ -209,7 +207,7 @@ namespace AliceScript.NameSpaces
 
         }
     }
-    public class ReadFunction : FunctionBase
+    internal sealed class ReadFunction : FunctionBase
     {
         public ReadFunction()
         {
@@ -222,7 +220,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(Interpreter.Instance.ReadInput());
         }
     }
-    public class StringFormatFunction : FunctionBase
+    internal sealed class StringFormatFunction : FunctionBase
     {
         public StringFormatFunction()
         {

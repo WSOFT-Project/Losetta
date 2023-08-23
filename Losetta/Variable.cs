@@ -65,8 +65,6 @@ namespace AliceScript
         List<string> ScriptObject.GetProperties()
         {
             List<string> v = Functions.Keys.ToList();
-
-
             return v;
         }
         public static bool GETTING = false;
@@ -145,32 +143,31 @@ namespace AliceScript
             ByteArray = ba;
             Type = VarType.BYTES;
         }
-        public Variable(List<Variable> a)
+        public Variable(IEnumerable<Variable> a)
         {
             this.Tuple = new VariableCollection();
-            this.Tuple.AddRange(a);
+            foreach (var v in a)
+            {
+                this.Tuple.Add(v);
+            }
         }
         public Variable(IEnumerable<string> a)
         {
             this.Tuple = new VariableCollection();
-            VariableCollection tuple = new VariableCollection();
-            tuple.Type = new TypeObject(Variable.VarType.STRING);
+            this.Tuple.Type = new TypeObject(Variable.VarType.STRING);
             foreach(string s in a)
             {
-                tuple.Add(new Variable(s));
+                this.Tuple.Add(new Variable(s));
             }
-            this.Tuple.AddRange(tuple);
         }
         public Variable(List<double> a)
         {
             this.Tuple = new VariableCollection();
-            VariableCollection tuple = new VariableCollection();
-            tuple.Type = new TypeObject(Variable.VarType.NUMBER);
-            for (int i = 0; i < a.Count; i++)
+            this.Tuple.Type = new TypeObject(Variable.VarType.NUMBER);
+            foreach (var i in a)
             {
-                tuple.Add(new Variable(a[i]));
+                this.Tuple.Add(new Variable(i));
             }
-            this.Tuple.AddRange(tuple);
         }
         public Variable(object o)
         {

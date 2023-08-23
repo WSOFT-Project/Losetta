@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Math_Initer
+    internal sealed class  Alice_Math_Initer
     {
         public static void Init()
         {
@@ -46,7 +46,7 @@
         }
     }
 
-    internal class math_MinMaxFunc : FunctionBase
+    internal sealed class math_MinMaxFunc : FunctionBase
     {
         public math_MinMaxFunc(bool max)
         {
@@ -89,7 +89,7 @@
         private bool Mode { get; set; }
     }
 
-    internal class math_RoundFunc : FunctionBase
+    internal sealed class math_RoundFunc : FunctionBase
     {
         public math_RoundFunc()
         {
@@ -111,7 +111,7 @@
         }
     }
 
-    internal class math_powFunc : FunctionBase
+    internal sealed class math_powFunc : FunctionBase
     {
         public math_powFunc()
         {
@@ -126,7 +126,7 @@
         }
     }
 
-    internal class math_eFunc : FunctionBase
+    internal sealed class math_eFunc : FunctionBase
     {
         public math_eFunc()
         {
@@ -142,7 +142,7 @@
         }
     }
 
-    internal class math_isPrimeFunc : FunctionBase
+    internal sealed class math_isPrimeFunc : FunctionBase
     {
         public math_isPrimeFunc()
         {
@@ -186,7 +186,7 @@
         }
     }
 
-    internal class math_tauFunc : FunctionBase
+    internal sealed class math_tauFunc : FunctionBase
     {
         public math_tauFunc()
         {
@@ -202,7 +202,7 @@
         }
     }
 
-    internal class math_piFunc : FunctionBase
+    internal sealed class math_piFunc : FunctionBase
     {
         public math_piFunc()
         {
@@ -218,7 +218,7 @@
         }
     }
 
-    internal class math_absFunc : FunctionBase
+    internal sealed class math_absFunc : FunctionBase
     {
         public math_absFunc()
         {
@@ -233,7 +233,7 @@
         }
     }
 
-    internal class math_acosFunc : FunctionBase
+    internal sealed class math_acosFunc : FunctionBase
     {
         public math_acosFunc()
         {
@@ -248,7 +248,7 @@
         }
     }
 
-    internal class math_acoshFunc : FunctionBase
+    internal sealed class math_acoshFunc : FunctionBase
     {
         public math_acoshFunc()
         {
@@ -263,7 +263,7 @@
         }
     }
 
-    internal class math_sinFunc : FunctionBase
+    internal sealed class math_sinFunc : FunctionBase
     {
         public math_sinFunc()
         {
@@ -278,7 +278,7 @@
         }
     }
 
-    internal class math_sinhFunc : FunctionBase
+    internal sealed class math_sinhFunc : FunctionBase
     {
         public math_sinhFunc()
         {
@@ -293,7 +293,7 @@
         }
     }
 
-    internal class math_atanFunc : FunctionBase
+    internal sealed class math_atanFunc : FunctionBase
     {
         public math_atanFunc()
         {
@@ -308,7 +308,7 @@
         }
     }
 
-    internal class math_atan2Func : FunctionBase
+    internal sealed class math_atan2Func : FunctionBase
     {
         public math_atan2Func()
         {
@@ -323,7 +323,7 @@
         }
     }
 
-    internal class math_atanhFunc : FunctionBase
+    internal sealed class math_atanhFunc : FunctionBase
     {
         public math_atanhFunc()
         {
@@ -338,7 +338,7 @@
         }
     }
 
-    internal class math_bitdecrementFunc : FunctionBase
+    internal sealed class math_bitdecrementFunc : FunctionBase
     {
         public math_bitdecrementFunc()
         {
@@ -353,7 +353,7 @@
         }
     }
 
-    internal class math_bitincrementFunc : FunctionBase
+    internal sealed class math_bitincrementFunc : FunctionBase
     {
         public math_bitincrementFunc()
         {
@@ -368,7 +368,7 @@
         }
     }
 
-    internal class math_cbrtFunc : FunctionBase
+    internal sealed class math_cbrtFunc : FunctionBase
     {
         public math_cbrtFunc()
         {
@@ -383,7 +383,7 @@
         }
     }
 
-    internal class math_ceilingFunc : FunctionBase
+    internal sealed class math_ceilingFunc : FunctionBase
     {
         public math_ceilingFunc()
         {
@@ -398,7 +398,7 @@
         }
     }
 
-    internal class math_clampFunc : FunctionBase
+    internal sealed class math_clampFunc : FunctionBase
     {
         public math_clampFunc()
         {
@@ -413,7 +413,7 @@
         }
     }
 
-    internal class math_copysignFunc : FunctionBase
+    internal sealed class math_copysignFunc : FunctionBase
     {
         public math_copysignFunc()
         {
@@ -429,7 +429,7 @@
 
     }
 
-    internal class math_cosFunc : FunctionBase
+    internal sealed class math_cosFunc : FunctionBase
     {
         public math_cosFunc()
         {
@@ -444,7 +444,7 @@
         }
     }
 
-    internal class math_coshFunc : FunctionBase
+    internal sealed class math_coshFunc : FunctionBase
     {
         public math_coshFunc()
         {
@@ -459,7 +459,7 @@
         }
     }
 
-    internal class math_expFunc : FunctionBase
+    internal sealed class math_expFunc : FunctionBase
     {
         public math_expFunc()
         {
@@ -474,7 +474,7 @@
         }
     }
 
-    internal class math_floorFunc : FunctionBase
+    internal sealed class math_floorFunc : FunctionBase
     {
         public math_floorFunc()
         {
@@ -489,7 +489,7 @@
         }
     }
 
-    internal class math_fusedmultiplyaddFunc : FunctionBase
+    internal sealed class math_fusedmultiplyaddFunc : FunctionBase
     {
         public math_fusedmultiplyaddFunc()
         {
@@ -504,7 +504,7 @@
         }
     }
 
-    internal class math_sqrtFunc : FunctionBase
+    internal sealed class math_sqrtFunc : FunctionBase
     {
         public math_sqrtFunc()
         {
@@ -519,7 +519,7 @@
         }
     }
 
-    internal class math_tanFunc : FunctionBase
+    internal sealed class math_tanFunc : FunctionBase
     {
         public math_tanFunc()
         {
@@ -534,7 +534,7 @@
         }
     }
 
-    internal class math_tanhFunc : FunctionBase
+    internal sealed class math_tanhFunc : FunctionBase
     {
         public math_tanhFunc()
         {
@@ -549,7 +549,7 @@
         }
     }
 
-    internal class math_truncateFunc : FunctionBase
+    internal sealed class math_truncateFunc : FunctionBase
     {
         public math_truncateFunc()
         {

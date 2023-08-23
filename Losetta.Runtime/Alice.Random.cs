@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Random_Initer
+    internal sealed class  Alice_Random_Initer
     {
         internal static Random random;
         public static void Init()
@@ -28,7 +28,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class randFunc : FunctionBase
+    internal sealed class randFunc : FunctionBase
     {
         public randFunc()
         {
@@ -54,7 +54,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class rand_bytesFunc : FunctionBase
+    internal sealed class rand_bytesFunc : FunctionBase
     {
         public rand_bytesFunc()
         {
@@ -71,7 +71,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class rand_doubleFunc : FunctionBase
+    internal sealed class rand_doubleFunc : FunctionBase
     {
         public rand_doubleFunc()
         {
@@ -86,7 +86,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class random_intFunc : FunctionBase
+    internal sealed class random_intFunc : FunctionBase
     {
         public random_intFunc()
         {
@@ -111,7 +111,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class random_bytesFunc : FunctionBase
+    internal sealed class random_bytesFunc : FunctionBase
     {
         public random_bytesFunc()
         {
@@ -126,7 +126,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class guid_new_textFunc : FunctionBase
+    internal sealed class guid_new_textFunc : FunctionBase
     {
         public guid_new_textFunc()
         {
@@ -140,7 +140,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class guid_new_bytesFunc : FunctionBase
+    internal sealed class guid_new_bytesFunc : FunctionBase
     {
         public guid_new_bytesFunc()
         {

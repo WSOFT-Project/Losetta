@@ -2,7 +2,7 @@
 {
 
 
-    internal class NewObjectFunction : FunctionBase
+    internal sealed class NewObjectFunction : FunctionBase
     {
         public NewObjectFunction()
         {
@@ -51,7 +51,7 @@
         }
     }
 
-    internal class IfStatement : FunctionBase
+    internal sealed class IfStatement : FunctionBase
     {
         public IfStatement()
         {
@@ -122,7 +122,7 @@
         }
     }
 
-    internal class ForStatement : FunctionBase
+    internal sealed class ForStatement : FunctionBase
     {
         public ForStatement()
         {
@@ -184,7 +184,7 @@
         }
     }
 
-    internal class ForeachStatement : FunctionBase
+    internal sealed class ForeachStatement : FunctionBase
     {
         public ForeachStatement()
         {
@@ -264,7 +264,7 @@
 
     }
 
-    internal class WhileStatement : FunctionBase
+    internal sealed class WhileStatement : FunctionBase
     {
         public WhileStatement()
         {
@@ -304,7 +304,7 @@
         }
     }
 
-    internal class DoWhileStatement : FunctionBase
+    internal sealed class DoWhileStatement : FunctionBase
     {
         public DoWhileStatement()
         {
@@ -345,7 +345,7 @@
         }
     }
 
-    internal class SwitchStatement : FunctionBase
+    internal sealed class SwitchStatement : FunctionBase
     {
         public SwitchStatement()
         {
@@ -431,7 +431,7 @@
         }
     }
 
-    internal class CaseStatement : FunctionBase
+    internal sealed class CaseStatement : FunctionBase
     {
         public CaseStatement()
         {
@@ -455,7 +455,7 @@
 
     }
     //デリゲートを作成する関数クラスです
-    internal class DelegateCreator : FunctionBase
+    internal sealed class DelegateCreator : FunctionBase
     {
         public DelegateCreator()
         {
@@ -493,7 +493,7 @@
         }
 
     }
-    internal class TryBlock : FunctionBase
+    internal sealed class TryBlock : FunctionBase
     {
         public TryBlock()
         {

@@ -38,31 +38,39 @@
                 }
                 else
                 {
-                    System.Text.RegularExpressions.MatchCollection mc =
-        System.Text.RegularExpressions.Regex.Matches(
-        arg, @"-.*");
-                    if (mc.Count > 0)
+                    if (arg.StartsWith("-", StringComparison.CurrentCulture))
                     {
-                        foreach (System.Text.RegularExpressions.Match m in mc)
-                        {
-                            System.Text.RegularExpressions.MatchCollection mc2 =
+
+                        System.Text.RegularExpressions.MatchCollection mc =
             System.Text.RegularExpressions.Regex.Matches(
-            arg, @"-.*:.*");
-                            if (mc2.Count > 0)
+            arg, @"-.*");
+                        if (mc.Count > 0)
+                        {
+                            foreach (System.Text.RegularExpressions.Match m in mc)
                             {
-                                foreach (System.Text.RegularExpressions.Match m2 in mc2)
+                                System.Text.RegularExpressions.MatchCollection mc2 =
+                System.Text.RegularExpressions.Regex.Matches(
+                arg, @"-.*:.*");
+                                if (mc2.Count > 0)
                                 {
-                                    string v = m2.Value;
-                                    v = v.TrimStart('-'); string[] vs = v.Split(':');
-                                    Values.Add(vs[0].ToLower(), vs[1]);
+                                    foreach (System.Text.RegularExpressions.Match m2 in mc2)
+                                    {
+                                        string v = m2.Value;
+                                        v = v.TrimStart('-'); string[] vs = v.Split(':');
+                                        Values.Add(vs[0].ToLower(), vs[1]);
+                                    }
+                                }
+                                else
+                                {
+                                    string v = m.Value;
+                                    v = v.TrimStart('-');
+                                    Flags.Add(v.ToLower());
                                 }
                             }
-                            else
-                            {
-                                string v = m.Value;
-                                v = v.TrimStart('-');
-                                Flags.Add(v.ToLower());
-                            }
+                        }
+                        else
+                        {
+                            Files.Add(arg);
                         }
                     }
                     else

@@ -1,6 +1,6 @@
 ﻿namespace AliceScript
 {
-    internal class list_addFunc : FunctionBase
+    internal sealed class list_addFunc : FunctionBase
     {
         public list_addFunc()
         {
@@ -22,7 +22,7 @@
         }
     }
 
-    internal class list_addRangeFunc : FunctionBase
+    internal sealed class list_addRangeFunc : FunctionBase
     {
         public list_addRangeFunc()
         {
@@ -51,7 +51,7 @@
         }
     }
 
-    internal class list_InsertFunc : FunctionBase
+    internal sealed class list_InsertFunc : FunctionBase
     {
         public list_InsertFunc()
         {
@@ -87,7 +87,7 @@
     }
 
 
-    internal class list_allFunc : FunctionBase
+    internal sealed class list_allFunc : FunctionBase
     {
         public list_allFunc()
         {
@@ -106,7 +106,7 @@
             e.Return = new Variable(e.CurentVariable.Tuple.All(item => e.Args[0].Delegate.Invoke(new List<Variable> { item }, e.Script).AsBool()));
         }
     }
-    internal class list_anyFunc : FunctionBase
+    internal sealed class list_anyFunc : FunctionBase
     {
         public list_anyFunc()
         {
@@ -125,7 +125,7 @@
             e.Return = new Variable(e.CurentVariable.Tuple.Any(item => e.Args[0].Delegate.Invoke(new List<Variable> { item }, e.Script).AsBool()));
         }
     }
-    internal class list_secenceEqualFunc : FunctionBase
+    internal sealed class list_secenceEqualFunc : FunctionBase
     {
         public list_secenceEqualFunc()
         {
@@ -144,7 +144,7 @@
             e.Return = new Variable(e.CurentVariable.Tuple.SequenceEqual(e.Args[0].Tuple));
         }
     }
-    internal class list_ofTypeFunc : FunctionBase
+    internal sealed class list_ofTypeFunc : FunctionBase
     {
         public list_ofTypeFunc()
         {
@@ -161,11 +161,11 @@
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
             var filter = e.Args[0].Object as TypeObject;
-            e.Return = new Variable(e.CurentVariable.Tuple.Where(item => item.AsType().Equals(filter)).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Where(item => item.AsType().Equals(filter)));
         }
     }
 
-    internal class list_whereFunc : FunctionBase
+    internal sealed class list_whereFunc : FunctionBase
     {
         public list_whereFunc()
         {
@@ -182,10 +182,10 @@
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
             var filter = e.Args[0].Delegate;
-            e.Return = new Variable(e.CurentVariable.Tuple.Where(item => filter.Invoke(new List<Variable> { item }, e.Script).AsBool()).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Where(item => filter.Invoke(new List<Variable> { item }, e.Script).AsBool()));
         }
     }
-    internal class list_DistinctFunc : FunctionBase
+    internal sealed class list_DistinctFunc : FunctionBase
     {
         public list_DistinctFunc()
         {
@@ -211,7 +211,7 @@
             e.Return = new Variable(list);
         }
     }
-    internal class list_skipFunc : FunctionBase
+    internal sealed class list_skipFunc : FunctionBase
     {
         public list_skipFunc()
         {
@@ -227,10 +227,10 @@
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.Skip(e.Args[0].AsInt()).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Skip(e.Args[0].AsInt()));
         }
     }
-    internal class list_skipWhileFunc : FunctionBase
+    internal sealed class list_skipWhileFunc : FunctionBase
     {
         public list_skipWhileFunc()
         {
@@ -247,10 +247,10 @@
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
             var filter = e.Args[0].Delegate;
-            e.Return = new Variable(e.CurentVariable.Tuple.SkipWhile(item => filter.Invoke(new List<Variable> { item }, e.Script).AsBool()).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.SkipWhile(item => filter.Invoke(new List<Variable> { item }, e.Script).AsBool()));
         }
     }
-    internal class list_takeFunc : FunctionBase
+    internal sealed class list_takeFunc : FunctionBase
     {
         public list_takeFunc()
         {
@@ -266,10 +266,10 @@
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.Take(e.Args[0].AsInt()).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Take(e.Args[0].AsInt()));
         }
     }
-    internal class list_takeWhileFunc : FunctionBase
+    internal sealed class list_takeWhileFunc : FunctionBase
     {
         public list_takeWhileFunc()
         {
@@ -286,10 +286,10 @@
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
             var filter = e.Args[0].Delegate;
-            e.Return = new Variable(e.CurentVariable.Tuple.TakeWhile(item => filter.Invoke(new List<Variable> { item }, e.Script).AsBool()).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.TakeWhile(item => filter.Invoke(new List<Variable> { item }, e.Script).AsBool()));
         }
     }
-    internal class list_SelectFunc : FunctionBase
+    internal sealed class list_SelectFunc : FunctionBase
     {
         public list_SelectFunc()
         {
@@ -306,10 +306,10 @@
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
             var filter = e.Args[0].Delegate;
-            e.Return = new Variable(e.CurentVariable.Tuple.Select(item => filter.Invoke(new List<Variable> { item }, e.Script)).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Select(item => filter.Invoke(new List<Variable> { item }, e.Script)));
         }
     }
-    internal class list_OrderByFunc : FunctionBase
+    internal sealed class list_OrderByFunc : FunctionBase
     {
         public list_OrderByFunc()
         {
@@ -327,12 +327,12 @@
             if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.DELEGATE)
             {
                 var filter = e.Args[0].Delegate;
-                e.Return = new Variable(e.CurentVariable.Tuple.OrderBy(item => filter.Invoke(new List<Variable> { item }, e.Script)).ToList());
+                e.Return = new Variable(e.CurentVariable.Tuple.OrderBy(item => filter.Invoke(new List<Variable> { item }, e.Script)));
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.OrderBy(item => item).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.OrderBy(item => item));
         }
     }
-    internal class list_OrderByDescendingFunc : FunctionBase
+    internal sealed class list_OrderByDescendingFunc : FunctionBase
     {
         public list_OrderByDescendingFunc()
         {
@@ -350,12 +350,12 @@
             if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.DELEGATE)
             {
                 var filter = e.Args[0].Delegate;
-                e.Return = new Variable(e.CurentVariable.Tuple.OrderByDescending(item => filter.Invoke(new List<Variable> { item }, e.Script)).ToList());
+                e.Return = new Variable(e.CurentVariable.Tuple.OrderByDescending(item => filter.Invoke(new List<Variable> { item }, e.Script)));
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.OrderByDescending(item => item).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.OrderByDescending(item => item));
         }
     }
-    internal class list_UnionFunc : FunctionBase
+    internal sealed class list_UnionFunc : FunctionBase
     {
         public list_UnionFunc()
         {
@@ -371,10 +371,10 @@
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.Union(e.Args[0].Tuple).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Union(e.Args[0].Tuple));
         }
     }
-    internal class list_ExceptFunc : FunctionBase
+    internal sealed class list_ExceptFunc : FunctionBase
     {
         public list_ExceptFunc()
         {
@@ -390,10 +390,10 @@
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.Except(e.Args[0].Tuple).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Except(e.Args[0].Tuple));
         }
     }
-    internal class list_IntersectFunc : FunctionBase
+    internal sealed class list_IntersectFunc : FunctionBase
     {
         public list_IntersectFunc()
         {
@@ -409,7 +409,7 @@
             {
                 throw new ScriptException("指定された型の変数は比較に使用できません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
-            e.Return = new Variable(e.CurentVariable.Tuple.Intersect(e.Args[0].Tuple).ToList());
+            e.Return = new Variable(e.CurentVariable.Tuple.Intersect(e.Args[0].Tuple));
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
-    internal static class Alice_Initer
+    internal sealed class  Alice_Initer
     {
         public static void Init()
         {
@@ -125,7 +125,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class ReturnStatement : FunctionBase
+    internal sealed class ReturnStatement : FunctionBase
     {
         public ReturnStatement()
         {
@@ -158,7 +158,7 @@ namespace AliceScript.NameSpaces
 
 
 
-    internal class IsNaNFunction : FunctionBase
+    internal sealed class IsNaNFunction : FunctionBase
     {
         public IsNaNFunction()
         {
@@ -174,7 +174,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class ConvertFunc : FunctionBase
+    internal sealed class ConvertFunc : FunctionBase
     {
         public ConvertFunc()
         {
@@ -198,7 +198,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class RemoveAtFunc : FunctionBase
+    internal sealed class RemoveAtFunc : FunctionBase
     {
         public RemoveAtFunc()
         {
@@ -232,7 +232,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class RemoveFunc : FunctionBase
+    internal sealed class RemoveFunc : FunctionBase
     {
         public RemoveFunc()
         {
@@ -273,7 +273,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class IndexOfFunc : FunctionBase
+    internal sealed class IndexOfFunc : FunctionBase
     {
         public IndexOfFunc()
         {
@@ -316,7 +316,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class KeysFunc : FunctionBase
+    internal sealed class KeysFunc : FunctionBase
     {
         public KeysFunc()
         {
@@ -332,7 +332,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class PropertiesFunc : FunctionBase
+    internal sealed class PropertiesFunc : FunctionBase
     {
         public PropertiesFunc()
         {
@@ -346,7 +346,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class TypeFunc : FunctionBase
+    internal sealed class TypeFunc : FunctionBase
     {
         public TypeFunc()
         {
@@ -360,7 +360,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class LengthFunc : FunctionBase
+    internal sealed class LengthFunc : FunctionBase
     {
         public LengthFunc()
         {
@@ -375,7 +375,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class SizeFunc : FunctionBase
+    internal sealed class SizeFunc : FunctionBase
     {
         public SizeFunc()
         {
@@ -390,7 +390,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class ToStringFunc : FunctionBase
+    internal sealed class ToStringFunc : FunctionBase
     {
         public ToStringFunc()
         {
@@ -404,7 +404,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class ContainsFunc : FunctionBase
+    internal sealed class ContainsFunc : FunctionBase
     {
         public ContainsFunc()
         {
@@ -445,7 +445,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_EmptyOrWhiteFunc : FunctionBase
+    internal sealed class str_EmptyOrWhiteFunc : FunctionBase
     {
         public str_EmptyOrWhiteFunc(bool isNullOr)
         {
@@ -476,7 +476,7 @@ namespace AliceScript.NameSpaces
         private bool isNull;
     }
 
-    internal class DelegateNameFunc : FunctionBase
+    internal sealed class DelegateNameFunc : FunctionBase
     {
         public DelegateNameFunc()
         {
@@ -493,7 +493,7 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    internal class InvokeFunc : FunctionBase
+    internal sealed class InvokeFunc : FunctionBase
     {
         public InvokeFunc()
         {
@@ -513,7 +513,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class ResetFunc : FunctionBase
+    internal sealed class ResetFunc : FunctionBase
     {
         public ResetFunc()
         {
@@ -527,7 +527,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class DeepCloneFunc : FunctionBase
+    internal sealed class DeepCloneFunc : FunctionBase
     {
         public DeepCloneFunc()
         {
@@ -541,7 +541,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class CloneFunc : FunctionBase
+    internal sealed class CloneFunc : FunctionBase
     {
         public CloneFunc()
         {
@@ -555,7 +555,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class EqualsFunc : FunctionBase
+    internal sealed class EqualsFunc : FunctionBase
     {
         public EqualsFunc()
         {
@@ -570,7 +570,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class BeginInvokeFunc : FunctionBase
+    internal sealed class BeginInvokeFunc : FunctionBase
     {
         public BeginInvokeFunc()
         {
@@ -587,7 +587,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class DisposeFunc : FunctionBase
+    internal sealed class DisposeFunc : FunctionBase
     {
 
         public DisposeFunc()
@@ -607,7 +607,7 @@ namespace AliceScript.NameSpaces
     //ここより下は変数(Variable)オブジェクトの関数です
 
 
-    internal class string_TrimFunc : FunctionBase
+    internal sealed class string_TrimFunc : FunctionBase
     {
         public string_TrimFunc(int trimtype = 0)
         {
@@ -710,7 +710,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_CompareToFunc : FunctionBase
+    internal sealed class str_CompareToFunc : FunctionBase
     {
         public str_CompareToFunc()
         {
@@ -726,7 +726,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_IsNormalizedFunc : FunctionBase
+    internal sealed class str_IsNormalizedFunc : FunctionBase
     {
         public str_IsNormalizedFunc()
         {
@@ -741,7 +741,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_LastIndexOfFunc : FunctionBase
+    internal sealed class str_LastIndexOfFunc : FunctionBase
     {
         public str_LastIndexOfFunc()
         {
@@ -775,7 +775,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_NormalizeFunc : FunctionBase
+    internal sealed class str_NormalizeFunc : FunctionBase
     {
         public str_NormalizeFunc()
         {
@@ -790,7 +790,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_ReplaceFunc : FunctionBase
+    internal sealed class str_ReplaceFunc : FunctionBase
     {
         public str_ReplaceFunc()
         {
@@ -815,7 +815,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_SplitFunc : FunctionBase
+    internal sealed class str_SplitFunc : FunctionBase
     {
         public str_SplitFunc()
         {
@@ -845,7 +845,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_SubStringFunc : FunctionBase
+    internal sealed class str_SubStringFunc : FunctionBase
     {
         public str_SubStringFunc()
         {
@@ -873,7 +873,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_FormatFunc : FunctionBase
+    internal sealed class str_FormatFunc : FunctionBase
     {
         public str_FormatFunc()
         {
@@ -887,7 +887,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(StringFormatFunction.Format(e.CurentVariable.AsString(), e.Args));
         }
     }
-    internal class str_JoinFunc : FunctionBase
+    internal sealed class str_JoinFunc : FunctionBase
     {
         public str_JoinFunc()
         {
@@ -908,7 +908,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(String.Join(e.Args[0].AsString(), vs));
         }
     }
-    internal class str_ToLowerUpperFunc : FunctionBase
+    internal sealed class str_ToLowerUpperFunc : FunctionBase
     {
         public str_ToLowerUpperFunc(bool upper = false)
         {
@@ -933,7 +933,7 @@ namespace AliceScript.NameSpaces
         private bool Upper = false;
     }
 
-    internal class str_SEWithFunc : FunctionBase
+    internal sealed class str_SEWithFunc : FunctionBase
     {
         public str_SEWithFunc(bool endsWith = false)
         {
@@ -972,7 +972,7 @@ namespace AliceScript.NameSpaces
         private bool EndWith = false;
     }
 
-    internal class str_PadFunc : FunctionBase
+    internal sealed class str_PadFunc : FunctionBase
     {
         public str_PadFunc(bool right = false)
         {
@@ -1012,7 +1012,7 @@ namespace AliceScript.NameSpaces
     }
 
 
-    internal class ThrowFunction : FunctionBase
+    internal sealed class ThrowFunction : FunctionBase
     {
         public ThrowFunction()
         {
@@ -1046,7 +1046,7 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    internal class GotoGosubFunction : FunctionBase
+    internal sealed class GotoGosubFunction : FunctionBase
     {
         private bool m_isGoto = true;
 
@@ -1110,7 +1110,7 @@ namespace AliceScript.NameSpaces
 
 
 
-    internal class IncludeFile : FunctionBase
+    internal sealed class IncludeFile : FunctionBase
     {
         public IncludeFile()
         {
@@ -1141,7 +1141,7 @@ namespace AliceScript.NameSpaces
         }
 
     }
-    internal class list_ForeachFunc : FunctionBase
+    internal sealed class list_ForeachFunc : FunctionBase
     {
         public list_ForeachFunc()
         {
@@ -1163,7 +1163,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_ToLowerUpperInvariantFunc : FunctionBase
+    internal sealed class str_ToLowerUpperInvariantFunc : FunctionBase
     {
         public str_ToLowerUpperInvariantFunc(bool upper = false)
         {
@@ -1188,7 +1188,7 @@ namespace AliceScript.NameSpaces
         private bool Upper = false;
     }
 
-    internal class bytes_toBase64Func : FunctionBase
+    internal sealed class bytes_toBase64Func : FunctionBase
     {
         public bytes_toBase64Func()
         {
@@ -1203,7 +1203,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class list_SortFunc : FunctionBase
+    internal sealed class list_SortFunc : FunctionBase
     {
         public list_SortFunc()
         {
@@ -1218,7 +1218,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class list_ReverseFunc : FunctionBase
+    internal sealed class list_ReverseFunc : FunctionBase
     {
         public list_ReverseFunc()
         {
@@ -1234,7 +1234,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class list_flattenFunc : FunctionBase
+    internal sealed class list_flattenFunc : FunctionBase
     {
         public list_flattenFunc()
         {
@@ -1261,7 +1261,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class list_marge2Func : FunctionBase
+    internal sealed class list_marge2Func : FunctionBase
     {
         public list_marge2Func()
         {
@@ -1293,7 +1293,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class list_FirstOrLastFunc : FunctionBase
+    internal sealed class list_FirstOrLastFunc : FunctionBase
     {
         public list_FirstOrLastFunc(bool isLast = false)
         {

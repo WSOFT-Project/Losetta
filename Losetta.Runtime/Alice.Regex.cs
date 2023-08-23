@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Regex_Initer
+    internal sealed class  Alice_Regex_Initer
     {
         public static void Init()
         {
@@ -27,7 +27,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class str_IsMatchFunc : FunctionBase
+    internal sealed class str_IsMatchFunc : FunctionBase
     {
         public str_IsMatchFunc()
         {
@@ -43,7 +43,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class str_MatchesFunc : FunctionBase
+    internal sealed class str_MatchesFunc : FunctionBase
     {
         public str_MatchesFunc()
         {
@@ -65,7 +65,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class RegexSingleArgFunc : FunctionBase
+    internal sealed class RegexSingleArgFunc : FunctionBase
     {
         public enum FuncMode
         {

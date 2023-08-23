@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Net_Initer
+    internal sealed class  Alice_Net_Initer
     {
         public static void Init()
         {
@@ -32,7 +32,7 @@ namespace AliceScript.NameSpaces
         internal static WebClient wc;
     }
 
-    internal class web_upload_dataFunc : FunctionBase
+    internal sealed class web_upload_dataFunc : FunctionBase
     {
         public web_upload_dataFunc()
         {
@@ -54,7 +54,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_upload_fileFunc : FunctionBase
+    internal sealed class web_upload_fileFunc : FunctionBase
     {
         public web_upload_fileFunc()
         {
@@ -76,7 +76,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_upload_textFunc : FunctionBase
+    internal sealed class web_upload_textFunc : FunctionBase
     {
         public web_upload_textFunc()
         {
@@ -98,7 +98,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_download_dataFunc : FunctionBase
+    internal sealed class web_download_dataFunc : FunctionBase
     {
         public web_download_dataFunc()
         {
@@ -113,7 +113,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_download_fileFunc : FunctionBase
+    internal sealed class web_download_fileFunc : FunctionBase
     {
         public web_download_fileFunc()
         {
@@ -128,7 +128,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_download_textFunc : FunctionBase
+    internal sealed class web_download_textFunc : FunctionBase
     {
         public web_download_textFunc()
         {
@@ -143,7 +143,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_htmldecodeFunc : FunctionBase
+    internal sealed class web_htmldecodeFunc : FunctionBase
     {
         public web_htmldecodeFunc()
         {
@@ -158,7 +158,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_htmlencodeFunc : FunctionBase
+    internal sealed class web_htmlencodeFunc : FunctionBase
     {
         public web_htmlencodeFunc()
         {
@@ -173,7 +173,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_urldecodeFunc : FunctionBase
+    internal sealed class web_urldecodeFunc : FunctionBase
     {
         public web_urldecodeFunc()
         {
@@ -188,7 +188,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_urlencodeFunc : FunctionBase
+    internal sealed class web_urlencodeFunc : FunctionBase
     {
         public web_urlencodeFunc()
         {
@@ -203,7 +203,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_send_pingFunc : FunctionBase
+    internal sealed class web_send_pingFunc : FunctionBase
     {
         public web_send_pingFunc()
         {

@@ -2,7 +2,7 @@
 
 namespace AliceScript
 {
-    internal class IsUndefinedFunction : ParserFunction
+    internal sealed class IsUndefinedFunction : ParserFunction
     {
         private string m_argument;
         private string m_action;
@@ -25,7 +25,7 @@ namespace AliceScript
         }
     }
 
-    internal class CustomMethodFunction : FunctionBase
+    internal sealed class CustomMethodFunction : FunctionBase
     {
         public CustomMethodFunction(CustomFunction func, string name = "")
         {
@@ -569,7 +569,7 @@ namespace AliceScript
         }
     }
 
-    public sealed class ClassCreator : FunctionBase
+    internal sealed class ClassCreator : FunctionBase
     {
         public ClassCreator()
         {
@@ -1118,7 +1118,7 @@ namespace AliceScript
         public Dictionary<string, int> ArgMap { get; private set; } = new Dictionary<string, int>();
     }
 
-    internal class StringOrNumberFunction : FunctionBase
+    internal sealed class StringOrNumberFunction : FunctionBase
     {
         public StringOrNumberFunction()
         {
@@ -1295,19 +1295,6 @@ namespace AliceScript
 
 
     }
-    internal class IdentityFunction : ParserFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return script.Execute(Constants.END_ARG_ARRAY);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await script.ExecuteAsync(Constants.END_ARG_ARRAY);
-        }
-    }
-
-
     // Get a value of a variable or of an array element
     public class GetVarFunction : FunctionBase
     {
@@ -1430,7 +1417,7 @@ namespace AliceScript
         private string m_propName;
     }
 
-    internal class IncrementDecrementFunction : ActionFunction, INumericFunction
+    internal sealed class IncrementDecrementFunction : ActionFunction, INumericFunction
     {
         public IncrementDecrementFunction()
         {
@@ -1499,7 +1486,7 @@ namespace AliceScript
         }
     }
 
-    internal class OperatorAssignFunction : ActionFunction
+    internal sealed class OperatorAssignFunction : ActionFunction
     {
         public OperatorAssignFunction()
         {
@@ -1762,7 +1749,7 @@ namespace AliceScript
         }
     }
 
-    public class AssignFunction : ActionFunction
+    internal sealed class AssignFunction : ActionFunction
     {
         public AssignFunction()
         {

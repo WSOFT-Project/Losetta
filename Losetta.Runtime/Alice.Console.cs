@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Console
+    internal sealed class  Alice_Console
     {
         public static void Init()
         {
@@ -47,7 +47,7 @@
         }
     }
 
-    internal class Console_ResetColorFunc : FunctionBase
+    internal sealed class Console_ResetColorFunc : FunctionBase
     {
         public Console_ResetColorFunc()
         {
@@ -61,7 +61,7 @@
         }
     }
 
-    internal class Console_GetColorFunc : FunctionBase
+    internal sealed class Console_GetColorFunc : FunctionBase
     {
         public Console_GetColorFunc(bool bgcolor = true)
         {
@@ -92,7 +92,7 @@
         private bool m_BGColor = true;
     }
 
-    internal class Console_SetColorFunc : FunctionBase
+    internal sealed class Console_SetColorFunc : FunctionBase
     {
         public Console_SetColorFunc(bool bgcolor = true)
         {
@@ -123,7 +123,7 @@
         private bool m_BGColor = true;
     }
 
-    internal class Console_GetCursorPositionFunc : FunctionBase
+    internal sealed class Console_GetCursorPositionFunc : FunctionBase
     {
         public Console_GetCursorPositionFunc(int mode = 0)
         {
@@ -186,7 +186,7 @@
         }
     }
 
-    internal class Console_GetWindowFunc : FunctionBase
+    internal sealed class Console_GetWindowFunc : FunctionBase
     {
         public Console_GetWindowFunc(int mode = 0)
         {
@@ -265,7 +265,7 @@
         }
     }
 
-    internal class Console_GetBufferSizenFunc : FunctionBase
+    internal sealed class Console_GetBufferSizenFunc : FunctionBase
     {
         public Console_GetBufferSizenFunc(int mode = 0)
         {
@@ -306,7 +306,7 @@
         }
     }
 
-    internal class Console_SetCursorPositionFunc : FunctionBase
+    internal sealed class Console_SetCursorPositionFunc : FunctionBase
     {
         public Console_SetCursorPositionFunc()
         {
@@ -321,7 +321,7 @@
         }
     }
 
-    internal class Console_SetBufferSizeFunc : FunctionBase
+    internal sealed class Console_SetBufferSizeFunc : FunctionBase
     {
         public Console_SetBufferSizeFunc()
         {
@@ -336,7 +336,7 @@
         }
     }
 
-    internal class Console_SetWindowSizeFunc : FunctionBase
+    internal sealed class Console_SetWindowSizeFunc : FunctionBase
     {
         public Console_SetWindowSizeFunc()
         {
@@ -351,7 +351,7 @@
         }
     }
 
-    internal class Console_SetWindowPositionFunc : FunctionBase
+    internal sealed class Console_SetWindowPositionFunc : FunctionBase
     {
         public Console_SetWindowPositionFunc()
         {
@@ -366,7 +366,7 @@
         }
     }
 
-    internal class Console_BeepFunc : FunctionBase
+    internal sealed class Console_BeepFunc : FunctionBase
     {
         public Console_BeepFunc()
         {
@@ -387,7 +387,7 @@
         }
     }
 
-    internal class Console_ClearFunc : FunctionBase
+    internal sealed class Console_ClearFunc : FunctionBase
     {
         public Console_ClearFunc()
         {
@@ -401,7 +401,7 @@
         }
     }
 
-    internal class Console_MoveBufferAreaFunc : FunctionBase
+    internal sealed class Console_MoveBufferAreaFunc : FunctionBase
     {
         public Console_MoveBufferAreaFunc()
         {
@@ -416,7 +416,7 @@
         }
     }
 
-    internal class Console_ReadsFunc : FunctionBase
+    internal sealed class Console_ReadsFunc : FunctionBase
     {
         public Console_ReadsFunc(int mode = 0)
         {
@@ -467,7 +467,7 @@
         private int m_Mode = 0;
     }
 
-    internal class Console_WriteLineFunc : FunctionBase
+    internal sealed class Console_WriteLineFunc : FunctionBase
     {
         public Console_WriteLineFunc(bool wline = true)
         {

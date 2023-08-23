@@ -89,7 +89,7 @@ namespace AliceScript
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if(func.m_impl is FunctionBase fb && (script.ProcessingFunction==null || !(fb is StringOrNumberFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is StringOrNumberFunction)))
                 {
                     script.ProcessingFunction = fb;
                 }
@@ -236,7 +236,6 @@ namespace AliceScript
                 current = new Variable(neg);
                 negated = 0;
             }
-
             if (script.Current == '.')
             {
                 bool inQuotes = false;
@@ -267,11 +266,6 @@ namespace AliceScript
                          (current != null && current.IsReturn));
             if (done)
             {
-
-                if (action != null && action != Constants.END_ARG_STR && token != Constants.DEFAULT)
-                {
-                   // throw new ScriptException("次のアクションで引数が不完全です。[" + action + "]", Exceptions.INSUFFICIENT_ARGUMETS, script);
-                }
 
                 // 数値結果がない場合は、数式ではありません
                 listToMerge.Add(current);

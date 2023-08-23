@@ -9,7 +9,7 @@ namespace AliceScript
     /// <summary>
     /// XMLファイルを管理するクラスです
     /// </summary>
-    public class XMLConfig
+    internal sealed class XMLConfig
     {
 
 

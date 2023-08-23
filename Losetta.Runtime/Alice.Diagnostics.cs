@@ -3,7 +3,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Diagnostics_Initer
+    internal sealed class  Alice_Diagnostics_Initer
     {
         public static void Init()
         {
@@ -35,7 +35,7 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-    internal class Debug_IndentFunction : FunctionBase
+    internal sealed class Debug_IndentFunction : FunctionBase
     {
         public Debug_IndentFunction(bool unindent = false)
         {
@@ -66,7 +66,7 @@ namespace AliceScript.NameSpaces
         private bool m_UnIndent = false;
     }
 
-    internal class Debug_IndentLevelFunction : FunctionBase
+    internal sealed class Debug_IndentLevelFunction : FunctionBase
     {
         public Debug_IndentLevelFunction()
         {
@@ -84,7 +84,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class Debug_PrintFunction : FunctionBase
+    internal sealed class Debug_PrintFunction : FunctionBase
     {
         public Debug_PrintFunction(bool iswrite = false, bool isif = false)
         {
@@ -155,7 +155,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class Process_StartFunc : FunctionBase
+    internal sealed class Process_StartFunc : FunctionBase
     {
         public Process_StartFunc()
         {
@@ -172,7 +172,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class Process_GetProcessFunc : FunctionBase
+    internal sealed class Process_GetProcessFunc : FunctionBase
     {
         public Process_GetProcessFunc(bool byname = false)
         {
@@ -214,7 +214,7 @@ namespace AliceScript.NameSpaces
         private bool m_ByName = false;
     }
 
-    internal class ProcessObject : ObjectBase
+    internal sealed class ProcessObject : ObjectBase
     {
         public ProcessObject()
         {
@@ -321,7 +321,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class ProcessStartInfoObject : ObjectBase
+    internal sealed class ProcessStartInfoObject : ObjectBase
     {
         public ProcessStartInfoObject()
         {
@@ -501,7 +501,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class StopWatchObject : ObjectBase
+    internal sealed class StopWatchObject : ObjectBase
     {
         public StopWatchObject()
         {

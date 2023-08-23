@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces
 {
-    internal class Alice_IO_Intiter
+    internal sealed class Alice_IO_Intiter
     {
         public static void Init()
         {
@@ -62,7 +62,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class zip_CreateFromDirectoryFunc : FunctionBase
+    internal sealed class zip_CreateFromDirectoryFunc : FunctionBase
     {
         public zip_CreateFromDirectoryFunc()
         {
@@ -77,7 +77,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class zip_ExtactToDirectoryFunc : FunctionBase
+    internal sealed class zip_ExtactToDirectoryFunc : FunctionBase
     {
         public zip_ExtactToDirectoryFunc()
         {
@@ -92,7 +92,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_ChangeExtensionFunc : FunctionBase
+    internal sealed class path_ChangeExtensionFunc : FunctionBase
     {
         public path_ChangeExtensionFunc()
         {
@@ -107,7 +107,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_CombineFunc : FunctionBase
+    internal sealed class path_CombineFunc : FunctionBase
     {
         public path_CombineFunc()
         {
@@ -127,7 +127,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_EndsInDirectorySeparatorFunc : FunctionBase
+    internal sealed class path_EndsInDirectorySeparatorFunc : FunctionBase
     {
         public path_EndsInDirectorySeparatorFunc()
         {
@@ -142,7 +142,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_DirectoryNameFunc : FunctionBase
+    internal sealed class path_get_DirectoryNameFunc : FunctionBase
     {
         public path_get_DirectoryNameFunc()
         {
@@ -157,7 +157,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_ExtensionFunc : FunctionBase
+    internal sealed class path_get_ExtensionFunc : FunctionBase
     {
         public path_get_ExtensionFunc()
         {
@@ -172,7 +172,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_FileNameFunc : FunctionBase
+    internal sealed class path_get_FileNameFunc : FunctionBase
     {
         public path_get_FileNameFunc()
         {
@@ -187,7 +187,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_FileNameWithoutExtensionFunc : FunctionBase
+    internal sealed class path_get_FileNameWithoutExtensionFunc : FunctionBase
     {
         public path_get_FileNameWithoutExtensionFunc()
         {
@@ -202,7 +202,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_FullPathFunc : FunctionBase
+    internal sealed class path_get_FullPathFunc : FunctionBase
     {
         public path_get_FullPathFunc()
         {
@@ -224,7 +224,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_PathRootFunc : FunctionBase
+    internal sealed class path_get_PathRootFunc : FunctionBase
     {
         public path_get_PathRootFunc()
         {
@@ -239,7 +239,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_RandomFileNameFunc : FunctionBase
+    internal sealed class path_get_RandomFileNameFunc : FunctionBase
     {
         public path_get_RandomFileNameFunc()
         {
@@ -254,7 +254,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_GetRelativePathFunc : FunctionBase
+    internal sealed class path_get_GetRelativePathFunc : FunctionBase
     {
         public path_get_GetRelativePathFunc()
         {
@@ -269,7 +269,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_TempFileNameFunc : FunctionBase
+    internal sealed class path_get_TempFileNameFunc : FunctionBase
     {
         public path_get_TempFileNameFunc()
         {
@@ -283,7 +283,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_TempPathFunc : FunctionBase
+    internal sealed class path_get_TempPathFunc : FunctionBase
     {
         public path_get_TempPathFunc()
         {
@@ -297,7 +297,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_HasExtensionFunc : FunctionBase
+    internal sealed class path_HasExtensionFunc : FunctionBase
     {
         public path_HasExtensionFunc()
         {
@@ -312,7 +312,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_IsPathFullyQualifiedFunc : FunctionBase
+    internal sealed class path_IsPathFullyQualifiedFunc : FunctionBase
     {
         public path_IsPathFullyQualifiedFunc()
         {
@@ -327,7 +327,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_IsPathRootedFunc : FunctionBase
+    internal sealed class path_IsPathRootedFunc : FunctionBase
     {
         public path_IsPathRootedFunc()
         {
@@ -342,7 +342,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_JoinFunc : FunctionBase
+    internal sealed class path_JoinFunc : FunctionBase
     {
         public path_JoinFunc()
         {
@@ -362,7 +362,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_TrimEndingDirectorySeparatorFunc : FunctionBase
+    internal sealed class path_TrimEndingDirectorySeparatorFunc : FunctionBase
     {
         public path_TrimEndingDirectorySeparatorFunc()
         {
@@ -377,7 +377,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_read_textFunc : FunctionBase
+    internal sealed class file_read_textFunc : FunctionBase
     {
         public file_read_textFunc()
         {
@@ -414,7 +414,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_read_charcodeFunc : FunctionBase
+    internal sealed class file_read_charcodeFunc : FunctionBase
     {
         public file_read_charcodeFunc()
         {
@@ -432,7 +432,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_read_dataFunc : FunctionBase
+    internal sealed class file_read_dataFunc : FunctionBase
     {
         public file_read_dataFunc()
         {
@@ -447,7 +447,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_write_textFunc : FunctionBase
+    internal sealed class file_write_textFunc : FunctionBase
     {
         public file_write_textFunc()
         {
@@ -476,7 +476,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_append_textFunc : FunctionBase
+    internal sealed class file_append_textFunc : FunctionBase
     {
         public file_append_textFunc()
         {
@@ -505,7 +505,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_write_dataFunc : FunctionBase
+    internal sealed class file_write_dataFunc : FunctionBase
     {
         public file_write_dataFunc()
         {
@@ -520,7 +520,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_copyFunc : FunctionBase
+    internal sealed class file_copyFunc : FunctionBase
     {
         public file_copyFunc()
         {
@@ -542,7 +542,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_moveFunc : FunctionBase
+    internal sealed class file_moveFunc : FunctionBase
     {
         public file_moveFunc()
         {
@@ -557,7 +557,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_existsFunc : FunctionBase
+    internal sealed class file_existsFunc : FunctionBase
     {
         public file_existsFunc()
         {
@@ -572,7 +572,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_deleteFunc : FunctionBase
+    internal sealed class file_deleteFunc : FunctionBase
     {
         public file_deleteFunc()
         {
@@ -590,7 +590,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_encryptFunc : FunctionBase
+    internal sealed class file_encryptFunc : FunctionBase
     {
         public file_encryptFunc()
         {
@@ -605,7 +605,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_decrypt : FunctionBase
+    internal sealed class file_decrypt : FunctionBase
     {
         public file_decrypt()
         {
@@ -621,7 +621,7 @@ namespace AliceScript.NameSpaces
     }
 
 
-    internal static class FileEncrypter
+    internal sealed class  FileEncrypter
     {
         internal static bool FileDecrypt(string FilePath, string OutFilePath, string Password)
         {
@@ -905,7 +905,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_createFunc : FunctionBase
+    internal sealed class directory_createFunc : FunctionBase
     {
         public directory_createFunc()
         {
@@ -920,7 +920,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_deleteFunc : FunctionBase
+    internal sealed class directory_deleteFunc : FunctionBase
     {
         public directory_deleteFunc()
         {
@@ -942,7 +942,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_moveFunc : FunctionBase
+    internal sealed class directory_moveFunc : FunctionBase
     {
         public directory_moveFunc()
         {
@@ -959,7 +959,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_existsFunc : FunctionBase
+    internal sealed class directory_existsFunc : FunctionBase
     {
         public directory_existsFunc()
         {
@@ -974,7 +974,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_currentdirectoryFunc : FunctionBase
+    internal sealed class directory_currentdirectoryFunc : FunctionBase
     {
         public directory_currentdirectoryFunc()
         {
@@ -993,7 +993,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_getdirectoriesFunc : FunctionBase
+    internal sealed class directory_getdirectoriesFunc : FunctionBase
     {
         public directory_getdirectoriesFunc()
         {
@@ -1039,7 +1039,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_getfilesFunc : FunctionBase
+    internal sealed class directory_getfilesFunc : FunctionBase
     {
         public directory_getfilesFunc()
         {
@@ -1085,7 +1085,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_getdirectoryrootFunc : FunctionBase
+    internal sealed class directory_getdirectoryrootFunc : FunctionBase
     {
         public directory_getdirectoryrootFunc()
         {
@@ -1101,7 +1101,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_copyFunc : FunctionBase
+    internal sealed class directory_copyFunc : FunctionBase
     {
         public directory_copyFunc()
         {

@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Security_Initer
+    internal sealed class  Alice_Security_Initer
     {
         public static void Init()
         {
@@ -30,7 +30,7 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-    internal class file_encrypt_dataFunc : FunctionBase
+    internal sealed class file_encrypt_dataFunc : FunctionBase
     {
         public file_encrypt_dataFunc()
         {
@@ -45,7 +45,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_decrypt_dataFunc : FunctionBase
+    internal sealed class file_decrypt_dataFunc : FunctionBase
     {
         public file_decrypt_dataFunc()
         {
@@ -59,13 +59,13 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(FileEncrypter.Decrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
         }
     }
-    internal class PSS
+    internal sealed class PSS
     {
         public static int HASH_SIZE = 32;
 
         public static int STRETCH_COUNT = 1000;
     }
-    internal class sha256_gethash : FunctionBase
+    internal sealed class sha256_gethash : FunctionBase
     {
         public sha256_gethash()
         {
@@ -81,7 +81,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(hashValue);
         }
     }
-    internal class sha384_gethash : FunctionBase
+    internal sealed class sha384_gethash : FunctionBase
     {
         public sha384_gethash()
         {
@@ -97,7 +97,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(hashValue);
         }
     }
-    internal class sha512_gethash : FunctionBase
+    internal sealed class sha512_gethash : FunctionBase
     {
         public sha512_gethash()
         {
@@ -113,7 +113,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(hashValue);
         }
     }
-    internal class sha1_gethash : FunctionBase
+    internal sealed class sha1_gethash : FunctionBase
     {
         public sha1_gethash()
         {
@@ -129,7 +129,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(hashValue);
         }
     }
-    internal class md5_gethash : FunctionBase
+    internal sealed class md5_gethash : FunctionBase
     {
         public md5_gethash()
         {
@@ -145,7 +145,7 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(hashValue);
         }
     }
-    internal class Password_Hash : FunctionBase
+    internal sealed class Password_Hash : FunctionBase
     {
 
         public Password_Hash()
@@ -175,7 +175,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class Password_HashData : FunctionBase
+    internal sealed class Password_HashData : FunctionBase
     {
 
         public Password_HashData()
@@ -205,7 +205,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class Password_Salt : FunctionBase
+    internal sealed class Password_Salt : FunctionBase
     {
         public Password_Salt()
         {
@@ -221,7 +221,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class Password_Verify : FunctionBase
+    internal sealed class Password_Verify : FunctionBase
     {
 
         public Password_Verify()
@@ -253,7 +253,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class Password_VerifyData : FunctionBase
+    internal sealed class Password_VerifyData : FunctionBase
     {
 
         public Password_VerifyData()
@@ -284,7 +284,7 @@ namespace AliceScript.NameSpaces
 
 
     }
-    internal static class PasswordSaltHashManerger
+    internal sealed class  PasswordSaltHashManerger
     {
         internal static byte[] GetHash(string password, byte[] salt, int size, int cnt)
         {

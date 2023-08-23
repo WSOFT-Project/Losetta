@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal class Alice_Legacy_Initer
+    internal sealed class Alice_Legacy_Initer
     {
         public static void Init()
         {
@@ -18,7 +18,7 @@
             NameSpaceManerger.Add(space);
         }
     }
-    internal class AddVariablesToHashFunction : FunctionBase
+    internal sealed class AddVariablesToHashFunction : FunctionBase
     {
         public AddVariablesToHashFunction()
         {
@@ -64,7 +64,7 @@
         }
     }
 
-    internal class AddVariableToHashFunction : FunctionBase
+    internal sealed class AddVariableToHashFunction : FunctionBase
     {
         public AddVariableToHashFunction()
         {
@@ -100,7 +100,7 @@
     }
 
 
-    internal class GetPropertiesFunction : FunctionBase, IArrayFunction
+    internal sealed class GetPropertiesFunction : FunctionBase, IArrayFunction
     {
         public GetPropertiesFunction()
         {
@@ -117,7 +117,7 @@
         }
     }
 
-    internal class GetPropertyFunction : FunctionBase, IArrayFunction
+    internal sealed class GetPropertyFunction : FunctionBase, IArrayFunction
     {
         public GetPropertyFunction()
         {
@@ -138,7 +138,7 @@
         }
     }
 
-    internal class SetPropertyFunction : FunctionBase, IArrayFunction
+    internal sealed class SetPropertyFunction : FunctionBase, IArrayFunction
     {
         public SetPropertyFunction()
         {
@@ -162,7 +162,7 @@
         }
     }
 
-    internal class CancelFunction : FunctionBase
+    internal sealed class CancelFunction : FunctionBase
     {
         public static bool Canceled { get; set; }
 
@@ -184,7 +184,7 @@
     }
 
 
-    internal class GetColumnFunction : FunctionBase, IArrayFunction
+    internal sealed class GetColumnFunction : FunctionBase, IArrayFunction
     {
         public GetColumnFunction()
         {
@@ -218,7 +218,7 @@
 
     }
 
-    internal class GetAllKeysFunction : FunctionBase, IArrayFunction
+    internal sealed class GetAllKeysFunction : FunctionBase, IArrayFunction
     {
         public GetAllKeysFunction()
         {
