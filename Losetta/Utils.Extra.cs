@@ -53,9 +53,6 @@
                 files.Sort();
                 return;
             }
-            /*foreach (string dir in dirs) {
-              GetFiles (dir, patterns, addDirs);
-            }*/
         }
 
 

@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -23,9 +22,9 @@ namespace AliceScript
             // A variable, a function, or a number.
             Variable var = script.Execute(sep);
             //value = var.Clone();
-            if(script.ProcessingFunction!=null && script.ProcessingFunction.Keywords != null && var!=null)
+            if (script.ProcessingFunction != null && script.ProcessingFunction.Keywords != null && var != null)
             {
-                var.Keywords=script.ProcessingFunction.Keywords;
+                var.Keywords = script.ProcessingFunction.Keywords;
             }
             if (inQuotes)
             {
@@ -55,7 +54,7 @@ namespace AliceScript
             try
             {
                 value.Tuple = new VariableCollection();
-                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; },null));
+                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }, null));
             }
             finally
             {
@@ -118,7 +117,7 @@ namespace AliceScript
                 int qend = script.Find(curr, script.Pointer + 1);
                 if (qend == -1)
                 {
-                    throw new ScriptException("`"+script.FromPrev()+"` で、クオーテーションが不均等です。",Exceptions.UNBALANCED_QUOTES,script);
+                    throw new ScriptException("`" + script.FromPrev() + "` で、クオーテーションが不均等です。", Exceptions.UNBALANCED_QUOTES, script);
                 }
                 string result = script.Substr(script.Pointer + 1, qend - script.Pointer - 1);
                 script.Pointer = qend + 1;
@@ -380,7 +379,7 @@ namespace AliceScript
 
 
         public static List<Variable> GetArgs(ParsingScript script,
-            char start, char end, Action<bool> outList,FunctionBase callFrom)
+            char start, char end, Action<bool> outList, FunctionBase callFrom)
         {
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
@@ -390,7 +389,7 @@ namespace AliceScript
                 return args;
             }
 
-            ParsingScript tempScript = script.GetTempScript(script.String, callFrom,script.Pointer);
+            ParsingScript tempScript = script.GetTempScript(script.String, callFrom, script.Pointer);
 
             if (script.Current != start && script.TryPrev() != start &&
                (script.Current == ' ' || script.TryPrev() == ' '))
@@ -457,7 +456,7 @@ namespace AliceScript
 
             if (endArgs < 0 && !isLambda)
             {
-                throw new ScriptException("関数のシグネチャを解析できませんでした。",Exceptions.INVALID_FUNCTION_SIGNATURE);
+                throw new ScriptException("関数のシグネチャを解析できませんでした。", Exceptions.INVALID_FUNCTION_SIGNATURE);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -483,7 +482,7 @@ namespace AliceScript
                     string item = collect.ToString().Trim();
                     if (item.Length == 0)
                     {
-                        throw new ScriptException("関数のシグネチャが空でした。",Exceptions.INVALID_FUNCTION_SIGNATURE,script);
+                        throw new ScriptException("関数のシグネチャが空でした。", Exceptions.INVALID_FUNCTION_SIGNATURE, script);
                     }
                     args.Add(item);
                     collect.Clear();
@@ -494,7 +493,7 @@ namespace AliceScript
 
             if (curlyLevel != 0)
             {
-                throw new ScriptException("関数のシグネチャ `"+argStr+"` 内の中括弧が不均等です。",Exceptions.UNBALANCED_CURLY_BRACES);
+                throw new ScriptException("関数のシグネチャ `" + argStr + "` 内の中括弧が不均等です。", Exceptions.UNBALANCED_CURLY_BRACES);
             }
             if (collect.Length > 0)
             {
@@ -506,9 +505,9 @@ namespace AliceScript
             return args.ToArray();
         }
 
-        public static Variable GetVariableFromString(string str, ParsingScript script,FunctionBase callFrom, int startIndex = 0)
+        public static Variable GetVariableFromString(string str, ParsingScript script, FunctionBase callFrom, int startIndex = 0)
         {
-            ParsingScript tempScript = script.GetTempScript(str, callFrom,startIndex);
+            ParsingScript tempScript = script.GetTempScript(str, callFrom, startIndex);
             Variable result = Utils.GetItem(tempScript);
             return result;
         }
@@ -524,7 +523,7 @@ namespace AliceScript
             int endArgs = script.FindFirstOf(Constants.START_GROUP.ToString());
             if (endArgs < 0)
             {
-                throw new ScriptException("基底クラスを取得できませんでした。",Exceptions.COULDNT_EXTRACT_BASE_CLASSES,script);
+                throw new ScriptException("基底クラスを取得できませんでした。", Exceptions.COULDNT_EXTRACT_BASE_CLASSES, script);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -681,10 +680,10 @@ namespace AliceScript
         }
         public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, string filename = "")
         {
-            string curlyErrorMsg = "波括弧が不均等です";
-            string bracketErrorMsg = "角括弧が不均等です";
-            string parenthErrorMsg = "括弧が不均等です";
-            string quoteErrorMsg = "クオーテーションが不均等です";
+            const string curlyErrorMsg = "波括弧が不均等です";
+            const string bracketErrorMsg = "角括弧が不均等です";
+            const string parenthErrorMsg = "括弧が不均等です";
+            const string quoteErrorMsg = "クオーテーションが不均等です";
 
             StringBuilder sb = new StringBuilder(source.Length);
 
@@ -735,7 +734,7 @@ namespace AliceScript
                 char next = i + 1 < source.Length ? source[i + 1] : Constants.EMPTY;
                 char last = sb.Length > 0 ? sb[sb.Length - 1] : Constants.EMPTY;
 
-                if (string.IsNullOrWhiteSpace(ch.ToString()))
+                if (ch == Constants.EMPTY)
                 {
                     lastToken.Clear();
                 }
@@ -825,7 +824,7 @@ namespace AliceScript
                         }
                         else if (inQuotes1)
                         {
-                            sb.Append("\\");
+                            sb.Append('\\');
                         }
                         break;
                     case ' ':
@@ -969,7 +968,7 @@ namespace AliceScript
                             {
                                 string str = SafeReader.ReadAllText(arg, out _);
                                 str = ConvertToScript(str, out _, out var def, Path.GetFileName(arg));
-                                foreach(var d in def)
+                                foreach (var d in def)
                                 {
                                     defines.Add(d);
                                 }
@@ -1055,8 +1054,6 @@ namespace AliceScript
                     ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
                 }
             }
-
-
             return sb.ToString().Trim();
         }
 
@@ -1126,7 +1123,7 @@ namespace AliceScript
         }
 
         public static string GetBodyBetween(ParsingScript script, char open = Constants.START_ARG,
-                                            char close = Constants.END_ARG, string end = "\0",bool stepIn=true)
+                                            char close = Constants.END_ARG, string end = "\0", bool stepIn = true)
         {
             // We are supposed to be one char after the beginning of the string, i.e.
             // we must not have the opening char as the first one.
@@ -1223,19 +1220,19 @@ namespace AliceScript
             return null;
         }
 
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom,int max=0)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom, int max = 0)
         {
             int end = 0;
-            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; },callFrom,max);
+            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; }, callFrom, max);
         }
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals,FunctionBase callFrom,int max=0)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals, FunctionBase callFrom, int max = 0)
         {
             List<Variable> indices = new List<Variable>();
 
             if (max != 0)
             {
                 //逆からインデックス
-                varName = Constants.REVERSE_INDEXER.Replace(varName, "$1["+max+"-$2]");
+                varName = Constants.REVERSE_INDEXER.Replace(varName, "$1[" + max + "-$2]");
             }
 
             int argStart = varName.IndexOf(Constants.START_ARRAY, StringComparison.Ordinal);
@@ -1254,7 +1251,7 @@ namespace AliceScript
                     break;
                 }
 
-                ParsingScript tempScript = script.GetTempScript(varName, callFrom,argStart);
+                ParsingScript tempScript = script.GetTempScript(varName, callFrom, argStart);
                 tempScript.MoveForwardIf(Constants.START_ARG, Constants.START_ARRAY);
 
                 Variable index = tempScript.Execute(Constants.END_ARRAY_ARRAY);
@@ -1300,7 +1297,7 @@ namespace AliceScript
 
                 if (arrayIndex < 0 || arrayIndex >= tupleSize)
                 {
-                    throw new IndexOutOfRangeException("インデックス `"+index.AsString()+"`は配列の境界 `"+tupleSize+"` 外です。");
+                    throw new IndexOutOfRangeException("インデックス `" + index.AsString() + "`は配列の境界 `" + tupleSize + "` 外です。");
                 }
                 switch (currLevel.Type)
                 {
