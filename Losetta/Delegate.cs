@@ -20,7 +20,7 @@
                     if (i == 0)
                     {
                         r = m_fucntions[i];
-                        r.Children = new List<CustomFunction>();
+                        r.Children = new HashSet<CustomFunction>();
                     }
                     else
                     {

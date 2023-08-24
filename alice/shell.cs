@@ -91,11 +91,11 @@ namespace alice
                             }
                         case ConsoleKey.D:
                             {
+                                Console.WriteLine();
                                 DumpLocalVariables(e.Script);
                                 goto PauseInput;
                             }
                     }
-                        e.Handled = Console.ReadKey().Key.HasFlag(ConsoleKey.Enter);
                         Console.WriteLine();
                     }
                 }

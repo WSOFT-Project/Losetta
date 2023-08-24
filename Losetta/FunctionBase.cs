@@ -69,7 +69,7 @@
                 }
                 else
                 {
-                    args = script.GetFunctionArgs(this,Constants.START_ARG, Constants.END_ARG);
+                    args = script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
                 }
 
                 if (MinimumArgCounts >= 1)
@@ -82,7 +82,7 @@
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
             if (currentVariable == null) { return Variable.EmptyInstance; }
-            if (this.RequestType?.Match(currentVariable)==false)
+            if (this.RequestType?.Match(currentVariable) == false)
             {
                 throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION);
             }
@@ -95,7 +95,7 @@
                 }
                 else
                 {
-                    args = script.GetFunctionArgs(this,Constants.START_ARG, Constants.END_ARG);
+                    args = script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
                 }
                 if (MinimumArgCounts >= 1)
                 {

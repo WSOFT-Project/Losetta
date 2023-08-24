@@ -192,9 +192,9 @@ namespace AliceScript
             {
                 VariableCollection newTuple = new VariableCollection();
                 newTuple.Type = m_tuple.Type;
-                foreach (var item in m_tuple)
+                for(int i=0;i < m_tuple.Count; i++)
                 {
-                    newTuple.Add(item.DeepClone());
+                    newTuple.Add(m_tuple[i].DeepClone());
                 }
 
                 newVar.Tuple = newTuple;

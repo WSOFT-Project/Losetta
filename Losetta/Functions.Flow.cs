@@ -332,9 +332,9 @@ namespace AliceScript
         }
         private static AliceScriptClass GetFromNS(string name, ParsingScript script)
         {
-            foreach (var nm in script.UsingNamespaces)
+            for(int i = 0; i < script.UsingNamespaces.Count; i++)
             {
-                var fc = nm.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                var fc = script.UsingNamespaces[i].Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
@@ -648,7 +648,7 @@ namespace AliceScript
                 if (arg.Contains(" "))
                 {
                     //属性等の指定がある場合
-                    var stb = new List<string>(arg.Split(' '));
+                    var stb = new HashSet<string>(arg.Split(' '));
                     //もし'='があればその前後のトークンを連結
                     string oldtoken = "";
                     bool connectnexttoken = false;
@@ -987,7 +987,7 @@ namespace AliceScript
             }
 
         }
-        internal List<CustomFunction> Children
+        internal HashSet<CustomFunction> Children
         {
             get; set;
         }
