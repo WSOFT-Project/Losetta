@@ -251,7 +251,7 @@
         /// <summary>
         /// 現在インタプリタに登録されている関数の名前の一覧を取得します
         /// </summary>
-        public static List<string> Functions => new List<string>(ParserFunction.s_functions.Keys);
+        public static IEnumerable<string> Functions => ParserFunction.s_functions.Keys;
     }
     public delegate void FunctionBaseEventHandler(object sender, FunctionBaseEventArgs e);
     public class FunctionBaseEventArgs : EventArgs

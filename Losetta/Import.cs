@@ -7,7 +7,7 @@
         public static void Add(NameSpace space, string name = null)
         {
             if (name == null) { name = space.Name; }
-            name=name.ToLower();
+            name = name.ToLower();
             if (NameSpaces.ContainsKey(name))
             {
                 //既に存在する場合はマージ
@@ -39,8 +39,8 @@
             Name = name;
         }
         public string Name { get; set; }
-        public List<FunctionBase> Functions = new List<FunctionBase>();
-        public List<ObjectBase> Classes = new List<ObjectBase>();
+        public HashSet<FunctionBase> Functions = new HashSet<FunctionBase>();
+        public HashSet<ObjectBase> Classes = new HashSet<ObjectBase>();
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
         public void Add(FunctionBase func)
         {
@@ -64,8 +64,14 @@
         /// <param name="other">マージする名前空間</param>
         public void Merge(NameSpace other)
         {
-            this.Functions = this.Functions.Union(other.Functions).ToList();
-            this.Classes = this.Classes.Union(other.Classes).ToList();
+            foreach(FunctionBase f in other.Functions)
+            {
+                this.Functions.Add(f);
+            }
+            foreach(ObjectBase obj in other.Classes)
+            {
+                this.Classes.Add(obj);
+            }
         }
     }
 

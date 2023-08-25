@@ -332,7 +332,7 @@ namespace AliceScript
         }
         private static AliceScriptClass GetFromNS(string name, ParsingScript script)
         {
-            for(int i = 0; i < script.UsingNamespaces.Count; i++)
+            for (int i = 0; i < script.UsingNamespaces.Count; i++)
             {
                 var fc = script.UsingNamespaces[i].Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
                 if (fc != null)
@@ -1143,7 +1143,7 @@ namespace AliceScript
                         //文字列型
                         string result = Item.Substring(1, Item.Length - 2);
                         //文字列補間
-                        
+
                         result = result.Replace("\\'", "'");
                         //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識
                         if (dq)
@@ -1783,7 +1783,7 @@ namespace AliceScript
 
             string type_modifer = null;
 
-            foreach(string str in Keywords)
+            foreach (string str in Keywords)
             {
                 if (Constants.TYPE_MODIFER.Contains(str))
                 {
@@ -1791,7 +1791,7 @@ namespace AliceScript
                     break;
                 }
             }
-            if(type_modifer==null && script.ContainsSymbol(Constants.TYPE_INFERENCE))
+            if (type_modifer == null && script.ContainsSymbol(Constants.TYPE_INFERENCE))
             {
                 type_modifer = Constants.VAR;
             }
