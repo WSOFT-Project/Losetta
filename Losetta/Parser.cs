@@ -224,7 +224,7 @@ namespace AliceScript
 
             if (negSign)
             {
-                // -マークがついている場合は数値が0未満
+                // -マークがついている場合は数値がマイナス
                 current = new Variable(-1 * current.Value);
             }
 
@@ -342,27 +342,10 @@ namespace AliceScript
             {
                 return false;
             }
-            double num = 0;
-            if (Double.TryParse(token, NumberStyles.Number |
-                   NumberStyles.AllowExponent |
-                   NumberStyles.Float,
-                   CultureInfo.InvariantCulture, out num))
-            {
-                return false;
-            }
-
             token = token.Substring(1);
             return true;
         }
 
-        private static void AppendIfNecessary(StringBuilder item, char ch, char[] to)
-        {
-            if (ch == Constants.END_ARRAY && to.Length == 1 && to[0] == Constants.END_ARRAY &&
-                item.Length > 0 && item[item.Length - 1] != Constants.END_ARRAY)
-            {
-                item.Append(ch);
-            }
-        }
         private static bool SkipOrAppendIfNecessary(StringBuilder item, char ch, char[] to)
         {
             if (to.Length == 1 && to[0] == Constants.END_ARRAY && item.Length > 0)
@@ -570,6 +553,11 @@ namespace AliceScript
             {
                 leftCell = new Variable(to.Match(leftCell));
             }
+            //[is not]演算子、型テスト否定演算子ですべての型に適応できます
+            if (leftCell.Action == Constants.IS_NOT && rightCell.Object != null && rightCell.Object is TypeObject t)
+            {
+                leftCell = new Variable(!t.Match(leftCell));
+            }
             //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
             else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)
             {
@@ -643,6 +631,8 @@ namespace AliceScript
                 case "^":
                     return new Variable(
                         leftCell.Bool ^ rightCell.Bool);
+                case null:
+                case "\0":
                 case ")":
                     return leftCell;
                 default:
@@ -692,9 +682,9 @@ namespace AliceScript
                     return new Variable((int)leftCell.Value | (int)rightCell.Value);
                 case "**":
                     return new Variable(Math.Pow(leftCell.Value, rightCell.Value));
+                case null:
+                case "\0":
                 case ")":
-                    // Utils.ThrowErrorMsg("Can't process last token [" + rightCell.Value + "] in the expression.",
-                    //      script, script.Current.ToString());
                     return leftCell;
                 default:
                     Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
@@ -725,6 +715,8 @@ namespace AliceScript
                 case ":":
                     leftCell.SetHashVariable(leftCell.AsString(), rightCell);
                     break;
+                case null:
+                case "\0":
                 case ")":
                     break;
                 default:
@@ -787,6 +779,8 @@ namespace AliceScript
 
                         return v;
                     }
+                case null:
+                case "\0":
                 case ")":
                     return leftCell;
                 default:
@@ -833,6 +827,8 @@ namespace AliceScript
 
                         return v;
                     }
+                case null:
+                case "\0":
                 case ")":
                     return leftCell;
                 default:
@@ -847,9 +843,10 @@ namespace AliceScript
         {
             switch (leftCell.Action)
             {
-                case ")":
-                    return leftCell;
                 case ">":
+                case null:
+                case "\0":
+                case ")":
                     return leftCell;
                 default:
                     Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,

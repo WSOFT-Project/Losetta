@@ -26,6 +26,7 @@ namespace AliceScript
 
         public const string AS = "as ";
         public const string IS = "is ";
+        public const string IS_NOT = "is not ";
         public const string FOR_EACH = ":";
         public const string FOR_IN = "in";
         public const string FOR_OF = "of";
@@ -184,7 +185,7 @@ namespace AliceScript
         public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=", "=>" };
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS_NOT,IS};
 
         public static string[] ACTIONS = (OPER_ACTIONS.Union(MATH_ACTIONS)).ToArray();
 
