@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\alice\alice.csproj" />
     <ProjectReference Include="..\Losetta.Runtime\Losetta.Runtime.csproj" />
     <ProjectReference Include="..\Losetta\Losetta.csproj" />
   </ItemGroup>

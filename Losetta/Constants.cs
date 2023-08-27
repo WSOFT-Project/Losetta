@@ -187,7 +187,7 @@ namespace AliceScript
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS_NOT,IS};
 
-        public static string[] ACTIONS = (OPER_ACTIONS.Union(MATH_ACTIONS)).ToArray();
+        public static string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
         public static string[] CORE_OPERATORS = { TRY, FOR, WHILE };
 
@@ -233,13 +233,13 @@ namespace AliceScript
         /// </summary>
         public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}]*$", RegexOptions.Compiled);
 
-        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}",RegexOptions.Compiled);
+        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
-        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}",RegexOptions.Compiled);
+        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
 
-        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}",RegexOptions.Compiled);
+        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
 
-        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]",RegexOptions.Compiled);
+        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";
@@ -257,10 +257,10 @@ namespace AliceScript
         //varキーワードの型推論を有効にする
         public const string TYPE_INFERENCE = "type_inference";
         public const string FALL_THROUGH = "fall_through";
-        public const string CASE_WITHOUT_BREAK = "case_without_break";
-        public const string DISABLE_USING = "disable_using";
-        public const string DISABLE_IMPORT = "disable_import";
-        public const string DISABLE_INCLUDE = "disable_include";
+        public const string CHECK_BREAK_WHEN_CASE = "check_break_when_case";
+        public const string ENABLE_USING = "enable_using";
+        public const string ENABLE_IMPORT = "enable_import";
+        public const string ENABLE_INCLUDE = "enable_include";
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 

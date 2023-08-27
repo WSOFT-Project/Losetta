@@ -10,9 +10,9 @@ namespace AliceScript.NameSpaces
 
         public SingletonFunction()
         {
-            this.Name = Constants.SINGLETON;
-            this.MinimumArgCounts = 1;
-            this.Run += SingletonFunction_Run;
+            Name = Constants.SINGLETON;
+            MinimumArgCounts = 1;
+            Run += SingletonFunction_Run;
         }
 
         private void SingletonFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -20,7 +20,7 @@ namespace AliceScript.NameSpaces
 
             string expr = e.Args[0].AsString();
             Dictionary<int, int> char2Line;
-            expr = Utils.ConvertToScript(expr, out char2Line, out var def);
+            expr = Utils.ConvertToScript(expr, out char2Line, out var def, out var settings);
 
             Variable result;
             if (m_singletons.TryGetValue(expr, out result))
@@ -32,6 +32,7 @@ namespace AliceScript.NameSpaces
             //ParsingScript tempScript = new ParsingScript(expr);
             ParsingScript tempScript = e.Script.GetTempScript(expr);
             tempScript.Defines = def;
+            tempScript.Settings = settings;
             result = tempScript.Execute();
 
             m_singletons[expr] = result;
@@ -43,21 +44,21 @@ namespace AliceScript.NameSpaces
     {
         public UsingStatement()
         {
-            this.Name = "using";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += UsingStatement_Run;
+            Name = "using";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += UsingStatement_Run;
         }
 
         private void UsingStatement_Run(object sender, FunctionBaseEventArgs e)
         {
-            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
+            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
             string name = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             var script = e.Script;
             if (isGlobal)
             {
                 script = ParsingScript.GetTopLevelScript(script);
             }
-            if (!e.Script.ContainsSymbol(Constants.DISABLE_USING))
+            if (e.Script.EnableUsing)
             {
 
                 script.Using(name);
@@ -73,14 +74,14 @@ namespace AliceScript.NameSpaces
         public ImportFunc()
         {
 
-            this.Name = "import";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.MinimumArgCounts = 1;
-            this.Run += ImportFunc_Run;
+            Name = "import";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            MinimumArgCounts = 1;
+            Run += ImportFunc_Run;
         }
         private void ImportFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (!e.Script.ContainsSymbol(Constants.DISABLE_IMPORT))
+            if (e.Script.EnableImport)
             {
                 string filename = e.Args[0].AsString();
                 var data = Utils.GetFileFromPackageOrLocal(filename, Utils.GetSafeBool(e.Args, 1), e.Script);
@@ -103,9 +104,9 @@ namespace AliceScript.NameSpaces
     {
         public DelayFunc()
         {
-            this.Name = "delay";
-            this.MinimumArgCounts = 0;
-            this.Run += DelayFunc_Run;
+            Name = "delay";
+            MinimumArgCounts = 0;
+            Run += DelayFunc_Run;
         }
 
         private void DelayFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -125,9 +126,9 @@ namespace AliceScript.NameSpaces
     {
         public ExitFunction()
         {
-            this.Name = Constants.EXIT;
-            this.MinimumArgCounts = 0;
-            this.Run += ExitFunction_Run;
+            Name = Constants.EXIT;
+            MinimumArgCounts = 0;
+            Run += ExitFunction_Run;
         }
 
         private void ExitFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -146,9 +147,9 @@ namespace AliceScript.NameSpaces
     {
         public LockFunction()
         {
-            this.Name = Constants.LOCK;
-            this.MinimumArgCounts = 1;
-            this.Run += LockFunction_Run;
+            Name = Constants.LOCK;
+            MinimumArgCounts = 1;
+            Run += LockFunction_Run;
         }
         private void LockFunction_Run(object sender, FunctionBaseEventArgs e)
         {
@@ -166,18 +167,18 @@ namespace AliceScript.NameSpaces
         {
             if (isWrite)
             {
-                this.Name = "write";
+                Name = "write";
                 m_write = true;
             }
             else
             {
-                this.Name = "print";
+                Name = "print";
             }
 
             //AliceScript925から、Print関数は引数を持つ必要がなくなりました。
             //this.MinimumArgCounts = 1;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.Run += PrintFunction_Run;
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            Run += PrintFunction_Run;
         }
         private bool m_write;
         private void PrintFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -201,7 +202,7 @@ namespace AliceScript.NameSpaces
         public static void AddOutput(string text, ParsingScript script = null,
                                      bool addLine = true, bool addSpace = true, string start = "")
         {
-            
+
             string output = text + (addLine ? Environment.NewLine : string.Empty);
             Interpreter.Instance.AppendOutput(output);
 
@@ -211,8 +212,8 @@ namespace AliceScript.NameSpaces
     {
         public ReadFunction()
         {
-            this.Name = "read";
-            this.Run += ReadFunction_Run;
+            Name = "read";
+            Run += ReadFunction_Run;
         }
 
         private void ReadFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -224,9 +225,9 @@ namespace AliceScript.NameSpaces
     {
         public StringFormatFunction()
         {
-            this.Name = "string_format";
-            this.MinimumArgCounts = 1;
-            this.Run += StringFormatFunction_Run;
+            Name = "string_format";
+            MinimumArgCounts = 1;
+            Run += StringFormatFunction_Run;
         }
 
         private void StringFormatFunction_Run(object sender, FunctionBaseEventArgs e)

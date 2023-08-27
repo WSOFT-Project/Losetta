@@ -7,7 +7,7 @@
         public static void Add(NameSpace space, string name = null)
         {
             if (name == null) { name = space.Name; }
-            name=name.ToLower();
+            name = name.ToLower();
             if (NameSpaces.ContainsKey(name))
             {
                 //既に存在する場合はマージ
@@ -44,12 +44,12 @@
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
         public void Add(FunctionBase func)
         {
-            func.RelatedNameSpace = this.Name;
+            func.RelatedNameSpace = Name;
             Functions.Add(func);
         }
         public void Add(ObjectBase obj)
         {
-            obj.Namespace = this.Name;
+            obj.Namespace = Name;
             Classes.Add(obj);
         }
         public void Add(string name, string val)
@@ -64,8 +64,8 @@
         /// <param name="other">マージする名前空間</param>
         public void Merge(NameSpace other)
         {
-            this.Functions = this.Functions.Union(other.Functions).ToList();
-            this.Classes = this.Classes.Union(other.Classes).ToList();
+            Functions = Functions.Union(other.Functions).ToList();
+            Classes = Classes.Union(other.Classes).ToList();
         }
     }
 

@@ -3,7 +3,7 @@
 namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
-    internal sealed class  Alice_Initer
+    internal sealed class Alice_Initer
     {
         public static void Init()
         {
@@ -129,9 +129,9 @@ namespace AliceScript.NameSpaces
     {
         public ReturnStatement()
         {
-            this.Name = Constants.RETURN;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += ReturnStatement_Run;
+            Name = Constants.RETURN;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += ReturnStatement_Run;
         }
 
         private void ReturnStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -162,9 +162,9 @@ namespace AliceScript.NameSpaces
     {
         public IsNaNFunction()
         {
-            this.Name = Constants.ISNAN;
-            this.MinimumArgCounts = 0;
-            this.Run += IsNaNFunction_Run;
+            Name = Constants.ISNAN;
+            MinimumArgCounts = 0;
+            Run += IsNaNFunction_Run;
         }
 
         private void IsNaNFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -178,9 +178,9 @@ namespace AliceScript.NameSpaces
     {
         public ConvertFunc()
         {
-            this.Name = "Convert";
-            this.MinimumArgCounts = 1;
-            this.Run += ConvertFunc_Run;
+            Name = "Convert";
+            MinimumArgCounts = 1;
+            Run += ConvertFunc_Run;
         }
 
         private void ConvertFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -202,10 +202,10 @@ namespace AliceScript.NameSpaces
     {
         public RemoveAtFunc()
         {
-            this.Name = Constants.REMOVE_AT;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += RemoveAtFunc_Run;
+            Name = Constants.REMOVE_AT;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += RemoveAtFunc_Run;
         }
 
         private void RemoveAtFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -236,10 +236,10 @@ namespace AliceScript.NameSpaces
     {
         public RemoveFunc()
         {
-            this.Name = Constants.REMOVE_ITEM;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += RemoveFunc_Run;
+            Name = Constants.REMOVE_ITEM;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += RemoveFunc_Run;
         }
 
         private void RemoveFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -277,10 +277,10 @@ namespace AliceScript.NameSpaces
     {
         public IndexOfFunc()
         {
-            this.Name = Constants.INDEX_OF;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += IndexOfFunc_Run;
+            Name = Constants.INDEX_OF;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += IndexOfFunc_Run;
         }
 
         private void IndexOfFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -320,11 +320,11 @@ namespace AliceScript.NameSpaces
     {
         public KeysFunc()
         {
-            this.Name = Constants.KEYS;
-            this.CanSet = false;
-            this.HandleEvents = true;
-            this.Type = Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR;
-            this.Getting += KeysFunc_Getting;
+            Name = Constants.KEYS;
+            CanSet = false;
+            HandleEvents = true;
+            Type = Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR;
+            Getting += KeysFunc_Getting;
 
         }
 
@@ -339,10 +339,10 @@ namespace AliceScript.NameSpaces
     {
         public PropertiesProp()
         {
-            this.Name = Constants.OBJECT_PROPERTIES;
-            this.CanSet = false;
-            this.HandleEvents = true;
-            this.Getting += PropertiesProp_Getting;
+            Name = Constants.OBJECT_PROPERTIES;
+            CanSet = false;
+            HandleEvents = true;
+            Getting += PropertiesProp_Getting;
         }
 
         private void PropertiesProp_Getting(object sender, PropertyBaseEventArgs e)
@@ -355,10 +355,10 @@ namespace AliceScript.NameSpaces
     {
         public TypProp()
         {
-            this.Name = Constants.OBJECT_TYPE;
-            this.CanSet = false;
-            this.HandleEvents = true;
-            this.Getting += TypProp_Getting;
+            Name = Constants.OBJECT_TYPE;
+            CanSet = false;
+            HandleEvents = true;
+            Getting += TypProp_Getting;
         }
 
         private void TypProp_Getting(object sender, PropertyBaseEventArgs e)
@@ -372,10 +372,10 @@ namespace AliceScript.NameSpaces
     {
         public LengthSizeProp()
         {
-            this.CanSet = false;
-            this.HandleEvents = true;
-            this.Type = Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY;
-            this.Getting += LengthFunc_Getting;
+            CanSet = false;
+            HandleEvents = true;
+            Type = Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY;
+            Getting += LengthFunc_Getting;
         }
 
         private void LengthFunc_Getting(object sender, PropertyBaseEventArgs e)
@@ -389,8 +389,8 @@ namespace AliceScript.NameSpaces
     {
         public ToStringFunc()
         {
-            this.Name = "To" + Constants.TO_STRING;
-            this.Run += ToStringFunc_Run;
+            Name = "To" + Constants.TO_STRING;
+            Run += ToStringFunc_Run;
         }
 
         private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -403,10 +403,10 @@ namespace AliceScript.NameSpaces
     {
         public ContainsFunc()
         {
-            this.Name = Constants.CONTAINS;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY | Variable.VarType.DELEGATE);
-            this.Run += ContainsFunc_Run;
+            Name = Constants.CONTAINS;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY | Variable.VarType.DELEGATE);
+            Run += ContainsFunc_Run;
         }
 
         private void ContainsFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -447,14 +447,14 @@ namespace AliceScript.NameSpaces
             isNull = isNullOr;
             if (isNull)
             {
-                this.Name = Constants.EMPTY_NULL;
+                Name = Constants.EMPTY_NULL;
             }
             else
             {
-                this.Name = Constants.EMPTY_WHITE;
+                Name = Constants.EMPTY_WHITE;
             }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += String_EmptyOrWhiteFunc_Run;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += String_EmptyOrWhiteFunc_Run;
         }
 
         private void String_EmptyOrWhiteFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -475,9 +475,9 @@ namespace AliceScript.NameSpaces
     {
         public DelegateNameFunc()
         {
-            this.Name = "Name";
-            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
-            this.Run += DelegateNameFunc_Run;
+            Name = "Name";
+            RequestType = new TypeObject(Variable.VarType.DELEGATE);
+            Run += DelegateNameFunc_Run;
         }
 
         private void DelegateNameFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -492,9 +492,9 @@ namespace AliceScript.NameSpaces
     {
         public InvokeFunc()
         {
-            this.Name = "Invoke";
-            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
-            this.Run += InvokeFunc_Run;
+            Name = "Invoke";
+            RequestType = new TypeObject(Variable.VarType.DELEGATE);
+            Run += InvokeFunc_Run;
         }
 
         private void InvokeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -512,8 +512,8 @@ namespace AliceScript.NameSpaces
     {
         public ResetFunc()
         {
-            this.Name = "Reset";
-            this.Run += ResetFunc_Run;
+            Name = "Reset";
+            Run += ResetFunc_Run;
         }
 
         private void ResetFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -526,8 +526,8 @@ namespace AliceScript.NameSpaces
     {
         public DeepCloneFunc()
         {
-            this.Name = Constants.DEEP_CLONE;
-            this.Run += DeepCloneFunc_Run;
+            Name = Constants.DEEP_CLONE;
+            Run += DeepCloneFunc_Run;
         }
 
         private void DeepCloneFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -540,8 +540,8 @@ namespace AliceScript.NameSpaces
     {
         public CloneFunc()
         {
-            this.Name = Constants.CLONE;
-            this.Run += FinalizeFunc_Run;
+            Name = Constants.CLONE;
+            Run += FinalizeFunc_Run;
         }
 
         private void FinalizeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -554,9 +554,9 @@ namespace AliceScript.NameSpaces
     {
         public EqualsFunc()
         {
-            this.Name = Constants.EQUALS;
-            this.MinimumArgCounts = 1;
-            this.Run += EqualsFunc_Run;
+            Name = Constants.EQUALS;
+            MinimumArgCounts = 1;
+            Run += EqualsFunc_Run;
         }
 
         private void EqualsFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -569,9 +569,9 @@ namespace AliceScript.NameSpaces
     {
         public BeginInvokeFunc()
         {
-            this.Name = "BeginInvoke";
-            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
-            this.Run += BeginInvokeFunc_Run;
+            Name = "BeginInvoke";
+            RequestType = new TypeObject(Variable.VarType.DELEGATE);
+            Run += BeginInvokeFunc_Run;
         }
 
         private void BeginInvokeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -587,8 +587,8 @@ namespace AliceScript.NameSpaces
 
         public DisposeFunc()
         {
-            this.Name = "Dispose";
-            this.Run += DisposeFunc_Run;
+            Name = "Dispose";
+            Run += DisposeFunc_Run;
 
         }
 
@@ -606,27 +606,27 @@ namespace AliceScript.NameSpaces
     {
         public string_TrimFunc(int trimtype = 0)
         {
-            this.TrimType = trimtype;
+            TrimType = trimtype;
             switch (TrimType)
             {
                 case 0:
                     {
-                        this.Name = Constants.TRIM;
+                        Name = Constants.TRIM;
                         break;
                     }
                 case 1:
                     {
-                        this.Name = Constants.TRIM_START;
+                        Name = Constants.TRIM_START;
                         break;
                     }
                 case 2:
                     {
-                        this.Name = Constants.TRIM_END;
+                        Name = Constants.TRIM_END;
                         break;
                     }
             }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += String_TrimFunc_Run;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += String_TrimFunc_Run;
         }
 
         private int TrimType = 0;
@@ -709,10 +709,10 @@ namespace AliceScript.NameSpaces
     {
         public str_CompareToFunc()
         {
-            this.Name = "CompareTo";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IndexOfFunc_Run;
+            Name = "CompareTo";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IndexOfFunc_Run;
         }
 
         private void Str_IndexOfFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -725,9 +725,9 @@ namespace AliceScript.NameSpaces
     {
         public str_IsNormalizedFunc()
         {
-            this.Name = "IsNormalized";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IsNormalizedFunc_Run;
+            Name = "IsNormalized";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IsNormalizedFunc_Run;
         }
 
         private void Str_IsNormalizedFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -740,10 +740,10 @@ namespace AliceScript.NameSpaces
     {
         public str_LastIndexOfFunc()
         {
-            this.Name = "LastIndexOf";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IndexOfFunc_Run;
+            Name = "LastIndexOf";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IndexOfFunc_Run;
         }
 
         private void Str_IndexOfFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -774,9 +774,9 @@ namespace AliceScript.NameSpaces
     {
         public str_NormalizeFunc()
         {
-            this.Name = "Normalize";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_NormalizeFunc_Run1;
+            Name = "Normalize";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_NormalizeFunc_Run1;
         }
 
         private void Str_NormalizeFunc_Run1(object sender, FunctionBaseEventArgs e)
@@ -789,15 +789,15 @@ namespace AliceScript.NameSpaces
     {
         public str_ReplaceFunc()
         {
-            this.Name = Constants.REPLACE;
-            this.MinimumArgCounts = 2;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_ReplaceFunc_Run;
+            Name = Constants.REPLACE;
+            MinimumArgCounts = 2;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_ReplaceFunc_Run;
         }
 
         private void Str_ReplaceFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if(e.Args.Count > 3)
+            if (e.Args.Count > 3)
             {
                 var sb = new StringBuilder(e.CurentVariable.AsString());
                 sb.Replace(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsInt(), e.Args[3].AsInt());
@@ -814,10 +814,10 @@ namespace AliceScript.NameSpaces
     {
         public str_SplitFunc()
         {
-            this.Name = Constants.SPLIT;
-            this.MinimumArgCounts = 0;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_SplitFunc_Run;
+            Name = Constants.SPLIT;
+            MinimumArgCounts = 0;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_SplitFunc_Run;
         }
 
         private void Str_SplitFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -844,10 +844,10 @@ namespace AliceScript.NameSpaces
     {
         public str_SubStringFunc()
         {
-            this.Name = Constants.SUBSTRING;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_SubStringFunc_Run;
+            Name = Constants.SUBSTRING;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_SubStringFunc_Run;
         }
 
         private void Str_SubStringFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -872,9 +872,9 @@ namespace AliceScript.NameSpaces
     {
         public str_FormatFunc()
         {
-            this.Name = "Format";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_FormatFunc_Run;
+            Name = "Format";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_FormatFunc_Run;
         }
 
         private void Str_FormatFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -886,10 +886,10 @@ namespace AliceScript.NameSpaces
     {
         public str_JoinFunc()
         {
-            this.Name = "Join";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.MinimumArgCounts = 2;
-            this.Run += Str_JoinFunc_Run;
+            Name = "Join";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            MinimumArgCounts = 2;
+            Run += Str_JoinFunc_Run;
         }
 
         private void Str_JoinFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -908,9 +908,9 @@ namespace AliceScript.NameSpaces
         public str_ToLowerUpperFunc(bool upper = false)
         {
             Upper = upper;
-            if (upper) { this.Name = Constants.UPPER; } else { this.Name = Constants.LOWER; }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_ToLowerUpperFunc_Run;
+            if (upper) { Name = Constants.UPPER; } else { Name = Constants.LOWER; }
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_ToLowerUpperFunc_Run;
         }
 
         private void Str_ToLowerUpperFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -932,10 +932,10 @@ namespace AliceScript.NameSpaces
     {
         public str_SEWithFunc(bool endsWith = false)
         {
-            this.EndWith = endsWith;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_SEWithFunc_Run;
+            EndWith = endsWith;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_SEWithFunc_Run;
         }
 
         private void Str_SEWithFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -971,10 +971,10 @@ namespace AliceScript.NameSpaces
     {
         public str_PadFunc(bool right = false)
         {
-            this.Right = right;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_PadFunc_Run;
+            Right = right;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_PadFunc_Run;
         }
 
         private void Str_PadFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1011,10 +1011,10 @@ namespace AliceScript.NameSpaces
     {
         public ThrowFunction()
         {
-            this.Name = "throw";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
-            this.MinimumArgCounts = 1;
-            this.Run += ThrowFunction_Run;
+            Name = "throw";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
+            MinimumArgCounts = 1;
+            Run += ThrowFunction_Run;
         }
 
         private void ThrowFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1031,10 +1031,10 @@ namespace AliceScript.NameSpaces
                     }
                 default:
                     {
-                        if(e.Args[0].Object is ExceptionObject eo)
+                        if (e.Args[0].Object is ExceptionObject eo)
                         {
                             var s = eo.MainScript == null ? e.Script : eo.MainScript;
-                            throw new ScriptException(eo.Message,eo.ErrorCode,s);
+                            throw new ScriptException(eo.Message, eo.ErrorCode, s);
                         }
                         break;
                     }
@@ -1050,11 +1050,11 @@ namespace AliceScript.NameSpaces
             m_isGoto = gotoMode;
             if (m_isGoto)
             {
-                this.Name = Constants.GOTO;
+                Name = Constants.GOTO;
             }
             else
             {
-                this.Name = Constants.GOSUB;
+                Name = Constants.GOSUB;
             }
         }
 
@@ -1083,7 +1083,7 @@ namespace AliceScript.NameSpaces
             if (script.LabelToFile.TryGetValue(labelName, out filename) &&
                 filename != script.Filename && !string.IsNullOrWhiteSpace(filename))
             {
-                var newScript = script.GetIncludeFileScript(filename,this);
+                var newScript = script.GetIncludeFileScript(filename, this);
                 script.Filename = filename;
                 script.String = newScript.String;
             }
@@ -1109,10 +1109,10 @@ namespace AliceScript.NameSpaces
     {
         public IncludeFile()
         {
-            this.Name = "include";
-            this.MinimumArgCounts = 1;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
-            this.Run += IncludeFile_Run;
+            Name = "include";
+            MinimumArgCounts = 1;
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
+            Run += IncludeFile_Run;
         }
 
         private void IncludeFile_Run(object sender, FunctionBaseEventArgs e)
@@ -1123,7 +1123,7 @@ namespace AliceScript.NameSpaces
                 e.Script = new ParsingScript("");
             }
             */
-            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString(),this);
+            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString(), this);
 
             Variable result = null;
             while (tempScript.StillValid())
@@ -1140,10 +1140,10 @@ namespace AliceScript.NameSpaces
     {
         public list_ForeachFunc()
         {
-            this.Name = Constants.FOREACH;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_ForeachFunc_Run;
+            Name = Constants.FOREACH;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_ForeachFunc_Run;
         }
 
         private void List_ForeachFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1163,9 +1163,9 @@ namespace AliceScript.NameSpaces
         public str_ToLowerUpperInvariantFunc(bool upper = false)
         {
             Upper = upper;
-            if (upper) { this.Name = "ToUpperInvariant"; } else { this.Name = "ToLowerInvariant"; }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_ToLowerUpperFunc_Run;
+            if (upper) { Name = "ToUpperInvariant"; } else { Name = "ToLowerInvariant"; }
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_ToLowerUpperFunc_Run;
         }
 
         private void Str_ToLowerUpperFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1187,9 +1187,9 @@ namespace AliceScript.NameSpaces
     {
         public bytes_toBase64Func()
         {
-            this.Name = "ToBase64";
-            this.RequestType = new TypeObject(Variable.VarType.BYTES);
-            this.Run += ToBase64Func_Run;
+            Name = "ToBase64";
+            RequestType = new TypeObject(Variable.VarType.BYTES);
+            Run += ToBase64Func_Run;
         }
 
         private void ToBase64Func_Run(object sender, FunctionBaseEventArgs e)
@@ -1202,9 +1202,9 @@ namespace AliceScript.NameSpaces
     {
         public list_SortFunc()
         {
-            this.Name = Constants.SORT;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_SortFunc_Run;
+            Name = Constants.SORT;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_SortFunc_Run;
         }
 
         private void List_SortFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1217,9 +1217,9 @@ namespace AliceScript.NameSpaces
     {
         public list_ReverseFunc()
         {
-            this.Name = Constants.REVERSE;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_ReverseFunc_Run;
+            Name = Constants.REVERSE;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_ReverseFunc_Run;
         }
 
         private void List_ReverseFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1233,9 +1233,9 @@ namespace AliceScript.NameSpaces
     {
         public list_flattenFunc()
         {
-            this.Name = "Flatten";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_flattenFunc_Run;
+            Name = "Flatten";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_flattenFunc_Run;
         }
 
         private void List_flattenFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1261,9 +1261,9 @@ namespace AliceScript.NameSpaces
         public list_marge2Func()
         {
 
-            this.Name = "Merge";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_marge2Func_Run;
+            Name = "Merge";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_marge2Func_Run;
         }
 
         private void List_marge2Func_Run(object sender, FunctionBaseEventArgs e)
@@ -1295,14 +1295,14 @@ namespace AliceScript.NameSpaces
             m_Last = isLast;
             if (m_Last)
             {
-                this.Name = Constants.LAST;
+                Name = Constants.LAST;
             }
             else
             {
-                this.Name = Constants.FIRST;
+                Name = Constants.FIRST;
             }
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_FirstOrLastFunc_Run;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_FirstOrLastFunc_Run;
         }
 
         private void List_FirstOrLastFunc_Run(object sender, FunctionBaseEventArgs e)

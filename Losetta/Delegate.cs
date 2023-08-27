@@ -137,14 +137,14 @@
         public bool Equals(DelegateObject d)
         {
             //要素数が異なるときはもちろん異なる
-            if (this.Length != d.Length)
+            if (Length != d.Length)
             {
                 return false;
             }
 
             for (int i = 0; i < d.Length; i++)
             {
-                if (this.Functions[i] != d.Functions[i])
+                if (Functions[i] != d.Functions[i])
                 {
                     //一つでも違えば異なる
                     return false;
@@ -160,14 +160,14 @@
     {
         public EventBase()
         {
-            this.CanSet = true;
-            this.Value = new Variable(Variable.VarType.DELEGATE);
+            CanSet = true;
+            Value = new Variable(Variable.VarType.DELEGATE);
         }
         public EventBase(string name)
         {
-            this.Name = name;
-            this.CanSet = true;
-            this.Value = new Variable(Variable.VarType.DELEGATE);
+            Name = name;
+            CanSet = true;
+            Value = new Variable(Variable.VarType.DELEGATE);
         }
         /// <summary>
         /// イベントを実行します
@@ -180,9 +180,9 @@
         {
             Variable result = Variable.EmptyInstance;
 
-            if (this.Value.Type == Variable.VarType.DELEGATE && this.Value.Delegate != null)
+            if (Value.Type == Variable.VarType.DELEGATE && Value.Delegate != null)
             {
-                result = this.Value.Delegate.Invoke(args, script, instance);
+                result = Value.Delegate.Invoke(args, script, instance);
             }
 
             return result;

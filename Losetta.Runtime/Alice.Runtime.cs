@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    public  class Alice_Runtime : ILibrary
+    public class Alice_Runtime : ILibrary
     {
         public string Name => "Alice.Runtime";
 

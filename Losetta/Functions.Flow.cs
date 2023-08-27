@@ -37,7 +37,7 @@ namespace AliceScript
                 isNative = Function.isNative;
                 IsVirtual = Function.IsVirtual;
                 Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-                this.Run += CustomMethodFunction_Run;
+                Run += CustomMethodFunction_Run;
             }
         }
 
@@ -52,9 +52,9 @@ namespace AliceScript
     {
         public ArrayTypeFunction()
         {
-            this.Name = "array";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.Run += ArrayTypeFunction_Run;
+            Name = "array";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            Run += ArrayTypeFunction_Run;
         }
 
         private void ArrayTypeFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -75,22 +75,22 @@ namespace AliceScript
     {
         public FunctionCreator()
         {
-            this.Name = Constants.FUNCTION;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += FunctionCreator_Run;
+            Name = Constants.FUNCTION;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += FunctionCreator_Run;
         }
 
         private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
         {
             string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             bool? mode = null;
-            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
-            bool isCommand = this.Keywords.Contains(Constants.COMMAND);
-            if (this.Keywords.Contains(Constants.OVERRIDE))
+            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
+            bool isCommand = Keywords.Contains(Constants.COMMAND);
+            if (Keywords.Contains(Constants.OVERRIDE))
             {
                 mode = true;
             }
-            else if (this.Keywords.Contains(Constants.VIRTUAL))
+            else if (Keywords.Contains(Constants.VIRTUAL))
             {
                 mode = false;
             }
@@ -191,8 +191,8 @@ namespace AliceScript
     {
         public AliceScriptClass()
         {
-            this.Name = "Class";
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Name = "Class";
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
         }
 
         public AliceScriptClass(string className)
@@ -206,7 +206,7 @@ namespace AliceScript
             Name = className;
             RegisterClass(className, this);
 
-            this.BaseClasses = baseClasses;
+            BaseClasses = baseClasses;
 
             foreach (string baseClass in baseClasses)
             {
@@ -332,7 +332,7 @@ namespace AliceScript
         }
         private static AliceScriptClass GetFromNS(string name, ParsingScript script)
         {
-            for(int i = 0; i < script.UsingNamespaces.Count; i++)
+            for (int i = 0; i < script.UsingNamespaces.Count; i++)
             {
                 var fc = script.UsingNamespaces[i].Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
                 if (fc != null)
@@ -479,10 +479,10 @@ namespace AliceScript
     {
         public EnumFunction()
         {
-            this.Name = Constants.ENUM;
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += EnumFunction_Run;
+            Name = Constants.ENUM;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += EnumFunction_Run;
         }
 
         private void EnumFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -573,10 +573,10 @@ namespace AliceScript
     {
         public ClassCreator()
         {
-            this.Name = Constants.CLASS;
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += ClassCreator_Run;
+            Name = Constants.CLASS;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += ClassCreator_Run;
         }
 
         private void ClassCreator_Run(object sender, FunctionBaseEventArgs e)
@@ -597,10 +597,11 @@ namespace AliceScript
                                                      Constants.END_GROUP);
             e.Script.MoveForwardIf(Constants.END_GROUP);
 
-            string body = Utils.ConvertToScript(scriptExpr, out _, out var def);
+            string body = Utils.ConvertToScript(scriptExpr, out _, out var def, out var settings);
 
             Variable result = null;
             ParsingScript tempScript = e.Script.GetTempScript(body);
+            tempScript.Settings = settings;
             tempScript.Defines = def;
             tempScript.CurrentClass = newClass;
             tempScript.DisableBreakpoints = true;
@@ -624,9 +625,9 @@ namespace AliceScript
             m_body = body;
             m_forceReturn = forceReturn;
 
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
 
-            this.Run += CustomFunction_Run;
+            Run += CustomFunction_Run;
 
             //正確な変数名の一覧
             List<string> trueArgs = new List<string>();
@@ -691,8 +692,8 @@ namespace AliceScript
                 TypeObject reqType = new TypeObject();
                 if (options.Count > 0)
                 {
-                    parms = (options.Contains(Constants.PARAMS));
-                    refs = (options.Contains(Constants.REF));
+                    parms = options.Contains(Constants.PARAMS);
+                    refs = options.Contains(Constants.REF);
                     if (options.Contains("this"))
                     {
                         if (m_this == -1)
@@ -1068,7 +1069,7 @@ namespace AliceScript
 
         public override ParserFunction NewInstance()
         {
-            var newInstance = (CustomFunction)this.MemberwiseClone();
+            var newInstance = (CustomFunction)MemberwiseClone();
             return newInstance;
         }
 
@@ -1080,7 +1081,7 @@ namespace AliceScript
         public string Argument(int nIndex) { return m_args[nIndex]; }
 
         public StackLevel NamespaceData { get; set; }
-        public bool IsMethod => (m_this != -1);
+        public bool IsMethod => m_this != -1;
         public TypeObject MethodRequestType
         {
             get
@@ -1122,10 +1123,10 @@ namespace AliceScript
     {
         public StringOrNumberFunction()
         {
-            this.Name = "StringOrNumber";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
-            this.Run += StringOrNumberFunction_Run;
+            Name = "StringOrNumber";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += StringOrNumberFunction_Run;
         }
 
         private void StringOrNumberFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1135,15 +1136,15 @@ namespace AliceScript
             {
                 if (StringMode)
                 {
-                    bool sq = (Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1);
-                    bool dq = (Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE);
+                    bool sq = Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1;
+                    bool dq = Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE;
                     Name = "StringLiteral";
                     if (dq || sq)
                     {
                         //文字列型
                         string result = Item.Substring(1, Item.Length - 2);
                         //文字列補間
-                        
+
                         result = result.Replace("\\'", "'");
                         //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識
                         if (dq)
@@ -1301,10 +1302,10 @@ namespace AliceScript
         public GetVarFunction(Variable value)
         {
             m_value = value;
-            this.Name = "Variable";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Name = "Variable";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             //this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
-            this.Run += GetVarFunction_Run;
+            Run += GetVarFunction_Run;
         }
 
         private void GetVarFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1342,6 +1343,7 @@ namespace AliceScript
                 e.Script.Forward(m_delta);
                 while (e.Script.MoveForwardIf(Constants.END_ARRAY))
                 {
+                    ;
                 }
 
                 Variable result = Utils.ExtractArrayElement(m_value, m_arrayIndices, e.Script);
@@ -1421,10 +1423,10 @@ namespace AliceScript
     {
         public IncrementDecrementFunction()
         {
-            this.Name = "IncrementDecrement";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
-            this.Run += IncrementDecrementFunction_Run;
+            Name = "IncrementDecrement";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += IncrementDecrementFunction_Run;
         }
 
         private void IncrementDecrementFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1480,7 +1482,7 @@ namespace AliceScript
         }
 
 
-        override public ParserFunction NewInstance()
+        public override ParserFunction NewInstance()
         {
             return new IncrementDecrementFunction();
         }
@@ -1490,10 +1492,10 @@ namespace AliceScript
     {
         public OperatorAssignFunction()
         {
-            this.Name = "OperatorAssign";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
-            this.Run += OperatorAssignFunction_Run;
+            Name = "OperatorAssign";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += OperatorAssignFunction_Run;
         }
 
         private void OperatorAssignFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1743,7 +1745,7 @@ namespace AliceScript
             }
         }
 
-        override public ParserFunction NewInstance()
+        public override ParserFunction NewInstance()
         {
             return new OperatorAssignFunction();
         }
@@ -1753,11 +1755,11 @@ namespace AliceScript
     {
         public AssignFunction()
         {
-            this.Name = "Assign";
+            Name = "Assign";
 
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
-            this.Run += AssignFunction_Run;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += AssignFunction_Run;
         }
 
         private void AssignFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1783,7 +1785,7 @@ namespace AliceScript
 
             string type_modifer = null;
 
-            foreach(string str in Keywords)
+            foreach (string str in Keywords)
             {
                 if (Constants.TYPE_MODIFER.Contains(str))
                 {
@@ -1791,14 +1793,10 @@ namespace AliceScript
                     break;
                 }
             }
-            if(type_modifer==null && script.ContainsSymbol(Constants.TYPE_INFERENCE))
-            {
-                type_modifer = Constants.VAR;
-            }
 
-            bool registVar = type_modifer != null || this.Keywords.Contains(Constants.VAR);
-            bool registConst = this.Keywords.Contains(Constants.CONST);
-            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
+            bool registVar = type_modifer != null || Keywords.Contains(Constants.VAR);
+            bool registConst = Keywords.Contains(Constants.CONST);
+            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
 
             script.MoveBackIfPrevious(Constants.END_ARG);
             varValue.TrySetAsMap();
@@ -1835,8 +1833,8 @@ namespace AliceScript
 
                     Variable array;
 
-                    ParserFunction pf = ParserFunction.GetVariable(m_name, script, false, this.Keywords);
-                    array = pf != null ? (pf.GetValue(script)) : new Variable();
+                    ParserFunction pf = ParserFunction.GetVariable(m_name, script, false, Keywords);
+                    array = pf != null ? pf.GetValue(script) : new Variable();
 
                     ExtendArray(array, arrayIndices, 0, varValue);
                     if (isGlobal)
@@ -1883,7 +1881,7 @@ namespace AliceScript
                 Variable array;
 
                 ParserFunction pf = ParserFunction.GetVariable(m_name, baseScript);
-                array = pf != null ? (pf.GetValue(script)) : new Variable();
+                array = pf != null ? pf.GetValue(script) : new Variable();
 
                 ExtendArray(array, arrayIndices, 0, varValue);
 
@@ -1934,7 +1932,7 @@ namespace AliceScript
         }
 
 
-        override public ParserFunction NewInstance()
+        public override ParserFunction NewInstance()
         {
             return new AssignFunction();
         }

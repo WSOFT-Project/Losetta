@@ -1,7 +1,11 @@
-﻿namespace alice
+﻿using System.Text.RegularExpressions;
+
+namespace AliceScript.CLI
 {
-    internal class ParsedArguments
+    public class ParsedArguments
     {
+        public static Regex FlagPattern = new Regex("-.*", RegexOptions.Compiled);
+        public static Regex ValuePattern = new Regex("-.*=.*", RegexOptions.Compiled);
         public ParsedArguments(string[] args)
         {
             m_init(args);
@@ -40,23 +44,18 @@
                 {
                     if (arg.StartsWith("-", StringComparison.CurrentCulture))
                     {
-
-                        System.Text.RegularExpressions.MatchCollection mc =
-            System.Text.RegularExpressions.Regex.Matches(
-            arg, @"-.*");
+                        var mc = FlagPattern.Matches(arg);
                         if (mc.Count > 0)
                         {
-                            foreach (System.Text.RegularExpressions.Match m in mc)
+                            foreach (Match m in mc)
                             {
-                                System.Text.RegularExpressions.MatchCollection mc2 =
-                System.Text.RegularExpressions.Regex.Matches(
-                arg, @"-.*:.*");
+                                var mc2 = ValuePattern.Matches(arg);
                                 if (mc2.Count > 0)
                                 {
-                                    foreach (System.Text.RegularExpressions.Match m2 in mc2)
+                                    foreach (Match m2 in mc2)
                                     {
                                         string v = m2.Value;
-                                        v = v.TrimStart('-'); string[] vs = v.Split(':');
+                                        v = v.TrimStart('-'); string[] vs = v.Split('=');
                                         Values.Add(vs[0].ToLower(), vs[1]);
                                     }
                                 }

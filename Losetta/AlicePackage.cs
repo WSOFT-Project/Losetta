@@ -167,11 +167,11 @@ namespace AliceScript
         }
         public bool ExistsEntry(string filename)
         {
-            return (archive.GetEntry(filename) != null);
+            return archive.GetEntry(filename) != null;
         }
         public byte[] GetEntryData(string filename)
         {
-            return (GetEntryToData(archive.GetEntry(filename), filename));
+            return GetEntryToData(archive.GetEntry(filename), filename);
         }
         public string GetEntryText(string filename)
         {
@@ -227,7 +227,7 @@ namespace AliceScript
                             Stream sw = entry.Open();
                             string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _);
                             int old = script.Length;
-                            script = Utils.ConvertToScript(script, out _, out _, entry.FullName);
+                            script = Utils.ConvertToScript(script, out _, out _, out _, entry.FullName);
                             byte[] script_data = Encoding.UTF8.GetBytes(script);
                             string fn = entry.FullName;
                             sw.Close();
@@ -239,7 +239,7 @@ namespace AliceScript
                     {
                         e.Delete();
                     }
-                    foreach(var script in scripts)
+                    foreach (var script in scripts)
                     {
                         var ne = a.CreateEntry(script.Key, CompressionLevel.NoCompression);
                         ne.Open().Write(script.Value, 0, script.Value.Length);
@@ -275,7 +275,7 @@ namespace AliceScript
 
             using (FileStream outfs = new FileStream(outfilepath, FileMode.Create, FileAccess.Write))
             {
-                using (AesManaged aes = new AesManaged())
+                using (var aes = Aes.Create())
                 {
                     aes.BlockSize = 128;              // BlockSize = 16bytes
                     aes.KeySize = 128;                // KeySize = 16bytes
@@ -325,7 +325,7 @@ namespace AliceScript
 
                 using (MemoryStream fs = new MemoryStream(data))
                 {
-                    using (AesManaged aes = new AesManaged())
+                    using (var aes = Aes.Create())
                     {
                         aes.BlockSize = 128;              // BlockSize = 16bytes
                         aes.KeySize = 128;                // KeySize = 16bytes
@@ -365,7 +365,6 @@ namespace AliceScript
                                 if (outfs.Length != size)
                                 {
                                     throw new ScriptException("エラー:AlicePackageが壊れています", Exceptions.BAD_PACKAGE);
-                                    return;
                                 }
                             }
                         }

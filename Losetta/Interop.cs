@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace AliceScript.Interop
+﻿namespace AliceScript.Interop
 {
     public class NetLibraryLoader
     {
@@ -14,42 +12,45 @@ namespace AliceScript.Interop
             catch (Exception ex) { throw new ScriptException(ex.Message, Exceptions.FILE_NOT_FOUND); }
 
         }
-        public static void LoadLibrary(byte[] rawassembly)
+        public static void LoadLibrary(byte[] rawAssembly)
         {
             try
             {
-                string ipluginName = typeof(ILibrary).FullName;
-                //アセンブリとして読み込む
-                System.Reflection.Assembly asm =
-                    System.Reflection.Assembly.Load(rawassembly);
-                foreach (Type t in asm.GetTypes())
+                string iPluginName = typeof(ILibrary).FullName;
+
+                // アセンブリとして読み込む
+                System.Reflection.Assembly asm = System.Reflection.Assembly.Load(rawAssembly);
+
+                foreach (Type type in asm.GetTypes())
                 {
                     try
                     {
-                        //アセンブリ内のすべての型について、
-                        //プラグインとして有効か調べる
-                        if (t.IsClass && t.IsPublic && !t.IsAbstract)
+                        // アセンブリ内のすべての型について、プラグインとして有効か調べる
+                        if (type.IsClass && type.IsPublic && !type.IsAbstract)
                         {
-                            if (t.GetInterface(ipluginName) != null)
+                            if (type.GetInterface(iPluginName) != null)
                             {
                                 if (!Loadeds.Contains(asm.GetHashCode()))
                                 {
                                     Loadeds.Add(asm.GetHashCode());
-                                    ((ILibrary)asm.CreateInstance(t.FullName)).Main();
+                                    ILibrary libraryInstance = (ILibrary)asm.CreateInstance(type.FullName);
+                                    libraryInstance.Main();
                                 }
-                            }
-                            else if (t.IsSubclassOf(typeof(ObjectBase)) && t.GetCustomAttribute(typeof(ScriptClass)) != null)
-                            {
-
                             }
                         }
                     }
-                    catch (Exception ex) { throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION); }
+                    catch (Exception ex)
+                    {
+                        throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION);
+                    }
                 }
             }
-            catch (Exception ex) { throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION); }
-
+            catch (Exception ex)
+            {
+                throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION);
+            }
         }
+
         private static List<int> Loadeds = new List<int>();
     }
     public interface ILibrary

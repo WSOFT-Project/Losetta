@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <TargetFramework>net6.0</TargetFramework>
     <Company>WSOFT</Company>
     <Authors>WSOFT</Authors>

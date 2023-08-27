@@ -2,10 +2,6 @@
 {
     public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
-        /// <summary>
-        /// このオブジェクトの名前
-        /// </summary>
-        public string Name { get; set; }
 
         public Dictionary<string, PropertyBase> Properties
         {
@@ -50,13 +46,13 @@
             {
                 return Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString();
             }
-            else if (string.IsNullOrEmpty(this.Namespace))
+            else if (string.IsNullOrEmpty(Namespace))
             {
-                return this.Name;
+                return Name;
             }
             else
             {
-                return this.Namespace + "." + this.Name;
+                return Namespace + "." + Name;
             }
         }
 
@@ -67,12 +63,12 @@
                 var impl = m_constructor.Evaluate(args, script);
                 if (impl.Type == Variable.VarType.OBJECT && impl.Object is ObjectBase ob)
                 {
-                    ob.Namespace = this.Namespace;
+                    ob.Namespace = Namespace;
                     return impl;
                 }
             }
-            var obase = (ObjectBase)Activator.CreateInstance(this.GetType());
-            obase.Namespace = this.Namespace;
+            var obase = (ObjectBase)Activator.CreateInstance(GetType());
+            obase.Namespace = Namespace;
             return new Variable(obase);
         }
 
@@ -87,7 +83,7 @@
         public static List<Variable> LaskVariable;
         public virtual bool Equals(ObjectBase other)
         {
-            return (other == this);
+            return other == this;
         }
         public virtual Variable Operator(Variable left, Variable right, string action, ParsingScript script)
         {
@@ -171,24 +167,24 @@
         }
         public void AddProperty(PropertyBase property)
         {
-            this.Properties.Add(property.Name, property);
+            Properties.Add(property.Name, property);
         }
         public void RemoveProperty(PropertyBase property)
         {
-            this.Properties.Remove(property.Name);
+            Properties.Remove(property.Name);
         }
         public void AddFunction(FunctionBase function, string name = "")
         {
             if (string.IsNullOrEmpty(name)) { name = function.Name; }
-            this.Functions.Add(name, function);
+            Functions.Add(name, function);
         }
         public void RemoveFunction(string name)
         {
-            this.Functions.Remove(name);
+            Functions.Remove(name);
         }
         public void RemoveFunction(FunctionBase function)
         {
-            this.Functions.Remove(function.Name);
+            Functions.Remove(function.Name);
         }
 
 
@@ -265,7 +261,7 @@
         private bool m_CanSet = true;
         public PropertyBase(Variable value)
         {
-            this.Value = value;
+            Value = value;
         }
         public PropertyBase()
         {
@@ -286,7 +282,7 @@
                 return Value;
             }
         }
-        public void SetProperty(Variable value , Variable parent = null)
+        public void SetProperty(Variable value, Variable parent = null)
         {
             if (CanSet)
             {
@@ -309,14 +305,8 @@
         }
         public Variable Property
         {
-            get
-            {
-                return GetProperty();
-            }
-            set
-            {
-                SetProperty(value);
-            }
+            get => GetProperty();
+            set => SetProperty(value);
         }
 
     }

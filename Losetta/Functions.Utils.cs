@@ -28,7 +28,7 @@
     {
         public PointerReferenceFunction()
         {
-            this.Name = "PointerReference";
+            Name = "PointerReference";
         }
         protected override Variable Evaluate(ParsingScript script)
         {

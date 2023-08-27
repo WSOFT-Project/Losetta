@@ -47,7 +47,7 @@ namespace AliceScript
 
             if (filepath == "") { filepath = FilePath; }
 
-            try { File.WriteAllText(filepath, xmlText); return (true); } catch { return (false); }
+            try { File.WriteAllText(filepath, xmlText); return true; } catch { return false; }
 
         }
 
@@ -176,7 +176,7 @@ namespace AliceScript
                 if (xml.SelectSingleNode("package/" + path) != null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
-                    return (ContainsAttribute(node, name));
+                    return ContainsAttribute(node, name);
                 }
                 else
                 {
@@ -295,9 +295,9 @@ namespace AliceScript
                 xml.LoadXml(xmlText);
                 xml.SelectSingleNode("package/" + path).ParentNode.RemoveChild(xml.SelectSingleNode("package/" + path));
                 xmlText = xml.OuterXml;
-                return (true);
+                return true;
             }
-            catch { return (false); }
+            catch { return false; }
         }
 
     }

@@ -1,11 +1,10 @@
-﻿using AliceScript;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
 
 namespace Losetta.Bench
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             BenchmarkRunner.Run<UtilsBench>();
         }

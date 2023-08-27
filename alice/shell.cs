@@ -1,7 +1,6 @@
-﻿using AliceScript;
-using System.Text;
+﻿using System.Text;
 
-namespace alice
+namespace AliceScript.CLI
 {
     public class Shell
     {
@@ -47,41 +46,41 @@ namespace alice
         private static bool mainfile = false;
         internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
-            
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + ")" + (string.IsNullOrEmpty(e.Message) ? string.Empty : ": "+ e.Message));
-                //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
-                //sb.AppendLine("説明: "+e.Message);
-                if (!string.IsNullOrWhiteSpace(e.HelpLink))
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + ")" + (string.IsNullOrEmpty(e.Message) ? string.Empty : ": " + e.Message));
+            //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
+            //sb.AppendLine("説明: "+e.Message);
+            if (!string.IsNullOrWhiteSpace(e.HelpLink))
+            {
+                sb.AppendLine("詳細情報: " + e.HelpLink);
+            }
+            if (Program.IsDebugMode)
+            {
+                if (e.Script != null)
                 {
-                    sb.AppendLine("詳細情報: " + e.HelpLink);
-                }
-                if (Program.IsDebugMode)
-                {
-                    if (e.Script != null)
+                    if (e.Script.StackTrace.Count > 0)
                     {
-                        if (e.Script.StackTrace.Count > 0)
+                        var st = new List<ParsingScript.StackInfo>(e.Script.StackTrace);
+                        st.Reverse();
+                        sb.AppendLine("スタックトレース");
+                        foreach (var ss in st)
                         {
-                            var st = new List<ParsingScript.StackInfo>(e.Script.StackTrace);
-                            st.Reverse();
-                            sb.AppendLine("スタックトレース");
-                            foreach (var ss in st)
-                            {
-                                sb.Append("  ");
-                                sb.AppendLine(ss.ToString());
-                            }
+                            sb.Append("  ");
+                            sb.AppendLine(ss.ToString());
                         }
                     }
                 }
-                if (allow_throw)
+            }
+            if (allow_throw)
+            {
+                PrintColor(sb.ToString(), ConsoleColor.White, ConsoleColor.DarkRed);
+                //DumpLocalVariables(e.Script);
+                //DumpGlobalVariables();
+                if (Program.IsDebugMode)
                 {
-                    PrintColor(sb.ToString(), ConsoleColor.White, ConsoleColor.DarkRed);
-                    //DumpLocalVariables(e.Script);
-                    //DumpGlobalVariables();
-                    if (Program.IsDebugMode)
-                    {
-                        Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
-                    PauseInput:
+                    Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
+                PauseInput:
                     switch (Console.ReadKey().Key)
                     {
                         case ConsoleKey.Enter:
@@ -96,19 +95,19 @@ namespace alice
                                 goto PauseInput;
                             }
                     }
-                        Console.WriteLine();
-                    }
+                    Console.WriteLine();
                 }
-                if (throw_redirect_files.Count > 0)
+            }
+            if (throw_redirect_files.Count > 0)
+            {
+                foreach (string fn in throw_redirect_files)
                 {
-                    foreach (string fn in throw_redirect_files)
-                    {
-                        File.AppendAllText(fn, sb.ToString());
-                    }
-
+                    File.AppendAllText(fn, sb.ToString());
                 }
-                s_PrintingCompleted = true;
-            
+
+            }
+            s_PrintingCompleted = true;
+
         }
         // 文字列が表示幅より短ければ、左側と右側に何文字の空白が必要なのかを計算する。
         // 文字列が表示幅より長ければ、何文字目から表示するのかを計算する。
@@ -138,7 +137,7 @@ namespace alice
         public static void DumpLocalVariables(ParsingScript script)
         {
             if (script == null) { return; }
-                DumpLocalVariables(script.ParentScript);
+            DumpLocalVariables(script.ParentScript);
             Dictionary<string, ParserFunction> dic = new Dictionary<string, ParserFunction>();
             AddDictionaryScriptVariables(script, ref dic);
             if (dic.Count <= 0)

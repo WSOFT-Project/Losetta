@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -157,7 +155,7 @@ namespace AliceScript
                 {
                     script.ProcessingFunction = fb;
                 }
-                Variable current =await func.GetValueAsync(script);
+                Variable current = await func.GetValueAsync(script);
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {
                     return listToMerge;
@@ -295,7 +293,7 @@ namespace AliceScript
             char next = script.TryCurrent(); // 前進済み
             bool done = listToMerge.Count == 0 &&
                         (next == Constants.END_STATEMENT ||
-                        ((action == Constants.NULL_ACTION) && (current != null && current.Type != Variable.VarType.BOOLEAN)) ||
+                        ((action == Constants.NULL_ACTION) && current != null && current.Type != Variable.VarType.BOOLEAN) ||
                          (current != null && current.IsReturn));
             if (done)
             {
@@ -329,11 +327,12 @@ namespace AliceScript
                 script.Forward(action.Length - 1);
             }
 
-            if (token.Length > 2 && token.StartsWith(Constants.INCREMENT,StringComparison.Ordinal) && token[2] != Constants.QUOTE)
+            if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
             {
                 token = token.Substring(2);
                 return PreOperetors.Increment;
-            }else if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
+            }
+            else if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
             {
                 token = token.Substring(2);
                 return PreOperetors.Decrement;
@@ -344,7 +343,7 @@ namespace AliceScript
                 //単項プラス演算子は何もする必要がない
                 return PreOperetors.None;
             }
-            else if (token.Length > 1 && token[0]=='-' && token[1] != Constants.QUOTE)
+            else if (token.Length > 1 && token[0] == '-' && token[1] != Constants.QUOTE)
             {
                 token = token.Substring(1);
                 return PreOperetors.Minus;
@@ -354,7 +353,7 @@ namespace AliceScript
 
         private enum PreOperetors
         {
-            Increment,Decrement,Minus,None
+            Increment, Decrement, Minus, None
         }
         private static void CheckQuotesIndices(ParsingScript script,
                             char ch, ref bool inQuotes, ref int arrayIndexDepth)
@@ -418,12 +417,12 @@ namespace AliceScript
             }
 
             //角かっこまたは波かっこまたはポインタ
-            if(item.Length==0 && (ch == Constants.END_ARRAY || ch == Constants.END_ARG) || ch == '&')
+            if ((item.Length == 0 && (ch == Constants.END_ARRAY || ch == Constants.END_ARG)) || ch == '&')
             {
                 return true;
             }
             // プラスまたはマイナスはトークン区切りの直後またはプラスマイナスの直後のときのみトークンとしてあつかう
-            if (item.Length < 2 && (ch == '-' || ch=='+')  && (prev == '+' || prev == '-' || Constants.TOKEN_SEPARATION.Contains(prev)))
+            if (item.Length < 2 && (ch == '-' || ch == '+') && (prev == '+' || prev == '-' || Constants.TOKEN_SEPARATION.Contains(prev)))
             {
                 return true;
             }
@@ -585,28 +584,24 @@ namespace AliceScript
         private static Variable MergeCells(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             if (leftCell.IsReturn ||
-                leftCell.Type == Variable.VarType.BREAK ||
-                leftCell.Type == Variable.VarType.CONTINUE)
+     leftCell.Type == Variable.VarType.BREAK ||
+     leftCell.Type == Variable.VarType.CONTINUE)
             {
-                //処理は不要
                 return Variable.EmptyInstance;
             }
-            //[is]演算子、型テスト演算子ですべての型に適応できます
+
             if (leftCell.Action == Constants.IS && rightCell.Object != null && rightCell.Object is TypeObject to)
             {
                 leftCell = new Variable(to.Match(leftCell));
             }
-            //[is not]演算子、型テスト否定演算子ですべての型に適応できます
-            if (leftCell.Action == Constants.IS_NOT && rightCell.Object != null && rightCell.Object is TypeObject t)
+            else if (leftCell.Action == Constants.IS_NOT && rightCell.Object != null && rightCell.Object is TypeObject t)
             {
                 leftCell = new Variable(!t.Match(leftCell));
             }
-            //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
             else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
             }
-            //[??]演算子、Null合体演算子ですべての型に適応できます
             else if (leftCell.Action == "??")
             {
                 if (leftCell.IsNull())
@@ -614,23 +609,19 @@ namespace AliceScript
                     leftCell = rightCell;
                 }
             }
-            // [==]または[===]つまり、等値演算子の場合はそれぞれのEqualsメソッドを呼び出す
             else if (leftCell.Action == "==" || leftCell.Action == "===")
             {
                 leftCell = new Variable(leftCell.Equals(rightCell));
             }
-            // [!=]または[!==]つまり、非等値演算子の場合はそれぞれのEqualsメソッドを呼び出しそれを反転する
             else if (leftCell.Action == "!=" || leftCell.Action == "!==")
             {
                 leftCell = new Variable(!leftCell.Equals(rightCell));
             }
-            else if (leftCell.Type == Variable.VarType.NUMBER &&
-                rightCell.Type == Variable.VarType.NUMBER)
+            else if (leftCell.Type == Variable.VarType.NUMBER && rightCell.Type == Variable.VarType.NUMBER)
             {
                 leftCell = MergeNumbers(leftCell, rightCell, script);
             }
-            else if (leftCell.Type == Variable.VarType.BOOLEAN &&
-                    rightCell.Type == Variable.VarType.BOOLEAN)
+            else if (leftCell.Type == Variable.VarType.BOOLEAN && rightCell.Type == Variable.VarType.BOOLEAN)
             {
                 leftCell = MergeBooleans(leftCell, rightCell, script);
             }
@@ -654,6 +645,7 @@ namespace AliceScript
             {
                 leftCell = MergeObjects(leftCell, rightCell, script);
             }
+
             leftCell.Action = rightCell.Action;
             return leftCell;
         }

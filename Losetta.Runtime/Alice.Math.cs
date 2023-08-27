@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class  Alice_Math_Initer
+    internal sealed class Alice_Math_Initer
     {
         public static void Init()
         {
@@ -53,14 +53,14 @@
             Mode = max;
             if (Mode)
             {
-                this.Name = "math_max";
+                Name = "math_max";
             }
             else
             {
-                this.Name = "math_min";
+                Name = "math_min";
             }
-            this.MinimumArgCounts = 2;
-            this.Run += Math_MinMaxFunc_Run;
+            MinimumArgCounts = 2;
+            Run += Math_MinMaxFunc_Run;
         }
 
         private void Math_MinMaxFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -93,9 +93,9 @@
     {
         public math_RoundFunc()
         {
-            this.Name = "math_round";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_RoundFunc_Run;
+            Name = "math_round";
+            MinimumArgCounts = 1;
+            Run += Math_RoundFunc_Run;
         }
 
         private void Math_RoundFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -115,9 +115,9 @@
     {
         public math_powFunc()
         {
-            this.Name = "math_pow";
-            this.MinimumArgCounts = 2;
-            this.Run += Math_powFunc_Run;
+            Name = "math_pow";
+            MinimumArgCounts = 2;
+            Run += Math_powFunc_Run;
         }
 
         private void Math_powFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -130,10 +130,10 @@
     {
         public math_eFunc()
         {
-            this.Name = "math_e";
-            this.MinimumArgCounts = 0;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.Run += Math_EFunc_Run;
+            Name = "math_e";
+            MinimumArgCounts = 0;
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            Run += Math_EFunc_Run;
         }
 
         private void Math_EFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -146,9 +146,9 @@
     {
         public math_isPrimeFunc()
         {
-            this.Name = "math_isPrime";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_isPrimeFunc_Run;
+            Name = "math_isPrime";
+            MinimumArgCounts = 1;
+            Run += Math_isPrimeFunc_Run;
         }
 
         private void Math_isPrimeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -190,10 +190,10 @@
     {
         public math_tauFunc()
         {
-            this.Name = "math_tau";
-            this.MinimumArgCounts = 0;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.Run += Math_EFunc_Run;
+            Name = "math_tau";
+            MinimumArgCounts = 0;
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            Run += Math_EFunc_Run;
         }
 
         private void Math_EFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -206,10 +206,10 @@
     {
         public math_piFunc()
         {
-            this.Name = "math_pi";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.MinimumArgCounts = 0;
-            this.Run += Math_piFunc_Run;
+            Name = "math_pi";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            MinimumArgCounts = 0;
+            Run += Math_piFunc_Run;
         }
 
         private void Math_piFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -222,9 +222,9 @@
     {
         public math_absFunc()
         {
-            this.Name = "math_abs";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_absFunc_Run;
+            Name = "math_abs";
+            MinimumArgCounts = 1;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -237,9 +237,9 @@
     {
         public math_acosFunc()
         {
-            this.Name = "math_acos";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_absFunc_Run;
+            Name = "math_acos";
+            MinimumArgCounts = 1;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -252,9 +252,9 @@
     {
         public math_acoshFunc()
         {
-            this.Name = "math_acosh";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_absFunc_Run;
+            Name = "math_acosh";
+            MinimumArgCounts = 1;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -267,9 +267,9 @@
     {
         public math_sinFunc()
         {
-            this.Name = "math_sin";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_absFunc_Run;
+            Name = "math_sin";
+            MinimumArgCounts = 1;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -282,9 +282,9 @@
     {
         public math_sinhFunc()
         {
-            this.Name = "math_sinh";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_absFunc_Run;
+            Name = "math_sinh";
+            MinimumArgCounts = 1;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -297,9 +297,9 @@
     {
         public math_atanFunc()
         {
-            this.Name = "math_atan";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_absFunc_Run;
+            Name = "math_atan";
+            MinimumArgCounts = 1;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -312,9 +312,9 @@
     {
         public math_atan2Func()
         {
-            this.Name = "math_atan2";
-            this.MinimumArgCounts = 2;
-            this.Run += Math_absFunc_Run;
+            Name = "math_atan2";
+            MinimumArgCounts = 2;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -327,9 +327,9 @@
     {
         public math_atanhFunc()
         {
-            this.Name = "math_atanh";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_absFunc_Run;
+            Name = "math_atanh";
+            MinimumArgCounts = 1;
+            Run += Math_absFunc_Run;
         }
 
         private void Math_absFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -342,9 +342,9 @@
     {
         public math_bitdecrementFunc()
         {
-            this.Name = "math_bitdecrement";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_bitdecrementFunc_Run;
+            Name = "math_bitdecrement";
+            MinimumArgCounts = 1;
+            Run += Math_bitdecrementFunc_Run;
         }
 
         private void Math_bitdecrementFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -357,9 +357,9 @@
     {
         public math_bitincrementFunc()
         {
-            this.Name = "math_bitincrement";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_bitdecrementFunc_Run;
+            Name = "math_bitincrement";
+            MinimumArgCounts = 1;
+            Run += Math_bitdecrementFunc_Run;
         }
 
         private void Math_bitdecrementFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -372,9 +372,9 @@
     {
         public math_cbrtFunc()
         {
-            this.Name = "math_cbrt";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_cbrtFunc_Run;
+            Name = "math_cbrt";
+            MinimumArgCounts = 1;
+            Run += Math_cbrtFunc_Run;
         }
 
         private void Math_cbrtFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -387,9 +387,9 @@
     {
         public math_ceilingFunc()
         {
-            this.Name = "math_ceiling";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_cbrtFunc_Run;
+            Name = "math_ceiling";
+            MinimumArgCounts = 1;
+            Run += Math_cbrtFunc_Run;
         }
 
         private void Math_cbrtFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -402,9 +402,9 @@
     {
         public math_clampFunc()
         {
-            this.Name = "math_clamp";
-            this.MinimumArgCounts = 3;
-            this.Run += Math_clampFunc_Run;
+            Name = "math_clamp";
+            MinimumArgCounts = 3;
+            Run += Math_clampFunc_Run;
         }
 
         private void Math_clampFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -417,9 +417,9 @@
     {
         public math_copysignFunc()
         {
-            this.Name = "math_copysign";
-            this.MinimumArgCounts = 2;
-            this.Run += Math_copysignFunc_Run;
+            Name = "math_copysign";
+            MinimumArgCounts = 2;
+            Run += Math_copysignFunc_Run;
         }
 
         private void Math_copysignFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -433,9 +433,9 @@
     {
         public math_cosFunc()
         {
-            this.Name = "math_cos";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_cosFunc_Run;
+            Name = "math_cos";
+            MinimumArgCounts = 1;
+            Run += Math_cosFunc_Run;
         }
 
         private void Math_cosFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -448,9 +448,9 @@
     {
         public math_coshFunc()
         {
-            this.Name = "math_cosh";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_cosFunc_Run;
+            Name = "math_cosh";
+            MinimumArgCounts = 1;
+            Run += Math_cosFunc_Run;
         }
 
         private void Math_cosFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -463,9 +463,9 @@
     {
         public math_expFunc()
         {
-            this.Name = "math_exp";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_expFunc_Run;
+            Name = "math_exp";
+            MinimumArgCounts = 1;
+            Run += Math_expFunc_Run;
         }
 
         private void Math_expFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -478,9 +478,9 @@
     {
         public math_floorFunc()
         {
-            this.Name = "math_floor";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_floorFunc_Run;
+            Name = "math_floor";
+            MinimumArgCounts = 1;
+            Run += Math_floorFunc_Run;
         }
 
         private void Math_floorFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -493,9 +493,9 @@
     {
         public math_fusedmultiplyaddFunc()
         {
-            this.Name = "math_fusedmultiplyadd";
-            this.MinimumArgCounts = 3;
-            this.Run += Math_fusedmultiplyaddFunc_Run;
+            Name = "math_fusedmultiplyadd";
+            MinimumArgCounts = 3;
+            Run += Math_fusedmultiplyaddFunc_Run;
         }
 
         private void Math_fusedmultiplyaddFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -508,9 +508,9 @@
     {
         public math_sqrtFunc()
         {
-            this.Name = "math_sqrt";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_sqrtFunc_Run;
+            Name = "math_sqrt";
+            MinimumArgCounts = 1;
+            Run += Math_sqrtFunc_Run;
         }
 
         private void Math_sqrtFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -523,9 +523,9 @@
     {
         public math_tanFunc()
         {
-            this.Name = "math_tan";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_cosFunc_Run;
+            Name = "math_tan";
+            MinimumArgCounts = 1;
+            Run += Math_cosFunc_Run;
         }
 
         private void Math_cosFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -538,9 +538,9 @@
     {
         public math_tanhFunc()
         {
-            this.Name = "math_tanh";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_cosFunc_Run;
+            Name = "math_tanh";
+            MinimumArgCounts = 1;
+            Run += Math_cosFunc_Run;
         }
 
         private void Math_cosFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -553,9 +553,9 @@
     {
         public math_truncateFunc()
         {
-            this.Name = "math_truncate";
-            this.MinimumArgCounts = 1;
-            this.Run += Math_cosFunc_Run;
+            Name = "math_truncate";
+            MinimumArgCounts = 1;
+            Run += Math_cosFunc_Run;
         }
 
         private void Math_cosFunc_Run(object sender, FunctionBaseEventArgs e)

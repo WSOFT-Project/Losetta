@@ -1,9 +1,7 @@
-﻿using AliceScript;
-using System.Diagnostics;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 
-namespace alice
+namespace AliceScript.CLI
 {
     internal class Program
     {
@@ -14,7 +12,7 @@ namespace alice
         private static void Main(string[] args)
         {
 
-            
+
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
             CreateAliceDirectory(false);
@@ -40,12 +38,9 @@ namespace alice
                     throw_redirect_files.Add(pa.Values["throw"]);
                 }
             }
-            if (pa.Values.ContainsKey("runtime") && (pa.Values["runtime"].ToLower() == "disable"))
+            if (!pa.Values.TryGetValue("runtime", out string v) || v.ToLower() != "disable")
             {
-                //ランタイムを初期化しない
-            }
-            else
-            {
+                //ランタイムを初期化
                 new AliceScript.NameSpaces.Alice_Runtime().Main();
             }
             //ShellFunctions登録
@@ -65,7 +60,7 @@ namespace alice
                 Alice.ExecuteFile(filename);
             }
 
-            if (pa.Flags.Contains("s"))
+            if (pa.Flags.Contains("e"))
             {
                 string f = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
                 if (File.Exists(f))
@@ -131,7 +126,7 @@ namespace alice
             else
             {
                 ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
-                Interpreter.Instance.OnOutput -= Instance_OnOutput; 
+                Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }
         }

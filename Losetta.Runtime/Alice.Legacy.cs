@@ -22,9 +22,9 @@
     {
         public AddVariablesToHashFunction()
         {
-            this.Name = Constants.ADD_ALL_TO_HASH;
-            this.MinimumArgCounts = 3;
-            this.Run += AddVariablesToHashFunction_Run;
+            Name = Constants.ADD_ALL_TO_HASH;
+            MinimumArgCounts = 3;
+            Run += AddVariablesToHashFunction_Run;
         }
 
         private void AddVariablesToHashFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -68,9 +68,9 @@
     {
         public AddVariableToHashFunction()
         {
-            this.Name = Constants.ADD_TO_HASH;
-            this.MinimumArgCounts = 3;
-            this.Run += AddVariableToHashFunction_Run;
+            Name = Constants.ADD_TO_HASH;
+            MinimumArgCounts = 3;
+            Run += AddVariableToHashFunction_Run;
         }
 
         private void AddVariableToHashFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -104,9 +104,9 @@
     {
         public GetPropertiesFunction()
         {
-            this.Name = Constants.GET_PROPERTIES;
-            this.MinimumArgCounts = 1;
-            this.Run += GetPropertiesFunction_Run;
+            Name = Constants.GET_PROPERTIES;
+            MinimumArgCounts = 1;
+            Run += GetPropertiesFunction_Run;
         }
 
         private void GetPropertiesFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -121,9 +121,9 @@
     {
         public GetPropertyFunction()
         {
-            this.Name = Constants.GET_PROPERTY;
-            this.MinimumArgCounts = 2;
-            this.Run += GetPropertyFunction_Run;
+            Name = Constants.GET_PROPERTY;
+            MinimumArgCounts = 2;
+            Run += GetPropertyFunction_Run;
         }
 
         private void GetPropertyFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -142,9 +142,9 @@
     {
         public SetPropertyFunction()
         {
-            this.Name = "SetProperty";
-            this.MinimumArgCounts = 3;
-            this.Run += SetPropertyFunction_Run;
+            Name = "SetProperty";
+            MinimumArgCounts = 3;
+            Run += SetPropertyFunction_Run;
         }
 
         private void SetPropertyFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -168,8 +168,8 @@
 
         public CancelFunction()
         {
-            this.Name = Constants.CANCEL;
-            this.Run += CancelFunction_Run;
+            Name = Constants.CANCEL;
+            Run += CancelFunction_Run;
         }
 
         private void CancelFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -188,9 +188,9 @@
     {
         public GetColumnFunction()
         {
-            this.Name = Constants.GET_COLUMN;
-            this.MinimumArgCounts = 2;
-            this.Run += GetColumnFunction_Run;
+            Name = Constants.GET_COLUMN;
+            MinimumArgCounts = 2;
+            Run += GetColumnFunction_Run;
         }
 
         private void GetColumnFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -222,9 +222,9 @@
     {
         public GetAllKeysFunction()
         {
-            this.Name = Constants.KEYS;
-            this.MinimumArgCounts = 1;
-            this.Run += GetAllKeysFunction_Run;
+            Name = Constants.KEYS;
+            MinimumArgCounts = 1;
+            Run += GetAllKeysFunction_Run;
         }
 
         private void GetAllKeysFunction_Run(object sender, FunctionBaseEventArgs e)

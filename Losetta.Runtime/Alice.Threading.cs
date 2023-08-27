@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class  Alice_Threading_Initer
+    internal sealed class Alice_Threading_Initer
     {
         public static void Init()
         {
@@ -24,9 +24,9 @@
     {
         public thread_idFunc()
         {
-            this.Name = "thread_id";
-            this.MinimumArgCounts = 0;
-            this.Run += Thread_idFunc_Run;
+            Name = "thread_id";
+            MinimumArgCounts = 0;
+            Run += Thread_idFunc_Run;
         }
 
         private void Thread_idFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -39,10 +39,10 @@
     {
         public thread_queueFunc()
         {
-            this.Name = "thread_queue";
-            this.MinimumArgCounts = 1;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW;
-            this.Run += Thread_queueFunc_Run;
+            Name = "thread_queue";
+            MinimumArgCounts = 1;
+            Attribute = FunctionAttribute.CONTROL_FLOW;
+            Run += Thread_queueFunc_Run;
         }
 
         private void Thread_queueFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -77,9 +77,9 @@
     {
         public task_runFunc()
         {
-            this.Name = "task_run";
-            this.MinimumArgCounts = 0;
-            this.Run += Task_runFunc_Run;
+            Name = "task_run";
+            MinimumArgCounts = 0;
+            Run += Task_runFunc_Run;
         }
 
         private void Task_runFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -105,16 +105,16 @@
         public SignalWaitFunction(bool isSignal)
         {
             m_isSignal = isSignal;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.FUNCT_WITH_SPACE | FunctionAttribute.LANGUAGE_STRUCTURE;
+            Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.FUNCT_WITH_SPACE | FunctionAttribute.LANGUAGE_STRUCTURE;
             if (isSignal)
             {
-                this.Name = "signal";
+                Name = "signal";
             }
             else
             {
-                this.Name = "signal_wait";
+                Name = "signal_wait";
             }
-            this.Run += SignalWaitFunction_Run;
+            Run += SignalWaitFunction_Run;
         }
 
         private void SignalWaitFunction_Run(object sender, FunctionBaseEventArgs e)

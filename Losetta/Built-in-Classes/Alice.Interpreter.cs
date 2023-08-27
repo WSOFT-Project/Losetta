@@ -210,8 +210,7 @@
                 }
                 else
                 {
-                    ///TODO:名前空間の例外追加
-                    throw new System.Exception("指定された名前空間が見つかりませんでした");
+                    throw new ScriptException("指定された名前空間が見つかりませんでした", Exceptions.NAMESPACE_NOT_FOUND);
                 }
             }
         }
@@ -528,9 +527,9 @@
             }
             private void Interpreter_ScriptObject_Constructor_Run(object sender, FunctionBaseEventArgs e)
             {
-                HashSet<string> defines; Dictionary<int, int> char2Line;
-                string code = Utils.ConvertToScript(e.Args[0].AsString(), out char2Line, out defines);
+                string code = Utils.ConvertToScript(e.Args[0].AsString(), out var char2Line, out var defines,out var setting);
                 var script = new ParsingScript(code, 0, char2Line);
+                script.Settings = setting;
                 script.Defines = defines;
                 script.ParentScript = e.Script;
                 e.Return = new Variable(new Interpreter_ScriptObject(script));
