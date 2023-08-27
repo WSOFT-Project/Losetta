@@ -244,7 +244,7 @@ namespace AliceScript.NameSpaces
                 this.Setting += StartInfoProperty_Setting;
             }
 
-            private void StartInfoProperty_Setting(object sender, PropertySettingEventArgs e)
+            private void StartInfoProperty_Setting(object sender, PropertyBaseEventArgs e)
             {
                 if (Host.Process != null)
                 {
@@ -252,7 +252,7 @@ namespace AliceScript.NameSpaces
                 }
             }
 
-            private void StartInfoProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void StartInfoProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 if (Host.Process != null)
                 {
@@ -358,7 +358,7 @@ namespace AliceScript.NameSpaces
                 this.Setting += InfoProperty_Setting;
             }
             private ProcessStartInfoObject Host;
-            private void InfoProperty_Setting(object sender, PropertySettingEventArgs e)
+            private void InfoProperty_Setting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -427,7 +427,7 @@ namespace AliceScript.NameSpaces
 
 
 
-            private void InfoProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void InfoProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -532,7 +532,7 @@ namespace AliceScript.NameSpaces
                 this.Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.Elapsed);
             }
@@ -549,7 +549,7 @@ namespace AliceScript.NameSpaces
                 this.Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.ElapsedMilliseconds);
             }
@@ -566,7 +566,7 @@ namespace AliceScript.NameSpaces
                 this.Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.ElapsedTicks);
             }
@@ -583,7 +583,7 @@ namespace AliceScript.NameSpaces
                 this.Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.IsRunning);
             }
@@ -600,7 +600,7 @@ namespace AliceScript.NameSpaces
                 this.Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.IsHighResolution);
             }
@@ -617,7 +617,7 @@ namespace AliceScript.NameSpaces
                 this.Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.Frequency);
             }

@@ -37,14 +37,23 @@ namespace AliceScript
         {
             return new Variable(text);
         }
-        public static void AddFunc(FunctionBase fb, string name = "")
+        public static void AddFunc(FunctionBase fb, string name = null)
         {
-            if (name == "")
+            if (name == null)
             {
                 name = fb.Name;
             }
             name = name.ToLower();
             Functions.Add(name, fb);
+        }
+        public static void AddProp(PropertyBase pb,string name = null)
+        {
+            if (name == null)
+            {
+                name = pb.Name;
+            }
+            name= name.ToLower();
+            Properties.Add(name,pb);
         }
         public static void RemoveFunc(FunctionBase fb, string name = "")
         {
@@ -61,6 +70,7 @@ namespace AliceScript
         }
 
         public static Dictionary<string, FunctionBase> Functions = new Dictionary<string, FunctionBase>();
+        public static Dictionary<string, PropertyBase> Properties = new Dictionary<string, PropertyBase>();
 
         List<string> ScriptObject.GetProperties()
         {
@@ -1207,16 +1217,21 @@ namespace AliceScript
         private Variable GetCoreProperty(string propName, ParsingScript script = null)
         {
             Variable result = Variable.EmptyInstance;
+            propName = propName.ToLower();
 
             if (m_propertyMap.TryGetValue(propName, out result) ||
                 m_propertyMap.TryGetValue(GetRealName(propName), out result))
             {
                 return result;
             }
-            else if (script != null && Functions.ContainsKey(propName.ToLower()))
+            else if(script != null && Properties.TryGetValue(propName,out var p) && p.Type.HasFlag(this.Type))
+            {
+                return p.GetProperty(this);
+            }
+            else if (script != null && Functions.TryGetValue(propName,out var f))
             {
 
-                return Functions[propName.ToLower()].Evaluate(script, this);
+                return f.Evaluate(script, this);
             }
 
             return result;

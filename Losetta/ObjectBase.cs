@@ -206,24 +206,21 @@
         }
     }
 
-    public class PropertySettingEventArgs : EventArgs
-    {
-        /// <summary>
-        /// プロパティに代入されようとしている変数の内容
-        /// </summary>
-        public Variable Value { get; set; }
-
-    }
-    public class PropertyGettingEventArgs : EventArgs
+    public class PropertyBaseEventArgs : EventArgs
     {
         /// <summary>
         /// プロパティの変数の内容
         /// </summary>
         public Variable Value { get; set; }
-    }
-    public delegate void PropertySettingEventHandler(object sender, PropertySettingEventArgs e);
 
-    public delegate void PropertyGettingEventHandler(object sender, PropertyGettingEventArgs e);
+        /// <summary>
+        /// 呼び出し元の変数。これはコアプロパティで使用します。
+        /// </summary>
+        public Variable Parent { get; set; }
+    }
+    public delegate void PropertySettingEventHandler(object sender, PropertyBaseEventArgs e);
+
+    public delegate void PropertyGettingEventHandler(object sender, PropertyBaseEventArgs e);
 
     public class PropertyBase
     {
@@ -251,6 +248,12 @@
         /// </summary>
 
         public event PropertyGettingEventHandler Getting;
+
+        /// <summary>
+        /// プロパティはこの型向けのプロパティとして登録されている。これはコアプロパティで使用します。
+        /// </summary>
+        public Variable.VarType Type { get; set; }
+
         /// <summary>
         /// SetPropertyが使用可能かを表す値。デフォルトではTrueです。
         /// </summary>
@@ -268,41 +271,51 @@
         {
 
         }
+        public Variable GetProperty(Variable parent = null)
+        {
+            if (HandleEvents)
+            {
+                PropertyBaseEventArgs e = new PropertyBaseEventArgs();
+                e.Parent = parent;
+                e.Value = Value;
+                Getting?.Invoke(this, e);
+                return e.Value;
+            }
+            else
+            {
+                return Value;
+            }
+        }
+        public void SetProperty(Variable value , Variable parent = null)
+        {
+            if (CanSet)
+            {
+                if (HandleEvents)
+                {
+                    PropertyBaseEventArgs e = new PropertyBaseEventArgs();
+                    e.Parent = parent;
+                    e.Value = value;
+                    Setting?.Invoke(this, e);
+                }
+                else
+                {
+                    Value = value;
+                }
+            }
+            else
+            {
+                throw new ScriptException("このプロパティには代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
+            }
+        }
         public Variable Property
         {
             get
             {
-                if (HandleEvents)
-                {
-                    PropertyGettingEventArgs e = new PropertyGettingEventArgs();
-                    e.Value = Value;
-                    Getting?.Invoke(this, e);
-                    return e.Value;
-                }
-                else
-                {
-                    return Value;
-                }
+                return GetProperty();
             }
             set
             {
-                if (CanSet)
-                {
-                    if (HandleEvents)
-                    {
-                        PropertySettingEventArgs e = new PropertySettingEventArgs();
-                        e.Value = value;
-                        Setting?.Invoke(this, e);
-                    }
-                    else
-                    {
-                        Value = value;
-                    }
-                }
-                else
-                {
-                    throw new ScriptException("このプロパティに代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
-                }
+                SetProperty(value);
             }
         }
 

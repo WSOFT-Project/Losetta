@@ -416,7 +416,7 @@
                     this.Getting += AlicePackageObjectProperty_Getting;
                 }
 
-                private void AlicePackageObjectProperty_Getting(object sender, PropertyGettingEventArgs e)
+                private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
                 {
                     switch (Mode)
                     {
@@ -665,7 +665,7 @@
                 this.Setting += Interpreter_ScriptObject_Property_Setting;
             }
 
-            private void Interpreter_ScriptObject_Property_Setting(object sender, PropertySettingEventArgs e)
+            private void Interpreter_ScriptObject_Property_Setting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -694,7 +694,7 @@
             {
                 IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
             }
-            private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyGettingEventArgs e)
+            private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -870,7 +870,7 @@
                 this.Name = "Namespace";
                 this.HandleEvents = true;
                 this.CanSet = false;
-                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                this.Getting += delegate (object sender, PropertyBaseEventArgs e)
                 {
                     if (type.ClassType != null)
                     {
@@ -890,7 +890,7 @@
                 this.Name = "Base";
                 this.HandleEvents = true;
                 this.CanSet = false;
-                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                this.Getting += delegate (object sender, PropertyBaseEventArgs e)
                 {
                     if (type.ClassType != null)
                     {
@@ -910,7 +910,7 @@
                 this.Name = "IsObject";
                 this.HandleEvents = true;
                 this.CanSet = false;
-                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                this.Getting += delegate (object sender, PropertyBaseEventArgs e)
                 {
                     e.Value = new Variable(type.ClassType != null);
                 };

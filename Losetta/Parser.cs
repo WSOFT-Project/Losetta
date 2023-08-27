@@ -423,7 +423,7 @@ namespace AliceScript
                 return true;
             }
             // プラスまたはマイナスはトークン区切りの直後またはプラスマイナスの直後のときのみトークンとしてあつかう
-            if (item.Length < 2 && (ch == '-' || ch=='+') && (prev == '+' || prev == '-' || Constants.TOKEN_SEPARATION.Contains(prev)) )
+            if (item.Length < 2 && (ch == '-' || ch=='+')  && (prev == '+' || prev == '-' || Constants.TOKEN_SEPARATION.Contains(prev)))
             {
                 return true;
             }

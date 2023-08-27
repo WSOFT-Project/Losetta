@@ -35,7 +35,7 @@
                 this.Getting += AlicePackageObjectProperty_Getting;
             }
 
-            private void AlicePackageObjectProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -112,7 +112,7 @@
                 this.Getting += AlicePackageObjectProperty_Getting;
             }
 
-            private void AlicePackageObjectProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {

@@ -96,7 +96,7 @@
                 this.Getting += Exception_MessageProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_MessageProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_MessageProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.Message);
             }
@@ -112,7 +112,7 @@
                 this.Getting += Exception_SourceProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_SourceProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_SourceProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.Source);
             }
@@ -128,7 +128,7 @@
                 this.Getting += Exception_HelpLinkProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_HelpLinkProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_HelpLinkProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.HelpLink);
             }
@@ -145,7 +145,7 @@
                 this.Getting += Exception_StackTraceProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_StackTraceProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_StackTraceProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = ExceptionObject.MainScript.GetStackTrace();
             }
@@ -162,7 +162,7 @@
                 this.Getting += Exception_MessageProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_MessageProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_MessageProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable((int)ExceptionObject.ErrorCode);
             }

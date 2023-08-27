@@ -14,19 +14,19 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new ResetFunc());
             Variable.AddFunc(new DeepCloneFunc());
             Variable.AddFunc(new ToStringFunc());
-            Variable.AddFunc(new PropertiesFunc());
-            Variable.AddFunc(new TypeFunc());
             Variable.AddFunc(new ConvertFunc());
+            Variable.AddProp(new PropertiesProp());
+            Variable.AddProp(new TypProp());
             //統合関数(終わり)
             //複合関数(複数の型に対応する関数)
             Variable.AddFunc(new IndexOfFunc());
             Variable.AddFunc(new ContainsFunc());
-            Variable.AddFunc(new KeysFunc());
             Variable.AddFunc(new list_InsertFunc());
             Variable.AddFunc(new RemoveAtFunc());
             Variable.AddFunc(new RemoveFunc());
-            Variable.AddFunc(new SizeFunc());
-            Variable.AddFunc(new LengthFunc());
+            Variable.AddProp(new LengthSizeProp(), Constants.LENGTH);
+            Variable.AddProp(new LengthSizeProp(), Constants.SIZE);
+            Variable.AddProp(new KeysFunc());
             //複合関数(終わり)
             //String関数
             Variable.AddFunc(new string_TrimFunc(0), Constants.TRIM);
@@ -49,6 +49,8 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new str_EmptyOrWhiteFunc(false));
             Variable.AddFunc(new str_FormatFunc());
             Variable.AddFunc(new str_JoinFunc());
+            Variable.AddFunc(new str_ToLowerUpperInvariantFunc());
+            Variable.AddFunc(new str_ToLowerUpperInvariantFunc(true));
             //String関数(終わり)
             //List関数
             Variable.AddFunc(new list_addFunc());
@@ -85,8 +87,6 @@ namespace AliceScript.NameSpaces
 
             Variable.AddFunc(new bytes_toBase64Func());
 
-            Variable.AddFunc(new str_ToLowerUpperInvariantFunc());
-            Variable.AddFunc(new str_ToLowerUpperInvariantFunc(true));
 
             NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
             space.Add(new DelayFunc());
@@ -316,78 +316,73 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal sealed class KeysFunc : FunctionBase
+    internal sealed class KeysFunc : PropertyBase
     {
         public KeysFunc()
         {
             this.Name = Constants.KEYS;
-            this.RequestType = new TypeObject(Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR);
-            this.Run += KeysFunc_Run;
+            this.CanSet = false;
+            this.HandleEvents = true;
+            this.Type = Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR;
+            this.Getting += KeysFunc_Getting;
 
         }
 
-        private void KeysFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void KeysFunc_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.GetAllKeys());
+            e.Value = new Variable(e.Parent.GetAllKeys());
         }
+
     }
 
-    internal sealed class PropertiesFunc : FunctionBase
+    internal sealed class PropertiesProp : PropertyBase
     {
-        public PropertiesFunc()
+        public PropertiesProp()
         {
             this.Name = Constants.OBJECT_PROPERTIES;
-            this.Run += ToStringFunc_Run;
+            this.CanSet = false;
+            this.HandleEvents = true;
+            this.Getting += PropertiesProp_Getting;
         }
 
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void PropertiesProp_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.GetProperties());
+            e.Value = new Variable(e.Parent.GetProperties());
         }
     }
 
-    internal sealed class TypeFunc : FunctionBase
+    internal sealed class TypProp : PropertyBase
     {
-        public TypeFunc()
+        public TypProp()
         {
             this.Name = Constants.OBJECT_TYPE;
-            this.Run += ToStringFunc_Run;
+            this.CanSet = false;
+            this.HandleEvents = true;
+            this.Getting += TypProp_Getting;
         }
 
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void TypProp_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = Variable.AsType(e.CurentVariable.Type);
+            e.Value = Variable.AsType(e.Parent.Type);
         }
+
     }
 
-    internal sealed class LengthFunc : FunctionBase
+    internal sealed class LengthSizeProp : PropertyBase
     {
-        public LengthFunc()
+        public LengthSizeProp()
         {
-            this.Name = Constants.LENGTH;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY);
-            this.Run += ToStringFunc_Run;
+            this.CanSet = false;
+            this.HandleEvents = true;
+            this.Type = Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY;
+            this.Getting += LengthFunc_Getting;
         }
 
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void LengthFunc_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.GetLength());
-        }
-    }
-
-    internal sealed class SizeFunc : FunctionBase
-    {
-        public SizeFunc()
-        {
-            this.Name = Constants.SIZE;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY);
-            this.Run += ToStringFunc_Run;
+            e.Value = new Variable(e.Parent.GetLength());
         }
 
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(e.CurentVariable.GetSize());
-        }
     }
 
     internal sealed class ToStringFunc : FunctionBase
