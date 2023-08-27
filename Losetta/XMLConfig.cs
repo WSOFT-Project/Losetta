@@ -9,7 +9,7 @@ namespace AliceScript
     /// <summary>
     /// XMLファイルを管理するクラスです
     /// </summary>
-    public class XMLConfig
+    internal sealed class XMLConfig
     {
 
 
@@ -47,7 +47,7 @@ namespace AliceScript
 
             if (filepath == "") { filepath = FilePath; }
 
-            try { File.WriteAllText(filepath, xmlText); return (true); } catch { return (false); }
+            try { File.WriteAllText(filepath, xmlText); return true; } catch { return false; }
 
         }
 
@@ -94,7 +94,7 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -127,7 +127,7 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -139,14 +139,7 @@ namespace AliceScript
                 if (xml.SelectSingleNode("package/" + path) != null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
-                    if (ContainsAttribute(node, name))
-                    {
-                        return ((XmlElement)node).GetAttribute(name);
-                    }
-                    else
-                    {
-                        return defaultText;
-                    }
+                    return ContainsAttribute(node, name) ? ((XmlElement)node).GetAttribute(name) : defaultText;
                 }
                 else
                 {
@@ -165,7 +158,7 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -176,7 +169,7 @@ namespace AliceScript
                 if (xml.SelectSingleNode("package/" + path) != null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
-                    return (ContainsAttribute(node, name));
+                    return ContainsAttribute(node, name);
                 }
                 else
                 {
@@ -199,20 +192,11 @@ namespace AliceScript
             try
             {
 
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
-                if (xml.SelectSingleNode("package/" + path) != null)
-                {
-
-                    return true;
-
-                }
-                else
-                {
-                    return false;
-                }
+                return xml.SelectSingleNode("package/" + path) != null;
             }
             catch { return false; }
         }
@@ -232,7 +216,7 @@ namespace AliceScript
             value = SecurityElement.Escape(value);
 
 
-            if (path.EndsWith("/")) { path = path + "/default"; }
+            if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
             XmlDocument xml = new XmlDocument();
 
             xml.LoadXml(xmlText);
@@ -290,14 +274,14 @@ namespace AliceScript
         {
             try
             {
-                if (path.EndsWith("/")) { path = path + "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
                 xml.SelectSingleNode("package/" + path).ParentNode.RemoveChild(xml.SelectSingleNode("package/" + path));
                 xmlText = xml.OuterXml;
-                return (true);
+                return true;
             }
-            catch { return (false); }
+            catch { return false; }
         }
 
     }

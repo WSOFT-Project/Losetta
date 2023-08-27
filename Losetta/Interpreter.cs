@@ -132,7 +132,6 @@ namespace AliceScript
             FunctionBaseManerger.Add(new ClassCreator());
             FunctionBaseManerger.Add(new FunctionCreator());
             FunctionBaseManerger.Add(new EnumFunction());
-            FunctionBaseManerger.Add(new NamespaceFunction());
             FunctionBaseManerger.Add(new ArrayTypeFunction());
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
@@ -207,7 +206,7 @@ namespace AliceScript
         private bool IsEqualMagicnumber(byte[] data, byte[] magicnumber)
         {
             byte[] magic = data.Take(magicnumber.Length).ToArray();
-            return (magic.SequenceEqual(magicnumber));
+            return magic.SequenceEqual(magicnumber);
         }
         public async Task<Variable> ProcessFileAsync(string filename, bool mainFile = false)
         {
@@ -220,8 +219,7 @@ namespace AliceScript
         }
         public ParsingScript GetScript(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 data = ";";
@@ -229,6 +227,7 @@ namespace AliceScript
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
             toParse.Defines = def;
+            toParse.Settings = setting;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
             toParse.Tag = tag;
@@ -242,14 +241,16 @@ namespace AliceScript
         }
         public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
+            toParse.TopInFile = true;
+            toParse.Defines = def;
+            toParse.Settings = setting;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
             toParse.Tag = tag;
@@ -260,32 +261,19 @@ namespace AliceScript
                 toParse.MainFilename = toParse.Filename;
             }
 
-            Variable result = toParse.Process();
-
-            /*
-            while (toParse.Pointer < data.Length)
-            {
-                result = toParse.Execute();
-                toParse.GoToNextStatement();
-            }
-            //これでこのスクリプトの処理は終わり
-            if (Interop.GCManerger.CollectAfterExecute)
-            {
-                GC.Collect();
-            }
-            */
-            return result;
+            return toParse.Process();
         }
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
+            toParse.TopInFile = true;
+            toParse.Settings = setting;
             toParse.Defines = def;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
@@ -309,80 +297,7 @@ namespace AliceScript
         //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
 
 
-        internal static void SkipBlock(ParsingScript script)
-        {
-            int blockStart = script.Pointer;
-            int startCount = 0;
-            int endCount = 0;
-            bool inQuotes = false;
-            bool inQuotes1 = false;
-            bool inQuotes2 = false;
-            char previous = Constants.EMPTY;
-            char prevprev = Constants.EMPTY;
-            while (startCount == 0 || startCount > endCount)
-            {
-                if (!script.StillValid())
-                {
-                    throw new ScriptException("次のブロックを実行できませんでした [" +
-                    script.Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, script);
-                }
-                char currentChar = script.CurrentAndForward();
-                switch (currentChar)
-                {
-                    case Constants.QUOTE1:
-                        if (!inQuotes2 && (previous != '\\' || prevprev == '\\'))
-                        {
-                            inQuotes = inQuotes1 = !inQuotes1;
-                        }
-                        break;
-                    case Constants.QUOTE:
-                        if (!inQuotes1 && (previous != '\\' || prevprev == '\\'))
-                        {
-                            inQuotes = inQuotes2 = !inQuotes2;
-                        }
-                        break;
-                    case Constants.START_GROUP:
-                        if (!inQuotes)
-                        {
-                            startCount++;
-                        }
-                        break;
-                    case Constants.END_GROUP:
-                        if (!inQuotes)
-                        {
-                            endCount++;
-                        }
-                        break;
-                }
-                prevprev = previous;
-                previous = currentChar;
-            }
-            if (startCount > endCount)
-            {
-                throw new ScriptException("波括弧が不足しています", Exceptions.NEED_BRACKETS, script);
-            }
-            else if (startCount < endCount)
-            {
-                throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, script);
-            }
-        }
 
-        internal static void SkipRestBlocks(ParsingScript script)
-        {
-            while (script.StillValid())
-            {
-                int endOfToken = script.Pointer;
-                ParsingScript nextData = new ParsingScript(script);
-                string nextToken = Utils.GetNextToken(nextData);
-                if (Constants.ELSE_IF != nextToken &&
-                    Constants.ELSE != nextToken)
-                {
-                    return;
-                }
-                script.Pointer = nextData.Pointer;
-                SkipBlock(script);
-            }
-        }
     }
 }
 

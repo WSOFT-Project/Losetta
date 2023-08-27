@@ -1,6 +1,6 @@
 ﻿namespace AliceScript
 {
-    internal class LabelFunction : ActionFunction
+    internal sealed class LabelFunction : ActionFunction
     {
         protected override Variable Evaluate(ParsingScript script)
         {
@@ -9,7 +9,7 @@
         }
     }
 
-    internal class PointerFunction : ActionFunction
+    internal sealed class PointerFunction : ActionFunction
     {
         protected override Variable Evaluate(ParsingScript script)
         {
@@ -24,11 +24,11 @@
         }
     }
 
-    internal class PointerReferenceFunction : ActionFunction
+    internal sealed class PointerReferenceFunction : ActionFunction
     {
         public PointerReferenceFunction()
         {
-            this.Name = "PointerReference";
+            Name = "PointerReference";
         }
         protected override Variable Evaluate(ParsingScript script)
         {

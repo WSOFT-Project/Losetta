@@ -1,0 +1,45 @@
+using Alice.Environment;
+using Alice.Console;
+using Alice.IO;
+
+print("AliceScript パス設定ツール");
+
+var isMachine = env_commandLineArgs().Contains("machine");
+var isWin = env_impl_target() == "Windows";
+var pwd=directory_current();
+
+if(!isWin)
+{
+	print("Windows以外の環境では、この機能は使用できません。");
+	exit;
+}
+
+print("現在の作業ディレクトリへのパスを通します。");
+if(isMachine)
+{
+	print("この操作はすべてのユーザーに適用されます。");
+}
+
+print("よろしければ\"y\"を、キャンセルする場合はそれ以外のキーを押してください。");
+write("Y/N>");
+
+if(console_readKey() != "y")
+{
+	print("キャンセルされました。");
+	exit;
+}
+print();
+
+var split_char = ";";
+if(isMachine)
+{
+	var base = env_get_environmentvariable("Path",2);
+	env_set_environmentvariable("Path",base+split_char+pwd,2);
+}
+else
+{
+	var base = env_get_environmentvariable("Path",2);
+	env_set_environmentvariable("Path",base+split_char+pwd,1);
+}
+
+print("完了しました。");

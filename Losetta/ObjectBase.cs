@@ -2,10 +2,6 @@
 {
     public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
-        /// <summary>
-        /// このオブジェクトの名前
-        /// </summary>
-        public string Name { get; set; }
 
         public Dictionary<string, PropertyBase> Properties
         {
@@ -50,13 +46,9 @@
             {
                 return Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString();
             }
-            else if (string.IsNullOrEmpty(this.Namespace))
-            {
-                return this.Name;
-            }
             else
             {
-                return this.Namespace + "." + this.Name;
+                return string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
             }
         }
 
@@ -67,12 +59,12 @@
                 var impl = m_constructor.Evaluate(args, script);
                 if (impl.Type == Variable.VarType.OBJECT && impl.Object is ObjectBase ob)
                 {
-                    ob.Namespace = this.Namespace;
+                    ob.Namespace = Namespace;
                     return impl;
                 }
             }
-            var obase = (ObjectBase)Activator.CreateInstance(this.GetType());
-            obase.Namespace = this.Namespace;
+            var obase = (ObjectBase)Activator.CreateInstance(GetType());
+            obase.Namespace = Namespace;
             return new Variable(obase);
         }
 
@@ -87,7 +79,7 @@
         public static List<Variable> LaskVariable;
         public virtual bool Equals(ObjectBase other)
         {
-            return (other == this);
+            return other == this;
         }
         public virtual Variable Operator(Variable left, Variable right, string action, ParsingScript script)
         {
@@ -123,27 +115,18 @@
                     return va;
 
                 }
-                else if (Events.ContainsKey(sPropertyName))
-                {
-                    return Task.FromResult(Events[sPropertyName]);
-                }
                 else
                 {
-                    throw new ScriptException("指定されたプロパティまたはメソッドまたはイベントは存在しません。", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
+                    return Events.ContainsKey(sPropertyName)
+                        ? Task.FromResult(Events[sPropertyName])
+                        : throw new ScriptException("指定されたプロパティまたはメソッドまたはイベントは存在しません。", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
                 }
             }
         }
 
         public virtual PropertyBase GetPropertyBase(string sPropertyName)
         {
-            if (Properties.ContainsKey(sPropertyName))
-            {
-                return Properties[sPropertyName];
-            }
-            else
-            {
-                return null;
-            }
+            return Properties.ContainsKey(sPropertyName) ? Properties[sPropertyName] : null;
         }
 
         public virtual Task<Variable> SetProperty(string sPropertyName, Variable argValue)
@@ -171,24 +154,24 @@
         }
         public void AddProperty(PropertyBase property)
         {
-            this.Properties.Add(property.Name, property);
+            Properties.Add(property.Name, property);
         }
         public void RemoveProperty(PropertyBase property)
         {
-            this.Properties.Remove(property.Name);
+            Properties.Remove(property.Name);
         }
         public void AddFunction(FunctionBase function, string name = "")
         {
             if (string.IsNullOrEmpty(name)) { name = function.Name; }
-            this.Functions.Add(name, function);
+            Functions.Add(name, function);
         }
         public void RemoveFunction(string name)
         {
-            this.Functions.Remove(name);
+            Functions.Remove(name);
         }
         public void RemoveFunction(FunctionBase function)
         {
-            this.Functions.Remove(function.Name);
+            Functions.Remove(function.Name);
         }
 
 
@@ -206,24 +189,21 @@
         }
     }
 
-    public class PropertySettingEventArgs : EventArgs
-    {
-        /// <summary>
-        /// プロパティに代入されようとしている変数の内容
-        /// </summary>
-        public Variable Value { get; set; }
-
-    }
-    public class PropertyGettingEventArgs : EventArgs
+    public class PropertyBaseEventArgs : EventArgs
     {
         /// <summary>
         /// プロパティの変数の内容
         /// </summary>
         public Variable Value { get; set; }
-    }
-    public delegate void PropertySettingEventHandler(object sender, PropertySettingEventArgs e);
 
-    public delegate void PropertyGettingEventHandler(object sender, PropertyGettingEventArgs e);
+        /// <summary>
+        /// 呼び出し元の変数。これはコアプロパティで使用します。
+        /// </summary>
+        public Variable Parent { get; set; }
+    }
+    public delegate void PropertySettingEventHandler(object sender, PropertyBaseEventArgs e);
+
+    public delegate void PropertyGettingEventHandler(object sender, PropertyBaseEventArgs e);
 
     public class PropertyBase
     {
@@ -251,6 +231,12 @@
         /// </summary>
 
         public event PropertyGettingEventHandler Getting;
+
+        /// <summary>
+        /// プロパティはこの型向けのプロパティとして登録されている。これはコアプロパティで使用します。
+        /// </summary>
+        public Variable.VarType Type { get; set; }
+
         /// <summary>
         /// SetPropertyが使用可能かを表す値。デフォルトではTrueです。
         /// </summary>
@@ -262,48 +248,52 @@
         private bool m_CanSet = true;
         public PropertyBase(Variable value)
         {
-            this.Value = value;
+            Value = value;
         }
         public PropertyBase()
         {
 
         }
-        public Variable Property
+        public Variable GetProperty(Variable parent = null)
         {
-            get
+            if (HandleEvents)
+            {
+                PropertyBaseEventArgs e = new PropertyBaseEventArgs();
+                e.Parent = parent;
+                e.Value = Value;
+                Getting?.Invoke(this, e);
+                return e.Value;
+            }
+            else
+            {
+                return Value;
+            }
+        }
+        public void SetProperty(Variable value, Variable parent = null)
+        {
+            if (CanSet)
             {
                 if (HandleEvents)
                 {
-                    PropertyGettingEventArgs e = new PropertyGettingEventArgs();
-                    e.Value = Value;
-                    Getting?.Invoke(this, e);
-                    return e.Value;
+                    PropertyBaseEventArgs e = new PropertyBaseEventArgs();
+                    e.Parent = parent;
+                    e.Value = value;
+                    Setting?.Invoke(this, e);
                 }
                 else
                 {
-                    return Value;
+                    Value = value;
                 }
             }
-            set
+            else
             {
-                if (CanSet)
-                {
-                    if (HandleEvents)
-                    {
-                        PropertySettingEventArgs e = new PropertySettingEventArgs();
-                        e.Value = value;
-                        Setting?.Invoke(this, e);
-                    }
-                    else
-                    {
-                        Value = value;
-                    }
-                }
-                else
-                {
-                    throw new ScriptException("このプロパティに代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
-                }
+                throw new ScriptException("このプロパティには代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
             }
+        }
+        public Variable Property
+        {
+            get => GetProperty();
+            set => SetProperty(value);
         }
 
     }

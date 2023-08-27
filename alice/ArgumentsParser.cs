@@ -1,7 +1,11 @@
-﻿namespace alice
+﻿using System.Text.RegularExpressions;
+
+namespace AliceScript.CLI
 {
-    internal class ParsedArguments
+    public class ParsedArguments
     {
+        public static Regex FlagPattern = new Regex("-.*", RegexOptions.Compiled);
+        public static Regex ValuePattern = new Regex("-.*=.*", RegexOptions.Compiled);
         public ParsedArguments(string[] args)
         {
             m_init(args);
@@ -17,15 +21,16 @@
             bool src = false;
             foreach (string arg in args)
             {
-                if (arg.ToLower() == "--arg" || arg.ToLower() == "--args")
+                var argl = arg.ToLower();
+                if (argl == "--arg" || argl == "--args")
                 {
                     aarg = true;
                     continue;
                 }
-                if (arg.ToLower() == "-s" || arg.ToLower() == "-script")
+                if (argl == "-e" || argl == "-execute" || argl == "-evaluate")
                 {
                     src = true;
-                    Flags.Add("s");
+                    Flags.Add("e");
                     continue;
                 }
                 if (aarg)
@@ -38,31 +43,34 @@
                 }
                 else
                 {
-                    System.Text.RegularExpressions.MatchCollection mc =
-        System.Text.RegularExpressions.Regex.Matches(
-        arg, @"-.*");
-                    if (mc.Count > 0)
+                    if (arg.StartsWith("-", StringComparison.CurrentCulture))
                     {
-                        foreach (System.Text.RegularExpressions.Match m in mc)
+                        var mc = FlagPattern.Matches(arg);
+                        if (mc.Count > 0)
                         {
-                            System.Text.RegularExpressions.MatchCollection mc2 =
-            System.Text.RegularExpressions.Regex.Matches(
-            arg, @"-.*:.*");
-                            if (mc2.Count > 0)
+                            foreach (Match m in mc)
                             {
-                                foreach (System.Text.RegularExpressions.Match m2 in mc2)
+                                var mc2 = ValuePattern.Matches(arg);
+                                if (mc2.Count > 0)
                                 {
-                                    string v = m2.Value;
-                                    v = v.TrimStart('-'); string[] vs = v.Split(':');
-                                    Values.Add(vs[0].ToLower(), vs[1]);
+                                    foreach (Match m2 in mc2)
+                                    {
+                                        string v = m2.Value;
+                                        v = v.TrimStart('-'); string[] vs = v.Split('=');
+                                        Values.Add(vs[0].ToLower(), vs[1]);
+                                    }
+                                }
+                                else
+                                {
+                                    string v = m.Value;
+                                    v = v.TrimStart('-');
+                                    Flags.Add(v.ToLower());
                                 }
                             }
-                            else
-                            {
-                                string v = m.Value;
-                                v = v.TrimStart('-');
-                                Flags.Add(v.ToLower());
-                            }
+                        }
+                        else
+                        {
+                            Files.Add(arg);
                         }
                     }
                     else

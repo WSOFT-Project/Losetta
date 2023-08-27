@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using System.Text.RegularExpressions;
+
+namespace AliceScript
 {
     public partial class Constants
     {
@@ -24,6 +26,7 @@
 
         public const string AS = "as ";
         public const string IS = "is ";
+        public const string IS_NOT = "is not ";
         public const string FOR_EACH = ":";
         public const string FOR_IN = "in";
         public const string FOR_OF = "of";
@@ -64,6 +67,7 @@
         public const string ELSE = "else";
         public const string ELSE_IF = "elif";
         public const string FOR = "for";
+        public const string FINALLY = "finally";
         public const string FUNCTION = "function";
         public const string CLASS = "class";
         public const string ENUM = "enum";
@@ -79,6 +83,7 @@
         public const string TYPE = "type";
         public const string TYPE_OF = "typeOf";
         public const string WHILE = "while";
+        public const string WHEN = "when";
 
         public const string TRUE = "true";
         public const string FALSE = "false";
@@ -180,11 +185,11 @@
         public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=", "=>" };
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS_NOT,IS};
 
-        public static string[] ACTIONS = (OPER_ACTIONS.Union(MATH_ACTIONS)).ToArray();
+        public static string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
-        public static string[] CORE_OPERATORS = (new List<string> { TRY, FOR, WHILE }).ToArray();
+        public static string[] CORE_OPERATORS = { TRY, FOR, WHILE };
 
         // ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
         public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
@@ -211,11 +216,30 @@
 
         public static string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
         public static char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
+        public static string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
         public static char[] TOKENS_SEPARATION = ",;)".ToCharArray();
         public static string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
+        /// <summary>
+        /// パース中の言語構造が所属する名前空間です
+        /// </summary>
+        public static string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
+
         //最上位の名前空間
         public const string TOP_NAMESPACE = "Alice";
+
+        /// <summary>
+        /// 変数・定数・関数名などの識別子がとるパターン
+        /// </summary>
+        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}]*$", RegexOptions.Compiled);
+
+        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
+
+        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
+
+        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
+
+        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";
@@ -227,58 +251,67 @@
 
         // シンボル
         public const string UNNEED_VAR = "unneed_var";
+        public const string RESET_DEFINES = "reset_defines";
         //includeしたファイルにもシンボルを引き継ぐ
         public const string FOLLOW_INCLUDE = "follow_include";
-        public const string DISABLE_USING = "disable_using";
-        public const string DISABLE_IMPORT = "disable_import";
-        public const string DISABLE_INCLUDE = "disable_include";
+        //varキーワードの型推論を有効にする
+        public const string TYPE_INFERENCE = "type_inference";
+        public const string FALL_THROUGH = "fall_through";
+        public const string CHECK_BREAK_WHEN_CASE = "check_break_when_case";
+        public const string ENABLE_USING = "enable_using";
+        public const string ENABLE_IMPORT = "enable_import";
+        public const string ENABLE_INCLUDE = "enable_include";
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
         public const string HELP_LINK = "https://a.wsoft.ws/alice/exceptions/0x";
 
-        public static List<string> KEYWORD = new List<string>
-        {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF
-        };
 
-        // 関数呼び出し時に丸括弧が不要な関数
-        public static List<string> FUNCT_WITH_SPACE = new List<string>
+        /// <summary>
+        /// 関数呼び出し時に丸括弧が不要な関数の名前
+        /// </summary>
+        public static HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
             FUNCTION, NAMESPACE, NEW, PRINT
         };
-        //関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
-        public static List<string> FUNCT_WITH_SPACE_ONCE = new List<string>
+        /// <summary>
+        /// 関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
+        /// </summary>
+        public static HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
         {
             CASE, RETURN, THROW, TYPE_OF
         };
 
-        // 言語構造の予約。これらを演算したり返すことは無意味
-        public static List<string> CONTROL_FLOW = new List<string>
+        /// <summary>
+        /// 言語構造の関数名
+        /// </summary>
+        public static HashSet<string> CONTROL_FLOW = new HashSet<string>
         {
             BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,FOREACH, FUNCTION, IF, INCLUDE, NEW,IMPORT,
             RETURN, THROW, TRY, WHILE
         };
 
+        /// <summary>
+        /// Nullをとりえない変数の型
+        /// </summary>
+        public static HashSet<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new HashSet<Variable.VarType>()
+        {
+            Variable.VarType.NUMBER,Variable.VarType.BOOLEAN
+        };
 
-        //配列添え字演算子を使用できる変数の型
-        public static List<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new List<Variable.VarType>()
+        /// <summary>
+        /// 配列添え字演算子を使用できる変数の型
+        /// </summary>
+        public static HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.ARRAY,Variable.VarType.DELEGATE,Variable.VarType.STRING
         };
-        //予約語
-        public static List<string> RESERVED = new List<string>
+        /// <summary>
+        /// AliceScriptから参照できる定数
+        /// </summary>
+        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> 
         {
-            BREAK, CONTINUE, CLASS, NEW, FUNCTION, IF, ELSE, ELSE_IF, INCLUDE,IMPORT, FOR,FOREACH, WHILE,
-            RETURN, THROW, TRY, CATCH, COMMENT, TRUE, FALSE, TYPE,
-            ASSIGNMENT, AND, OR, EQUAL, NOT_EQUAL, LESS, LESS_EQ, GREATER, GREATER_EQ,
-            ADD_ASSIGN, SUBT_ASSIGN, MULT_ASSIGN, DIV_ASSIGN,
-            SWITCH, CASE, DEFAULT, NAN, UNDEFINED,NULL,
-            NEXT_ARG.ToString(), START_GROUP.ToString(), END_GROUP.ToString(), END_STATEMENT.ToString()
-        };
-        //インタプリタに最初から定義される定数
-        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> {
             //Trueを表します
             { TRUE,Variable.True},
             //Falseを表します
@@ -289,6 +322,8 @@
             { INFINITY,new Variable(double.PositiveInfinity)},
             //負の無限を表します
             { NEG_INFINITY,new Variable(double.NegativeInfinity)},
+            //非数を表します
+            {NAN,new Variable(double.NaN) },
             //定義されていないことを表します
             { UNDEFINED,new Variable(Variable.VarType.UNDEFINED)},
             //ループを抜けます
@@ -303,15 +338,25 @@
             {"pointer",Variable.AsType(Variable.VarType.POINTER) },
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
-            //{"type",Variable.AsType(Variable.VarType.TYPE) }
 
         };
-        //型指定修飾子
-        public static List<string> TYPE_MODIFER = new List<string>{
+        /// <summary>
+        /// AliceScriptのキーワード
+        /// </summary>
+        public static HashSet<string> KEYWORD = new HashSet<string>
+        {
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
+        };
+        /// <summary>
+        /// 型指定修飾子
+        /// </summary>
+        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
              "string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
-        //算術演算子
-        public static List<string> ARITHMETIC_EXPR = new List<string>
+        /// <summary>
+        /// 算術演算子
+        /// </summary>
+        public static HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
         {
             "*", "*=" , "+", "+=" , "-", "-=", "/", "/=", "%", "%=", ">", "<", ">=", "<="
         };
@@ -341,18 +386,13 @@
 
         public static bool CheckReserved(string name)
         {
-            return Constants.RESERVED.Contains(name);
+            return Constants.KEYWORD.Contains(name);
         }
 
         public static string GetRealName(string name)
         {
             name = name.Trim();
-            string realName;
-            if (!s_realNames.TryGetValue(name, out realName))
-            {
-                return name;
-            }
-            return realName;
+            return !s_realNames.TryGetValue(name, out string realName) ? name : realName;
         }
 
         public static string TypeToString(Variable.VarType type)
@@ -412,8 +452,7 @@
         }
         public static Variable.VarType StringToType(string type)
         {
-            Variable.VarType ptype;
-            TryParseType(type, out ptype);
+            TryParseType(type, out Variable.VarType ptype);
             return ptype;
         }
     }

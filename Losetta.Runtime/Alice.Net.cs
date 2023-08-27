@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Net_Initer
+    public sealed class Alice_Net
     {
         public static void Init()
         {
@@ -32,124 +32,124 @@ namespace AliceScript.NameSpaces
         internal static WebClient wc;
     }
 
-    internal class web_upload_dataFunc : FunctionBase
+    internal sealed class web_upload_dataFunc : FunctionBase
     {
         public web_upload_dataFunc()
         {
-            this.Name = "web_upload_data";
-            this.MinimumArgCounts = 2;
-            this.Run += Web_upload_data_Run;
+            Name = "web_upload_data";
+            MinimumArgCounts = 2;
+            Run += Web_upload_data_Run;
         }
 
         private void Web_upload_data_Run(object sender, FunctionBaseEventArgs e)
         {
             if (e.Args.Count == 2)
             {
-                e.Return = new Variable(Alice_Net_Initer.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsByteArray()));
+                e.Return = new Variable(Alice_Net.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsByteArray()));
             }
             else if (e.Args.Count >= 3)
             {
-                e.Return = new Variable(Alice_Net_Initer.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsByteArray()));
+                e.Return = new Variable(Alice_Net.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsByteArray()));
             }
         }
     }
 
-    internal class web_upload_fileFunc : FunctionBase
+    internal sealed class web_upload_fileFunc : FunctionBase
     {
         public web_upload_fileFunc()
         {
-            this.Name = "web_upload_file";
-            this.MinimumArgCounts = 2;
-            this.Run += Web_upload_data_Run;
+            Name = "web_upload_file";
+            MinimumArgCounts = 2;
+            Run += Web_upload_data_Run;
         }
 
         private void Web_upload_data_Run(object sender, FunctionBaseEventArgs e)
         {
             if (e.Args.Count == 2)
             {
-                e.Return = new Variable(Alice_Net_Initer.wc.UploadFile(e.Args[0].AsString(), e.Args[1].AsString()));
+                e.Return = new Variable(Alice_Net.wc.UploadFile(e.Args[0].AsString(), e.Args[1].AsString()));
             }
             else if (e.Args.Count >= 3)
             {
-                e.Return = new Variable(Alice_Net_Initer.wc.UploadFile(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString()));
+                e.Return = new Variable(Alice_Net.wc.UploadFile(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString()));
             }
         }
     }
 
-    internal class web_upload_textFunc : FunctionBase
+    internal sealed class web_upload_textFunc : FunctionBase
     {
         public web_upload_textFunc()
         {
-            this.Name = "web_upload_text";
-            this.MinimumArgCounts = 2;
-            this.Run += Web_upload_data_Run;
+            Name = "web_upload_text";
+            MinimumArgCounts = 2;
+            Run += Web_upload_data_Run;
         }
 
         private void Web_upload_data_Run(object sender, FunctionBaseEventArgs e)
         {
             if (e.Args.Count == 2)
             {
-                e.Return = new Variable(Alice_Net_Initer.wc.UploadString(e.Args[0].AsString(), e.Args[1].AsString()));
+                e.Return = new Variable(Alice_Net.wc.UploadString(e.Args[0].AsString(), e.Args[1].AsString()));
             }
             else if (e.Args.Count >= 3)
             {
-                e.Return = new Variable(Alice_Net_Initer.wc.UploadString(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString()));
+                e.Return = new Variable(Alice_Net.wc.UploadString(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString()));
             }
         }
     }
 
-    internal class web_download_dataFunc : FunctionBase
+    internal sealed class web_download_dataFunc : FunctionBase
     {
         public web_download_dataFunc()
         {
-            this.Name = "web_download_data";
-            this.MinimumArgCounts = 1;
-            this.Run += Web_download_data_Run;
+            Name = "web_download_data";
+            MinimumArgCounts = 1;
+            Run += Web_download_data_Run;
         }
 
         private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Alice_Net_Initer.wc.DownloadData(e.Args[0].AsString()));
+            e.Return = new Variable(Alice_Net.wc.DownloadData(e.Args[0].AsString()));
         }
     }
 
-    internal class web_download_fileFunc : FunctionBase
+    internal sealed class web_download_fileFunc : FunctionBase
     {
         public web_download_fileFunc()
         {
-            this.Name = "web_download_file";
-            this.MinimumArgCounts = 2;
-            this.Run += Web_download_data_Run;
+            Name = "web_download_file";
+            MinimumArgCounts = 2;
+            Run += Web_download_data_Run;
         }
 
         private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
         {
-            Alice_Net_Initer.wc.DownloadFile(e.Args[0].AsString(), e.Args[1].AsString());
+            Alice_Net.wc.DownloadFile(e.Args[0].AsString(), e.Args[1].AsString());
         }
     }
 
-    internal class web_download_textFunc : FunctionBase
+    internal sealed class web_download_textFunc : FunctionBase
     {
         public web_download_textFunc()
         {
-            this.Name = "web_download_text";
-            this.MinimumArgCounts = 1;
-            this.Run += Web_download_data_Run;
+            Name = "web_download_text";
+            MinimumArgCounts = 1;
+            Run += Web_download_data_Run;
         }
 
         private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Alice_Net_Initer.wc.DownloadString(e.Args[0].AsString()));
+            e.Return = new Variable(Alice_Net.wc.DownloadString(e.Args[0].AsString()));
         }
     }
 
-    internal class web_htmldecodeFunc : FunctionBase
+    internal sealed class web_htmldecodeFunc : FunctionBase
     {
         public web_htmldecodeFunc()
         {
-            this.Name = "web_htmldecode";
-            this.MinimumArgCounts = 1;
-            this.Run += Web_htmldecodeFunc_Run;
+            Name = "web_htmldecode";
+            MinimumArgCounts = 1;
+            Run += Web_htmldecodeFunc_Run;
         }
 
         private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -158,13 +158,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_htmlencodeFunc : FunctionBase
+    internal sealed class web_htmlencodeFunc : FunctionBase
     {
         public web_htmlencodeFunc()
         {
-            this.Name = "web_htmlencode";
-            this.MinimumArgCounts = 1;
-            this.Run += Web_htmldecodeFunc_Run;
+            Name = "web_htmlencode";
+            MinimumArgCounts = 1;
+            Run += Web_htmldecodeFunc_Run;
         }
 
         private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -173,13 +173,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_urldecodeFunc : FunctionBase
+    internal sealed class web_urldecodeFunc : FunctionBase
     {
         public web_urldecodeFunc()
         {
-            this.Name = "web_urldecode";
-            this.MinimumArgCounts = 1;
-            this.Run += Web_htmldecodeFunc_Run;
+            Name = "web_urldecode";
+            MinimumArgCounts = 1;
+            Run += Web_htmldecodeFunc_Run;
         }
 
         private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -188,13 +188,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_urlencodeFunc : FunctionBase
+    internal sealed class web_urlencodeFunc : FunctionBase
     {
         public web_urlencodeFunc()
         {
-            this.Name = "web_urlencode";
-            this.MinimumArgCounts = 1;
-            this.Run += Web_htmldecodeFunc_Run;
+            Name = "web_urlencode";
+            MinimumArgCounts = 1;
+            Run += Web_htmldecodeFunc_Run;
         }
 
         private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -203,7 +203,7 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class web_send_pingFunc : FunctionBase
+    internal sealed class web_send_pingFunc : FunctionBase
     {
         public web_send_pingFunc()
         {
@@ -222,14 +222,7 @@ namespace AliceScript.NameSpaces
             System.Net.NetworkInformation.PingReply reply = p.Send(e.Args[0].AsString(), Utils.GetSafeInt(e.Args, 1, 5000));
 
             //結果を取得
-            if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
-            {
-                e.Return = Variable.True;
-            }
-            else
-            {
-                e.Return = Variable.False;
-            }
+            e.Return = reply.Status == System.Net.NetworkInformation.IPStatus.Success ? Variable.True : Variable.False;
 
             p.Dispose();
         }

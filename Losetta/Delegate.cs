@@ -3,7 +3,6 @@
     public class DelegateObject
     {
         private List<CustomFunction> m_fucntions = new List<CustomFunction>();
-        private CustomFunction m_function = null;
 
         public List<CustomFunction> Functions
         {
@@ -20,7 +19,7 @@
                     if (i == 0)
                     {
                         r = m_fucntions[i];
-                        r.Children = new List<CustomFunction>();
+                        r.Children = new HashSet<CustomFunction>();
                     }
                     else
                     {
@@ -36,17 +35,7 @@
             }
         }
         public int Length => m_fucntions.Count;
-        public string Name
-        {
-            get
-            {
-                if (m_fucntions.Count == 0)
-                {
-                    return string.Empty;
-                }
-                return m_fucntions[0].Name;
-            }
-        }
+        public string Name => m_fucntions.Count == 0 ? string.Empty : m_fucntions[0].Name;
         public DelegateObject()
         {
 
@@ -122,7 +111,7 @@
             ThreadPool.QueueUserWorkItem(ThreadProc, mb);
         }
 
-        private static void ThreadProc(Object stateInfo)
+        private static void ThreadProc(object stateInfo)
         {
             m_BeginInvokeMessanger mb = (m_BeginInvokeMessanger)stateInfo;
             mb.Delegate.Invoke(mb.Args, mb.Script, mb.Instance);
@@ -137,14 +126,14 @@
         public bool Equals(DelegateObject d)
         {
             //要素数が異なるときはもちろん異なる
-            if (this.Length != d.Length)
+            if (Length != d.Length)
             {
                 return false;
             }
 
             for (int i = 0; i < d.Length; i++)
             {
-                if (this.Functions[i] != d.Functions[i])
+                if (Functions[i] != d.Functions[i])
                 {
                     //一つでも違えば異なる
                     return false;
@@ -160,14 +149,14 @@
     {
         public EventBase()
         {
-            this.CanSet = true;
-            this.Value = new Variable(Variable.VarType.DELEGATE);
+            CanSet = true;
+            Value = new Variable(Variable.VarType.DELEGATE);
         }
         public EventBase(string name)
         {
-            this.Name = name;
-            this.CanSet = true;
-            this.Value = new Variable(Variable.VarType.DELEGATE);
+            Name = name;
+            CanSet = true;
+            Value = new Variable(Variable.VarType.DELEGATE);
         }
         /// <summary>
         /// イベントを実行します
@@ -180,9 +169,9 @@
         {
             Variable result = Variable.EmptyInstance;
 
-            if (this.Value.Type == Variable.VarType.DELEGATE && this.Value.Delegate != null)
+            if (Value.Type == Variable.VarType.DELEGATE && Value.Delegate != null)
             {
-                result = this.Value.Delegate.Invoke(args, script, instance);
+                result = Value.Delegate.Invoke(args, script, instance);
             }
 
             return result;

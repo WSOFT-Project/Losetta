@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace alice.Properties {
+namespace AliceScript.CLI.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace alice.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("alice.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AliceScript.CLI.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -92,9 +92,45 @@ namespace alice.Properties {
         }
         
         /// <summary>
+        ///   using Alice.Environment;
+        ///using Alice.Console;
+        ///using Alice.IO;
+        ///
+        ///print(&quot;AliceScript パス設定ツール&quot;);
+        ///
+        ///var isMachine = env_commandLineArgs().Contains(&quot;machine&quot;);
+        ///var isWin = env_impl_target() == &quot;Windows&quot;;
+        ///var pwd=directory_current();
+        ///
+        ///if(!isWin)
+        ///{
+        ///	print(&quot;Windows以外の環境では、この機能は使用できません。&quot;);
+        ///	exit;
+        ///}
+        ///
+        ///print(&quot;現在の作業ディレクトリへのパスを通します。&quot;);
+        ///if(isMachine)
+        ///{
+        ///	print(&quot;この操作はすべてのユーザーに適用されます。&quot;);
+        ///}
+        ///
+        ///print(&quot;よろしければ\&quot;y\&quot;を、キャンセルする場合はそれ以外のキーを押してください。&quot;);
+        ///write(&quot;Y/N&gt;&quot;);
+        ///
+        ///if(console_readKey() != &quot;y&quot;)
+        ///{
+        ///	print(&quot;キャンセルさ [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string path {
+            get {
+                return ResourceManager.GetString("path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   public using Alice.Shell;
         ///include(&quot;version&quot;);
-        ///print(&quot;Copyright (c) WSOFT. All Rights Reserved.\r\n&quot;); に類似しているローカライズされた文字列を検索します。
+        ///print(); に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string shell {
             get {
@@ -131,7 +167,7 @@ namespace alice.Properties {
         /// <summary>
         ///   using Alice.Environment;
         ///
-        ///print(&quot;AliceScript Version {0} ({1} v{2} on {3}-{4})&quot;,env_version(),env_impl_name(),env_impl_version(),env_impl_target(),env_impl_architecture()); に類似しているローカライズされた文字列を検索します。
+        ///print($&quot;{env_lang_name()} Version {env_lang_version()} ({env_impl_name()} v{env_impl_version()} on {env_impl_target()}-{env_impl_architecture()})&quot;); に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string version {
             get {

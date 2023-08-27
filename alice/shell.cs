@@ -1,7 +1,6 @@
-﻿using AliceScript;
-using System.Text;
+﻿using System.Text;
 
-namespace alice
+namespace AliceScript.CLI
 {
     public class Shell
     {
@@ -34,6 +33,9 @@ namespace alice
             ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
+
+            //REPLはデバッグモードに
+            Program.IsDebugMode = true;
             if (File.Exists(filename))
             {
                 Alice.ExecuteFile(filename);
@@ -44,16 +46,20 @@ namespace alice
         private static bool mainfile = false;
         internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
-            if (e.Message != "")
+            if (!Program.allow_throw)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine(e.ErrorCode.ToString()+"(0x" + ((int)e.ErrorCode).ToString("x3") + "): "+e.Message);
-                //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
-                //sb.AppendLine("説明: "+e.Message);
-                if (!string.IsNullOrWhiteSpace(e.HelpLink))
-                {
-                    sb.AppendLine("詳細情報: " + e.HelpLink);
-                }
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + ")" + (string.IsNullOrEmpty(e.Message) ? string.Empty : ": " + e.Message));
+            //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
+            //sb.AppendLine("説明: "+e.Message);
+            if (!string.IsNullOrWhiteSpace(e.HelpLink))
+            {
+                sb.AppendLine("詳細情報: " + e.HelpLink);
+            }
+            if (Program.IsDebugMode)
+            {
                 if (e.Script != null)
                 {
                     if (e.Script.StackTrace.Count > 0)
@@ -68,26 +74,42 @@ namespace alice
                         }
                     }
                 }
-                if (allow_throw)
+            }
+            if (allow_throw)
+            {
+                PrintColor(sb.ToString(), ConsoleColor.White, ConsoleColor.DarkRed);
+                //DumpLocalVariables(e.Script);
+                //DumpGlobalVariables();
+                if (Program.IsDebugMode)
                 {
-                    PrintColor(sb.ToString(), ConsoleColor.White,ConsoleColor.DarkRed);
-                    //DumpLocalVariables(e.Script);
-                    //DumpGlobalVariables();
-
                     Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
-                    e.Handled = Console.ReadKey().Key.HasFlag(ConsoleKey.Enter);
+                PauseInput:
+                    switch (Console.ReadKey().Key)
+                    {
+                        case ConsoleKey.Enter:
+                            {
+                                e.Handled = true;
+                                break;
+                            }
+                        case ConsoleKey.D:
+                            {
+                                Console.WriteLine();
+                                DumpLocalVariables(e.Script);
+                                goto PauseInput;
+                            }
+                    }
                     Console.WriteLine();
                 }
-                if (throw_redirect_files.Count > 0)
-                {
-                    foreach (string fn in throw_redirect_files)
-                    {
-                        File.AppendAllText(fn, sb.ToString());
-                    }
-
-                }
-                s_PrintingCompleted = true;
             }
+            if (throw_redirect_files.Count > 0)
+            {
+                foreach (string fn in throw_redirect_files)
+                {
+                    File.AppendAllText(fn, sb.ToString());
+                }
+
+            }
+            s_PrintingCompleted = true;
 
         }
         // 文字列が表示幅より短ければ、左側と右側に何文字の空白が必要なのかを計算する。
@@ -95,14 +117,7 @@ namespace alice
         private static string Centering(string s, int width)
         {
             int space = width - s.Length;
-            if (space >= 0)
-            {
-                return new string(' ', space / 2) + s + new string(' ', space - (space / 2));
-            }
-            else
-            {
-                return s.Substring(-space / 2).Remove(width);
-            }
+            return space >= 0 ? new string(' ', space / 2) + s + new string(' ', space - (space / 2)) : s.Substring(-space / 2).Remove(width);
         }
         private static void AddDictionaryScriptVariables(ParsingScript script, ref Dictionary<string, ParserFunction> dic)
         {
@@ -118,6 +133,7 @@ namespace alice
         public static void DumpLocalVariables(ParsingScript script)
         {
             if (script == null) { return; }
+            DumpLocalVariables(script.ParentScript);
             Dictionary<string, ParserFunction> dic = new Dictionary<string, ParserFunction>();
             AddDictionaryScriptVariables(script, ref dic);
             if (dic.Count <= 0)
@@ -232,7 +248,7 @@ namespace alice
                 // The user has changed something in the input field
                 tabFileIndex = 0;
             }
-            if (tabFileIndex == 0 || script.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            if (tabFileIndex == 0 || script.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
             {
                 // The user pressed tab the first time or pressed it on a directory
                 string path = "";
@@ -264,7 +280,7 @@ namespace alice
                 NEXT_CMD nextCmd = NEXT_CMD.NONE;
                 script = previous + GetConsoleLine(ref nextCmd, init).Trim();
 
-                if (script.EndsWith(Constants.CONTINUE_LINE.ToString()))
+                if (script.EndsWith(Constants.CONTINUE_LINE.ToString(), StringComparison.Ordinal))
                 {
                     previous = script.Remove(script.Length - 1);
                     init = "";
@@ -305,7 +321,7 @@ namespace alice
                 {
                     commands.Add(script);
                 }
-                if (!script.EndsWith(Constants.END_STATEMENT.ToString()))
+                if (!script.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
                 {
                     script += Constants.END_STATEMENT;
                 }
@@ -422,19 +438,12 @@ namespace alice
                 else
                 {
                     //Interpreter.Instance.ProcessAsync(script, filename)).Result;
-                    if (CurrentScript == null)
-                    {
-                        CurrentScript = Alice.GetScript(script, filename, true);
-                    }
-                    else
-                    {
-                        CurrentScript = CurrentScript.GetTempScript(script);
-                    }
+                    CurrentScript = CurrentScript == null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
                     result = CurrentScript.Process();
                 }
             }
 #if !DEBUG_THROW
-            catch (Exception exc)
+            catch (Exception)
             {
                 ///TODO:補足されなかった例外にエラー番号振る。
                 /*

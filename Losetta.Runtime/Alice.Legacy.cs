@@ -1,12 +1,11 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal class Alice_Legacy_Initer
+    public sealed class Alice_Legacy
     {
         public static void Init()
         {
             NameSpace space = new NameSpace("Alice.Legacy");
 
-            space.Add(new DefineLocalFunction());
             space.Add(new AddVariablesToHashFunction());
             space.Add(new AddVariableToHashFunction());
             space.Add(new GetColumnFunction());
@@ -19,13 +18,13 @@
             NameSpaceManerger.Add(space);
         }
     }
-    internal class AddVariablesToHashFunction : FunctionBase
+    internal sealed class AddVariablesToHashFunction : FunctionBase
     {
         public AddVariablesToHashFunction()
         {
-            this.Name = Constants.ADD_ALL_TO_HASH;
-            this.MinimumArgCounts = 3;
-            this.Run += AddVariablesToHashFunction_Run;
+            Name = Constants.ADD_ALL_TO_HASH;
+            MinimumArgCounts = 3;
+            Run += AddVariablesToHashFunction_Run;
         }
 
         private void AddVariablesToHashFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -65,13 +64,13 @@
         }
     }
 
-    internal class AddVariableToHashFunction : FunctionBase
+    internal sealed class AddVariableToHashFunction : FunctionBase
     {
         public AddVariableToHashFunction()
         {
-            this.Name = Constants.ADD_TO_HASH;
-            this.MinimumArgCounts = 3;
-            this.Run += AddVariableToHashFunction_Run;
+            Name = Constants.ADD_TO_HASH;
+            MinimumArgCounts = 3;
+            Run += AddVariableToHashFunction_Run;
         }
 
         private void AddVariableToHashFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -100,52 +99,14 @@
         }
     }
 
-    internal class DefineLocalFunction : FunctionBase
-    {
-        public DefineLocalFunction()
-        {
-            this.Name = Constants.DEFINE_LOCAL;
-            this.MinimumArgCounts = 1;
-            this.Run += DefineLocalFunction_Run;
-        }
 
-        private void DefineLocalFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string varName = Utils.GetSafeString(e.Args, 0);
-            Variable currentValue = Utils.GetSafeVariable(e.Args, 1);
-
-            if (currentValue == null)
-            {
-                currentValue = new Variable("");
-            }
-
-            if (e.Script.StackLevel != null)
-            {
-                ParserFunction.AddLocalVariable(new GetVarFunction(currentValue), e.Script, varName);
-            }
-            else if (e.Script.CurrentClass != null)
-            {
-                Utils.ThrowErrorMsg(m_name + "をクラス内で定義することはできません", Exceptions.COULDNT_DEFINE_IN_CLASS,
-                                    e.Script, m_name);
-            }
-            else
-            {
-                string scopeName = Path.GetFileName(e.Script.Filename);
-                ParserFunction.AddLocalScopeVariable(varName, scopeName,
-                                                     new GetVarFunction(currentValue));
-            }
-
-            e.Return = currentValue;
-        }
-    }
-
-    internal class GetPropertiesFunction : FunctionBase, IArrayFunction
+    internal sealed class GetPropertiesFunction : FunctionBase, IArrayFunction
     {
         public GetPropertiesFunction()
         {
-            this.Name = Constants.GET_PROPERTIES;
-            this.MinimumArgCounts = 1;
-            this.Run += GetPropertiesFunction_Run;
+            Name = Constants.GET_PROPERTIES;
+            MinimumArgCounts = 1;
+            Run += GetPropertiesFunction_Run;
         }
 
         private void GetPropertiesFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -156,13 +117,13 @@
         }
     }
 
-    internal class GetPropertyFunction : FunctionBase, IArrayFunction
+    internal sealed class GetPropertyFunction : FunctionBase, IArrayFunction
     {
         public GetPropertyFunction()
         {
-            this.Name = Constants.GET_PROPERTY;
-            this.MinimumArgCounts = 2;
-            this.Run += GetPropertyFunction_Run;
+            Name = Constants.GET_PROPERTY;
+            MinimumArgCounts = 2;
+            Run += GetPropertyFunction_Run;
         }
 
         private void GetPropertyFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -177,13 +138,13 @@
         }
     }
 
-    internal class SetPropertyFunction : FunctionBase, IArrayFunction
+    internal sealed class SetPropertyFunction : FunctionBase, IArrayFunction
     {
         public SetPropertyFunction()
         {
-            this.Name = "SetProperty";
-            this.MinimumArgCounts = 3;
-            this.Run += SetPropertyFunction_Run;
+            Name = "SetProperty";
+            MinimumArgCounts = 3;
+            Run += SetPropertyFunction_Run;
         }
 
         private void SetPropertyFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -201,14 +162,14 @@
         }
     }
 
-    internal class CancelFunction : FunctionBase
+    internal sealed class CancelFunction : FunctionBase
     {
         public static bool Canceled { get; set; }
 
         public CancelFunction()
         {
-            this.Name = Constants.CANCEL;
-            this.Run += CancelFunction_Run;
+            Name = Constants.CANCEL;
+            Run += CancelFunction_Run;
         }
 
         private void CancelFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -223,13 +184,13 @@
     }
 
 
-    internal class GetColumnFunction : FunctionBase, IArrayFunction
+    internal sealed class GetColumnFunction : FunctionBase, IArrayFunction
     {
         public GetColumnFunction()
         {
-            this.Name = Constants.GET_COLUMN;
-            this.MinimumArgCounts = 2;
-            this.Run += GetColumnFunction_Run;
+            Name = Constants.GET_COLUMN;
+            MinimumArgCounts = 2;
+            Run += GetColumnFunction_Run;
         }
 
         private void GetColumnFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -257,13 +218,13 @@
 
     }
 
-    internal class GetAllKeysFunction : FunctionBase, IArrayFunction
+    internal sealed class GetAllKeysFunction : FunctionBase, IArrayFunction
     {
         public GetAllKeysFunction()
         {
-            this.Name = Constants.KEYS;
-            this.MinimumArgCounts = 1;
-            this.Run += GetAllKeysFunction_Run;
+            Name = Constants.KEYS;
+            MinimumArgCounts = 1;
+            Run += GetAllKeysFunction_Run;
         }
 
         private void GetAllKeysFunction_Run(object sender, FunctionBaseEventArgs e)

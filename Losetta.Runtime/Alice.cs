@@ -1,7 +1,9 @@
-﻿namespace AliceScript.NameSpaces
+﻿using System.Text;
+
+namespace AliceScript.NameSpaces
 {
     //このクラスはデフォルトで読み込まれるため読み込み処理が必要です
-    internal static class Alice_Initer
+    internal sealed class Alice_Initer
     {
         public static void Init()
         {
@@ -12,19 +14,19 @@
             Variable.AddFunc(new ResetFunc());
             Variable.AddFunc(new DeepCloneFunc());
             Variable.AddFunc(new ToStringFunc());
-            Variable.AddFunc(new PropertiesFunc());
-            Variable.AddFunc(new TypeFunc());
             Variable.AddFunc(new ConvertFunc());
+            Variable.AddProp(new PropertiesProp());
+            Variable.AddProp(new TypProp());
             //統合関数(終わり)
             //複合関数(複数の型に対応する関数)
             Variable.AddFunc(new IndexOfFunc());
             Variable.AddFunc(new ContainsFunc());
-            Variable.AddFunc(new KeysFunc());
             Variable.AddFunc(new list_InsertFunc());
             Variable.AddFunc(new RemoveAtFunc());
             Variable.AddFunc(new RemoveFunc());
-            Variable.AddFunc(new SizeFunc());
-            Variable.AddFunc(new LengthFunc());
+            Variable.AddProp(new LengthSizeProp(), Constants.LENGTH);
+            Variable.AddProp(new LengthSizeProp(), Constants.SIZE);
+            Variable.AddProp(new KeysFunc());
             //複合関数(終わり)
             //String関数
             Variable.AddFunc(new string_TrimFunc(0), Constants.TRIM);
@@ -47,6 +49,8 @@
             Variable.AddFunc(new str_EmptyOrWhiteFunc(false));
             Variable.AddFunc(new str_FormatFunc());
             Variable.AddFunc(new str_JoinFunc());
+            Variable.AddFunc(new str_ToLowerUpperInvariantFunc());
+            Variable.AddFunc(new str_ToLowerUpperInvariantFunc(true));
             //String関数(終わり)
             //List関数
             Variable.AddFunc(new list_addFunc());
@@ -83,8 +87,6 @@
 
             Variable.AddFunc(new bytes_toBase64Func());
 
-            Variable.AddFunc(new str_ToLowerUpperInvariantFunc());
-            Variable.AddFunc(new str_ToLowerUpperInvariantFunc(true));
 
             NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
             space.Add(new DelayFunc());
@@ -123,13 +125,13 @@
         }
     }
 
-    internal class ReturnStatement : FunctionBase
+    internal sealed class ReturnStatement : FunctionBase
     {
         public ReturnStatement()
         {
-            this.Name = Constants.RETURN;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += ReturnStatement_Run;
+            Name = Constants.RETURN;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += ReturnStatement_Run;
         }
 
         private void ReturnStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -156,13 +158,13 @@
 
 
 
-    internal class IsNaNFunction : FunctionBase
+    internal sealed class IsNaNFunction : FunctionBase
     {
         public IsNaNFunction()
         {
-            this.Name = Constants.ISNAN;
-            this.MinimumArgCounts = 0;
-            this.Run += IsNaNFunction_Run;
+            Name = Constants.ISNAN;
+            MinimumArgCounts = 0;
+            Run += IsNaNFunction_Run;
         }
 
         private void IsNaNFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -172,38 +174,33 @@
         }
     }
 
-    internal class ConvertFunc : FunctionBase
+    internal sealed class ConvertFunc : FunctionBase
     {
         public ConvertFunc()
         {
-            this.Name = "Convert";
-            this.MinimumArgCounts = 1;
-            this.Run += ConvertFunc_Run;
+            Name = "Convert";
+            MinimumArgCounts = 1;
+            Run += ConvertFunc_Run;
         }
 
         private void ConvertFunc_Run(object sender, FunctionBaseEventArgs e)
         {
 
-            if (e.Args[0].Type == Variable.VarType.OBJECT && e.Args[0].Object is TypeObject type)
-            {
-                e.Return = e.CurentVariable.Convert(type.Type);
-            }
-            else
-            {
-                throw new ScriptException("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-            }
+            e.Return = e.Args[0].Type == Variable.VarType.OBJECT && e.Args[0].Object is TypeObject type
+                ? e.CurentVariable.Convert(type.Type)
+                : throw new ScriptException("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
 
         }
     }
 
-    internal class RemoveAtFunc : FunctionBase
+    internal sealed class RemoveAtFunc : FunctionBase
     {
         public RemoveAtFunc()
         {
-            this.Name = Constants.REMOVE_AT;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += RemoveAtFunc_Run;
+            Name = Constants.REMOVE_AT;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += RemoveAtFunc_Run;
         }
 
         private void RemoveAtFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -230,14 +227,14 @@
         }
     }
 
-    internal class RemoveFunc : FunctionBase
+    internal sealed class RemoveFunc : FunctionBase
     {
         public RemoveFunc()
         {
-            this.Name = Constants.REMOVE_ITEM;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += RemoveFunc_Run;
+            Name = Constants.REMOVE_ITEM;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += RemoveFunc_Run;
         }
 
         private void RemoveFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -271,14 +268,14 @@
         }
     }
 
-    internal class IndexOfFunc : FunctionBase
+    internal sealed class IndexOfFunc : FunctionBase
     {
         public IndexOfFunc()
         {
-            this.Name = Constants.INDEX_OF;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += IndexOfFunc_Run;
+            Name = Constants.INDEX_OF;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += IndexOfFunc_Run;
         }
 
         private void IndexOfFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -291,13 +288,11 @@
                         {
                             e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString()));
                         }
-                        else if (e.Args.Count == 2)
-                        {
-                            e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt()));
-                        }
                         else
                         {
-                            e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt(), e.Args[2].AsInt()));
+                            e.Return = e.Args.Count == 2
+                                ? new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt()))
+                                : new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt(), e.Args[2].AsInt()));
                         }
                         break;
                     }
@@ -314,86 +309,81 @@
         }
     }
 
-    internal class KeysFunc : FunctionBase
+    internal sealed class KeysFunc : PropertyBase
     {
         public KeysFunc()
         {
-            this.Name = Constants.KEYS;
-            this.RequestType = new TypeObject(Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR);
-            this.Run += KeysFunc_Run;
+            Name = Constants.KEYS;
+            CanSet = false;
+            HandleEvents = true;
+            Type = Variable.VarType.MAP_NUM | Variable.VarType.MAP_STR;
+            Getting += KeysFunc_Getting;
 
         }
 
-        private void KeysFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void KeysFunc_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.GetAllKeys());
+            e.Value = new Variable(e.Parent.GetAllKeys());
         }
+
     }
 
-    internal class PropertiesFunc : FunctionBase
+    internal sealed class PropertiesProp : PropertyBase
     {
-        public PropertiesFunc()
+        public PropertiesProp()
         {
-            this.Name = Constants.OBJECT_PROPERTIES;
-            this.Run += ToStringFunc_Run;
+            Name = Constants.OBJECT_PROPERTIES;
+            CanSet = false;
+            HandleEvents = true;
+            Getting += PropertiesProp_Getting;
         }
 
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void PropertiesProp_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.GetProperties());
+            e.Value = new Variable(e.Parent.GetProperties());
         }
     }
 
-    internal class TypeFunc : FunctionBase
+    internal sealed class TypProp : PropertyBase
     {
-        public TypeFunc()
+        public TypProp()
         {
-            this.Name = Constants.OBJECT_TYPE;
-            this.Run += ToStringFunc_Run;
+            Name = Constants.OBJECT_TYPE;
+            CanSet = false;
+            HandleEvents = true;
+            Getting += TypProp_Getting;
         }
 
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void TypProp_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = Variable.AsType(e.CurentVariable.Type);
+            e.Value = Variable.AsType(e.Parent.Type);
         }
+
     }
 
-    internal class LengthFunc : FunctionBase
+    internal sealed class LengthSizeProp : PropertyBase
     {
-        public LengthFunc()
+        public LengthSizeProp()
         {
-            this.Name = Constants.LENGTH;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY);
-            this.Run += ToStringFunc_Run;
+            CanSet = false;
+            HandleEvents = true;
+            Type = Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY;
+            Getting += LengthFunc_Getting;
         }
 
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
+        private void LengthFunc_Getting(object sender, PropertyBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.GetLength());
+            e.Value = new Variable(e.Parent.GetLength());
         }
+
     }
 
-    internal class SizeFunc : FunctionBase
-    {
-        public SizeFunc()
-        {
-            this.Name = Constants.SIZE;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.BYTES | Variable.VarType.DELEGATE | Variable.VarType.ARRAY);
-            this.Run += ToStringFunc_Run;
-        }
-
-        private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(e.CurentVariable.GetSize());
-        }
-    }
-
-    internal class ToStringFunc : FunctionBase
+    internal sealed class ToStringFunc : FunctionBase
     {
         public ToStringFunc()
         {
-            this.Name = "To" + Constants.TO_STRING;
-            this.Run += ToStringFunc_Run;
+            Name = "To" + Constants.TO_STRING;
+            Run += ToStringFunc_Run;
         }
 
         private void ToStringFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -402,14 +392,14 @@
         }
     }
 
-    internal class ContainsFunc : FunctionBase
+    internal sealed class ContainsFunc : FunctionBase
     {
         public ContainsFunc()
         {
-            this.Name = Constants.CONTAINS;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY | Variable.VarType.DELEGATE);
-            this.Run += ContainsFunc_Run;
+            Name = Constants.CONTAINS;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING | Variable.VarType.ARRAY | Variable.VarType.DELEGATE);
+            Run += ContainsFunc_Run;
         }
 
         private void ContainsFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -443,44 +433,32 @@
         }
     }
 
-    internal class str_EmptyOrWhiteFunc : FunctionBase
+    internal sealed class str_EmptyOrWhiteFunc : FunctionBase
     {
         public str_EmptyOrWhiteFunc(bool isNullOr)
         {
             isNull = isNullOr;
-            if (isNull)
-            {
-                this.Name = Constants.EMPTY_NULL;
-            }
-            else
-            {
-                this.Name = Constants.EMPTY_WHITE;
-            }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += String_EmptyOrWhiteFunc_Run;
+            Name = isNull ? Constants.EMPTY_NULL : Constants.EMPTY_WHITE;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += String_EmptyOrWhiteFunc_Run;
         }
 
         private void String_EmptyOrWhiteFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (isNull)
-            {
-                e.Return = new Variable(string.IsNullOrEmpty(e.CurentVariable.AsString()));
-            }
-            else
-            {
-                e.Return = new Variable(string.IsNullOrWhiteSpace(e.CurentVariable.AsString()));
-            }
+            e.Return = isNull
+                ? new Variable(string.IsNullOrEmpty(e.CurentVariable.AsString()))
+                : new Variable(string.IsNullOrWhiteSpace(e.CurentVariable.AsString()));
         }
         private bool isNull;
     }
 
-    internal class DelegateNameFunc : FunctionBase
+    internal sealed class DelegateNameFunc : FunctionBase
     {
         public DelegateNameFunc()
         {
-            this.Name = "Name";
-            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
-            this.Run += DelegateNameFunc_Run;
+            Name = "Name";
+            RequestType = new TypeObject(Variable.VarType.DELEGATE);
+            Run += DelegateNameFunc_Run;
         }
 
         private void DelegateNameFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -491,13 +469,13 @@
             }
         }
     }
-    internal class InvokeFunc : FunctionBase
+    internal sealed class InvokeFunc : FunctionBase
     {
         public InvokeFunc()
         {
-            this.Name = "Invoke";
-            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
-            this.Run += InvokeFunc_Run;
+            Name = "Invoke";
+            RequestType = new TypeObject(Variable.VarType.DELEGATE);
+            Run += InvokeFunc_Run;
         }
 
         private void InvokeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -511,12 +489,12 @@
 
     }
 
-    internal class ResetFunc : FunctionBase
+    internal sealed class ResetFunc : FunctionBase
     {
         public ResetFunc()
         {
-            this.Name = "Reset";
-            this.Run += ResetFunc_Run;
+            Name = "Reset";
+            Run += ResetFunc_Run;
         }
 
         private void ResetFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -525,12 +503,12 @@
         }
     }
 
-    internal class DeepCloneFunc : FunctionBase
+    internal sealed class DeepCloneFunc : FunctionBase
     {
         public DeepCloneFunc()
         {
-            this.Name = Constants.DEEP_CLONE;
-            this.Run += DeepCloneFunc_Run;
+            Name = Constants.DEEP_CLONE;
+            Run += DeepCloneFunc_Run;
         }
 
         private void DeepCloneFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -539,12 +517,12 @@
         }
     }
 
-    internal class CloneFunc : FunctionBase
+    internal sealed class CloneFunc : FunctionBase
     {
         public CloneFunc()
         {
-            this.Name = Constants.CLONE;
-            this.Run += FinalizeFunc_Run;
+            Name = Constants.CLONE;
+            Run += FinalizeFunc_Run;
         }
 
         private void FinalizeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -553,13 +531,13 @@
         }
     }
 
-    internal class EqualsFunc : FunctionBase
+    internal sealed class EqualsFunc : FunctionBase
     {
         public EqualsFunc()
         {
-            this.Name = Constants.EQUALS;
-            this.MinimumArgCounts = 1;
-            this.Run += EqualsFunc_Run;
+            Name = Constants.EQUALS;
+            MinimumArgCounts = 1;
+            Run += EqualsFunc_Run;
         }
 
         private void EqualsFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -568,13 +546,13 @@
         }
     }
 
-    internal class BeginInvokeFunc : FunctionBase
+    internal sealed class BeginInvokeFunc : FunctionBase
     {
         public BeginInvokeFunc()
         {
-            this.Name = "BeginInvoke";
-            this.RequestType = new TypeObject(Variable.VarType.DELEGATE);
-            this.Run += BeginInvokeFunc_Run;
+            Name = "BeginInvoke";
+            RequestType = new TypeObject(Variable.VarType.DELEGATE);
+            Run += BeginInvokeFunc_Run;
         }
 
         private void BeginInvokeFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -585,13 +563,13 @@
 
     }
 
-    internal class DisposeFunc : FunctionBase
+    internal sealed class DisposeFunc : FunctionBase
     {
 
         public DisposeFunc()
         {
-            this.Name = "Dispose";
-            this.Run += DisposeFunc_Run;
+            Name = "Dispose";
+            Run += DisposeFunc_Run;
 
         }
 
@@ -605,31 +583,31 @@
     //ここより下は変数(Variable)オブジェクトの関数です
 
 
-    internal class string_TrimFunc : FunctionBase
+    internal sealed class string_TrimFunc : FunctionBase
     {
         public string_TrimFunc(int trimtype = 0)
         {
-            this.TrimType = trimtype;
+            TrimType = trimtype;
             switch (TrimType)
             {
                 case 0:
                     {
-                        this.Name = Constants.TRIM;
+                        Name = Constants.TRIM;
                         break;
                     }
                 case 1:
                     {
-                        this.Name = Constants.TRIM_START;
+                        Name = Constants.TRIM_START;
                         break;
                     }
                 case 2:
                     {
-                        this.Name = Constants.TRIM_END;
+                        Name = Constants.TRIM_END;
                         break;
                     }
             }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += String_TrimFunc_Run;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += String_TrimFunc_Run;
         }
 
         private int TrimType = 0;
@@ -708,14 +686,14 @@
         }
     }
 
-    internal class str_CompareToFunc : FunctionBase
+    internal sealed class str_CompareToFunc : FunctionBase
     {
         public str_CompareToFunc()
         {
-            this.Name = "CompareTo";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IndexOfFunc_Run;
+            Name = "CompareTo";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IndexOfFunc_Run;
         }
 
         private void Str_IndexOfFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -724,13 +702,13 @@
         }
     }
 
-    internal class str_IsNormalizedFunc : FunctionBase
+    internal sealed class str_IsNormalizedFunc : FunctionBase
     {
         public str_IsNormalizedFunc()
         {
-            this.Name = "IsNormalized";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IsNormalizedFunc_Run;
+            Name = "IsNormalized";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IsNormalizedFunc_Run;
         }
 
         private void Str_IsNormalizedFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -739,14 +717,14 @@
         }
     }
 
-    internal class str_LastIndexOfFunc : FunctionBase
+    internal sealed class str_LastIndexOfFunc : FunctionBase
     {
         public str_LastIndexOfFunc()
         {
-            this.Name = "LastIndexOf";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IndexOfFunc_Run;
+            Name = "LastIndexOf";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IndexOfFunc_Run;
         }
 
         private void Str_IndexOfFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -773,13 +751,13 @@
         }
     }
 
-    internal class str_NormalizeFunc : FunctionBase
+    internal sealed class str_NormalizeFunc : FunctionBase
     {
         public str_NormalizeFunc()
         {
-            this.Name = "Normalize";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_NormalizeFunc_Run1;
+            Name = "Normalize";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_NormalizeFunc_Run1;
         }
 
         private void Str_NormalizeFunc_Run1(object sender, FunctionBaseEventArgs e)
@@ -788,30 +766,39 @@
         }
     }
 
-    internal class str_ReplaceFunc : FunctionBase
+    internal sealed class str_ReplaceFunc : FunctionBase
     {
         public str_ReplaceFunc()
         {
-            this.Name = Constants.REPLACE;
-            this.MinimumArgCounts = 2;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_ReplaceFunc_Run;
+            Name = Constants.REPLACE;
+            MinimumArgCounts = 2;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_ReplaceFunc_Run;
         }
 
         private void Str_ReplaceFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(e.CurentVariable.AsString().Replace(e.Args[0].AsString(), e.Args[1].AsString()));
+            if (e.Args.Count > 3)
+            {
+                var sb = new StringBuilder(e.CurentVariable.AsString());
+                sb.Replace(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsInt(), e.Args[3].AsInt());
+                e.Return = new Variable(sb.ToString());
+            }
+            else
+            {
+                e.Return = new Variable(e.CurentVariable.AsString().Replace(e.Args[0].AsString(), e.Args[1].AsString()));
+            }
         }
     }
 
-    internal class str_SplitFunc : FunctionBase
+    internal sealed class str_SplitFunc : FunctionBase
     {
         public str_SplitFunc()
         {
-            this.Name = Constants.SPLIT;
-            this.MinimumArgCounts = 0;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_SplitFunc_Run;
+            Name = Constants.SPLIT;
+            MinimumArgCounts = 0;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_SplitFunc_Run;
         }
 
         private void Str_SplitFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -834,14 +821,14 @@
         }
     }
 
-    internal class str_SubStringFunc : FunctionBase
+    internal sealed class str_SubStringFunc : FunctionBase
     {
         public str_SubStringFunc()
         {
-            this.Name = Constants.SUBSTRING;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_SubStringFunc_Run;
+            Name = Constants.SUBSTRING;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_SubStringFunc_Run;
         }
 
         private void Str_SubStringFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -862,13 +849,13 @@
         }
     }
 
-    internal class str_FormatFunc : FunctionBase
+    internal sealed class str_FormatFunc : FunctionBase
     {
         public str_FormatFunc()
         {
-            this.Name = "Format";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_FormatFunc_Run;
+            Name = "Format";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_FormatFunc_Run;
         }
 
         private void Str_FormatFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -876,14 +863,14 @@
             e.Return = new Variable(StringFormatFunction.Format(e.CurentVariable.AsString(), e.Args));
         }
     }
-    internal class str_JoinFunc : FunctionBase
+    internal sealed class str_JoinFunc : FunctionBase
     {
         public str_JoinFunc()
         {
-            this.Name = "Join";
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.MinimumArgCounts = 2;
-            this.Run += Str_JoinFunc_Run;
+            Name = "Join";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            MinimumArgCounts = 2;
+            Run += Str_JoinFunc_Run;
         }
 
         private void Str_JoinFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -894,106 +881,75 @@
             {
                 vs.Add(v.AsString());
             }
-            e.Return = new Variable(String.Join(e.Args[0].AsString(), vs));
+            e.Return = new Variable(string.Join(e.Args[0].AsString(), vs));
         }
     }
-    internal class str_ToLowerUpperFunc : FunctionBase
+    internal sealed class str_ToLowerUpperFunc : FunctionBase
     {
         public str_ToLowerUpperFunc(bool upper = false)
         {
             Upper = upper;
-            if (upper) { this.Name = Constants.UPPER; } else { this.Name = Constants.LOWER; }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_ToLowerUpperFunc_Run;
+            Name = upper ? Constants.UPPER : Constants.LOWER;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_ToLowerUpperFunc_Run;
         }
 
         private void Str_ToLowerUpperFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (Upper)
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToUpper());
-            }
-            else
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToLower());
-            }
+            e.Return = Upper ? new Variable(e.CurentVariable.AsString().ToUpper()) : new Variable(e.CurentVariable.AsString().ToLower());
         }
 
         private bool Upper = false;
     }
 
-    internal class str_SEWithFunc : FunctionBase
+    internal sealed class str_SEWithFunc : FunctionBase
     {
         public str_SEWithFunc(bool endsWith = false)
         {
-            this.EndWith = endsWith;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_SEWithFunc_Run;
+            EndWith = endsWith;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_SEWithFunc_Run;
         }
 
         private void Str_SEWithFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             if (EndWith)
             {
-                if (e.CurentVariable.AsString().EndsWith(e.Args[0].AsString()))
-                {
-                    e.Return = Variable.True;
-                }
-                else
-                {
-                    e.Return = Variable.False;
-                }
+                e.Return = e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
             }
             else
             {
-                if (e.CurentVariable.AsString().StartsWith(e.Args[0].AsString()))
-                {
-                    e.Return = Variable.True;
-                }
-                else
-                {
-                    e.Return = Variable.False;
-                }
+                e.Return = e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
             }
         }
 
         private bool EndWith = false;
     }
 
-    internal class str_PadFunc : FunctionBase
+    internal sealed class str_PadFunc : FunctionBase
     {
         public str_PadFunc(bool right = false)
         {
-            this.Right = right;
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_PadFunc_Run;
+            Right = right;
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_PadFunc_Run;
         }
 
         private void Str_PadFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             if (Right)
             {
-                if (e.Args.Count > 1)
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]));
-                }
-                else
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()));
-                }
+                e.Return = e.Args.Count > 1
+                    ? new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
+                    : new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()));
             }
             else
             {
-                if (e.Args.Count > 1)
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]));
-                }
-                else
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt()));
-                }
+                e.Return = e.Args.Count > 1
+                    ? new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
+                    : new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt()));
             }
         }
 
@@ -1001,14 +957,14 @@
     }
 
 
-    internal class ThrowFunction : FunctionBase
+    internal sealed class ThrowFunction : FunctionBase
     {
         public ThrowFunction()
         {
-            this.Name = "throw";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
-            this.MinimumArgCounts = 1;
-            this.Run += ThrowFunction_Run;
+            Name = "throw";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
+            MinimumArgCounts = 1;
+            Run += ThrowFunction_Run;
         }
 
         private void ThrowFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1025,59 +981,49 @@
                     }
                 default:
                     {
-                        if(e.Args[0].Object is ExceptionObject eo)
+                        if (e.Args[0].Object is ExceptionObject eo)
                         {
-                            var s = eo.MainScript == null ? e.Script : eo.MainScript;
-                            throw new ScriptException(eo.Message,eo.ErrorCode,s);
+                            var s = eo.MainScript ?? e.Script;
+                            throw new ScriptException(eo.Message, eo.ErrorCode, s);
                         }
                         break;
                     }
             }
         }
     }
-    internal class GotoGosubFunction : FunctionBase
+    internal sealed class GotoGosubFunction : FunctionBase
     {
         private bool m_isGoto = true;
 
         public GotoGosubFunction(bool gotoMode = true)
         {
             m_isGoto = gotoMode;
-            if (m_isGoto)
-            {
-                this.Name = Constants.GOTO;
-            }
-            else
-            {
-                this.Name = Constants.GOSUB;
-            }
+            Name = m_isGoto ? Constants.GOTO : Constants.GOSUB;
         }
 
         protected override Variable Evaluate(ParsingScript script)
         {
             var labelName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
 
-            Dictionary<string, int> labels;
             if (script.AllLabels == null || script.LabelToFile == null |
-               !script.AllLabels.TryGetValue(script.FunctionName, out labels))
+               !script.AllLabels.TryGetValue(script.FunctionName, out Dictionary<string, int> labels))
             {
                 Utils.ThrowErrorMsg("次のラベルは関数内に存在しません [" + script.FunctionName + "]", Exceptions.COULDNT_FIND_LABEL_IN_FUNCTION,
                                     script, m_name);
                 return Variable.EmptyInstance;
             }
 
-            int gotoPointer;
-            if (!labels.TryGetValue(labelName, out gotoPointer))
+            if (!labels.TryGetValue(labelName, out int gotoPointer))
             {
                 Utils.ThrowErrorMsg("ラベル:[" + labelName + "]は定義されていません", Exceptions.COULDNT_FIND_LABEL,
                                     script, m_name);
                 return Variable.EmptyInstance;
             }
 
-            string filename;
-            if (script.LabelToFile.TryGetValue(labelName, out filename) &&
+            if (script.LabelToFile.TryGetValue(labelName, out string filename) &&
                 filename != script.Filename && !string.IsNullOrWhiteSpace(filename))
             {
-                var newScript = script.GetIncludeFileScript(filename,this);
+                var newScript = script.GetIncludeFileScript(filename, this);
                 script.Filename = filename;
                 script.String = newScript.String;
             }
@@ -1099,14 +1045,14 @@
 
 
 
-    internal class IncludeFile : FunctionBase
+    internal sealed class IncludeFile : FunctionBase
     {
         public IncludeFile()
         {
-            this.Name = "include";
-            this.MinimumArgCounts = 1;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
-            this.Run += IncludeFile_Run;
+            Name = "include";
+            MinimumArgCounts = 1;
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC;
+            Run += IncludeFile_Run;
         }
 
         private void IncludeFile_Run(object sender, FunctionBaseEventArgs e)
@@ -1117,7 +1063,7 @@
                 e.Script = new ParsingScript("");
             }
             */
-            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString(),this);
+            ParsingScript tempScript = e.Script.GetIncludeFileScript(e.Args[0].AsString(), this);
 
             Variable result = null;
             while (tempScript.StillValid())
@@ -1130,14 +1076,14 @@
         }
 
     }
-    internal class list_ForeachFunc : FunctionBase
+    internal sealed class list_ForeachFunc : FunctionBase
     {
         public list_ForeachFunc()
         {
-            this.Name = Constants.FOREACH;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_ForeachFunc_Run;
+            Name = Constants.FOREACH;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_ForeachFunc_Run;
         }
 
         private void List_ForeachFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1152,38 +1098,33 @@
         }
     }
 
-    internal class str_ToLowerUpperInvariantFunc : FunctionBase
+    internal sealed class str_ToLowerUpperInvariantFunc : FunctionBase
     {
         public str_ToLowerUpperInvariantFunc(bool upper = false)
         {
             Upper = upper;
-            if (upper) { this.Name = "ToUpperInvariant"; } else { this.Name = "ToLowerInvariant"; }
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_ToLowerUpperFunc_Run;
+            Name = upper ? "ToUpperInvariant" : "ToLowerInvariant";
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_ToLowerUpperFunc_Run;
         }
 
         private void Str_ToLowerUpperFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (Upper)
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToUpperInvariant());
-            }
-            else
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToLowerInvariant());
-            }
+            e.Return = Upper
+                ? new Variable(e.CurentVariable.AsString().ToUpperInvariant())
+                : new Variable(e.CurentVariable.AsString().ToLowerInvariant());
         }
 
         private bool Upper = false;
     }
 
-    internal class bytes_toBase64Func : FunctionBase
+    internal sealed class bytes_toBase64Func : FunctionBase
     {
         public bytes_toBase64Func()
         {
-            this.Name = "ToBase64";
-            this.RequestType = new TypeObject(Variable.VarType.BYTES);
-            this.Run += ToBase64Func_Run;
+            Name = "ToBase64";
+            RequestType = new TypeObject(Variable.VarType.BYTES);
+            Run += ToBase64Func_Run;
         }
 
         private void ToBase64Func_Run(object sender, FunctionBaseEventArgs e)
@@ -1192,13 +1133,13 @@
         }
     }
 
-    internal class list_SortFunc : FunctionBase
+    internal sealed class list_SortFunc : FunctionBase
     {
         public list_SortFunc()
         {
-            this.Name = Constants.SORT;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_SortFunc_Run;
+            Name = Constants.SORT;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_SortFunc_Run;
         }
 
         private void List_SortFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1207,13 +1148,13 @@
         }
     }
 
-    internal class list_ReverseFunc : FunctionBase
+    internal sealed class list_ReverseFunc : FunctionBase
     {
         public list_ReverseFunc()
         {
-            this.Name = Constants.REVERSE;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_ReverseFunc_Run;
+            Name = Constants.REVERSE;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_ReverseFunc_Run;
         }
 
         private void List_ReverseFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1223,13 +1164,13 @@
         }
     }
 
-    internal class list_flattenFunc : FunctionBase
+    internal sealed class list_flattenFunc : FunctionBase
     {
         public list_flattenFunc()
         {
-            this.Name = "Flatten";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_flattenFunc_Run;
+            Name = "Flatten";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_flattenFunc_Run;
         }
 
         private void List_flattenFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1250,14 +1191,14 @@
         }
     }
 
-    internal class list_marge2Func : FunctionBase
+    internal sealed class list_marge2Func : FunctionBase
     {
         public list_marge2Func()
         {
 
-            this.Name = "Merge";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_marge2Func_Run;
+            Name = "Merge";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_marge2Func_Run;
         }
 
         private void List_marge2Func_Run(object sender, FunctionBaseEventArgs e)
@@ -1282,21 +1223,14 @@
         }
     }
 
-    internal class list_FirstOrLastFunc : FunctionBase
+    internal sealed class list_FirstOrLastFunc : FunctionBase
     {
         public list_FirstOrLastFunc(bool isLast = false)
         {
             m_Last = isLast;
-            if (m_Last)
-            {
-                this.Name = Constants.LAST;
-            }
-            else
-            {
-                this.Name = Constants.FIRST;
-            }
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_FirstOrLastFunc_Run;
+            Name = m_Last ? Constants.LAST : Constants.FIRST;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_FirstOrLastFunc_Run;
         }
 
         private void List_FirstOrLastFunc_Run(object sender, FunctionBaseEventArgs e)

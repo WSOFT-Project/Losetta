@@ -1,25 +1,8 @@
-﻿using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text;
 
 namespace AliceScript
 {
-    internal class ReturnValueFunction : FunctionBase, INumericFunction
-    {
-        public ReturnValueFunction(Variable value)
-        {
-            Value = value;
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-        }
-
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return new Variable(Value);
-        }
-        private Variable Value;
-    }
-
-    internal class IsUndefinedFunction : ParserFunction
+    internal sealed class IsUndefinedFunction : ParserFunction
     {
         private string m_argument;
         private string m_action;
@@ -42,7 +25,7 @@ namespace AliceScript
         }
     }
 
-    internal class CustomMethodFunction : FunctionBase
+    internal sealed class CustomMethodFunction : FunctionBase
     {
         public CustomMethodFunction(CustomFunction func, string name = "")
         {
@@ -54,7 +37,7 @@ namespace AliceScript
                 isNative = Function.isNative;
                 IsVirtual = Function.IsVirtual;
                 Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-                this.Run += CustomMethodFunction_Run;
+                Run += CustomMethodFunction_Run;
             }
         }
 
@@ -65,13 +48,13 @@ namespace AliceScript
 
         public CustomFunction Function { get; set; }
     }
-    internal class ArrayTypeFunction : FunctionBase
+    internal sealed class ArrayTypeFunction : FunctionBase
     {
         public ArrayTypeFunction()
         {
-            this.Name = "array";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.Run += ArrayTypeFunction_Run;
+            Name = "array";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            Run += ArrayTypeFunction_Run;
         }
 
         private void ArrayTypeFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -88,56 +71,54 @@ namespace AliceScript
             }
         }
     }
-    internal class FunctionCreator : FunctionBase
+    internal sealed class FunctionCreator : FunctionBase
     {
         public FunctionCreator()
         {
-            this.Name = Constants.FUNCTION;
+            Name = Constants.FUNCTION;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += FunctionCreator_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
         {
-            string funcName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
+            string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             bool? mode = null;
-            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
-            bool isCommand = this.Keywords.Contains(Constants.COMMAND);
-            if (this.Keywords.Contains(Constants.OVERRIDE))
+            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
+            bool isCommand = Keywords.Contains(Constants.COMMAND);
+            if (Keywords.Contains(Constants.OVERRIDE))
             {
                 mode = true;
             }
-            else if (this.Keywords.Contains(Constants.VIRTUAL))
+            else if (Keywords.Contains(Constants.VIRTUAL))
             {
                 mode = false;
             }
 
             funcName = Constants.ConvertName(funcName);
 
-            if (string.IsNullOrWhiteSpace(funcName))
-            {
-                throw new ScriptException("関数名を空にすることはできません", Exceptions.ILLEGAL_VARIABLE_NAME, script);
-            }
-
-            string[] args = Utils.GetFunctionSignature(script);
+            string[] args = Utils.GetFunctionSignature(e.Script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = new string[0];
             }
 
-            script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+            e.Script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
             /*string line = */
-            script.GetOriginalLine(out _);
+            e.Script.GetOriginalLine(out _);
 
-            int parentOffset = script.Pointer;
+            int parentOffset = e.Script.Pointer;
 
-            if (script.CurrentClass != null)
+            if (e.Script.CurrentClass != null)
             {
-                parentOffset += script.CurrentClass.ParentOffset;
+                parentOffset += e.Script.CurrentClass.ParentOffset;
             }
 
-            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
-            script.MoveForwardIf(Constants.END_GROUP);
+            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
+            e.Script.MoveForwardIf(Constants.END_GROUP);
 
-            CustomFunction customFunc = new CustomFunction(funcName, body, args, script);
-            customFunc.ParentScript = script;
+            CustomFunction customFunc = new CustomFunction(funcName, body, args, e.Script);
+            customFunc.ParentScript = e.Script;
             customFunc.ParentOffset = parentOffset;
             if (isCommand)
             {
@@ -151,8 +132,7 @@ namespace AliceScript
             {
                 if (isGlobal)
                 {
-                    FunctionBase fb;
-                    if (!Variable.Functions.TryGetValue(funcName, out fb) || !fb.IsVirtual)
+                    if (!Variable.Functions.TryGetValue(funcName, out FunctionBase fb) || !fb.IsVirtual)
                     {
                         Variable.AddFunc(new CustomMethodFunction(customFunc, funcName));
                     }
@@ -163,33 +143,31 @@ namespace AliceScript
                 }
                 else
                 {
-                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL, script);
+                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL, e.Script);
                 }
             }
             else
-            if (script.CurrentClass != null)
+            if (e.Script.CurrentClass != null)
             {
-                script.CurrentClass.AddMethod(funcName, args, customFunc);
+                e.Script.CurrentClass.AddMethod(funcName, args, customFunc);
             }
             else
             {
-                if (!FunctionExists(funcName, script) || (mode == true && FunctionIsVirtual(funcName, script)))
+                if (!FunctionExists(funcName, e.Script, out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
                 {
-                    FunctionBaseManerger.Add(customFunc, funcName, script, isGlobal);
+                    FunctionBaseManerger.Add(customFunc, funcName, e.Script, isGlobal);
                 }
                 else
                 {
-                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, script);
+                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, e.Script);
                 }
             }
 
-            return Variable.EmptyInstance;
         }
 
         private bool FunctionIsVirtual(string name, ParsingScript script)
         {
-            ParserFunction impl;
-            if (script != null && script.TryGetFunction(name, out impl))
+            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
             {
                 if (impl.IsVirtual)
                 {
@@ -211,7 +189,8 @@ namespace AliceScript
     {
         public AliceScriptClass()
         {
-            this.Name = "Class";
+            Name = "Class";
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
         }
 
         public AliceScriptClass(string className)
@@ -225,14 +204,14 @@ namespace AliceScript
             Name = className;
             RegisterClass(className, this);
 
-            this.BaseClasses = baseClasses;
+            BaseClasses = baseClasses;
 
             foreach (string baseClass in baseClasses)
             {
                 var bc = AliceScriptClass.GetClass(baseClass, script);
                 if (bc == null)
                 {
-                    throw new ScriptException(" `"+className+"` の基底クラス `"+baseClass+"` が見つかりませんでした。",Exceptions.COULDNT_FIND_CLASS);
+                    throw new ScriptException(" `" + className + "` の基底クラス `" + baseClass + "` が見つかりませんでした。", Exceptions.COULDNT_FIND_CLASS);
                 }
 
                 foreach (var entry in bc.m_classProperties)
@@ -311,8 +290,7 @@ namespace AliceScript
                 }
             }
 
-            AliceScriptClass theClass = null;
-            if (s_allClasses.TryGetValue(name, out theClass))
+            if (s_allClasses.TryGetValue(name, out AliceScriptClass theClass))
             {
                 return theClass;
             }
@@ -330,7 +308,7 @@ namespace AliceScript
                 foreach (string nsn in NameSpaceManerger.NameSpaces.Keys)
                 {
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
-                    if (name.StartsWith(nsn.ToLower() + ".") && nsn.Length > namespacename.Length)
+                    if (name.StartsWith(nsn.ToLower() + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
                     {
                         namespacename = nsn.ToLower();
                     }
@@ -339,7 +317,7 @@ namespace AliceScript
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower())).FirstOrDefault();
+                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cfc != null)
                     {
                         return cfc;
@@ -351,19 +329,15 @@ namespace AliceScript
         }
         private static AliceScriptClass GetFromNS(string name, ParsingScript script)
         {
-            foreach (var nm in script.UsingNamespaces)
+            for (int i = 0; i < script.UsingNamespaces.Count; i++)
             {
-                var fc = nm.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                var fc = script.UsingNamespaces[i].Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
                 }
             }
-            if (script.ParentScript != null)
-            {
-                return GetFromNS(name, script.ParentScript);
-            }
-            return null;
+            return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;
         }
 
         private static Dictionary<string, AliceScriptClass> s_allClasses =
@@ -391,7 +365,7 @@ namespace AliceScript
                 m_cscsClass = AliceScriptClass.GetClass(className, script);
                 if (m_cscsClass == null)
                 {
-                    throw new ScriptException("基底クラス `"+ className + "` が見つかりませんでした。",Exceptions.COULDNT_FIND_CLASS);
+                    throw new ScriptException("基底クラス `" + className + "` が見つかりませんでした。", Exceptions.COULDNT_FIND_CLASS);
                 }
 
                 // Copy over all the properties defined for this class.
@@ -401,8 +375,7 @@ namespace AliceScript
                 }
 
                 // Run "constructor" if any is defined for this number of args.
-                CustomFunction constructor = null;
-                if (m_cscsClass.m_constructors.TryGetValue(args.Count, out constructor))
+                if (m_cscsClass.m_constructors.TryGetValue(args.Count, out CustomFunction constructor))
                 {
                     constructor.ARun(args, script, this);
                 }
@@ -417,9 +390,8 @@ namespace AliceScript
 
             public override string ToString()
             {
-                FunctionBase customFunction = null;
                 if (!m_cscsClass.m_customFunctions.TryGetValue(Constants.PROP_TO_STRING.ToLower(),
-                     out customFunction))
+                     out FunctionBase customFunction))
                 {
                     return m_cscsClass.Name + "." + InstanceName;
                 }
@@ -485,22 +457,19 @@ namespace AliceScript
 
             public bool FunctionExists(string name)
             {
-                if (!m_cscsClass.m_customFunctions.TryGetValue(name, out FunctionBase customFunction))
-                {
-                    return false;
-                }
-                return true;
+                return m_cscsClass.m_customFunctions.TryGetValue(name, out FunctionBase customFunction);
             }
         }
     }
 
-    internal class EnumFunction : FunctionBase
+    internal sealed class EnumFunction : FunctionBase
     {
         public EnumFunction()
         {
-            this.Name = Constants.ENUM;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += EnumFunction_Run;
+            Name = Constants.ENUM;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += EnumFunction_Run;
         }
 
         private void EnumFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -564,12 +533,7 @@ namespace AliceScript
                 enumType = enumType.GetNestedType(tokens[i]);
             }
 
-            if (enumType == null || !enumType.IsEnum)
-            {
-                return null;
-            }
-
-            return enumType;
+            return enumType == null || !enumType.IsEnum ? null : enumType;
         }
 
         public static Type GetType(string typeName)
@@ -587,13 +551,14 @@ namespace AliceScript
         }
     }
 
-    public class ClassCreator : FunctionBase
+    internal sealed class ClassCreator : FunctionBase
     {
         public ClassCreator()
         {
-            this.Name = Constants.CLASS;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += ClassCreator_Run;
+            Name = Constants.CLASS;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += ClassCreator_Run;
         }
 
         private void ClassCreator_Run(object sender, FunctionBaseEventArgs e)
@@ -614,10 +579,11 @@ namespace AliceScript
                                                      Constants.END_GROUP);
             e.Script.MoveForwardIf(Constants.END_GROUP);
 
-            string body = Utils.ConvertToScript(scriptExpr, out _, out var def);
+            string body = Utils.ConvertToScript(scriptExpr, out _, out var def, out var settings);
 
             Variable result = null;
             ParsingScript tempScript = e.Script.GetTempScript(body);
+            tempScript.Settings = settings;
             tempScript.Defines = def;
             tempScript.CurrentClass = newClass;
             tempScript.DisableBreakpoints = true;
@@ -632,54 +598,6 @@ namespace AliceScript
 
     }
 
-    public class NamespaceFunction : FunctionBase
-    {
-        public NamespaceFunction()
-        {
-            this.Name = Constants.NAMESPACE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += NamespaceFunction_Run;
-        }
-
-        private void NamespaceFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string namespaceName = Utils.GetToken(e.Script, Constants.NEXT_OR_END_ARRAY);
-            //Utils.CheckNotEnd(script, m_name);
-            Variable result = null;
-            try
-            {
-                e.Script.MoveForwardIf(Constants.START_GROUP);
-                string scriptExpr = Utils.GetBodyBetween(e.Script, Constants.START_GROUP,
-                                                         Constants.END_GROUP);
-                e.Script.MoveForwardIf(Constants.END_GROUP);
-
-                Dictionary<int, int> char2Line;
-                string body = Utils.ConvertToScript(scriptExpr, out char2Line, out var def);
-
-                ParsingScript tempScript = e.Script.GetTempScript(body);
-                tempScript.Defines = def;
-                tempScript.DisableBreakpoints = true;
-                tempScript.MoveForwardIf(Constants.START_GROUP);
-
-
-
-                while (tempScript.Pointer < body.Length - 1 &&
-                      (result == null || !result.IsReturn))
-                {
-                    result = tempScript.Execute();
-                    tempScript.GoToNextStatement();
-                }
-            }
-            finally
-            {
-                ParserFunction.PopNamespace();
-            }
-
-            e.Return = result;
-        }
-
-    }
-
     public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
@@ -689,9 +607,9 @@ namespace AliceScript
             m_body = body;
             m_forceReturn = forceReturn;
 
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
 
-            this.Run += CustomFunction_Run;
+            Run += CustomFunction_Run;
 
             //正確な変数名の一覧
             List<string> trueArgs = new List<string>();
@@ -713,7 +631,7 @@ namespace AliceScript
                 if (arg.Contains(" "))
                 {
                     //属性等の指定がある場合
-                    var stb = new List<string>(arg.Split(' '));
+                    var stb = new HashSet<string>(arg.Split(' '));
                     //もし'='があればその前後のトークンを連結
                     string oldtoken = "";
                     bool connectnexttoken = false;
@@ -726,7 +644,7 @@ namespace AliceScript
                             options.Add(oldtoken);
                         }
                         else
-                        if (option.StartsWith("=") || option.EndsWith("="))
+                        if (option.StartsWith("=", StringComparison.Ordinal) || option.EndsWith("=", StringComparison.Ordinal))
                         {
                             oldtoken += option;
                             connectnexttoken = true;
@@ -756,31 +674,24 @@ namespace AliceScript
                 TypeObject reqType = new TypeObject();
                 if (options.Count > 0)
                 {
-                    parms = (options.Contains(Constants.PARAMS));
-                    refs= (options.Contains(Constants.REF));
+                    parms = options.Contains(Constants.PARAMS);
+                    refs = options.Contains(Constants.REF);
                     if (options.Contains("this"))
                     {
-                        if (m_this == -1)
-                        {
-                            m_this = i;
-                        }
-                        else
-                        {
-                            throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
-                        }
+                        m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
 
                     }
-                    else if (!refs&&options.Count > 1)
+                    else if (!refs && options.Count > 1)
                     {
                         Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
-                        if (v!=null &&v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
+                        if (v != null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
                         {
                             reqType = to;
                         }
                         m_typArgMap.Add(i, reqType);
                     }
 
-                    int ind = arg.IndexOf('=');
+                    int ind = arg.IndexOf('=', StringComparison.Ordinal);
                     if (ind > 0)
                     {
 
@@ -811,8 +722,9 @@ namespace AliceScript
                         }
                         if (parms && refs)
                         {
-                            throw new ScriptException(Constants.PARAMS+"パラメータを参照渡しに設定することはできません。",Exceptions.INCOMPLETE_FUNCTION_DEFINITION,script);
-                        }else  if (refs)
+                            throw new ScriptException(Constants.PARAMS + "パラメータを参照渡しに設定することはできません。", Exceptions.INCOMPLETE_FUNCTION_DEFINITION, script);
+                        }
+                        else if (refs)
                         {
                             m_refMap.Add(i);
                             //argName = argName.Substring(Constants.REF.Length);
@@ -843,7 +755,7 @@ namespace AliceScript
             }
             if (args.Count + m_defaultArgs.Count < m_args.Length)
             {
-                throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
+                throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(args, e.Script);
             //このCustomFunctionに子があればそれも実行する
@@ -858,9 +770,9 @@ namespace AliceScript
             return;
         }
 
-       private int parmsindex = -1;
+        private int parmsindex = -1;
         public void RegisterArguments(List<Variable> args,
-                                      List<KeyValuePair<string, Variable>> args2 = null, Variable current = null,ParsingScript script=null)
+                                      List<KeyValuePair<string, Variable>> args2 = null, Variable current = null, ParsingScript script = null)
         {
             if (args == null)
             {
@@ -902,7 +814,7 @@ namespace AliceScript
                     }
                     else if (namedParameters)
                     {
-                        throw new ScriptException("関数の引数と値 `"+m_name+"` は一対一で一致する必要があります。",Exceptions.INVAILD_ARGUMENT_FUNCTION);
+                        throw new ScriptException("関数の引数と値 `" + m_name + "` は一対一で一致する必要があります。", Exceptions.INVAILD_ARGUMENT_FUNCTION);
                     }
                 }
             }
@@ -927,7 +839,7 @@ namespace AliceScript
                             int defIndex = -1;
                             if (!m_defArgMap.TryGetValue(i, out defIndex))
                             {
-                                throw new ScriptException("関数 `"+m_name+"` で引数 `" + m_args[i]+"` が指定されていません。",Exceptions.INCOMPLETE_ARGUMENTS);
+                                throw new ScriptException("関数 `" + m_name + "` で引数 `" + m_args[i] + "` が指定されていません。", Exceptions.INCOMPLETE_ARGUMENTS);
                             }
                             args[i] = m_defaultArgs[defIndex];
                         }
@@ -952,7 +864,8 @@ namespace AliceScript
                     val.Assign(entry.Value);
                     var arg = new GetVarFunction(val);
                     arg.Name = entry.Key;
-                    m_VarMap[entry.Key] = arg;
+                    //m_VarMap[entry.Key] = arg;
+                    script.Variables[entry.Key] = arg;
                 }
             }
 
@@ -970,7 +883,8 @@ namespace AliceScript
                     }
                     var arg = new GetVarFunction(parmsarg);
                     arg.Name = m_args[i];
-                    m_VarMap[m_args[i]] = arg;
+                    //m_VarMap[m_args[i]] = arg;
+                    script.Variables[m_args[i]] = arg;
                 }
                 else
                 {
@@ -979,27 +893,23 @@ namespace AliceScript
                     bool refd = args[i].Keywords.Contains(Constants.REF);
                     if (m_refMap.Contains(i))
                     {
-                        if (refd)
-                        {
-                            val = args[i];
-                        }
-                        else
-                        {
-                            throw new ScriptException("引数 `"+i+"` は `"+Constants.REF+"` キーワードと共に渡さなければなりません。",Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD,script);
-                        }
+                        val = refd
+                            ? args[i]
+                            : throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
                     }
                     else
                     {
                         if (refd)
                         {
-                            throw new ScriptException("引数 `"+i+"` は `"+Constants.REF+"' キーワードと共に使用することができません。",Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD,script);
+                            throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD, script);
                         }
                         val = new Variable();
                         val.Assign(args[i]);
                     }
                     var arg = new GetVarFunction(val);
                     arg.Name = m_args[i];
-                    m_VarMap[m_args[i]] = arg;
+                    //m_VarMap[m_args[i]] = arg;
+                    script.Variables[m_args[i]] = arg;
                 }
             }
             for (int i = m_args.Length; i < args.Count; i++)
@@ -1009,14 +919,9 @@ namespace AliceScript
                 bool refd = args[i].Keywords.Contains(Constants.REF);
                 if (m_refMap.Contains(i))
                 {
-                    if (refd)
-                    {
-                        val = args[i];
-                    }
-                    else
-                    {
-                        throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
-                    }
+                    val = refd
+                        ? args[i]
+                        : throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
                 }
                 else
                 {
@@ -1028,8 +933,12 @@ namespace AliceScript
                     val.Assign(args[i]);
                 }
                 var arg = new GetVarFunction(val);
+                if (i + 1 > m_args.Length)
+                {
+                    throw new ScriptException($"関数 `{m_name}`は、{m_args.Length}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);
+                }
                 arg.Name = m_args[i];
-                m_VarMap[args[i].ParamName] = arg;
+                script.Variables[args[i].ParamName] = arg;
             }
 
             if (NamespaceData != null)
@@ -1041,12 +950,13 @@ namespace AliceScript
                     string key = elem.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ?
                         elem.Key.Substring(prefix.Length) : elem.Key;
 
-                    m_VarMap[key] = elem.Value;
+                    //m_VarMap[key] = elem.Value;
+                    script.Variables[key] = elem.Value;
                 }
             }
 
         }
-        internal List<CustomFunction> Children
+        internal HashSet<CustomFunction> Children
         {
             get; set;
         }
@@ -1092,10 +1002,10 @@ namespace AliceScript
                 tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
             }
             tempScript.Tag = m_tag;
-            tempScript.Variables = m_VarMap;
+            //tempScript.Variables = m_VarMap;
             List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
             // ひとまず引数をローカルに追加
-            RegisterArguments(args, args2, current,tempScript);
+            RegisterArguments(args, args2, current, tempScript);
 
             // さて実行
 
@@ -1124,38 +1034,10 @@ namespace AliceScript
             return result;
         }
 
-        public static Task<Variable> ARun(string functionName,
-             Variable arg1 = null, Variable arg2 = null, Variable arg3 = null, ParsingScript script = null)
-        {
-            CustomFunction customFunction = ParserFunction.GetFunction(functionName, null) as CustomFunction;
-
-            if (customFunction == null)
-            {
-                return null;
-            }
-
-            List<Variable> args = new List<Variable>();
-            if (arg1 != null)
-            {
-                args.Add(arg1);
-            }
-            if (arg2 != null)
-            {
-                args.Add(arg2);
-            }
-            if (arg3 != null)
-            {
-                args.Add(arg3);
-            }
-
-            Variable result = customFunction.ARun(args, script);
-            return Task.FromResult(result);
-        }
-
 
         public override ParserFunction NewInstance()
         {
-            var newInstance = (CustomFunction)this.MemberwiseClone();
+            var newInstance = (CustomFunction)MemberwiseClone();
             return newInstance;
         }
 
@@ -1167,21 +1049,8 @@ namespace AliceScript
         public string Argument(int nIndex) { return m_args[nIndex]; }
 
         public StackLevel NamespaceData { get; set; }
-        public bool IsMethod => (m_this != -1);
-        public TypeObject MethodRequestType
-        {
-            get
-            {
-                if (IsMethod && m_typArgMap.ContainsKey(m_this))
-                {
-                    return m_typArgMap[m_this];
-                }
-                else
-                {
-                    return new TypeObject();
-                }
-            }
-        }
+        public bool IsMethod => m_this != -1;
+        public TypeObject MethodRequestType => IsMethod && m_typArgMap.ContainsKey(m_this) ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
@@ -1198,258 +1067,200 @@ namespace AliceScript
         protected int m_parentOffset = 0;
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
-        private Dictionary<string, ParserFunction> m_VarMap = new Dictionary<string, ParserFunction>();
+        //private Dictionary<string, ParserFunction> m_VarMap = new Dictionary<string, ParserFunction>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
         private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
 
         public Dictionary<string, int> ArgMap { get; private set; } = new Dictionary<string, int>();
     }
 
-    internal class StringOrNumberFunction : FunctionBase
+    internal sealed class StringOrNumberFunction : FunctionBase
     {
         public StringOrNumberFunction()
         {
-            this.Name = "StringOrNumber";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += StringOrNumberFunction_Run;
+            Name = "StringOrNumber";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += StringOrNumberFunction_Run;
         }
 
         private void StringOrNumberFunction_Run(object sender, FunctionBaseEventArgs e)
         {
             // 文字列型かどうか確認
-            if (Item.Length > 1)
+            if (!string.IsNullOrEmpty(Item))
             {
-                bool sq = (Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1);
-                bool dq = (Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE);
-                Name = "StringLiteral";
-                if (dq)
+                if (StringMode)
                 {
-                    int index = 0;
-                    string split_string = "";
+                    bool sq = Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1;
+                    bool dq = Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE;
+                    Name = "StringLiteral";
+                    if (dq || sq)
+                    {
+                        //文字列型
+                        string result = Item.Substring(1, Item.Length - 2);
+                        //文字列補間
 
-                    while (Item.Length > index && Item[index] == '\"')
-                    {
-                        split_string += '\"';
-                        index++;
-                    }
-                    if (split_string.Length > 2)
-                    {
-                        MatchCollection mc = Regex.Matches(Item, "(?<=" + split_string + @")[^\(\)]+(?=" + split_string + ")");
-                        foreach (Match match in mc)
+                        result = result.Replace("\\'", "'");
+                        //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識
+                        if (dq)
                         {
-                            e.Return = new Variable(match.Value);
-                            return;
+                            //[\\]は一時的に0x0011(装置制御1)に割り当て
+                            result = result.Replace("\\\\", "\u0011");
+                            result = result.Replace("\\\"", "\"");
+                            result = result.Replace("\\n", "\n");
+                            result = result.Replace("\\0", "\0");
+                            result = result.Replace("\\a", "\a");
+                            result = result.Replace("\\b", "\b");
+                            result = result.Replace("\\f", "\f");
+                            result = result.Replace("\\r", "\r");
+                            result = result.Replace("\\t", "\t");
+                            result = result.Replace("\\v", "\v");
+                            result = Utils.ConvertUnicodeLiteral(result);
                         }
-                    }
-                }
-                if (dq || sq)
-                {
-                    //文字列型
-                    string result = Item.Substring(1, Item.Length - 2);
-                    //文字列補間
-                    if (DetectionStringFormat)
-                    {
-                        var stb = new StringBuilder();
-                        int blackCount = 0;
-                        bool beforeEscape = false;
-                        var nowBlack = new StringBuilder();
 
-                        foreach (char r in result)
+                        if (DetectionStringFormat)
                         {
-                            switch (r)
+                            var stb = new StringBuilder();
+                            int blackCount = 0;
+                            bool beforeEscape = false;
+                            var nowBlack = new StringBuilder();
+
+
+                            Name = "StringInterpolationLiteral";
+
+                            foreach (char r in result)
                             {
-                                case Constants.START_GROUP:
-                                    {
-                                        if (blackCount == 0)
+                                switch (r)
+                                {
+                                    case Constants.START_GROUP:
                                         {
-                                            if (!beforeEscape)
+                                            if (blackCount == 0)
                                             {
-                                                blackCount++;
+                                                if (!beforeEscape)
+                                                {
+                                                    blackCount++;
+                                                }
+                                                else
+                                                {
+                                                    stb.Append(r);
+                                                }
                                             }
                                             else
                                             {
-                                                stb.Append(r);
+                                                nowBlack.Append(r);
+                                                blackCount++;
                                             }
+                                            beforeEscape = false;
+                                            break;
                                         }
-                                        else
+                                    case Constants.END_GROUP:
                                         {
-                                            nowBlack.Append(r);
-                                            blackCount++;
-                                        }
-                                        beforeEscape = false;
-                                        break;
-                                    }
-                                case Constants.END_GROUP:
-                                    {
-                                        if (blackCount == 1)
-                                        {
-                                            blackCount--;
-                                            //この波かっこを抜けるとき
-                                            string code = nowBlack.ToString();
-                                            ParsingScript tempScript = e.Script.GetTempScript(code, this);
-                                            var rrr = tempScript.Process();
-                                            if (rrr == null)
-                                            {
-                                                rrr = Variable.EmptyInstance;
-                                            }
-                                            stb.Append(rrr.AsString());
-                                            nowBlack.Clear();
-                                        }
-                                        else
-                                        {
-                                            if (!beforeEscape)
+                                            if (blackCount == 1)
                                             {
                                                 blackCount--;
+                                                //この波かっこを抜けるとき
+                                                string code = nowBlack.ToString();
+                                                ParsingScript tempScript = e.Script.GetTempScript(code);
+                                                var rrr = tempScript.Process();
+                                                if (rrr == null)
+                                                {
+                                                    rrr = Variable.EmptyInstance;
+                                                }
+                                                stb.Append(rrr.AsString());
+                                                nowBlack.Clear();
+                                            }
+                                            else
+                                            {
+                                                if (!beforeEscape)
+                                                {
+                                                    blackCount--;
+                                                    nowBlack.Append(r);
+                                                }
+                                                else
+                                                {
+                                                    stb.Append(r);
+                                                }
+                                            }
+                                            beforeEscape = false;
+                                            break;
+                                        }
+                                    case '\\':
+                                        {
+                                            beforeEscape = !beforeEscape;
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            beforeEscape = false;
+                                            if (blackCount > 0)
+                                            {
                                                 nowBlack.Append(r);
                                             }
                                             else
                                             {
                                                 stb.Append(r);
                                             }
+                                            break;
                                         }
-                                        beforeEscape = false;
-                                        break;
-                                    }
-                                case '\\':
-                                    {
-                                        beforeEscape = !beforeEscape;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        beforeEscape = false;
-                                        if (blackCount > 0)
-                                        {
-                                            nowBlack.Append(r);
-                                        }
-                                        else
-                                        {
-                                            stb.Append(r);
-                                        }
-                                        break;
-                                    }
+                                }
                             }
+                            if (blackCount > 0)
+                            {
+                                throw new ScriptException("波括弧が不足しています", Exceptions.NEED_BRACKETS, e.Script);
+                            }
+                            else if (blackCount < 0)
+                            {
+                                throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, e.Script);
+                            }
+                            result = stb.ToString();
                         }
-                        if (blackCount > 0)
+
+                        if (dq)
                         {
-                            throw new ScriptException("波括弧が不足しています", Exceptions.NEED_BRACKETS, e.Script);
+                            //[\\]を\に置き換えます(装置制御1から[\]に置き換え)
+                            result = result.Replace("\u0011", "\\");
                         }
-                        else if (blackCount < 0)
+                        if (DetectionUTF8_Literal)
                         {
-                            throw new ScriptException("終端の波括弧は不要です", Exceptions.UNNEED_TO_BRACKETS, e.Script);
+                            //UTF-8リテラルの時はUTF-8バイナリを返す
+                            e.Return = new Variable(Encoding.UTF8.GetBytes(result));
+                            return;
                         }
-                        result = stb.ToString();
-                    }
-                    //[\\]は一時的に0x0011(装置制御1)に割り当てられます
-                    result = result.Replace("\\\\", "\u0011");
-                    result = result.Replace("\\'", "'");
-                    //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識します
-                    if (dq)
-                    {
-                        result = result.Replace("\\\"", "\"");
-                        result = result.Replace("\\n", "\n");
-                        result = result.Replace("\\0", "\0");
-                        result = result.Replace("\\a", "\a");
-                        result = result.Replace("\\b", "\b");
-                        result = result.Replace("\\f", "\f");
-                        result = result.Replace("\\r", "\r");
-                        result = result.Replace("\\t", "\t");
-                        result = result.Replace("\\v", "\v");
-                        //UTF-16文字コードを文字に置き換えます
-                        MatchCollection mc = Regex.Matches(result, @"\\u[0-9a-f]{4}");
-                        foreach (Match match in mc)
+                        else
                         {
-                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
-                        }
-                        //UTF-32文字コードを文字に置き換えます
-                        mc = Regex.Matches(result, @"\\U[0-9A-F]{8}");
-                        foreach (Match match in mc)
-                        {
-                            result = result.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
+                            e.Return = new Variable(result);
+                            return;
                         }
                     }
-                    //[\\]を\に置き換えます(装置制御1から[\]に置き換えます)
-                    result = result.Replace("\u0011", "\\");
-
-
-
-                    if (DetectionUTF8_Literal)
-                    {
-                        //UTF-8リテラルの時はUTF-8バイナリを返す
-                        e.Return = new Variable(Encoding.UTF8.GetBytes(result));
-                        return;
-                    }
-                    else
-                    {
-                        e.Return = new Variable(result);
-                        return;
-                    }
-
+                }
+                else
+                {
+                    // 数値として処理
+                    Name = "NumberLiteral";
+                    double num = Utils.ConvertToDouble(Item, e.Script);
+                    e.Return = new Variable(num);
                 }
             }
-            //Nullとして処理
-            if (string.IsNullOrEmpty(Item))
-            {
-                Name = "NullLiteral";
-                e.Return = Variable.EmptyInstance;
-                return;
-            }
-            // 数値として処理
-            double num = Utils.ConvertToDouble(Item, e.Script);
-            Name = "NumberLiteral";
-            e.Return = new Variable(num);
+
         }
 
+        public bool StringMode { get; set; }
         public string Item { private get; set; }
         public bool DetectionUTF8_Literal { get; set; }
         public bool DetectionStringFormat { get; set; }
 
-        private static string ConvertUnicodeToChar(string charCode, bool mode = true)
-        {
-            if (mode)
-            {
-                int charCode16 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                char c = Convert.ToChar(charCode16);  // 数値(文字コード) -> 文字
-                return c.ToString();
-            }
-            else
-            {
-                //UTF-32モード
-                int charCode32 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                return Char.ConvertFromUtf32(charCode32);
-            }
 
-        }
     }
-    internal class IdentityFunction : ParserFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return script.Execute(Constants.END_ARG_ARRAY);
-        }
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return await script.ExecuteAsync(Constants.END_ARG_ARRAY);
-        }
-    }
-
-    internal class ConstantsFunction : ParserFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            return new Variable(m_name);
-        }
-    }
-
     // Get a value of a variable or of an array element
     public class GetVarFunction : FunctionBase
     {
         public GetVarFunction(Variable value)
         {
             m_value = value;
-            this.Name = "GetVar";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += GetVarFunction_Run;
+            Name = "Variable";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            //this.RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += GetVarFunction_Run;
         }
 
         private void GetVarFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1457,10 +1268,6 @@ namespace AliceScript
             // 要素が配列の一部かを確認
             if (e.Script.TryPrev() == Constants.START_ARRAY)
             {
-
-                //配列添え字演算子を使用できないケースではじく処理を記述
-                //それぞれの配列の最大長さを取得
-                int max = 0;
                 switch (m_value.Type)
                 {
                     case Variable.VarType.ARRAY:
@@ -1478,7 +1285,7 @@ namespace AliceScript
                         }
                     default:
                         {
-                            throw new ScriptException("この変数で配列添え字演算子を使用することはできません。",Exceptions.VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT,e.Script);
+                            throw new ScriptException("この変数で配列添え字演算子を使用することはできません。", Exceptions.VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT, e.Script);
                         }
                 }
 
@@ -1491,6 +1298,7 @@ namespace AliceScript
                 e.Script.Forward(m_delta);
                 while (e.Script.MoveForwardIf(Constants.END_ARRAY))
                 {
+                    ;
                 }
 
                 Variable result = Utils.ExtractArrayElement(m_value, m_arrayIndices, e.Script);
@@ -1501,7 +1309,7 @@ namespace AliceScript
 
                 if (e.Script.TryCurrent() != '.')
                 {
-                    e.Return =result;
+                    e.Return = result;
                     return;
                 }
                 e.Script.Forward();
@@ -1509,7 +1317,7 @@ namespace AliceScript
                 m_propName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
                 Variable propValue = result.GetProperty(m_propName, e.Script);
                 Utils.CheckNotNull(propValue, m_propName, e.Script);
-                e.Return=propValue;
+                e.Return = propValue;
                 return;
             }
 
@@ -1527,7 +1335,7 @@ namespace AliceScript
             }
 
             // Otherwise just return the stored value.
-            e.Return=m_value;
+            e.Return = m_value;
         }
         public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName, FunctionBase callFrom)
         {
@@ -1540,11 +1348,7 @@ namespace AliceScript
                 }
                 return var.CustomFunctionGet.ARun(args, script);
             }
-            if (var != null && !string.IsNullOrWhiteSpace(var.CustomGet))
-            {
-                return ParsingScript.RunString(var.CustomGet, script);
-            }
-            return var;
+            return var != null && !string.IsNullOrWhiteSpace(var.CustomGet) ? ParsingScript.RunString(var.CustomGet, script) : var;
         }
         public int Delta
         {
@@ -1566,21 +1370,25 @@ namespace AliceScript
         private string m_propName;
     }
 
-    internal class IncrementDecrementFunction : ActionFunction, INumericFunction
+    internal sealed class IncrementDecrementFunction : ActionFunction, INumericFunction
     {
         public IncrementDecrementFunction()
         {
-            this.Name = "IncrementDecrement";
+            Name = "IncrementDecrement";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += IncrementDecrementFunction_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void IncrementDecrementFunction_Run(object sender, FunctionBaseEventArgs e)
         {
             bool prefix = string.IsNullOrWhiteSpace(Name);
             if (prefix)
             {// If it is a prefix we do not have the variable name yet.
-                Name = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
+                Name = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             }
 
-            Utils.CheckForValidName(Name, script);
+            Utils.CheckLegalName(Name);
 
             // Value to be added to the variable:
             int valueDelta = m_action == Constants.INCREMENT ? 1 : -1;
@@ -1589,26 +1397,26 @@ namespace AliceScript
             // Check if the variable to be set has the form of x[a][b],
             // meaning that this is an array element.
             double newValue = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(e.Script, m_name, (string name) => { m_name = name; }, this);
 
-            ParserFunction func = ParserFunction.GetVariable(m_name, script);
-            Utils.CheckNotNull(m_name, func, script);
+            ParserFunction func = ParserFunction.GetVariable(m_name, e.Script);
+            Utils.CheckNotNull(m_name, func, e.Script);
 
-            Variable currentValue = func.GetValue(script);
+            Variable currentValue = func.GetValue(e.Script);
             currentValue = currentValue.DeepClone();
 
-            if (arrayIndices.Count > 0 || script.TryCurrent() == Constants.START_ARRAY)
+            if (arrayIndices.Count > 0 || e.Script.TryCurrent() == Constants.START_ARRAY)
             {
                 if (prefix)
                 {
-                    string tmpName = m_name + script.Rest;
+                    string tmpName = m_name + e.Script.Rest;
                     int delta = 0;
-                    arrayIndices = Utils.GetArrayIndices(script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; }, this);
-                    script.Forward(Math.Max(0, delta - tmpName.Length));
+                    arrayIndices = Utils.GetArrayIndices(e.Script, tmpName, delta, (string t, int d) => { tmpName = t; delta = d; }, this);
+                    e.Script.Forward(Math.Max(0, delta - tmpName.Length));
                 }
 
-                Variable element = Utils.ExtractArrayElement(currentValue, arrayIndices, script);
-                script.MoveForwardIf(Constants.END_ARRAY);
+                Variable element = Utils.ExtractArrayElement(currentValue, arrayIndices, e.Script);
+                e.Script.MoveForwardIf(Constants.END_ARRAY);
 
                 newValue = element.Value + returnDelta;
                 element.Value += valueDelta;
@@ -1620,101 +1428,118 @@ namespace AliceScript
             }
 
             ParserFunction.AddGlobalOrLocalVariable(m_name,
-                                                    new GetVarFunction(currentValue), script);
-            return new Variable(newValue);
+                                                    new GetVarFunction(currentValue), e.Script);
+            e.Return = new Variable(newValue);
         }
 
-        override public ParserFunction NewInstance()
+
+        public override ParserFunction NewInstance()
         {
             return new IncrementDecrementFunction();
         }
     }
 
-    internal class OperatorAssignFunction : ActionFunction
+    internal sealed class OperatorAssignFunction : ActionFunction
     {
         public OperatorAssignFunction()
         {
-            this.Name = "OperatorAssign";
+            Name = "OperatorAssign";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += OperatorAssignFunction_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void OperatorAssignFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-
             // Value to be added to the variable:
-            Variable right = Utils.GetItem(script);
+            Variable right = Utils.GetItem(e.Script);
 
 
-            Variable currentValue = ParserFunction.GetObjectFunction(m_name, script, new List<string>())?.GetValue(script);
+            Variable currentValue = ParserFunction.GetObjectFunction(m_name, e.Script, new HashSet<string>())?.GetValue(e.Script);
             bool isobj = true;
             List<Variable> arrayIndices = new List<Variable>();
             if (currentValue == null)
             {
                 isobj = false;
-                arrayIndices = Utils.GetArrayIndices(script, m_name, (string name) => { m_name = name; }, this);
+                arrayIndices = Utils.GetArrayIndices(e.Script, m_name, (string name) => { m_name = name; }, this);
 
-                ParserFunction func = ParserFunction.GetVariable(m_name, script);
-                if (!Utils.CheckNotNull(func, m_name, script))
+                ParserFunction func = ParserFunction.GetVariable(m_name, e.Script);
+                if (!Utils.CheckNotNull(func, m_name, e.Script))
                 {
-                    return Variable.EmptyInstance;
+                    return;
                 }
-                currentValue = func.GetValue(script);
+                currentValue = func.GetValue(e.Script);
             }
 
-            currentValue = currentValue.DeepClone();
+            //currentValue = currentValue.DeepClone();
             Variable left = currentValue;
 
             if (arrayIndices.Count > 0)
             {// array element
-                left = Utils.ExtractArrayElement(currentValue, arrayIndices, script);
-                script.MoveForwardIf(Constants.END_ARRAY);
+                left = Utils.ExtractArrayElement(currentValue, arrayIndices, e.Script);
+                e.Script.MoveForwardIf(Constants.END_ARRAY);
             }
             if (m_action == "??=")
             {
                 if (left.IsNull())
                 {
-                    return right;
+                    left.Assign(right);
                 }
-                else
-                {
-                    return left;
-                }
-            }
-            else if (left.Type == Variable.VarType.NUMBER)
-            {
-                NumberOperator(left, right, m_action);
-            }
-            else if (left.Type == Variable.VarType.ARRAY)
-            {
-                ArrayOperator(left, right, m_action, script);
-            }
-            else if (left.Type == Variable.VarType.DELEGATE)
-            {
-                DelegateOperator(left, right, m_action, script);
-            }
-            else if (left.Type == Variable.VarType.OBJECT && left.Object is ObjectBase obj)
-            {
-                obj.Operator(left, right, m_action, script);
+                e.Return = left;
+                return;
             }
             else
             {
-                StringOperator(left, right, m_action);
+                switch (left.Type)
+                {
+                    case Variable.VarType.NUMBER:
+                        {
+                            NumberOperator(left, right, m_action);
+                            break;
+                        }
+                    case Variable.VarType.ARRAY:
+                        {
+                            ArrayOperator(left, right, m_action, e.Script);
+                            break;
+                        }
+                    case Variable.VarType.DELEGATE:
+                        {
+                            DelegateOperator(left, right, m_action, e.Script);
+                            break;
+                        }
+                    case Variable.VarType.OBJECT:
+                        {
+                            if (left.Object is ObjectBase obj)
+                            {
+                                obj.Operator(left, right, m_action, e.Script);
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            StringOperator(left, right, m_action);
+                            break;
+                        }
+                }
             }
 
             if (arrayIndices.Count > 0)
             {// array element
                 AssignFunction.ExtendArray(currentValue, arrayIndices, 0, left);
                 ParserFunction.AddGlobalOrLocalVariable(m_name,
-                                                         new GetVarFunction(currentValue), script);
+                                                         new GetVarFunction(currentValue), e.Script);
             }
             else if (isobj)
             {
-                return AssignFunction.ProcessObject(m_name, script, left);
+                e.Return = AssignFunction.ProcessObject(m_name, e.Script, left);
+                return;
             }
             else
             {
                 ParserFunction.AddGlobalOrLocalVariable(m_name,
-                                                         new GetVarFunction(left), script);
+                                                         new GetVarFunction(left), e.Script);
             }
-            return left;
+            e.Return = left;
         }
 
         private static void DelegateOperator(Variable valueA, Variable valueB, string action, ParsingScript script)
@@ -1871,21 +1696,26 @@ namespace AliceScript
             }
         }
 
-        override public ParserFunction NewInstance()
+        public override ParserFunction NewInstance()
         {
             return new OperatorAssignFunction();
         }
     }
 
-    public class AssignFunction : ActionFunction
+    internal sealed class AssignFunction : ActionFunction
     {
         public AssignFunction()
         {
-            this.Name = "Assign";
+            Name = "Assign";
+
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Run += AssignFunction_Run;
         }
-        protected override Variable Evaluate(ParsingScript script)
+
+        private void AssignFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            return Assign(script, m_name);
+            e.Return = Assign(e.Script, m_name);
         }
 
         public Variable Assign(ParsingScript script, string varName, bool localIfPossible = false, ParsingScript baseScript = null)
@@ -1898,15 +1728,28 @@ namespace AliceScript
                 baseScript = script;
             }
 
-            bool registVar = this.Keywords.Contains(Constants.VAR);
-            bool registConst = this.Keywords.Contains(Constants.CONST);
-            bool isGlobal = this.Keywords.Contains(Constants.PUBLIC);
 
-            script.MoveBackIfPrevious(Constants.END_ARG);
             if (varValue == null)
             {
                 return Variable.EmptyInstance;
             }
+
+            string type_modifer = null;
+
+            foreach (string str in Keywords)
+            {
+                if (Constants.TYPE_MODIFER.Contains(str))
+                {
+                    type_modifer = str;
+                    break;
+                }
+            }
+
+            bool registVar = type_modifer != null || Keywords.Contains(Constants.VAR);
+            bool registConst = Keywords.Contains(Constants.CONST);
+            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
+
+            script.MoveBackIfPrevious(Constants.END_ARG);
             varValue.TrySetAsMap();
 
             if (script.Current == ' ' || script.Prev == ' ')
@@ -1916,8 +1759,9 @@ namespace AliceScript
             }
             if (registConst)
             {
+                Utils.CheckLegalName(m_name);
                 //定数定義
-                if (!FunctionExists(m_name, script))
+                if (!FunctionExists(m_name, script, out var func))
                 {
                     // Check if the variable to be set has the form of x[a][b]...,
                     // meaning that this is an array element.
@@ -1940,8 +1784,8 @@ namespace AliceScript
 
                     Variable array;
 
-                    ParserFunction pf = ParserFunction.GetVariable(m_name, script, false, this.Keywords);
-                    array = pf != null ? (pf.GetValue(script)) : new Variable();
+                    ParserFunction pf = ParserFunction.GetVariable(m_name, script, false, Keywords);
+                    array = pf != null ? pf.GetValue(script) : new Variable();
 
                     ExtendArray(array, arrayIndices, 0, varValue);
                     if (isGlobal)
@@ -1979,7 +1823,7 @@ namespace AliceScript
 
                 if (arrayIndices.Count == 0)
                 {
-                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal);
+                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal, type_modifer);
                     Variable retVar = varValue.DeepClone();
                     retVar.CurrentAssign = m_name;
                     return retVar;
@@ -1988,21 +1832,14 @@ namespace AliceScript
                 Variable array;
 
                 ParserFunction pf = ParserFunction.GetVariable(m_name, baseScript);
-                array = pf != null ? (pf.GetValue(script)) : new Variable();
+                array = pf != null ? pf.GetValue(script) : new Variable();
 
                 ExtendArray(array, arrayIndices, 0, varValue);
 
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal);
+                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal, type_modifer);
                 return array;
             }
         }
-
-        protected override async Task<Variable> EvaluateAsync(ParsingScript script)
-        {
-            return Assign(script, m_name);
-        }
-
-
         internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)
         {
             if (script.CurrentClass != null)
@@ -2018,13 +1855,13 @@ namespace AliceScript
                 return varValue.DeepClone();
             }
 
-            int ind = varName.IndexOf('.');
+            int ind = varName.IndexOf('.', StringComparison.Ordinal);
             if (ind <= 0)
             {
                 return null;
             }
 
-            Utils.CheckForValidName(varName, script);
+            Utils.CheckLegalName(varName);
 
             string name = varName.Substring(0, ind);
             string prop = varName.Substring(ind + 1);
@@ -2046,7 +1883,7 @@ namespace AliceScript
         }
 
 
-        override public ParserFunction NewInstance()
+        public override ParserFunction NewInstance()
         {
             return new AssignFunction();
         }

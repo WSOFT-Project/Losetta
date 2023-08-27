@@ -1,8 +1,7 @@
-﻿using AliceScript;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 
-namespace alice
+namespace AliceScript.CLI
 {
     internal class Program
     {
@@ -12,6 +11,8 @@ namespace alice
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
+
+
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
             CreateAliceDirectory(false);
@@ -37,13 +38,15 @@ namespace alice
                     throw_redirect_files.Add(pa.Values["throw"]);
                 }
             }
-            if (pa.Values.ContainsKey("runtime") && (pa.Values["runtime"].ToLower() == "disable"))
+            if (pa.Values.TryGetValue("runtime", out string v) && v.ToLower() == "disable")
             {
-                //ランタイムを初期化しない
+                //最小モードで初期化
+                Runtime.InitBasicAPI();
             }
             else
             {
-                new AliceScript.NameSpaces.Alice_Runtime().Main();
+                //ランタイムを初期化
+                Runtime.Init();
             }
             //ShellFunctions登録
             ShellFunctions.Init();
@@ -62,14 +65,10 @@ namespace alice
                 Alice.ExecuteFile(filename);
             }
 
-            if (pa.Flags.Contains("s"))
+            if (pa.Flags.Contains("e"))
             {
-                string f = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
-                if (File.Exists(f))
-                {
-                    Alice.ExecuteFile(f);
-                }
-                Alice.Execute(pa.Script);
+                //単一行評価モード
+                Console.Write(Alice.Execute(pa.Script));
                 return;
             }
             else
@@ -94,8 +93,7 @@ namespace alice
             else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
             {
                 //パッケージ生成モード
-                string outfile;
-                if (pa.Values.TryGetValue("out", out outfile))
+                if (pa.Values.TryGetValue("out", out string outfile))
                 {
                     int success = 0;
                     int error = 0;
@@ -132,28 +130,32 @@ namespace alice
                 Shell.Do();
             }
         }
+        /// <summary>
+        /// デバッグモードかどうかを表す値。
+        /// </summary>
+        internal static bool IsDebugMode { get; set; }
         private static bool allow_print = true;
         private static List<string> print_redirect_files = new List<string>();
-        private static bool allow_throw = true;
+        internal static bool allow_throw = true;
         private static List<string> throw_redirect_files = new List<string>();
         private static string ListToString(List<string> list)
         {
-            string s = "{";
+            var sb = new StringBuilder(Constants.START_GROUP);
             bool isFirst = true;
             foreach (string v in list)
             {
                 if (isFirst)
                 {
-                    s += " " + v;
+                    sb.Append($" {v}");
                     isFirst = false;
                 }
                 else
                 {
-                    s += "," + v;
+                    sb.Append($",{v}");
                 }
             }
-            s += " }";
-            return s;
+            sb.Append(Constants.END_GROUP);
+            return sb.ToString();
         }
         internal static string GetScriptPath(string path)
         {
@@ -162,11 +164,7 @@ namespace alice
                 return path;
             }
             string fpath = Path.Combine(AppContext.BaseDirectory, ".alice", path);
-            if (File.Exists(fpath))
-            {
-                return fpath;
-            }
-            return path;
+            return File.Exists(fpath) ? fpath : path;
         }
         internal static void CreateAliceDirectory(bool force)
         {
@@ -188,6 +186,8 @@ namespace alice
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "shell"), Properties.Resources.shell, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "update"), Properties.Resources.update, Encoding.UTF8);
+
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "path"), Properties.Resources.path, Encoding.UTF8);
             }
         }
         internal static bool BuildPackage(string fn, string outfilename, int num = 1)
@@ -268,6 +268,6 @@ namespace alice
                 }
             }
         }
-        
+
     }
 }

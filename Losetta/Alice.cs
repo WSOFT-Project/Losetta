@@ -14,7 +14,7 @@
             return Interpreter.Instance.Process(code, filename, mainFile);
         }
         /// <summary>
-        /// このインタプリタで実行可能なファイルを読み込みます
+        /// このインタプリタで読み込み可能なファイルを読み込みます
         /// </summary>
         /// <param name="filename">ファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
@@ -24,15 +24,47 @@
             return Interpreter.Instance.ProcessFile(filename, mainFile);
         }
         /// <summary>
-        /// このインタプリタで実行可能なファイルを読み込みます
+        /// このインタプリタで読み込み可能なデータを読み込みます
         /// </summary>
-        /// <param name="data">ファイル</param>
+        /// <param name="data">データ</param>
         /// <param name="filename">ファイル名</param>
         /// <param name="mainFile">メインファイルとして処理するか否か</param>
         /// <returns>スクリプトから返される戻り値</returns>
-        public static Variable ExecuteFile(byte[] data, string filename = "", bool mainFile = false)
+        public static Variable ExecuteData(byte[] data, string filename = "", bool mainFile = false)
         {
             return Interpreter.Instance.ProcessData(data, filename, mainFile);
+        }
+        /// <summary>
+        /// AliceScriptのコードを実行します
+        /// </summary>
+        /// <param name="code">実行したいスクリプト</param>
+        /// <param name="filename">スクリプトのファイル名</param>
+        /// <param name="mainFile">メインファイルとして処理するか否か</param>
+        /// <returns>スクリプトから返される戻り値</returns>
+        public static T Execute<T>(string code, string filename = "", bool mainFile = false)
+        {
+            return Interpreter.Instance.Process(code, filename, mainFile).ConvertTo<T>();
+        }
+        /// <summary>
+        /// このインタプリタで読み込み可能なファイルを読み込みます
+        /// </summary>
+        /// <param name="filename">ファイル名</param>
+        /// <param name="mainFile">メインファイルとして処理するか否か</param>
+        /// <returns>スクリプトから返される戻り値</returns>
+        public static T ExecuteFile<T>(string filename, bool mainFile = false)
+        {
+            return Interpreter.Instance.ProcessFile(filename, mainFile).ConvertTo<T>();
+        }
+        /// <summary>
+        /// このインタプリタで読み込み可能なデータを読み込みます
+        /// </summary>
+        /// <param name="data">データ</param>
+        /// <param name="filename">ファイル名</param>
+        /// <param name="mainFile">メインファイルとして処理するか否か</param>
+        /// <returns>スクリプトから返される戻り値</returns>
+        public static T ExecuteData<T>(byte[] data, string filename = "", bool mainFile = false)
+        {
+            return Interpreter.Instance.ProcessData(data, filename, mainFile).ConvertTo<T>();
         }
         /// <summary>
         /// AliceScriptのコードを非同期で実行します

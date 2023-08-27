@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces
 {
-    internal class Alice_IO_Intiter
+    public sealed class Alice_IO
     {
         public static void Init()
         {
@@ -62,13 +62,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class zip_CreateFromDirectoryFunc : FunctionBase
+    internal sealed class zip_CreateFromDirectoryFunc : FunctionBase
     {
         public zip_CreateFromDirectoryFunc()
         {
-            this.Name = "zip_createFromDirectory";
-            this.MinimumArgCounts = 2;
-            this.Run += Zip_CreateFromDirectoryFunc_Run;
+            Name = "zip_createFromDirectory";
+            MinimumArgCounts = 2;
+            Run += Zip_CreateFromDirectoryFunc_Run;
         }
 
         private void Zip_CreateFromDirectoryFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -77,13 +77,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class zip_ExtactToDirectoryFunc : FunctionBase
+    internal sealed class zip_ExtactToDirectoryFunc : FunctionBase
     {
         public zip_ExtactToDirectoryFunc()
         {
-            this.Name = "zip_extractToDirectory";
-            this.MinimumArgCounts = 2;
-            this.Run += Zip_CreateFromDirectoryFunc_Run;
+            Name = "zip_extractToDirectory";
+            MinimumArgCounts = 2;
+            Run += Zip_CreateFromDirectoryFunc_Run;
         }
 
         private void Zip_CreateFromDirectoryFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -92,13 +92,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_ChangeExtensionFunc : FunctionBase
+    internal sealed class path_ChangeExtensionFunc : FunctionBase
     {
         public path_ChangeExtensionFunc()
         {
-            this.Name = "path_ChangeExtension";
-            this.MinimumArgCounts = 2;
-            this.Run += Path_ChangeExtensionFunc_Run;
+            Name = "path_ChangeExtension";
+            MinimumArgCounts = 2;
+            Run += Path_ChangeExtensionFunc_Run;
         }
 
         private void Path_ChangeExtensionFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -107,13 +107,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_CombineFunc : FunctionBase
+    internal sealed class path_CombineFunc : FunctionBase
     {
         public path_CombineFunc()
         {
-            this.Name = "path_Combine";
-            this.MinimumArgCounts = 2;
-            this.Run += Path_CombineFunc_Run;
+            Name = "path_Combine";
+            MinimumArgCounts = 2;
+            Run += Path_CombineFunc_Run;
         }
 
         private void Path_CombineFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -127,13 +127,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_EndsInDirectorySeparatorFunc : FunctionBase
+    internal sealed class path_EndsInDirectorySeparatorFunc : FunctionBase
     {
         public path_EndsInDirectorySeparatorFunc()
         {
-            this.Name = "path_EndsInDirectorySeparator";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_EndsInDirectorySeparatorFunc_Run;
+            Name = "path_EndsInDirectorySeparator";
+            MinimumArgCounts = 1;
+            Run += Path_EndsInDirectorySeparatorFunc_Run;
         }
 
         private void Path_EndsInDirectorySeparatorFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -142,13 +142,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_DirectoryNameFunc : FunctionBase
+    internal sealed class path_get_DirectoryNameFunc : FunctionBase
     {
         public path_get_DirectoryNameFunc()
         {
-            this.Name = "path_get_DirectoryName";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_get_DirectoryNameFunc_Run;
+            Name = "path_get_DirectoryName";
+            MinimumArgCounts = 1;
+            Run += Path_get_DirectoryNameFunc_Run;
         }
 
         private void Path_get_DirectoryNameFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -157,13 +157,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_ExtensionFunc : FunctionBase
+    internal sealed class path_get_ExtensionFunc : FunctionBase
     {
         public path_get_ExtensionFunc()
         {
-            this.Name = "path_get_Extension";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_get_ExtensionFunc_Run;
+            Name = "path_get_Extension";
+            MinimumArgCounts = 1;
+            Run += Path_get_ExtensionFunc_Run;
         }
 
         private void Path_get_ExtensionFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -172,13 +172,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_FileNameFunc : FunctionBase
+    internal sealed class path_get_FileNameFunc : FunctionBase
     {
         public path_get_FileNameFunc()
         {
-            this.Name = "path_get_FileName";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_get_FileNameFunc_Run;
+            Name = "path_get_FileName";
+            MinimumArgCounts = 1;
+            Run += Path_get_FileNameFunc_Run;
         }
 
         private void Path_get_FileNameFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -187,13 +187,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_FileNameWithoutExtensionFunc : FunctionBase
+    internal sealed class path_get_FileNameWithoutExtensionFunc : FunctionBase
     {
         public path_get_FileNameWithoutExtensionFunc()
         {
-            this.Name = "path_get_FileNameWithoutExtension";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_get_FileNameWithoutExtensionFunc_Run;
+            Name = "path_get_FileNameWithoutExtension";
+            MinimumArgCounts = 1;
+            Run += Path_get_FileNameWithoutExtensionFunc_Run;
         }
 
         private void Path_get_FileNameWithoutExtensionFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -202,35 +202,30 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_FullPathFunc : FunctionBase
+    internal sealed class path_get_FullPathFunc : FunctionBase
     {
         public path_get_FullPathFunc()
         {
-            this.Name = "path_get_FullPath";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_get_FullPathFunc_Run;
+            Name = "path_get_FullPath";
+            MinimumArgCounts = 1;
+            Run += Path_get_FullPathFunc_Run;
         }
 
         private void Path_get_FullPathFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args.Count > 1)
-            {
-                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString(), e.Args[1].AsString()));
-            }
-            else
-            {
-                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString()));
-            }
+            e.Return = e.Args.Count > 1
+                ? new Variable(Path.GetFullPath(e.Args[0].AsString(), e.Args[1].AsString()))
+                : new Variable(Path.GetFullPath(e.Args[0].AsString()));
         }
     }
 
-    internal class path_get_PathRootFunc : FunctionBase
+    internal sealed class path_get_PathRootFunc : FunctionBase
     {
         public path_get_PathRootFunc()
         {
-            this.Name = "path_get_PathRoot";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_get_PathRootFunc_Run;
+            Name = "path_get_PathRoot";
+            MinimumArgCounts = 1;
+            Run += Path_get_PathRootFunc_Run;
         }
 
         private void Path_get_PathRootFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -239,13 +234,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_RandomFileNameFunc : FunctionBase
+    internal sealed class path_get_RandomFileNameFunc : FunctionBase
     {
         public path_get_RandomFileNameFunc()
         {
-            this.Name = "path_get_RandomFileName";
-            this.MinimumArgCounts = 0;
-            this.Run += Path_get_RandomFileNameFunc_Run;
+            Name = "path_get_RandomFileName";
+            MinimumArgCounts = 0;
+            Run += Path_get_RandomFileNameFunc_Run;
         }
 
         private void Path_get_RandomFileNameFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -254,13 +249,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_GetRelativePathFunc : FunctionBase
+    internal sealed class path_get_GetRelativePathFunc : FunctionBase
     {
         public path_get_GetRelativePathFunc()
         {
-            this.Name = "path_get_RelativePath";
-            this.MinimumArgCounts = 2;
-            this.Run += Path_get_GetRelativePathFunc_Run;
+            Name = "path_get_RelativePath";
+            MinimumArgCounts = 2;
+            Run += Path_get_GetRelativePathFunc_Run;
         }
 
         private void Path_get_GetRelativePathFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -269,12 +264,12 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_TempFileNameFunc : FunctionBase
+    internal sealed class path_get_TempFileNameFunc : FunctionBase
     {
         public path_get_TempFileNameFunc()
         {
-            this.Name = "path_get_TempFileName";
-            this.Run += Path_get_TempFileNameFunc_Run;
+            Name = "path_get_TempFileName";
+            Run += Path_get_TempFileNameFunc_Run;
         }
 
         private void Path_get_TempFileNameFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -283,12 +278,12 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_get_TempPathFunc : FunctionBase
+    internal sealed class path_get_TempPathFunc : FunctionBase
     {
         public path_get_TempPathFunc()
         {
-            this.Name = "path_get_TempPath";
-            this.Run += Path_get_TempPathFunc_Run;
+            Name = "path_get_TempPath";
+            Run += Path_get_TempPathFunc_Run;
         }
 
         private void Path_get_TempPathFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -297,13 +292,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_HasExtensionFunc : FunctionBase
+    internal sealed class path_HasExtensionFunc : FunctionBase
     {
         public path_HasExtensionFunc()
         {
-            this.Name = "path_HasExtension";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_HasExtensionFunc_Run;
+            Name = "path_HasExtension";
+            MinimumArgCounts = 1;
+            Run += Path_HasExtensionFunc_Run;
         }
 
         private void Path_HasExtensionFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -312,13 +307,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_IsPathFullyQualifiedFunc : FunctionBase
+    internal sealed class path_IsPathFullyQualifiedFunc : FunctionBase
     {
         public path_IsPathFullyQualifiedFunc()
         {
-            this.Name = "path_IsPathFullyQualified";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_IsPathFullyQualifiedFunc_Run;
+            Name = "path_IsPathFullyQualified";
+            MinimumArgCounts = 1;
+            Run += Path_IsPathFullyQualifiedFunc_Run;
         }
 
         private void Path_IsPathFullyQualifiedFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -327,13 +322,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_IsPathRootedFunc : FunctionBase
+    internal sealed class path_IsPathRootedFunc : FunctionBase
     {
         public path_IsPathRootedFunc()
         {
-            this.Name = "path_IsPathRooted";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_IsPathRootedFunc_Run;
+            Name = "path_IsPathRooted";
+            MinimumArgCounts = 1;
+            Run += Path_IsPathRootedFunc_Run;
         }
 
         private void Path_IsPathRootedFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -342,13 +337,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_JoinFunc : FunctionBase
+    internal sealed class path_JoinFunc : FunctionBase
     {
         public path_JoinFunc()
         {
-            this.Name = "path_Join";
-            this.MinimumArgCounts = 2;
-            this.Run += Path_JoinFunc_Run;
+            Name = "path_Join";
+            MinimumArgCounts = 2;
+            Run += Path_JoinFunc_Run;
         }
 
         private void Path_JoinFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -362,13 +357,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class path_TrimEndingDirectorySeparatorFunc : FunctionBase
+    internal sealed class path_TrimEndingDirectorySeparatorFunc : FunctionBase
     {
         public path_TrimEndingDirectorySeparatorFunc()
         {
-            this.Name = "path_TrimEndingDirectorySeparator";
-            this.MinimumArgCounts = 1;
-            this.Run += Path_TrimEndingDirectorySeparatorFunc_Run;
+            Name = "path_TrimEndingDirectorySeparator";
+            MinimumArgCounts = 1;
+            Run += Path_TrimEndingDirectorySeparatorFunc_Run;
         }
 
         private void Path_TrimEndingDirectorySeparatorFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -377,13 +372,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_read_textFunc : FunctionBase
+    internal sealed class file_read_textFunc : FunctionBase
     {
         public file_read_textFunc()
         {
-            this.Name = "file_read_text";
-            this.MinimumArgCounts = 1;
-            this.Run += File_read_textFunc_Run;
+            Name = "file_read_text";
+            MinimumArgCounts = 1;
+            Run += File_read_textFunc_Run;
         }
 
         private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -414,31 +409,30 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_read_charcodeFunc : FunctionBase
+    internal sealed class file_read_charcodeFunc : FunctionBase
     {
         public file_read_charcodeFunc()
         {
-            this.Name = "file_read_charcode";
-            this.MinimumArgCounts = 1;
-            this.Run += File_read_textFunc_Run;
+            Name = "file_read_charcode";
+            MinimumArgCounts = 1;
+            Run += File_read_textFunc_Run;
         }
 
         private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             var data = Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script);
-            string charcode;
-            SafeReader.ReadAllText(data, out charcode);
+            SafeReader.ReadAllText(data, out string charcode);
             e.Return = new Variable(charcode);
         }
     }
 
-    internal class file_read_dataFunc : FunctionBase
+    internal sealed class file_read_dataFunc : FunctionBase
     {
         public file_read_dataFunc()
         {
-            this.Name = "file_read_data";
-            this.MinimumArgCounts = 1;
-            this.Run += File_read_textFunc_Run;
+            Name = "file_read_data";
+            MinimumArgCounts = 1;
+            Run += File_read_textFunc_Run;
         }
 
         private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -447,13 +441,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_write_textFunc : FunctionBase
+    internal sealed class file_write_textFunc : FunctionBase
     {
         public file_write_textFunc()
         {
-            this.Name = "file_write_text";
-            this.MinimumArgCounts = 2;
-            this.Run += File_write_textFunc_Run;
+            Name = "file_write_text";
+            MinimumArgCounts = 2;
+            Run += File_write_textFunc_Run;
         }
 
         private void File_write_textFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -476,13 +470,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_append_textFunc : FunctionBase
+    internal sealed class file_append_textFunc : FunctionBase
     {
         public file_append_textFunc()
         {
-            this.Name = "file_append_text";
-            this.MinimumArgCounts = 2;
-            this.Run += File_write_textFunc_Run;
+            Name = "file_append_text";
+            MinimumArgCounts = 2;
+            Run += File_write_textFunc_Run;
         }
 
         private void File_write_textFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -505,13 +499,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_write_dataFunc : FunctionBase
+    internal sealed class file_write_dataFunc : FunctionBase
     {
         public file_write_dataFunc()
         {
-            this.Name = "file_write_data";
-            this.MinimumArgCounts = 2;
-            this.Run += File_write_textFunc_Run;
+            Name = "file_write_data";
+            MinimumArgCounts = 2;
+            Run += File_write_textFunc_Run;
         }
 
         private void File_write_textFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -520,13 +514,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_copyFunc : FunctionBase
+    internal sealed class file_copyFunc : FunctionBase
     {
         public file_copyFunc()
         {
-            this.Name = "file_copy";
-            this.MinimumArgCounts = 2;
-            this.Run += File_copyFunc_Run;
+            Name = "file_copy";
+            MinimumArgCounts = 2;
+            Run += File_copyFunc_Run;
         }
 
         private void File_copyFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -542,13 +536,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_moveFunc : FunctionBase
+    internal sealed class file_moveFunc : FunctionBase
     {
         public file_moveFunc()
         {
-            this.Name = "file_move";
-            this.MinimumArgCounts = 2;
-            this.Run += File_copyFunc_Run;
+            Name = "file_move";
+            MinimumArgCounts = 2;
+            Run += File_copyFunc_Run;
         }
 
         private void File_copyFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -557,13 +551,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_existsFunc : FunctionBase
+    internal sealed class file_existsFunc : FunctionBase
     {
         public file_existsFunc()
         {
-            this.Name = "file_exists";
-            this.MinimumArgCounts = 1;
-            this.Run += File_exists_Run;
+            Name = "file_exists";
+            MinimumArgCounts = 1;
+            Run += File_exists_Run;
         }
 
         private void File_exists_Run(object sender, FunctionBaseEventArgs e)
@@ -572,13 +566,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_deleteFunc : FunctionBase
+    internal sealed class file_deleteFunc : FunctionBase
     {
         public file_deleteFunc()
         {
-            this.Name = "file_delete";
-            this.MinimumArgCounts = 1;
-            this.Run += File_copyFunc_Run;
+            Name = "file_delete";
+            MinimumArgCounts = 1;
+            Run += File_copyFunc_Run;
         }
 
         private void File_copyFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -590,13 +584,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_encryptFunc : FunctionBase
+    internal sealed class file_encryptFunc : FunctionBase
     {
         public file_encryptFunc()
         {
-            this.Name = "file_encrypt";
-            this.MinimumArgCounts = 3;
-            this.Run += File_encrypt_Run;
+            Name = "file_encrypt";
+            MinimumArgCounts = 3;
+            Run += File_encrypt_Run;
         }
 
         private void File_encrypt_Run(object sender, FunctionBaseEventArgs e)
@@ -605,13 +599,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_decrypt : FunctionBase
+    internal sealed class file_decrypt : FunctionBase
     {
         public file_decrypt()
         {
-            this.Name = "file_decrypt";
-            this.MinimumArgCounts = 3;
-            this.Run += File_encrypt_Run;
+            Name = "file_decrypt";
+            MinimumArgCounts = 3;
+            Run += File_encrypt_Run;
         }
 
         private void File_encrypt_Run(object sender, FunctionBaseEventArgs e)
@@ -621,7 +615,7 @@ namespace AliceScript.NameSpaces
     }
 
 
-    internal static class FileEncrypter
+    internal sealed class FileEncrypter
     {
         internal static bool FileDecrypt(string FilePath, string OutFilePath, string Password)
         {
@@ -634,7 +628,7 @@ namespace AliceScript.NameSpaces
             {
                 using (FileStream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read))
                 {
-                    using (AesManaged aes = new AesManaged())
+                    using (var aes = Aes.Create())
                     {
                         aes.BlockSize = 128;              // BlockSize = 16bytes
                         aes.KeySize = 128;                // KeySize = 16bytes
@@ -688,7 +682,7 @@ namespace AliceScript.NameSpaces
                 }
             }
 
-            return (true);
+            return true;
         }
 
         internal static bool FileEncrypt(string FilePath, string OutFilePath, string Password)
@@ -701,7 +695,7 @@ namespace AliceScript.NameSpaces
 
             using (FileStream outfs = new FileStream(OutFilePath, FileMode.Create, FileAccess.Write))
             {
-                using (AesManaged aes = new AesManaged())
+                using (var aes = Aes.Create())
                 {
                     aes.BlockSize = 128;              // BlockSize = 16bytes
                     aes.KeySize = 128;                // KeySize = 16bytes
@@ -759,7 +753,7 @@ namespace AliceScript.NameSpaces
             }
 
 
-            return (true);
+            return true;
         }
 
         internal static byte[] Encrypt(byte[] data, string Password)
@@ -772,36 +766,18 @@ namespace AliceScript.NameSpaces
 
             using (MemoryStream outfs = new MemoryStream())
             {
-                using (AesManaged aes = new AesManaged())
+                using (var aes = Aes.Create())
                 {
-                    aes.BlockSize = 128;              // BlockSize = 16bytes
-                    aes.KeySize = 128;                // KeySize = 16bytes
-                    aes.Mode = CipherMode.CBC;        // CBC mode
-                    aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+                    aes.BlockSize = 128;
+                    aes.KeySize = 128;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
 
                     //入力されたパスワードをベースに擬似乱数を新たに生成
                     Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(Password, 16);
-                    byte[] salt = new byte[16]; // Rfc2898DeriveBytesが内部生成したなソルトを取得
+                    byte[] salt = new byte[16];
                     salt = deriveBytes.Salt;
-                    // 生成した擬似乱数から16バイト切り出したデータをパスワードにする
                     byte[] bufferKey = deriveBytes.GetBytes(16);
-
-                    /*
-                    // パスワード文字列が大きい場合は、切り詰め、16バイトに満たない場合は0で埋めます
-                    byte[] bufferKey = new byte[16];
-                    byte[] bufferPassword = Encoding.UTF8.GetBytes(Password);
-                    for (i = 0; i < bufferKey.Length; i++)
-                    {
-                        if (i < bufferPassword.Length)
-                        {
-                            bufferKey[i] = bufferPassword[i];
-                        }
-                        else
-                        {
-                            bufferKey[i] = 0;
-                        }
-                    */
-
                     aes.Key = bufferKey;
                     // IV ( Initilization Vector ) は、AesManagedにつくらせる
                     aes.GenerateIV();
@@ -828,7 +804,6 @@ namespace AliceScript.NameSpaces
                     }
 
                 }
-                return null;
             }
 
 
@@ -845,7 +820,7 @@ namespace AliceScript.NameSpaces
             {
                 using (MemoryStream fs = new MemoryStream())
                 {
-                    using (AesManaged aes = new AesManaged())
+                    using (var aes = Aes.Create())
                     {
                         aes.BlockSize = 128;              // BlockSize = 16bytes
                         aes.KeySize = 128;                // KeySize = 16bytes
@@ -901,17 +876,16 @@ namespace AliceScript.NameSpaces
                 return outfs.GetBuffer();
             }
 
-            return null;
         }
     }
 
-    internal class directory_createFunc : FunctionBase
+    internal sealed class directory_createFunc : FunctionBase
     {
         public directory_createFunc()
         {
-            this.Name = "directory_create";
-            this.MinimumArgCounts = 1;
-            this.Run += Directory_create_Run;
+            Name = "directory_create";
+            MinimumArgCounts = 1;
+            Run += Directory_create_Run;
         }
 
         private void Directory_create_Run(object sender, FunctionBaseEventArgs e)
@@ -920,13 +894,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_deleteFunc : FunctionBase
+    internal sealed class directory_deleteFunc : FunctionBase
     {
         public directory_deleteFunc()
         {
-            this.Name = "directory_delete";
-            this.MinimumArgCounts = 1;
-            this.Run += Directory_create_Run;
+            Name = "directory_delete";
+            MinimumArgCounts = 1;
+            Run += Directory_create_Run;
         }
 
         private void Directory_create_Run(object sender, FunctionBaseEventArgs e)
@@ -942,13 +916,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_moveFunc : FunctionBase
+    internal sealed class directory_moveFunc : FunctionBase
     {
         public directory_moveFunc()
         {
-            this.Name = "directory_move";
-            this.MinimumArgCounts = 2;
-            this.Run += File_copyFunc_Run;
+            Name = "directory_move";
+            MinimumArgCounts = 2;
+            Run += File_copyFunc_Run;
         }
 
         private void File_copyFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -959,13 +933,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_existsFunc : FunctionBase
+    internal sealed class directory_existsFunc : FunctionBase
     {
         public directory_existsFunc()
         {
-            this.Name = "directory_exists";
-            this.MinimumArgCounts = 1;
-            this.Run += File_exists_Run;
+            Name = "directory_exists";
+            MinimumArgCounts = 1;
+            Run += File_exists_Run;
         }
 
         private void File_exists_Run(object sender, FunctionBaseEventArgs e)
@@ -974,13 +948,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_currentdirectoryFunc : FunctionBase
+    internal sealed class directory_currentdirectoryFunc : FunctionBase
     {
         public directory_currentdirectoryFunc()
         {
-            this.Name = "directory_current";
-            this.MinimumArgCounts = 0;
-            this.Run += File_exists_Run;
+            Name = "directory_current";
+            MinimumArgCounts = 0;
+            Run += File_exists_Run;
         }
 
         private void File_exists_Run(object sender, FunctionBaseEventArgs e)
@@ -993,13 +967,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_getdirectoriesFunc : FunctionBase
+    internal sealed class directory_getdirectoriesFunc : FunctionBase
     {
         public directory_getdirectoriesFunc()
         {
-            this.Name = "directory_getdirectories";
-            this.MinimumArgCounts = 1;
-            this.Run += Directory_getdirectoriesFunc_Run;
+            Name = "directory_getdirectories";
+            MinimumArgCounts = 1;
+            Run += Directory_getdirectoriesFunc_Run;
         }
 
         private void Directory_getdirectoriesFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1039,13 +1013,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_getfilesFunc : FunctionBase
+    internal sealed class directory_getfilesFunc : FunctionBase
     {
         public directory_getfilesFunc()
         {
-            this.Name = "directory_getfiles";
-            this.MinimumArgCounts = 1;
-            this.Run += Directory_getdirectoriesFunc_Run;
+            Name = "directory_getfiles";
+            MinimumArgCounts = 1;
+            Run += Directory_getdirectoriesFunc_Run;
         }
 
         private void Directory_getdirectoriesFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1085,13 +1059,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_getdirectoryrootFunc : FunctionBase
+    internal sealed class directory_getdirectoryrootFunc : FunctionBase
     {
         public directory_getdirectoryrootFunc()
         {
-            this.Name = "directory_getdirectoryroot";
-            this.MinimumArgCounts = 1;
-            this.Run += File_exists_Run;
+            Name = "directory_getdirectoryroot";
+            MinimumArgCounts = 1;
+            Run += File_exists_Run;
         }
 
         private void File_exists_Run(object sender, FunctionBaseEventArgs e)
@@ -1101,18 +1075,18 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class directory_copyFunc : FunctionBase
+    internal sealed class directory_copyFunc : FunctionBase
     {
         public directory_copyFunc()
         {
-            this.Name = "directory_copy";
-            this.MinimumArgCounts = 2;
-            this.Run += Directory_copyFunc_Run;
+            Name = "directory_copy";
+            MinimumArgCounts = 2;
+            Run += Directory_copyFunc_Run;
         }
 
         private void Directory_copyFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            DirectoryCopy(e.Args[0].AsString(), e.Args[1].AsString(), (Utils.GetSafeInt(e.Args, 2, 1) == 1));
+            DirectoryCopy(e.Args[0].AsString(), e.Args[1].AsString(), Utils.GetSafeInt(e.Args, 2, 1) == 1);
         }
 
         private void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs = true)

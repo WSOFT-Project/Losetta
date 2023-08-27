@@ -43,17 +43,9 @@
         /// </summary>
         ITS_RESERVED_NAME = 0x005,
         /// <summary>
-        /// 先頭の文字に数字または'-'を使用することはできません
+        /// 不正な識別名です。
         /// </summary>
-        ITHAS_ILLEGAL_FIRST_CHARACTER = 0x006,
-        /// <summary>
-        /// 変数名に不正な文字が含まれています
-        /// </summary>
-        VARIABLE_NAME_CONTAINS_ILLEGAL_CHARACTER = 0x007,
-        /// <summary>
-        /// 指定された変数名は使用できません
-        /// </summary>
-        ILLEGAL_VARIABLE_NAME = 0x008,
+        ILLEGAL_IDENTIFIER = 0x006,
         /// <summary>
         /// 引数が不完全です
         /// </summary>
@@ -83,21 +75,13 @@
         /// </summary>
         EXPECTED_ARRRAY = 0x00f,
         /// <summary>
-        /// 数値型である必要があります
+        /// 数値は範囲外です
         /// </summary>
-        EXPECTED_NUMBER = 0x010,
+        NUMBER_OUT_OF_RANGE = 0x012,
         /// <summary>
-        /// 整数型である必要があります
+        /// 型が一致しません
         /// </summary>
-        EXPECTED_INTEGER = 0x011,
-        /// <summary>
-        /// 負でない整数である必要があります
-        /// </summary>
-        EXPECTED_NON_NEGATIVE_INTEGER = 0x012,
-        /// <summary>
-        /// 自然数である必要があります
-        /// </summary>
-        EXPECTED_NATURAL_NUMBER = 0x013,
+        TYPE_MISMATCH = 0x013,
         /// <summary>
         /// 引数が不足しています
         /// </summary>
@@ -143,9 +127,9 @@
         /// </summary>
         TOO_MANY_REPETITIONS = 0x01e,
         /// <summary>
-        /// Catchステートメントがありません
+        /// Tryブロックにハンドラーがありません
         /// </summary>
-        MISSING_CATCH_STATEMENT = 0x01f,
+        TRY_BLOCK_MISSING_HANDLERS = 0x01f,
         /// <summary>
         /// ブロックを実行できませんでした
         /// </summary>
@@ -186,10 +170,6 @@
         /// このプロパティに代入することはできません
         /// </summary>
         COULDNT_ASSIGN_THIS_PROPERTY = 0x02c,
-        /// <summary>
-        /// 変数名に使用できない文字が含まれています
-        /// </summary>
-        CONTAINS_ILLEGAL_CHARACTER = 0x02d,
         /// <summary>
         /// プロパティは読み取り専用です
         /// </summary>
@@ -269,30 +249,34 @@
         /// <summary>
         /// この引数は特定のキーワードとともに渡す必要があります。
         /// </summary>
-        ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD=0x043,
+        ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD = 0x043,
         /// <summary>
         /// この引数に特定のキーワードを使用することはできません。
         /// </summary>
-        ARGUMENT_CANT_USE_WITH_KEYWORD=0x044,
+        ARGUMENT_CANT_USE_WITH_KEYWORD = 0x044,
         /// <summary>
         /// この変数で配列添え字演算子を使用することはできません。
         /// </summary>
-        VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT=0x045,
+        VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT = 0x045,
         /// <summary>
         /// 関数のシグネチャが不正か、処理できませんでした。
         /// </summary>
-        INVALID_FUNCTION_SIGNATURE=0x046,
+        INVALID_FUNCTION_SIGNATURE = 0x046,
         /// <summary>
         /// 基底クラスを取得できませんでした。
         /// </summary>
-        COULDNT_EXTRACT_BASE_CLASSES=0x047,
+        COULDNT_EXTRACT_BASE_CLASSES = 0x047,
         /// <summary>
         /// 名前空間はネストできません。
         /// </summary>
-        NAMESPACE_CANT_BE_NESTED=0x048,
+        NAMESPACE_CANT_BE_NESTED = 0x048,
         /// <summary>
         /// クラスが見つかりません。
         /// </summary>
-        COULDNT_FIND_CLASS=0x049
+        COULDNT_FIND_CLASS = 0x049,
+        /// <summary>
+        /// caseまたはdefaultブロックにbreakがありません。
+        /// </summary>
+        CASE_BLOCK_MISSING_BREAK = 0x04a
     }
 }

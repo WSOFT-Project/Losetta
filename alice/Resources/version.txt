@@ -1,3 +1,3 @@
 using Alice.Environment;
 
-print($"{env_lang_name()} Version {env_lang_version()} ({env_impl_name()} v{env_impl_version()} on {env_impl_target()}-{env_impl_architecture()}");
+print($"{env_lang_name()} Version {env_lang_version()} ({env_impl_name()} v{env_impl_version()} on {env_impl_target()}-{env_impl_architecture()})");

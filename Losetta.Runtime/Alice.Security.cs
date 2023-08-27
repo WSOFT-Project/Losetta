@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Security_Initer
+    public sealed class Alice_Security
     {
         public static void Init()
         {
@@ -30,13 +30,13 @@ namespace AliceScript.NameSpaces
             catch { }
         }
     }
-    internal class file_encrypt_dataFunc : FunctionBase
+    internal sealed class file_encrypt_dataFunc : FunctionBase
     {
         public file_encrypt_dataFunc()
         {
-            this.Name = "encrypt_data";
-            this.MinimumArgCounts = 2;
-            this.Run += File_encrypt_dataFunc_Run;
+            Name = "encrypt_data";
+            MinimumArgCounts = 2;
+            Run += File_encrypt_dataFunc_Run;
         }
 
         private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -45,13 +45,13 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal class file_decrypt_dataFunc : FunctionBase
+    internal sealed class file_decrypt_dataFunc : FunctionBase
     {
         public file_decrypt_dataFunc()
         {
-            this.Name = "decrypt_data";
-            this.MinimumArgCounts = 2;
-            this.Run += File_encrypt_dataFunc_Run;
+            Name = "decrypt_data";
+            MinimumArgCounts = 2;
+            Run += File_encrypt_dataFunc_Run;
         }
 
         private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -59,93 +59,88 @@ namespace AliceScript.NameSpaces
             e.Return = new Variable(FileEncrypter.Decrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
         }
     }
-    internal class PSS
+    internal sealed class PSS
     {
         public static int HASH_SIZE = 32;
 
         public static int STRETCH_COUNT = 1000;
     }
-    internal class sha256_gethash : FunctionBase
+    internal sealed class sha256_gethash : FunctionBase
     {
         public sha256_gethash()
         {
-            this.Name = "sha256_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha256_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA256CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA256.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
-    internal class sha384_gethash : FunctionBase
+    internal sealed class sha384_gethash : FunctionBase
     {
         public sha384_gethash()
         {
-            this.Name = "sha384_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha384_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA384CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA384.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
-    internal class sha512_gethash : FunctionBase
+    internal sealed class sha512_gethash : FunctionBase
     {
         public sha512_gethash()
         {
-            this.Name = "sha512_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha512_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA512CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA512.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
-    internal class sha1_gethash : FunctionBase
+    internal sealed class sha1_gethash : FunctionBase
     {
         public sha1_gethash()
         {
-            this.Name = "sha1_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha1_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA1CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA1.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
-    internal class md5_gethash : FunctionBase
+    internal sealed class md5_gethash : FunctionBase
     {
         public md5_gethash()
         {
-            this.Name = "md5_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Md5_gethash_Run;
+            Name = "md5_gethash";
+            MinimumArgCounts = 1;
+            Run += Md5_gethash_Run;
         }
 
         private void Md5_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new MD5CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = MD5.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
-    internal class Password_Hash : FunctionBase
+    internal sealed class Password_Hash : FunctionBase
     {
 
         public Password_Hash()
@@ -175,7 +170,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class Password_HashData : FunctionBase
+    internal sealed class Password_HashData : FunctionBase
     {
 
         public Password_HashData()
@@ -205,7 +200,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class Password_Salt : FunctionBase
+    internal sealed class Password_Salt : FunctionBase
     {
         public Password_Salt()
         {
@@ -221,7 +216,7 @@ namespace AliceScript.NameSpaces
 
     }
 
-    internal class Password_Verify : FunctionBase
+    internal sealed class Password_Verify : FunctionBase
     {
 
         public Password_Verify()
@@ -246,14 +241,14 @@ namespace AliceScript.NameSpaces
             // ハッシュ値を取得
             byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
-            bool i = (e.Args[1].AsByteArray() == hash);
+            bool i = e.Args[1].AsByteArray() == hash;
             e.Return = new Variable(i);
         }
 
 
     }
 
-    internal class Password_VerifyData : FunctionBase
+    internal sealed class Password_VerifyData : FunctionBase
     {
 
         public Password_VerifyData()
@@ -278,13 +273,13 @@ namespace AliceScript.NameSpaces
             // ハッシュ値を取得
             byte[] hash = PasswordSaltHashManerger.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
-            bool i = (e.Args[1].AsByteArray() == hash);
+            bool i = e.Args[1].AsByteArray() == hash;
             e.Return = new Variable(i);
         }
 
 
     }
-    internal static class PasswordSaltHashManerger
+    internal sealed class PasswordSaltHashManerger
     {
         internal static byte[] GetHash(string password, byte[] salt, int size, int cnt)
         {
@@ -309,10 +304,7 @@ namespace AliceScript.NameSpaces
         internal static byte[] GetSalt(int size)
         {
             var bytes = new byte[size];
-            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
-            {
-                rngCryptoServiceProvider.GetBytes(bytes);
-            }
+            RandomNumberGenerator.Fill(bytes);
             return bytes;
         }
     }

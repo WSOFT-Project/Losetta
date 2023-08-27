@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal static class Alice_Threading_Initer
+    public sealed class Alice_Threading
     {
         public static void Init()
         {
@@ -20,13 +20,13 @@
         }
     }
 
-    internal class thread_idFunc : FunctionBase
+    internal sealed class thread_idFunc : FunctionBase
     {
         public thread_idFunc()
         {
-            this.Name = "thread_id";
-            this.MinimumArgCounts = 0;
-            this.Run += Thread_idFunc_Run;
+            Name = "thread_id";
+            MinimumArgCounts = 0;
+            Run += Thread_idFunc_Run;
         }
 
         private void Thread_idFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -35,14 +35,14 @@
         }
     }
 
-    internal class thread_queueFunc : FunctionBase
+    internal sealed class thread_queueFunc : FunctionBase
     {
         public thread_queueFunc()
         {
-            this.Name = "thread_queue";
-            this.MinimumArgCounts = 1;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW;
-            this.Run += Thread_queueFunc_Run;
+            Name = "thread_queue";
+            MinimumArgCounts = 1;
+            Attribute = FunctionAttribute.CONTROL_FLOW;
+            Run += Thread_queueFunc_Run;
         }
 
         private void Thread_queueFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -59,27 +59,27 @@
             e.Return = Variable.EmptyInstance;
         }
 
-        private static void ThreadProc(Object stateInfo)
+        private static void ThreadProc(object stateInfo)
         {
             ThreadQueueStateInfo tqsi = (ThreadQueueStateInfo)stateInfo;
             tqsi.Delegate.Invoke(tqsi.Args, tqsi.Script);
         }
     }
 
-    internal class ThreadQueueStateInfo
+    internal sealed class ThreadQueueStateInfo
     {
         public List<Variable> Args { get; set; }
         public ParsingScript Script { get; set; }
         public DelegateObject Delegate { get; set; }
     }
 
-    internal class task_runFunc : FunctionBase
+    internal sealed class task_runFunc : FunctionBase
     {
         public task_runFunc()
         {
-            this.Name = "task_run";
-            this.MinimumArgCounts = 0;
-            this.Run += Task_runFunc_Run;
+            Name = "task_run";
+            MinimumArgCounts = 0;
+            Run += Task_runFunc_Run;
         }
 
         private void Task_runFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -97,7 +97,7 @@
         }
     }
 
-    internal class SignalWaitFunction : FunctionBase
+    internal sealed class SignalWaitFunction : FunctionBase
     {
         private static AutoResetEvent waitEvent = new AutoResetEvent(false);
         private bool m_isSignal;
@@ -105,16 +105,9 @@
         public SignalWaitFunction(bool isSignal)
         {
             m_isSignal = isSignal;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.FUNCT_WITH_SPACE | FunctionAttribute.LANGUAGE_STRUCTURE;
-            if (isSignal)
-            {
-                this.Name = "signal";
-            }
-            else
-            {
-                this.Name = "signal_wait";
-            }
-            this.Run += SignalWaitFunction_Run;
+            Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.FUNCT_WITH_SPACE | FunctionAttribute.LANGUAGE_STRUCTURE;
+            Name = isSignal ? "signal" : "signal_wait";
+            Run += SignalWaitFunction_Run;
         }
 
         private void SignalWaitFunction_Run(object sender, FunctionBaseEventArgs e)

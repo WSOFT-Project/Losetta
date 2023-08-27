@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -23,9 +22,9 @@ namespace AliceScript
             // A variable, a function, or a number.
             Variable var = script.Execute(sep);
             //value = var.Clone();
-            if(script.ProcessingFunction!=null && script.ProcessingFunction.Keywords != null && var!=null)
+            if (script.ProcessingFunction != null && script.ProcessingFunction.Keywords != null && var != null)
             {
-                var.Keywords=script.ProcessingFunction.Keywords;
+                var.Keywords = script.ProcessingFunction.Keywords;
             }
             if (inQuotes)
             {
@@ -55,7 +54,7 @@ namespace AliceScript
             try
             {
                 value.Tuple = new VariableCollection();
-                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; },null));
+                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }, null));
             }
             finally
             {
@@ -118,7 +117,7 @@ namespace AliceScript
                 int qend = script.Find(curr, script.Pointer + 1);
                 if (qend == -1)
                 {
-                    throw new ScriptException("`"+script.FromPrev()+"` で、クオーテーションが不均等です。",Exceptions.UNBALANCED_QUOTES,script);
+                    throw new ScriptException("`" + script.FromPrev() + "` で、クオーテーションが不均等です。", Exceptions.UNBALANCED_QUOTES, script);
                 }
                 string result = script.Substr(script.Pointer + 1, qend - script.Pointer - 1);
                 script.Pointer = qend + 1;
@@ -182,6 +181,7 @@ namespace AliceScript
             return var;
         }
 
+
         public static CustomFunction GetFunction(ParsingScript script, string funcName, string token)
         {
             CustomFunction customFunc = null;
@@ -189,7 +189,7 @@ namespace AliceScript
             {
                 string[] args = Utils.GetFunctionSignature(script);
                 script.MoveForwardIf('{');
-                string body = Utils.GetBodyBetween(script, '{', '}');
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 script.MoveForwardIf('}');
 
                 int parentOffset = script.Pointer +
@@ -379,7 +379,7 @@ namespace AliceScript
 
 
         public static List<Variable> GetArgs(ParsingScript script,
-            char start, char end, Action<bool> outList,FunctionBase callFrom)
+            char start, char end, Action<bool> outList, FunctionBase callFrom)
         {
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
@@ -389,7 +389,7 @@ namespace AliceScript
                 return args;
             }
 
-            ParsingScript tempScript = script.GetTempScript(script.String, callFrom,script.Pointer);
+            ParsingScript tempScript = script.GetTempScript(script.String, callFrom, script.Pointer);
 
             if (script.Current != start && script.TryPrev() != start &&
                (script.Current == ' ' || script.TryPrev() == ' '))
@@ -456,7 +456,7 @@ namespace AliceScript
 
             if (endArgs < 0 && !isLambda)
             {
-                throw new ScriptException("関数のシグネチャを解析できませんでした。",Exceptions.INVALID_FUNCTION_SIGNATURE);
+                throw new ScriptException("関数のシグネチャを解析できませんでした。", Exceptions.INVALID_FUNCTION_SIGNATURE);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -482,7 +482,7 @@ namespace AliceScript
                     string item = collect.ToString().Trim();
                     if (item.Length == 0)
                     {
-                        throw new ScriptException("関数のシグネチャが空でした。",Exceptions.INVALID_FUNCTION_SIGNATURE,script);
+                        throw new ScriptException("関数のシグネチャが空でした。", Exceptions.INVALID_FUNCTION_SIGNATURE, script);
                     }
                     args.Add(item);
                     collect.Clear();
@@ -493,7 +493,7 @@ namespace AliceScript
 
             if (curlyLevel != 0)
             {
-                throw new ScriptException("関数のシグネチャ `"+argStr+"` 内の中括弧が不均等です。",Exceptions.UNBALANCED_CURLY_BRACES);
+                throw new ScriptException("関数のシグネチャ `" + argStr + "` 内の中括弧が不均等です。", Exceptions.UNBALANCED_CURLY_BRACES);
             }
             if (collect.Length > 0)
             {
@@ -505,9 +505,9 @@ namespace AliceScript
             return args.ToArray();
         }
 
-        public static Variable GetVariableFromString(string str, ParsingScript script,FunctionBase callFrom, int startIndex = 0)
+        public static Variable GetVariableFromString(string str, ParsingScript script, FunctionBase callFrom, int startIndex = 0)
         {
-            ParsingScript tempScript = script.GetTempScript(str, callFrom,startIndex);
+            ParsingScript tempScript = script.GetTempScript(str, callFrom, startIndex);
             Variable result = Utils.GetItem(tempScript);
             return result;
         }
@@ -523,7 +523,7 @@ namespace AliceScript
             int endArgs = script.FindFirstOf(Constants.START_GROUP.ToString());
             if (endArgs < 0)
             {
-                throw new ScriptException("基底クラスを取得できませんでした。",Exceptions.COULDNT_EXTRACT_BASE_CLASSES,script);
+                throw new ScriptException("基底クラスを取得できませんでした。", Exceptions.COULDNT_EXTRACT_BASE_CLASSES, script);
             }
 
             string argStr = script.Substr(script.Pointer, endArgs - script.Pointer);
@@ -537,7 +537,7 @@ namespace AliceScript
 
 
 
-        public static bool EndsWithFunction(string buffer, List<string> functions)
+        public static bool EndsWithFunction(string buffer, HashSet<string> functions)
         {
             foreach (string key in functions)
             {
@@ -558,19 +558,14 @@ namespace AliceScript
 
         public static bool SpaceNotNeeded(char next)
         {
-            return (next == Constants.SPACE || next == Constants.START_ARG ||
+            return next == Constants.SPACE || next == Constants.START_ARG ||
                     next == Constants.START_GROUP || next == Constants.START_ARRAY ||
-                    next == Constants.EMPTY);
+                    next == Constants.EMPTY;
         }
 
         public static bool KeepSpace(StringBuilder sb, char next)
         {
-            if (SpaceNotNeeded(next))
-            {
-                return false;
-            }
-
-            return EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
+            return SpaceNotNeeded(next) ? false : EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
         }
         public static bool KeepSpaceOnce(StringBuilder sb, char next)
         {
@@ -581,11 +576,7 @@ namespace AliceScript
 
             string str = sb.ToString();
             char last = str.Length < 1 ? Constants.EMPTY : str.Last();
-            if (char.IsLetterOrDigit(last) && char.IsLetterOrDigit(next))
-            {
-                return true;
-            }
-            return EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
+            return char.IsLetterOrDigit(last) && char.IsLetterOrDigit(next) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
         public static List<string> GetCompiledArgs(string source)
@@ -678,19 +669,21 @@ namespace AliceScript
             }
             return args;
         }
-        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out List<string> defines, string filename = "")
+        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, out ParsingScript.ScriptSettings settings, string filename = "")
         {
-            string curlyErrorMsg = "波括弧が不均等です";
-            string bracketErrorMsg = "角括弧が不均等です";
-            string parenthErrorMsg = "括弧が不均等です";
-            string quoteErrorMsg = "クオーテーションが不均等です";
+            const string curlyErrorMsg = "波括弧が不均等です";
+            const string bracketErrorMsg = "角括弧が不均等です";
+            const string parenthErrorMsg = "括弧が不均等です";
+            const string quoteErrorMsg = "クオーテーションが不均等です";
+
+            settings = new ParsingScript.ScriptSettings();
 
             StringBuilder sb = new StringBuilder(source.Length);
 
             var pragmaCommand = new StringBuilder();
             var pragmaArgs = new StringBuilder();
 
-            defines = new List<string>();
+            defines = new HashSet<string>();
 
             char2Line = new Dictionary<int, int>();
 
@@ -734,7 +727,7 @@ namespace AliceScript
                 char next = i + 1 < source.Length ? source[i + 1] : Constants.EMPTY;
                 char last = sb.Length > 0 ? sb[sb.Length - 1] : Constants.EMPTY;
 
-                if (string.IsNullOrWhiteSpace(ch.ToString()))
+                if (ch == Constants.EMPTY)
                 {
                     lastToken.Clear();
                 }
@@ -791,7 +784,7 @@ namespace AliceScript
                         }
                         break;
                     case '*':
-                        if (!inQuotes && (inComments && next == '/'))
+                        if (!inQuotes && inComments && next == '/')
                         {
                             i++; // skip next character
                             inComments = false;
@@ -803,7 +796,7 @@ namespace AliceScript
                         {
                             ch = '"';
                             inQuotes = inQuotes1 = !inQuotes1;
-                            if (inQuotes && (prev == '"' && lineNumberQuote == 0))
+                            if (inQuotes && prev == '"' && lineNumberQuote == 0)
                             {
                                 lineNumberQuote = lineNumber;
                             }
@@ -817,14 +810,14 @@ namespace AliceScript
                         if (!inComments && (!inIf || If) && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
                         {
                             inQuotes = inQuotes2 = !inQuotes2;
-                            if (inQuotes && (prev == '"' && lineNumberQuote == 0))
+                            if (inQuotes && prev == '"' && lineNumberQuote == 0)
                             {
                                 lineNumberQuote = lineNumber;
                             }
                         }
                         else if (inQuotes1)
                         {
-                            sb.Append("\\");
+                            sb.Append('\\');
                         }
                         break;
                     case ' ':
@@ -964,11 +957,55 @@ namespace AliceScript
 
                     switch (command)
                     {
-                        case "include":
+                        case Constants.UNNEED_VAR:
+                            {
+                                settings.UnneedVarKeyword = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.TYPE_INFERENCE:
+                            {
+                                settings.TypeInference = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.FALL_THROUGH:
+                            {
+                                settings.FallThrough = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.CHECK_BREAK_WHEN_CASE:
+                            {
+                                settings.CheckBreakWhenEndCaseBlock = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.ENABLE_USING:
+                            {
+                                settings.EnableUsing = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.ENABLE_IMPORT:
+                            {
+                                settings.EnableImport = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.ENABLE_INCLUDE:
+                            {
+                                settings.EnableInclude = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.DENY_TO_TOPLEVEL_SCRIPT:
+                            {
+                                settings.DenyAccessToTopLevelScript = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.INCLUDE:
                             {
                                 string str = SafeReader.ReadAllText(arg, out _);
-                                str = ConvertToScript(str, out _, out var def, Path.GetFileName(arg));
-                                defines.AddRange(def);
+                                str = ConvertToScript(str, out _, out var def, out var setting, Path.GetFileName(arg));
+                                foreach (var d in def)
+                                {
+                                    defines.Add(d);
+                                }
+                                settings.Union(setting);
                                 sb.Append(str);
                                 break;
                             }
@@ -985,7 +1022,7 @@ namespace AliceScript
                         case "if":
                             {
                                 inIf = true;
-                                if (arg.StartsWith("!"))
+                                if (arg.StartsWith("!", StringComparison.Ordinal))
                                 {
                                     If = !defines.Contains(arg.TrimStart('!'));
                                 }
@@ -1027,8 +1064,6 @@ namespace AliceScript
             {
                 char2Line[sb.Length - 1] = lineNumber;
                 lastScriptLength = sb.Length;
-                //result += lineNumber + ": " + (sb.Length - 1) + " " +
-                //  source.Substring(source.Length - Math.Min(source.Length, 40), Math.Min(source.Length, 40)) + "\n";
             }
 
             bool error = levelCurly != 0 || levelBrackets != 0 || levelParentheses != 0 || inQuotes;
@@ -1051,11 +1086,25 @@ namespace AliceScript
                     ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
                 }
             }
-
-
             return sb.ToString().Trim();
         }
-
+        private static bool? ConvertBool(string str)
+        {
+            str = str.ToLower().Trim();
+            switch (str)
+            {
+                case Constants.TRUE:
+                    return true;
+                case Constants.FALSE:
+                    return false;
+                case "enable":
+                    return true;
+                case "disable":
+                    return false;
+                default:
+                    return null;
+            }
+        }
 
         public static string GetBodySize(ParsingScript script, string endToken1, string endToken2 = null)
         {
@@ -1122,7 +1171,7 @@ namespace AliceScript
         }
 
         public static string GetBodyBetween(ParsingScript script, char open = Constants.START_ARG,
-                                            char close = Constants.END_ARG, string end = "\0")
+                                            char close = Constants.END_ARG, string end = "\0", bool stepIn = true)
         {
             // We are supposed to be one char after the beginning of the string, i.e.
             // we must not have the opening char as the first one.
@@ -1134,6 +1183,11 @@ namespace AliceScript
             bool checkBraces = true;
             char prev = Constants.EMPTY;
             char prevprev = Constants.EMPTY;
+
+            if (stepIn)
+            {
+                script.MoveForwardIf(open);
+            }
 
             for (; script.StillValid(); script.Forward())
             {
@@ -1188,7 +1242,7 @@ namespace AliceScript
         public static string IsNotSign(string data)
         {
             //return data.StartsWith(Constants.NOT) ? Constants.NOT : null;
-            return data.StartsWith(Constants.NOT) && !data.StartsWith(Constants.NOT_EQUAL) ? Constants.NOT : null;
+            return data.StartsWith(Constants.NOT, StringComparison.Ordinal) && !data.StartsWith(Constants.NOT_EQUAL, StringComparison.Ordinal) ? Constants.NOT : null;
         }
 
         public static string ValidAction(string rest)
@@ -1206,7 +1260,7 @@ namespace AliceScript
         {
             foreach (string item in items)
             {
-                if (data.StartsWith(item))
+                if (data.StartsWith(item, StringComparison.Ordinal))
                 {
                     return item;
                 }
@@ -1214,22 +1268,22 @@ namespace AliceScript
             return null;
         }
 
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom,int max=0)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, Action<string> updateVarName, FunctionBase callFrom, int max = 0)
         {
             int end = 0;
-            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; },callFrom,max);
+            return GetArrayIndices(script, varName, end, (string str, int i) => { updateVarName(str); end = i; }, callFrom, max);
         }
-        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals,FunctionBase callFrom,int max=0)
+        public static List<Variable> GetArrayIndices(ParsingScript script, string varName, int end, Action<string, int> updateVals, FunctionBase callFrom, int max = 0)
         {
             List<Variable> indices = new List<Variable>();
 
             if (max != 0)
             {
                 //逆からインデックス
-                varName = Regex.Replace(varName, "(.*)\\[\\^([0-9]*)\\]", "$1["+max+"-$2]");
+                varName = Constants.REVERSE_INDEXER.Replace(varName, "$1[" + max + "-$2]");
             }
 
-            int argStart = varName.IndexOf(Constants.START_ARRAY);
+            int argStart = varName.IndexOf(Constants.START_ARRAY, StringComparison.Ordinal);
             if (argStart < 0)
             {
                 return indices;
@@ -1245,7 +1299,7 @@ namespace AliceScript
                     break;
                 }
 
-                ParsingScript tempScript = script.GetTempScript(varName, callFrom,argStart);
+                ParsingScript tempScript = script.GetTempScript(varName, callFrom, argStart);
                 tempScript.MoveForwardIf(Constants.START_ARG, Constants.START_ARRAY);
 
                 Variable index = tempScript.Execute(Constants.END_ARRAY_ARRAY);
@@ -1291,7 +1345,7 @@ namespace AliceScript
 
                 if (arrayIndex < 0 || arrayIndex >= tupleSize)
                 {
-                    throw new IndexOutOfRangeException("インデックス `"+index.AsString()+"`は配列の境界 `"+tupleSize+"` 外です。");
+                    throw new IndexOutOfRangeException("インデックス `" + index.AsString() + "`は配列の境界 `" + tupleSize + "` 外です。");
                 }
                 switch (currLevel.Type)
                 {

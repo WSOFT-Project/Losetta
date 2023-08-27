@@ -1,6 +1,9 @@
 MIT License
 
+Copyright (c) 2021 Taisei Uemura, taisei@wsoft.ws
+Copyright (C) 2014-2018 hnx8(H.Takahashi)
 Copyright (c) 2017 Vassili Kaplan, vassilik@gmail.com
+Copyright (c) 2013 Hibara, Mitsuhiro
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
