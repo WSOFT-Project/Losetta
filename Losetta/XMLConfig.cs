@@ -47,7 +47,7 @@ namespace AliceScript
 
             if (filepath == "") { filepath = FilePath; }
 
-            try { File.WriteAllText(filepath, xmlText); return (true); } catch { return (false); }
+            try { File.WriteAllText(filepath, xmlText); return true; } catch { return false; }
 
         }
 
@@ -139,14 +139,7 @@ namespace AliceScript
                 if (xml.SelectSingleNode("package/" + path) != null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
-                    if (ContainsAttribute(node, name))
-                    {
-                        return ((XmlElement)node).GetAttribute(name);
-                    }
-                    else
-                    {
-                        return defaultText;
-                    }
+                    return ContainsAttribute(node, name) ? ((XmlElement)node).GetAttribute(name) : defaultText;
                 }
                 else
                 {
@@ -176,7 +169,7 @@ namespace AliceScript
                 if (xml.SelectSingleNode("package/" + path) != null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
-                    return (ContainsAttribute(node, name));
+                    return ContainsAttribute(node, name);
                 }
                 else
                 {
@@ -203,16 +196,7 @@ namespace AliceScript
 
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
-                if (xml.SelectSingleNode("package/" + path) != null)
-                {
-
-                    return true;
-
-                }
-                else
-                {
-                    return false;
-                }
+                return xml.SelectSingleNode("package/" + path) != null;
             }
             catch { return false; }
         }
@@ -295,9 +279,9 @@ namespace AliceScript
                 xml.LoadXml(xmlText);
                 xml.SelectSingleNode("package/" + path).ParentNode.RemoveChild(xml.SelectSingleNode("package/" + path));
                 xmlText = xml.OuterXml;
-                return (true);
+                return true;
             }
-            catch { return (false); }
+            catch { return false; }
         }
 
     }

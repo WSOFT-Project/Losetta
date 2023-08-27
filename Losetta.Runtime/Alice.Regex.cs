@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class  Alice_Regex_Initer
+    public sealed class Alice_Regex
     {
         public static void Init()
         {
@@ -31,15 +31,15 @@ namespace AliceScript.NameSpaces
     {
         public str_IsMatchFunc()
         {
-            this.Name = "IsMatch";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IsMatchFunc_Run;
+            Name = "IsMatch";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IsMatchFunc_Run;
         }
 
         private void Str_IsMatchFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable((System.Text.RegularExpressions.Regex.IsMatch(e.CurentVariable.AsString(), e.Args[0].AsString())));
+            e.Return = new Variable(Regex.IsMatch(e.CurentVariable.AsString(), e.Args[0].AsString()));
         }
     }
 
@@ -47,17 +47,17 @@ namespace AliceScript.NameSpaces
     {
         public str_MatchesFunc()
         {
-            this.Name = "Matches";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.STRING);
-            this.Run += Str_IsMatchFunc_Run;
+            Name = "Matches";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.STRING);
+            Run += Str_IsMatchFunc_Run;
         }
 
         private void Str_IsMatchFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            System.Text.RegularExpressions.MatchCollection mc = System.Text.RegularExpressions.Regex.Matches(e.CurentVariable.AsString(), e.Args[0].AsString());
+            var mc = Regex.Matches(e.CurentVariable.AsString(), e.Args[0].AsString());
             Variable r = new Variable(Variable.VarType.ARRAY);
-            foreach (System.Text.RegularExpressions.Match m in mc)
+            foreach (Match m in mc)
             {
                 r.Tuple.Add(new Variable(m.Value));
             }
@@ -76,43 +76,43 @@ namespace AliceScript.NameSpaces
         {
             Mode = mode;
 
-            this.Run += RegexSingleArgFunc_Run;
+            Run += RegexSingleArgFunc_Run;
             switch (Mode)
             {
                 case FuncMode.Escape:
                     {
-                        this.Name = "Regex_Escape";
-                        this.MinimumArgCounts = 1;
+                        Name = "Regex_Escape";
+                        MinimumArgCounts = 1;
                         break;
                     }
                 case FuncMode.IsMatch:
                     {
-                        this.Name = "Regex_IsMatch";
-                        this.MinimumArgCounts = 2;
+                        Name = "Regex_IsMatch";
+                        MinimumArgCounts = 2;
                         break;
                     }
                 case FuncMode.Match:
                     {
-                        this.Name = "Regex_Match";
-                        this.MinimumArgCounts = 2;
+                        Name = "Regex_Match";
+                        MinimumArgCounts = 2;
                         break;
                     }
                 case FuncMode.Matches:
                     {
-                        this.Name = "Regex_Matches";
-                        this.MinimumArgCounts = 2;
+                        Name = "Regex_Matches";
+                        MinimumArgCounts = 2;
                         break;
                     }
                 case FuncMode.Replace:
                     {
-                        this.Name = "Regex_Replace";
-                        this.MinimumArgCounts = 3;
+                        Name = "Regex_Replace";
+                        MinimumArgCounts = 3;
                         break;
                     }
                 case FuncMode.Split:
                     {
-                        this.Name = "Regex_Split";
-                        this.MinimumArgCounts = 2;
+                        Name = "Regex_Split";
+                        MinimumArgCounts = 2;
                         break;
                     }
             }

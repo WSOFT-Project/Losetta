@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class  Alice_Random_Initer
+    public sealed class Alice_Random
     {
         internal static Random random;
         public static void Init()
@@ -32,24 +32,24 @@ namespace AliceScript.NameSpaces
     {
         public randFunc()
         {
-            this.Name = "rand";
-            this.MinimumArgCounts = 0;
-            this.Run += RandFunc_Run;
+            Name = "rand";
+            MinimumArgCounts = 0;
+            Run += RandFunc_Run;
         }
 
         private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             if (e.Args.Count == 0)
             {
-                e.Return = new Variable(Alice_Random_Initer.random.Next());
+                e.Return = new Variable(Alice_Random.random.Next());
             }
             else if (e.Args.Count == 1)
             {
-                e.Return = new Variable(Alice_Random_Initer.random.Next(e.Args[0].AsInt()));
+                e.Return = new Variable(Alice_Random.random.Next(e.Args[0].AsInt()));
             }
             else if (e.Args.Count == 2)
             {
-                e.Return = new Variable(Alice_Random_Initer.random.Next(e.Args[0].AsInt(), e.Args[1].AsInt()));
+                e.Return = new Variable(Alice_Random.random.Next(e.Args[0].AsInt(), e.Args[1].AsInt()));
             }
         }
     }
@@ -58,15 +58,15 @@ namespace AliceScript.NameSpaces
     {
         public rand_bytesFunc()
         {
-            this.Name = "rand_bytes";
-            this.MinimumArgCounts = 1;
-            this.Run += RandFunc_Run;
+            Name = "rand_bytes";
+            MinimumArgCounts = 1;
+            Run += RandFunc_Run;
         }
 
         private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             byte[] bs = new byte[e.Args[0].AsInt()];
-            Alice_Random_Initer.random.NextBytes(bs);
+            Alice_Random.random.NextBytes(bs);
             e.Return = new Variable(bs);
         }
     }
@@ -75,14 +75,14 @@ namespace AliceScript.NameSpaces
     {
         public rand_doubleFunc()
         {
-            this.Name = "rand_double";
-            this.MinimumArgCounts = 0;
-            this.Run += RandFunc_Run;
+            Name = "rand_double";
+            MinimumArgCounts = 0;
+            Run += RandFunc_Run;
         }
 
         private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Alice_Random_Initer.random.NextDouble());
+            e.Return = new Variable(Alice_Random.random.NextDouble());
         }
     }
 
@@ -90,9 +90,9 @@ namespace AliceScript.NameSpaces
     {
         public random_intFunc()
         {
-            this.Name = "random_int";
-            this.MinimumArgCounts = 0;
-            this.Run += Random_intFunc_Run;
+            Name = "random_int";
+            MinimumArgCounts = 0;
+            Run += Random_intFunc_Run;
         }
         private void Random_intFunc_Run(object sender, FunctionBaseEventArgs e)
         {
@@ -115,9 +115,9 @@ namespace AliceScript.NameSpaces
     {
         public random_bytesFunc()
         {
-            this.Name = "random_bytes";
-            this.MinimumArgCounts = 1;
-            this.Run += Random_bytesFunc_Run;
+            Name = "random_bytes";
+            MinimumArgCounts = 1;
+            Run += Random_bytesFunc_Run;
         }
 
         private void Random_bytesFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -130,8 +130,8 @@ namespace AliceScript.NameSpaces
     {
         public guid_new_textFunc()
         {
-            this.Name = "guid_new_text";
-            this.Run += GuidFunc_Run;
+            Name = "guid_new_text";
+            Run += GuidFunc_Run;
         }
 
         private void GuidFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -144,8 +144,8 @@ namespace AliceScript.NameSpaces
     {
         public guid_new_bytesFunc()
         {
-            this.Name = "guid_new_bytes";
-            this.Run += GuidFunc_Run;
+            Name = "guid_new_bytes";
+            Run += GuidFunc_Run;
         }
 
         private void GuidFunc_Run(object sender, FunctionBaseEventArgs e)

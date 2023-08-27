@@ -84,39 +84,49 @@
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
             StringOrNumberFunction stringOrNumberFunction = new StringOrNumberFunction();
+
             if (item.Length > 0 && char.IsDigit(item[0]))
             {
                 stringOrNumberFunction.Item = item;
                 stringOrNumberFunction.StringMode = false;
                 return stringOrNumberFunction;
             }
+
             if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL, StringComparison.Ordinal))
             {
                 item = item.Substring(Constants.UTF8_LITERAL.Length);
                 stringOrNumberFunction.DetectionUTF8_Literal = true;
             }
+
             if (item.Length > 2 && item.StartsWith(Constants.DOLLER))
             {
                 item = item.Substring(1);
                 stringOrNumberFunction.DetectionStringFormat = true;
             }
-            if (item.Length > 1 &&
-              (((item[0] == Constants.QUOTE) && item[item.Length - 1] == Constants.QUOTE) ||
-               (item[0] == Constants.QUOTE1 && item[item.Length - 1] == Constants.QUOTE1)))
+
+            if (IsQuotedString(item))
             {
-                // We are dealing with a string.
                 stringOrNumberFunction.Item = item;
                 stringOrNumberFunction.StringMode = true;
                 return stringOrNumberFunction;
             }
+
             if (script.ProcessingList && ch == ':')
             {
                 stringOrNumberFunction.Item = '"' + item + '"';
                 stringOrNumberFunction.StringMode = true;
                 return stringOrNumberFunction;
             }
+
             return null;
         }
+
+        private static bool IsQuotedString(string item)
+        {
+            return item.Length > 1 && ((item[0] == Constants.QUOTE && item[item.Length - 1] == Constants.QUOTE) ||
+                    (item[0] == Constants.QUOTE1 && item[item.Length - 1] == Constants.QUOTE1));
+        }
+
 
         public static ParserFunction GetArrayFunction(string name, ParsingScript script, string action)
         {
@@ -237,22 +247,31 @@
                 {
                     args = new string[] { };
                 }
+
                 string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
 
                 int parentOffset = script.Pointer;
-
                 if (script.CurrentClass != null)
                 {
                     parentOffset += script.CurrentClass.ParentOffset;
                 }
-                CustomFunction customFunc = new CustomFunction("", body, args, script, true);
-                customFunc.ParentScript = script;
-                customFunc.ParentOffset = parentOffset;
+
+                CustomFunction customFunc = CreateCustomFunction(body, args, script, parentOffset);
+
                 action = null;
                 return new GetVarFunction(new Variable(customFunc));
             }
             return null;
         }
+
+        private static CustomFunction CreateCustomFunction(string body, string[] args, ParsingScript script, int parentOffset)
+        {
+            CustomFunction customFunc = new CustomFunction("", body, args, script, true);
+            customFunc.ParentScript = script;
+            customFunc.ParentOffset = parentOffset;
+            return customFunc;
+        }
+
         public static ParserFunction GetRegisteredAction(string name, ParsingScript script, ref string action)
         {
             if (Constants.CheckReserved(name))
@@ -284,9 +303,8 @@
 
         public static bool TryAddToNamespace(string name, string nameSpace, Variable varValue)
         {
-            StackLevel level;
             if (string.IsNullOrWhiteSpace(nameSpace) ||
-               !s_namespaces.TryGetValue(nameSpace, out level))
+               !s_namespaces.TryGetValue(nameSpace, out StackLevel level))
             {
                 return false;
             }
@@ -319,8 +337,7 @@
                 nameSpace = nameSpace.Substring(0, ind);
             }
 
-            StackLevel level;
-            if (!s_namespaces.TryGetValue(nameSpace, out level))
+            if (!s_namespaces.TryGetValue(nameSpace, out StackLevel level))
             {
                 return null;
             }
@@ -331,8 +348,7 @@
             }
 
             var vars = level.Variables;
-            ParserFunction impl;
-            if (!vars.TryGetValue(name, out impl) &&
+            if (!vars.TryGetValue(name, out ParserFunction impl) &&
                 !s_variables.TryGetValue(name, out impl) &&
                 !s_functions.TryGetValue(name, out impl)
                 )
@@ -406,15 +422,10 @@
         {
             //TODO:関数の取得部分
             name = Constants.ConvertName(name);
-            ParserFunction impl;
-            if (script.TryGetFunction(name, out impl) || s_functions.TryGetValue(name, out impl))
+            if (script.TryGetFunction(name, out ParserFunction impl) || s_functions.TryGetValue(name, out impl))
             {
                 //それがデリゲートならデリゲートを返す
-                if (toDelegate && impl is CustomFunction cf)
-                {
-                    return new GetVarFunction(new Variable(cf));
-                }
-                return impl.NewInstance();
+                return toDelegate && impl is CustomFunction cf ? new GetVarFunction(new Variable(cf)) : impl.NewInstance();
             }
             if (script.TryGetVariable(name, out impl) || s_variables.TryGetValue(name, out impl))
             {
@@ -464,12 +475,7 @@
             string className = Constants.ConvertName(name);
 
             var csClass = AliceScriptClass.GetClass(className, script);
-            if (csClass != null)
-            {
-                return new GetVarFunction(new Variable(new TypeObject(csClass)));
-            }
-
-            return GetFromNamespace(name, script);
+            return csClass != null ? new GetVarFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
         }
         private static ParserFunction GetFromNS(string name, ParsingScript script)
         {
@@ -486,11 +492,7 @@
                     return new GetVarFunction(new Variable(new TypeObject(cc)));
                 }
             }
-            if (script.ParentScript != null)
-            {
-                return GetFromNS(name, script.ParentScript);
-            }
-            return null;
+            return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;
         }
         public static ActionFunction GetAction(string action)
         {
@@ -499,8 +501,7 @@
                 return null;
             }
 
-            ActionFunction impl;
-            if (s_actions.TryGetValue(action, out impl))
+            if (s_actions.TryGetValue(action, out ActionFunction impl))
             {
                 // Action exists and is registered (e.g. =, +=, --, etc.)
                 return impl;
@@ -576,8 +577,7 @@
 
             if (!string.IsNullOrWhiteSpace(s_namespace))
             {
-                StackLevel level;
-                if (s_namespaces.TryGetValue(s_namespace, out level) &&
+                if (s_namespaces.TryGetValue(s_namespace, out StackLevel level) &&
                    function is CustomFunction)
                 {
                     ((CustomFunction)function).NamespaceData = level;
@@ -589,7 +589,7 @@
                 //まだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 s_functions[name] = function;
                 function.isNative = isNative;
-                if ((s_functions.ContainsKey(name) && s_functions[name].IsVirtual))
+                if (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)
                 {
                     //オーバーライドした関数にもVirtual属性を引き継ぐ
                     function.IsVirtual = true;
@@ -605,8 +605,7 @@
             name = Constants.ConvertName(name);
             function.Name = Constants.GetRealName(name);
 
-            ParserFunction impl = null;
-            if (isLocal && (!FunctionExists(name, script, out impl, true) || impl.IsVirtual))
+            if (isLocal && (!FunctionExists(name, script, out ParserFunction impl, true) || impl.IsVirtual))
             {
                 //ローカル関数でまだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 script.Functions[name] = function;
@@ -621,7 +620,7 @@
                 //まだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 s_functions[name] = function;
                 function.isNative = isNative;
-                if ((s_functions.ContainsKey(name) && s_functions[name].IsVirtual))
+                if (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)
                 {
                     //オーバーライドした関数にもVirtual属性を引き継ぐ
                     function.IsVirtual = true;
@@ -635,11 +634,7 @@
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
         {
             name = Constants.ConvertName(name);
-            if (script != null && script.Functions.Remove(name))
-            {
-                return true;
-            }
-            return s_functions.Remove(name);
+            return script != null && script.Functions.Remove(name) ? true : s_functions.Remove(name);
         }
         public static bool UnregisterFunction(string name)
         {
@@ -666,15 +661,13 @@
         private static ParserFunction GetLocalScopeVariable(string name, string scopeName)
         {
             scopeName = Path.GetFileName(scopeName);
-            Dictionary<string, ParserFunction> localScope;
-            if (!s_localScope.TryGetValue(scopeName, out localScope))
+            if (!s_localScope.TryGetValue(scopeName, out Dictionary<string, ParserFunction> localScope))
             {
                 return null;
             }
 
             name = Constants.ConvertName(name);
-            ParserFunction function = null;
-            localScope.TryGetValue(name, out function);
+            localScope.TryGetValue(name, out ParserFunction function);
             return function;
         }
 
@@ -685,6 +678,7 @@
 
         public static void AddLocalVariable(ParserFunction local, ParsingScript script, string varName = "", bool setScript = true, bool registVar = false, string type_modifer = null)
         {
+            bool type_inference = script.TypeInference;
             NormalizeValue(local);
             local.m_isGlobal = false;
             if (setScript)
@@ -696,9 +690,8 @@
                 {
                     ((GetVarFunction)local).Value.ParamName = local.Name;
                 }
-                //bool exists = script.ContainsVariable(name, out var func);
                 bool exists = FunctionExists(name, script, out var func);
-                bool unneed = script.ContainsSymbol(Constants.UNNEED_VAR);
+                bool unneed = script.UnneedVarKeyword;
 
                 if (exists && registVar)
                 {
@@ -719,12 +712,6 @@
                     {
                         v.Value.Assign(g2.Value);
                     }
-                    /*
-                    if (v.Value.Parent.Variables[name] is GetVarFunction g && local is GetVarFunction g2)
-                    {
-                        g.Value.Assign(g2.Value);
-                    }*/
-                    //v.Value.Parent.Variables[name] = local;
                 }
                 else
                 {
@@ -733,13 +720,13 @@
                     {
                         Variable newVar = Variable.EmptyInstance;
                         newVar.Parent = script;
-                        if (type_modifer != null && type_modifer != Constants.VAR)
+                        if (type_modifer != null)
                         {
                             newVar.TypeSafe = true;
                             newVar.Type = Constants.StringToType(type_modifer);
                         }
                         newVar.Assign(v2.Value);
-                        if (type_modifer == Constants.VAR)
+                        if (type_inference)
                         {
                             newVar.TypeSafe = true;
                         }

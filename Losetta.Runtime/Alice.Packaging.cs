@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class  Alice_Packaging_Initer
+    public sealed class Alice_Packaging
     {
         public static void Init()
         {
@@ -18,9 +18,9 @@
     {
         public AlicePackageObject(AlicePackage package)
         {
-            this.Package = package;
-            this.Name = "AlicePackage";
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Manifest));
+            Package = package;
+            Name = "AlicePackage";
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Manifest));
         }
         public AlicePackage Package { get; set; }
         private class AlicePackageObjectProperty : PropertyBase
@@ -29,13 +29,13 @@
             {
                 Host = host;
                 Mode = mode;
-                this.Name = Mode.ToString();
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.Getting += AlicePackageObjectProperty_Getting;
+                Name = Mode.ToString();
+                HandleEvents = true;
+                CanSet = false;
+                Getting += AlicePackageObjectProperty_Getting;
             }
 
-            private void AlicePackageObjectProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -59,36 +59,36 @@
     {
         public PackageManifestObject(PackageManifest manifest)
         {
-            this.Name = "PackageManifest";
+            Name = "PackageManifest";
             Manifest = manifest;
-            this.Constructor = new AlicePackageObjectConstractor();
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
+            Constructor = new AlicePackageObjectConstractor();
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
         }
         public PackageManifestObject()
         {
-            this.Name = "PackageManifest";
-            this.Constructor = new AlicePackageObjectConstractor();
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
-            this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
+            Name = "PackageManifest";
+            Constructor = new AlicePackageObjectConstractor();
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
+            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
         }
         public PackageManifest Manifest { get; set; }
         private class AlicePackageObjectConstractor : FunctionBase
         {
             public AlicePackageObjectConstractor()
             {
-                this.MinimumArgCounts = 1;
-                this.Run += AlicePackageObjectConstractor_Run;
+                MinimumArgCounts = 1;
+                Run += AlicePackageObjectConstractor_Run;
             }
 
             private void AlicePackageObjectConstractor_Run(object sender, FunctionBaseEventArgs e)
@@ -106,13 +106,13 @@
             {
                 Host = host;
                 Mode = mode;
-                this.Name = Mode.ToString();
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.Getting += AlicePackageObjectProperty_Getting;
+                Name = Mode.ToString();
+                HandleEvents = true;
+                CanSet = false;
+                Getting += AlicePackageObjectProperty_Getting;
             }
 
-            private void AlicePackageObjectProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -171,9 +171,9 @@
     {
         public Package_GetManifestFromXmlFunc()
         {
-            this.Name = "Package_GetManifestFromXml";
-            this.MinimumArgCounts = 1;
-            this.Run += Interpreter_GetManifestFromXmlFunc_Run;
+            Name = "Package_GetManifestFromXml";
+            MinimumArgCounts = 1;
+            Run += Interpreter_GetManifestFromXmlFunc_Run;
         }
 
         private void Interpreter_GetManifestFromXmlFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -185,9 +185,9 @@
     {
         public Package_CreateFromZipFileFunc()
         {
-            this.Name = "Package_CreateFromZipFile";
-            this.MinimumArgCounts = 2;
-            this.Run += Package_CreateFromZipFileFunc_Run;
+            Name = "Package_CreateFromZipFile";
+            MinimumArgCounts = 2;
+            Run += Package_CreateFromZipFileFunc_Run;
         }
 
         private void Package_CreateFromZipFileFunc_Run(object sender, FunctionBaseEventArgs e)

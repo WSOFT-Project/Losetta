@@ -44,12 +44,12 @@
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
         public void Add(FunctionBase func)
         {
-            func.RelatedNameSpace = this.Name;
+            func.RelatedNameSpace = Name;
             Functions.Add(func);
         }
         public void Add(ObjectBase obj)
         {
-            obj.Namespace = this.Name;
+            obj.Namespace = Name;
             Classes.Add(obj);
         }
         public void Add(string name, string val)

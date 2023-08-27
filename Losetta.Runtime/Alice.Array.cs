@@ -4,10 +4,10 @@
     {
         public list_addFunc()
         {
-            this.Name = Constants.ADD;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_addFunc_Run;
+            Name = Constants.ADD;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_addFunc_Run;
         }
 
         private void List_addFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -26,10 +26,10 @@
     {
         public list_addRangeFunc()
         {
-            this.Name = Constants.ADD_RANGE;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_addFunc_Run;
+            Name = Constants.ADD_RANGE;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_addFunc_Run;
         }
 
         private void List_addFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -55,10 +55,10 @@
     {
         public list_InsertFunc()
         {
-            this.Name = Constants.INSERT;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY | Variable.VarType.STRING);
-            this.MinimumArgCounts = 2;
-            this.Run += List_InsertFunc_Run;
+            Name = Constants.INSERT;
+            RequestType = new TypeObject(Variable.VarType.ARRAY | Variable.VarType.STRING);
+            MinimumArgCounts = 2;
+            Run += List_InsertFunc_Run;
         }
 
         private void List_InsertFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -91,10 +91,10 @@
     {
         public list_allFunc()
         {
-            this.Name = "All";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "All";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -110,10 +110,10 @@
     {
         public list_anyFunc()
         {
-            this.Name = "Any";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "Any";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -129,10 +129,10 @@
     {
         public list_secenceEqualFunc()
         {
-            this.Name = "SequenceEqual";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_secenceEqualFunc_Run;
+            Name = "SequenceEqual";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_secenceEqualFunc_Run;
         }
 
         private void List_secenceEqualFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -148,10 +148,10 @@
     {
         public list_ofTypeFunc()
         {
-            this.Name = "ofType";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "ofType";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -169,10 +169,10 @@
     {
         public list_whereFunc()
         {
-            this.Name = "Where";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "Where";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -189,9 +189,9 @@
     {
         public list_DistinctFunc()
         {
-            this.Name = "Distinct";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_allFunc_Run;
+            Name = "Distinct";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -215,10 +215,10 @@
     {
         public list_skipFunc()
         {
-            this.Name = "Skip";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "Skip";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -234,10 +234,10 @@
     {
         public list_skipWhileFunc()
         {
-            this.Name = "SkipWhile";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "SkipWhile";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -254,10 +254,10 @@
     {
         public list_takeFunc()
         {
-            this.Name = "take";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "take";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -273,10 +273,10 @@
     {
         public list_takeWhileFunc()
         {
-            this.Name = "takeWhile";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "takeWhile";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -293,10 +293,10 @@
     {
         public list_SelectFunc()
         {
-            this.Name = "Select";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.MinimumArgCounts = 1;
-            this.Run += List_allFunc_Run;
+            Name = "Select";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            MinimumArgCounts = 1;
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -313,9 +313,9 @@
     {
         public list_OrderByFunc()
         {
-            this.Name = "OrderBy";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_allFunc_Run;
+            Name = "OrderBy";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -336,9 +336,9 @@
     {
         public list_OrderByDescendingFunc()
         {
-            this.Name = "OrderByDescending";
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_allFunc_Run;
+            Name = "OrderByDescending";
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -359,10 +359,10 @@
     {
         public list_UnionFunc()
         {
-            this.Name = "Union";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_allFunc_Run;
+            Name = "Union";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -378,10 +378,10 @@
     {
         public list_ExceptFunc()
         {
-            this.Name = "Except";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_allFunc_Run;
+            Name = "Except";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -397,10 +397,10 @@
     {
         public list_IntersectFunc()
         {
-            this.Name = "Intersect";
-            this.MinimumArgCounts = 1;
-            this.RequestType = new TypeObject(Variable.VarType.ARRAY);
-            this.Run += List_allFunc_Run;
+            Name = "Intersect";
+            MinimumArgCounts = 1;
+            RequestType = new TypeObject(Variable.VarType.ARRAY);
+            Run += List_allFunc_Run;
         }
 
         private void List_allFunc_Run(object sender, FunctionBaseEventArgs e)

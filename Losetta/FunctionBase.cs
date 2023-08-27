@@ -4,9 +4,13 @@
     {
 
         /// <summary>
-        /// この関数に必要な引数の数を取得または設定します
+        /// この関数に必要な引数の最小個数
         /// </summary>
         public int MinimumArgCounts { get; set; }
+        /// <summary>
+        /// この関数に渡すことができる引数の最大個数
+        /// </summary>
+        public int MaximumArgCounts { get; set; }
 
         /// <summary>
         /// この関数の属性を取得または設定します
@@ -55,67 +59,85 @@
             ex.Script = script;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
-            if (ex.UseObjectResult) { return new Variable(ex.ObjectResult); }
-            return ex.Return;
+            return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
         protected override Variable Evaluate(ParsingScript script)
         {
             List<Variable> args = null;
-            if (!this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+            if (!Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
             {
-                if (ObjectBase.GETTING)
-                {
-                    args = ObjectBase.LaskVariable;
-                }
-                else
-                {
-                    args = script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
-                }
+                args = ObjectBase.GETTING ? ObjectBase.LaskVariable : script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
 
-                if (MinimumArgCounts >= 1)
+                if (MinimumArgCounts > 1)
                 {
                     Utils.CheckArgs(args.Count, MinimumArgCounts, m_name);
+                }
+                if (MaximumArgCounts > 0 && args.Count > MaximumArgCounts)
+                {
+                    throw new ScriptException($"関数 `{m_name}`は、{MaximumArgCounts}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);
                 }
             }
             return Evaluate(args, script);
         }
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
-            if (currentVariable == null) { return Variable.EmptyInstance; }
-            if (this.RequestType?.Match(currentVariable) == false)
+            if (currentVariable == null)
             {
-                throw new ScriptException("関数[" + Name + "]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION);
+                return Variable.EmptyInstance;
             }
-            List<Variable> args = null;
-            if (!this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
-            {
-                if (ObjectBase.GETTING)
-                {
-                    args = ObjectBase.LaskVariable;
-                }
-                else
-                {
-                    args = script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
-                }
-                if (MinimumArgCounts >= 1)
-                {
-                    Utils.CheckArgs(args.Count, MinimumArgCounts, m_name);
-                }
-            }
-            FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = args;
-            if (ex.Args == null) { ex.Args = new List<Variable>(); }
-            ex.UseObjectResult = false;
-            ex.ObjectResult = null;
-            ex.OriginalScript = script.OriginalScript;
-            ex.Return = Variable.EmptyInstance;
-            ex.Script = script;
 
-            ex.CurentVariable = currentVariable;
-            Run?.Invoke(script, ex);
-            if (ex.UseObjectResult) { return new Variable(ex.ObjectResult); }
-            return ex.Return;
+            if (RequestType?.Match(currentVariable) == false)
+            {
+                throw new ScriptException($"関数[{Name}]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION);
+            }
+
+            List<Variable> args = GetFunctionArguments(script);
+
+            FunctionBaseEventArgs functionEventArgs = InitializeFunctionEventArgs(script, currentVariable, args);
+
+            Run?.Invoke(script, functionEventArgs);
+
+            return functionEventArgs.UseObjectResult ? new Variable(functionEventArgs.ObjectResult) : functionEventArgs.Return;
         }
+
+        private List<Variable> GetFunctionArguments(ParsingScript script)
+        {
+            if (Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+            {
+                return null;
+            }
+
+            if (ObjectBase.GETTING)
+            {
+                return ObjectBase.LaskVariable;
+            }
+
+            List<Variable> args = script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
+
+            if (MinimumArgCounts >= 1)
+            {
+                Utils.CheckArgs(args.Count, MinimumArgCounts, Name);
+            }
+
+            return args;
+        }
+
+        private FunctionBaseEventArgs InitializeFunctionEventArgs(ParsingScript script, Variable currentVariable, List<Variable> args)
+        {
+            FunctionBaseEventArgs functionEventArgs = new FunctionBaseEventArgs
+            {
+                Args = args ?? new List<Variable>(),
+                UseObjectResult = false,
+                ObjectResult = null,
+                OriginalScript = script.OriginalScript,
+                Return = Variable.EmptyInstance,
+                Script = script,
+                CurentVariable = currentVariable
+            };
+
+            return functionEventArgs;
+        }
+
         public string[] RealArgs { get; internal set; }
         public FunctionBase()
         {
@@ -182,6 +204,7 @@
         /// <param name="func">登録される関数</param>
         /// <param name="name">登録される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
+        /// <param name="isGlobal">常にグローバルに登録する場合はtrue、それ以外の場合はfalse</param>
         public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false)
         {
 
@@ -218,7 +241,7 @@
         /// </summary>
         /// <param name="func">登録解除される関数</param>
         /// <param name="name">登録解除される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
-        /// <param name="name">登録解除される関数の場所(この項目を省略するとグローバルからのみ解除されます)</param>
+        /// <param name="script">登録解除される関数の場所(この項目を省略するとグローバルからのみ解除されます)</param>
         public static void Remove(FunctionBase func, string name = "", ParsingScript script = null)
         {
             string fname = name;

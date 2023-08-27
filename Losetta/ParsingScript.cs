@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -16,12 +15,15 @@ namespace AliceScript
         private HashSet<string> m_defines = new HashSet<string>();// 現在のスクリプトで宣言されたシンボル
         private static ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
         private ParsingScript m_parentScript = m_toplevel_script;// このスクリプトの親
+        private ScriptSettings m_settings = new ScriptSettings();//このスクリプトの設定
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private List<NameSpace> m_namespace = new List<NameSpace>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
+
+
 
         /// <summary>
         /// 最上位のスクリプトを取得します
@@ -35,11 +37,9 @@ namespace AliceScript
                 //トップレベルスクリプトは親を持たない
                 m_toplevel_script.ParentScript = null;
             }
-            if (script != null && script.ContainsSymbol(Constants.DENY_TO_TOPLEVEL_SCRIPT))
-            {
-                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, script);
-            }
-            return m_toplevel_script;
+            return script != null && script.DenyAccessToTopLevelScript
+                ? throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, script)
+                : m_toplevel_script;
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace AliceScript
                 var s = new List<StackInfo>(m_stacktrace);
                 if (ProcessingFunction != null)
                 {
-                    s.Add(new StackInfo(ProcessingFunction, this.OriginalLine, this.OriginalLineNumber, this.Filename));
+                    s.Add(new StackInfo(ProcessingFunction, OriginalLine, OriginalLineNumber, Filename));
                 }
                 return s;
             }
@@ -99,7 +99,7 @@ namespace AliceScript
                 {
                     sb.Append(Constants.COMMAND + " ");
                 }
-                if ((Function is CustomFunction))
+                if (Function is CustomFunction)
                 {
                     sb.Append("custom ");
                 }
@@ -110,7 +110,7 @@ namespace AliceScript
                 sb.Append(Constants.FUNCTION + " ");
                 if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
                 {
-                    sb.Append(Function.RelatedNameSpace+".") ;
+                    sb.Append(Function.RelatedNameSpace + ".");
                 }
                 sb.Append((string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name) + "(");
                 int args_count = 0;
@@ -227,8 +227,8 @@ namespace AliceScript
         /// <param name="other">引き継ぐ対象のスクリプト</param>
         internal void CloneThrowTryInfo(ParsingScript other)
         {
-            other.InTryBlock = this.InTryBlock;
-            other.ThrowError = this.ThrowError;
+            other.InTryBlock = InTryBlock;
+            other.ThrowError = ThrowError;
         }
 
         public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
@@ -266,17 +266,239 @@ namespace AliceScript
             ThrowError?.Invoke(sender, e);
         }
 
-        public Dictionary<string, Dictionary<string, int>> AllLabels
+        public Dictionary<string, Dictionary<string, int>> AllLabels { get; set; }
+        public Dictionary<string, string> LabelToFile { get; set; }
+        public ScriptSettings Settings
         {
-            get;
-            set;
+            get => m_settings;
+            set => m_settings = value;
         }
-        public Dictionary<string, string> LabelToFile
+        /// <summary>
+        /// スクリプトの設定
+        /// </summary>
+        public class ScriptSettings
         {
-            get;
-            set;
+            public bool? UnneedVarKeyword { get; set; }
+            public bool? TypeInference { get; set; }
+            public bool? FallThrough { get; set; }
+            public bool? CheckBreakWhenEndCaseBlock { get; set; }
+            public bool? EnableUsing { get; set; }
+            public bool? EnableImport { get; set; }
+            public bool? EnableInclude { get; set; }
+            public bool? DenyAccessToTopLevelScript { get; set; }
+
+            /// <summary>
+            /// この設定ともう一方の設定を結合します。設定値がどちらにもある場合はotherを優先します。
+            /// </summary>
+            /// <param name="other">結合するもう一方の設定</param>
+            public void Union(ScriptSettings other)
+            {
+                if (!other.UnneedVarKeyword.HasValue)
+                {
+                    UnneedVarKeyword = other.UnneedVarKeyword;
+                }
+
+                if (!other.TypeInference.HasValue)
+                {
+                    TypeInference = other.TypeInference;
+                }
+
+                if (!other.FallThrough.HasValue)
+                {
+                    FallThrough = other.FallThrough;
+                }
+
+                if (!other.CheckBreakWhenEndCaseBlock.HasValue)
+                {
+                    CheckBreakWhenEndCaseBlock = other.CheckBreakWhenEndCaseBlock;
+                }
+
+                if (!other.EnableUsing.HasValue)
+                {
+                    EnableUsing = other.EnableUsing;
+                }
+
+                if (!other.EnableImport.HasValue)
+                {
+                    EnableImport = other.EnableImport;
+                }
+
+                if (!other.EnableInclude.HasValue)
+                {
+                    EnableInclude = other.EnableInclude;
+                }
+
+                if (!other.DenyAccessToTopLevelScript.HasValue)
+                {
+                    DenyAccessToTopLevelScript = other.DenyAccessToTopLevelScript;
+                }
+            }
         }
 
+        /// <summary>
+        /// このスクリプトで変数宣言が不要の場合はTrue
+        /// </summary>
+        public bool UnneedVarKeyword
+        {
+            get
+            {
+                bool result = false;//規定値
+                if (Settings.UnneedVarKeyword.HasValue)
+                {
+                    result = Settings.UnneedVarKeyword.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.UnneedVarKeyword;
+                }
+                return result;
+            }
+            set => Settings.UnneedVarKeyword = value;
+        }
+        /// <summary>
+        /// 定義時に型推論を行う場合はTrue
+        /// </summary>
+        public bool TypeInference
+        {
+            get
+            {
+                bool result = true;//規定値
+                if (Settings.TypeInference.HasValue)
+                {
+                    result = Settings.TypeInference.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.TypeInference;
+                }
+                return result;
+            }
+            set => Settings.TypeInference = value;
+
+        }
+        /// <summary>
+        /// switch文でフォールスルーを認める場合True
+        /// </summary>
+        public bool FallThrough
+        {
+            get
+            {
+                bool result = false;//規定値
+                if (Settings.FallThrough.HasValue)
+                {
+                    result = Settings.FallThrough.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.FallThrough;
+                }
+                return result;
+            }
+            set => Settings.FallThrough = value;
+        }
+        /// <summary>
+        /// caseまたはdefaultを抜けるのにbreakまたはreturnが必要
+        /// </summary>
+        public bool CheckBreakWhenEndCaseBlock
+        {
+            get
+            {
+                bool result = true;//規定値
+                if (Settings.CheckBreakWhenEndCaseBlock.HasValue)
+                {
+                    result = Settings.CheckBreakWhenEndCaseBlock.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.CheckBreakWhenEndCaseBlock;
+                }
+                return result;
+            }
+            set => Settings.CheckBreakWhenEndCaseBlock = value;
+        }
+        /// <summary>
+        /// このスクリプトでUsingステートメントを許可するか
+        /// </summary>
+        public bool EnableUsing
+        {
+            get
+            {
+                bool result = true;//規定値
+                if (Settings.EnableUsing.HasValue)
+                {
+                    result = Settings.EnableUsing.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.EnableUsing;
+                }
+                return result;
+            }
+            set => Settings.EnableUsing = value;
+        }
+        /// <summary>
+        /// このスクリプトでimportを許可するか
+        /// </summary>
+        public bool EnableImport
+        {
+            get
+            {
+                bool result = true;//規定値
+                if (Settings.EnableImport.HasValue)
+                {
+                    result = Settings.EnableImport.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.EnableImport;
+                }
+                return result;
+            }
+            set => Settings.EnableImport = value;
+        }
+        /// <summary>
+        /// このスクリプトでincludeを許可するか
+        /// </summary>
+        public bool EnableInclude
+        {
+            get
+            {
+                bool result = true;//規定値
+                if (Settings.EnableInclude.HasValue)
+                {
+                    result = Settings.EnableInclude.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.EnableInclude;
+                }
+                return result;
+            }
+            set => Settings.EnableInclude = value;
+        }
+
+        public bool DenyAccessToTopLevelScript
+        {
+            get
+            {
+                bool result = false;//規定値
+                if (Settings.DenyAccessToTopLevelScript.HasValue)
+                {
+                    result = Settings.DenyAccessToTopLevelScript.Value;
+                }
+                else if (ParentScript != null && !ParentScript.TopInFile)
+                {
+                    result = ParentScript.DenyAccessToTopLevelScript;
+                }
+                return result;
+            }
+            set => Settings.DenyAccessToTopLevelScript = value;
+        }
+
+        /// <summary>
+        /// このスクリプトがファイル内の一番外の場合True、それ以外の場合はFalse
+        /// </summary>
+        public bool TopInFile { get; set; }
         public List<int> PointersBack { get; set; } = new List<int>();
 
         private string m_functionName = "";
@@ -295,14 +517,8 @@ namespace AliceScript
 
         public ParsingScript ParentScript
         {
-            get
-            {
-                return m_parentScript;
-            }
-            set
-            {
-                m_parentScript = value;
-            }
+            get => m_parentScript;
+            set => m_parentScript = value;
         }
 
         public AliceScriptClass CurrentClass { get; set; }
@@ -356,7 +572,7 @@ namespace AliceScript
             name = name.ToLower();
             if (NameSpaceManerger.Contains(name))
             {
-                this.UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
+                UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
             }
             else
             {
@@ -377,7 +593,7 @@ namespace AliceScript
         {
             var trace = new Variable(Variable.VarType.ARRAY);
             trace.Tuple.Type = new TypeObject(Variable.VarType.STRING);
-            foreach (var s in this.StackTrace)
+            foreach (var s in StackTrace)
             {
                 trace.Tuple.Add(new Variable(s.ToString()));
             }
@@ -441,13 +657,13 @@ namespace AliceScript
             }
             return false;
         }
-        public bool TryGetLocal(string name,out ParserFunction function)
+        public bool TryGetLocal(string name, out ParserFunction function)
         {
-            return (TryGetVariable(name, out function) || TryGetConst(name, out function) || TryGetFunction(name, out function));
+            return TryGetVariable(name, out function) || TryGetConst(name, out function) || TryGetFunction(name, out function);
         }
         public bool StartsWith(string str, bool caseSensitive = true)
         {
-            if (String.IsNullOrEmpty(str) || str.Length > m_data.Length - m_from)
+            if (string.IsNullOrEmpty(str) || str.Length > m_data.Length - m_from)
             {
                 return false;
             }
@@ -514,12 +730,7 @@ namespace AliceScript
             }
 
             string[] lines = m_originalScript.Split(Constants.END_LINE);
-            if (lineNumber < lines.Length)
-            {
-                return lines[lineNumber];
-            }
-
-            return "";
+            return lineNumber < lines.Length ? lines[lineNumber] : "";
         }
 
         public int OriginalLineNumber => GetOriginalLineNumber();
@@ -527,8 +738,7 @@ namespace AliceScript
         {
             get
             {
-                int lineNumber;
-                return GetOriginalLine(out lineNumber);
+                return GetOriginalLine(out int lineNumber);
             }
         }
 
@@ -595,17 +805,9 @@ namespace AliceScript
         {
             return m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
         }
-        public char TryPrev()
+        public char TryPrev(int count = 1)
         {
-            return m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
-        }
-        public char TryPrevPrev()
-        {
-            return m_from >= 2 ? m_data[m_from - 2] : Constants.EMPTY;
-        }
-        public char TryPrevPrevPrev()
-        {
-            return m_from >= 3 ? m_data[m_from - 3] : Constants.EMPTY;
+            return m_from >= count ? m_data[m_from - count] : Constants.EMPTY;
         }
         public string FromPrev(int backChars = 1, int maxChars = Constants.MAX_CHARS_TO_SHOW)
         {
@@ -675,21 +877,6 @@ namespace AliceScript
             }
         }
 
-        /// <summary>
-        /// シンボルがこのスクリプトまたは親スクリプトで定義されているかどうかを判定します
-        /// </summary>
-        /// <param name="symbol">シンボル</param>
-        /// <returns>定義されている場合はTrue、それ以外の場合はFalse。</returns>
-        public bool ContainsSymbol(string symbol)
-        {
-            bool b = m_defines.Contains(symbol);
-            if (!b && !m_defines.Contains(Constants.RESET_DEFINES) && ParentScript!=null)
-            {
-                return ParentScript.ContainsSymbol(symbol);
-            }
-            return b;
-        }
-
         public List<Variable> GetFunctionArgs(FunctionBase callFrom, char start = Constants.START_ARG,
                                       char end = Constants.END_ARG)
         {
@@ -732,7 +919,7 @@ namespace AliceScript
 
         public Variable Execute(char[] toArray = null, int from = -1)
         {
-            toArray = toArray == null ? Constants.END_PARSE_ARRAY : toArray;
+            toArray = toArray ?? Constants.END_PARSE_ARRAY;
             Pointer = from < 0 ? Pointer : from;
 
             if (!m_data.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
@@ -758,39 +945,39 @@ namespace AliceScript
 #if !DEBUG_THROW
                 catch (ScriptException scriptExc)
                 {
-                    OnThrowError(scriptExc.Message,scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink,scriptExc.Script,scriptExc.Exception);
+                    OnThrowError(scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script, scriptExc.Exception);
                 }
-                catch(ParsingException parseExc)
+                catch (ParsingException parseExc)
                 {
-                    OnThrowError(parseExc.Message, Exceptions.COULDNT_PARSE, parseExc.Source, parseExc.HelpLink, this,parseExc);
+                    OnThrowError(parseExc.Message, Exceptions.COULDNT_PARSE, parseExc.Source, parseExc.HelpLink, this, parseExc);
                 }
-                catch(FileNotFoundException fileNotFoundExc)
+                catch (FileNotFoundException fileNotFoundExc)
                 {
-                    OnThrowError("ファイル"+ (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ")+"が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source,fileNotFoundExc.HelpLink);
+                    OnThrowError("ファイル" + (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ") + "が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source, fileNotFoundExc.HelpLink);
                 }
                 catch (IndexOutOfRangeException indexOutOfRangeExc)
                 {
-                    OnThrowError("インデックスが配列の境界外です。",Exceptions.INDEX_OUT_OF_RANGE,indexOutOfRangeExc.Source);
+                    OnThrowError("インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
                 }
-                catch(Exception otherExc)
+                catch (Exception otherExc)
                 {
-                    OnThrowError(otherExc.Message,Exceptions.NONE,otherExc.Source,otherExc.HelpLink);
+                    OnThrowError(otherExc.Message, Exceptions.NONE, otherExc.Source, otherExc.HelpLink);
                 }
-               
+
 #endif
             }
             return result;
 
         }
-        private void OnThrowError(string message,Exceptions errorCode,string source, string helpLink=null, ParsingScript script=null,ParsingException parsingException=null)
+        private void OnThrowError(string message, Exceptions errorCode, string source, string helpLink = null, ParsingScript script = null, ParsingException parsingException = null)
         {
             var ex = new ThrowErrorEventArgs();
-            ex.Message=message;
-            ex.ErrorCode=errorCode;
-            ex.HelpLink=helpLink;
-            ex.Source=source;
-            ex.Script=script;
-            ex.Exception=parsingException;
+            ex.Message = message;
+            ex.ErrorCode = errorCode;
+            ex.HelpLink = helpLink;
+            ex.Source = source;
+            ex.Script = script;
+            ex.Exception = parsingException;
             if (string.IsNullOrWhiteSpace(helpLink))
             {
                 ex.HelpLink = Constants.HELP_LINK + ((int)ex.ErrorCode).ToString("x3");
@@ -808,7 +995,7 @@ namespace AliceScript
 
         public async Task<Variable> ExecuteAsync(char[] toArray = null, int from = -1)
         {
-            toArray = toArray == null ? Constants.END_PARSE_ARRAY : toArray;
+            toArray = toArray ?? Constants.END_PARSE_ARRAY;
             Pointer = from < 0 ? Pointer : from;
 
             if (!m_data.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
@@ -854,7 +1041,7 @@ namespace AliceScript
                     {
                         return result;
                     }
-                    if (this.InTryBlock) { return result; }
+                    if (InTryBlock) { return result; }
                     ThrowError?.Invoke(ex.Script, ex);
                 }
             }
@@ -874,40 +1061,40 @@ namespace AliceScript
         public Variable Process()
         {
             Variable result = null;
-            while (this.Pointer < m_data.Length)
+            while (Pointer < m_data.Length)
             {
-                result = this.Execute();
-                this.GoToNextStatement();
+                result = Execute();
+                GoToNextStatement();
             }
             return result;
         }
         public Variable ProcessForWhile()
         {
             Variable result = null;
-            while (this.Pointer < m_data.Length)
+            while (Pointer < m_data.Length)
             {
-                result = this.Execute();
+                result = Execute();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     return result;
                 }
-                this.GoToNextStatement();
+                GoToNextStatement();
             }
             return result;
         }
         public async Task<Variable> ProcessAsync()
         {
             Variable result = null;
-            while (this.Pointer < m_data.Length)
+            while (Pointer < m_data.Length)
             {
-                result = await this.ExecuteAsync();
-                this.GoToNextStatement();
+                result = await ExecuteAsync();
+                GoToNextStatement();
             }
             return result;
         }
         public void SkipBlock()
         {
-            int blockStart = this.Pointer;
+            int blockStart = Pointer;
             int startCount = 0;
             int endCount = 0;
             bool inQuotes = false;
@@ -918,12 +1105,12 @@ namespace AliceScript
 
             while (startCount == 0 || startCount > endCount)
             {
-                if (!this.StillValid())
+                if (!StillValid())
                 {
                     throw new ScriptException("次のブロックを実行できませんでした [" +
-                    this.Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, this);
+                    Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, this);
                 }
-                char currentChar = this.CurrentAndForward();
+                char currentChar = CurrentAndForward();
                 switch (currentChar)
                 {
                     case Constants.QUOTE1:
@@ -967,7 +1154,7 @@ namespace AliceScript
         {
             while (StillValid())
             {
-                int endOfToken = this.Pointer;
+                int endOfToken = Pointer;
                 ParsingScript nextData = new ParsingScript(this);
                 string nextToken = Utils.GetNextToken(nextData);
                 if (Constants.ELSE_IF != nextToken &&
@@ -975,7 +1162,7 @@ namespace AliceScript
                 {
                     return;
                 }
-                this.Pointer = nextData.Pointer;
+                Pointer = nextData.Pointer;
                 SkipBlock();
             }
         }
@@ -986,70 +1173,66 @@ namespace AliceScript
         public Variable ProcessBlock()
         {
             string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-            ParsingScript mainScript = this.GetTempScript(body);
+            ParsingScript mainScript = GetTempScript(body);
             return mainScript.Process();
         }
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
-            str = Utils.ConvertToScript(str, out _, out var def);
+            str = Utils.ConvertToScript(str, out _, out var def, out var settings);
             ParsingScript tempScript = new ParsingScript(str, startIndex);
+            tempScript.Settings = settings;
             tempScript.Defines = def;
-            tempScript.Filename = this.Filename;
+            tempScript.Filename = Filename;
             tempScript.ParentScript = this;
-            tempScript.Char2Line = this.Char2Line;
-            tempScript.OriginalScript = this.OriginalScript;
-            tempScript.InTryBlock = this.InTryBlock;
-            tempScript.StackLevel = this.StackLevel;
-            tempScript.AllLabels = this.AllLabels;
-            tempScript.LabelToFile = this.LabelToFile;
-            tempScript.FunctionName = this.FunctionName;
-            tempScript.Tag = this.Tag;
-            tempScript.Package = this.Package;
-            tempScript.Generation = this.Generation + 1;
-            tempScript.ThrowError = this.ThrowError;
+            tempScript.Char2Line = Char2Line;
+            tempScript.OriginalScript = OriginalScript;
+            tempScript.InTryBlock = InTryBlock;
+            tempScript.StackLevel = StackLevel;
+            tempScript.AllLabels = AllLabels;
+            tempScript.LabelToFile = LabelToFile;
+            tempScript.FunctionName = FunctionName;
+            tempScript.Tag = Tag;
+            tempScript.Package = Package;
+            tempScript.Generation = Generation + 1;
+            tempScript.ThrowError = ThrowError;
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
             if (callFrom != null)
             {
-                tempScript.m_stacktrace.Add(new StackInfo(callFrom, this.OriginalLine, this.OriginalLineNumber, this.Filename));
+                tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
             }
             else
             {
-          //      tempScript.m_stacktrace.Add(new StackInfo(ProcessingFunction, this.OriginalLine, this.OriginalLineNumber, this.Filename));
+                //      tempScript.m_stacktrace.Add(new StackInfo(ProcessingFunction, this.OriginalLine, this.OriginalLineNumber, this.Filename));
             }
 
             return tempScript;
         }
         public ParsingScript GetIncludeFileScript(string filename, FunctionBase callFrom)
         {
-            string pathname;
-            if (!this.ContainsSymbol(Constants.DISABLE_INCLUDE))
+            if (EnableInclude)
             {
-                bool isPackageFile;
-                string includeFile = GetIncludeFileLine(filename, out pathname, out isPackageFile);
-                Dictionary<int, int> char2Line;
-                var includeScript = Utils.ConvertToScript(includeFile, out char2Line, out var def, pathname);
+                string includeFile = GetIncludeFileLine(filename, out string pathname, out bool isPackageFile);
+                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out var def, out var setting, pathname);
                 ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
+                tempScript.TopInFile = true;
+                tempScript.Settings = setting;
                 tempScript.Filename = pathname;
                 tempScript.OriginalScript = includeFile.Replace(Environment.NewLine, Constants.END_LINE.ToString());
                 tempScript.ParentScript = this;
                 tempScript.InTryBlock = InTryBlock;
-                tempScript.Tag = this.Tag;
-                tempScript.Generation = this.Generation + 1;
-                tempScript.ThrowError = this.ThrowError;
-                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(this.m_stacktrace);
+                tempScript.Tag = Tag;
+                tempScript.Generation = Generation + 1;
+                tempScript.ThrowError = ThrowError;
+                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
 
-                if (!this.ContainsSymbol(Constants.FOLLOW_INCLUDE))
-                {
-                    tempScript.Defines.Add(Constants.RESET_DEFINES);
-                }
 
                 if (callFrom != null)
                 {
-                    tempScript.m_stacktrace.Add(new StackInfo(callFrom, this.OriginalLine, this.OriginalLineNumber, this.Filename));
+                    tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
                 }
                 if (isPackageFile)
                 {
-                    tempScript.Package = this.Package;
+                    tempScript.Package = Package;
                 }
 
                 return tempScript;

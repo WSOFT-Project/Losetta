@@ -38,9 +38,9 @@
     {
         public Interpreter_GetParentFunc()
         {
-            this.Name = "Interpreter_GetParent";
-            this.MinimumArgCounts = 1;
-            this.Run += Interpreter_GetParentFunc_Run;
+            Name = "Interpreter_GetParent";
+            MinimumArgCounts = 1;
+            Run += Interpreter_GetParentFunc_Run;
         }
 
         private void Interpreter_GetParentFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -59,9 +59,9 @@
     {
         public Interpreter_NameExistsFunc()
         {
-            this.Name = "Interpreter_NameExists";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += Interpreter_NameExistsFunc_Run;
+            Name = "Interpreter_NameExists";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += Interpreter_NameExistsFunc_Run;
         }
 
         private void Interpreter_NameExistsFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -79,9 +79,9 @@
     {
         public gc_collectFunc()
         {
-            this.Name = "gc_collect";
-            this.MinimumArgCounts = 0;
-            this.Run += Gc_collectFunc_Run;
+            Name = "gc_collect";
+            MinimumArgCounts = 0;
+            Run += Gc_collectFunc_Run;
         }
 
         private void Gc_collectFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -94,9 +94,9 @@
     {
         public gc_gettotalmemoryFunc()
         {
-            this.Name = "gc_gettotalmemory";
-            this.MinimumArgCounts = 1;
-            this.Run += Gc_gettotalmemoryFunc_Run;
+            Name = "gc_gettotalmemory";
+            MinimumArgCounts = 1;
+            Run += Gc_gettotalmemoryFunc_Run;
         }
 
         private void Gc_gettotalmemoryFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -110,8 +110,8 @@
     {
         public Interpreter_Reset_VariablesFunc()
         {
-            this.Name = "Interpreter_Reset_Variables";
-            this.Run += Interpreter_Reset_VariablesFunc_Run;
+            Name = "Interpreter_Reset_Variables";
+            Run += Interpreter_Reset_VariablesFunc_Run;
         }
 
         private void Interpreter_Reset_VariablesFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -125,27 +125,20 @@
         public Interpreter_Append_OutputOrDataFunc(bool isdata = false)
         {
             m_isData = isdata;
-            if (isdata)
-            {
-                this.Name = "Interpreter_Append_Data";
-            }
-            else
-            {
-                this.Name = "Interpreter_Append_Output";
-            }
-            this.MinimumArgCounts = 1;
-            this.Run += Interpreter_Append_OutputOrDataFunc_Run;
+            Name = isdata ? "Interpreter_Append_Data" : "Interpreter_Append_Output";
+            MinimumArgCounts = 1;
+            Run += Interpreter_Append_OutputOrDataFunc_Run;
         }
 
         private void Interpreter_Append_OutputOrDataFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             if (m_isData)
             {
-                e.Return = new Variable(Interpreter.Instance.AppendData(e.Args[0].AsString(), (Utils.GetSafeBool(e.Args, 1))));
+                e.Return = new Variable(Interpreter.Instance.AppendData(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1)));
             }
             else
             {
-                Interpreter.Instance.AppendOutput(e.Args[0].AsString(), (Utils.GetSafeBool(e.Args, 1)));
+                Interpreter.Instance.AppendOutput(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1));
             }
         }
 
@@ -157,21 +150,16 @@
         public Interpreter_ProcessOrFileFunc(bool isfile = false)
         {
             m_isFile = isfile;
-            if (m_isFile) { this.Name = "Interpreter_ProcessFile"; } else { this.Name = "Interpreter_Process"; }
-            this.MinimumArgCounts = 1;
-            this.Run += Interpreter_ProcessOrFileFunc_Run;
+            Name = m_isFile ? "Interpreter_ProcessFile" : "Interpreter_Process";
+            MinimumArgCounts = 1;
+            Run += Interpreter_ProcessOrFileFunc_Run;
         }
 
         private void Interpreter_ProcessOrFileFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (m_isFile)
-            {
-                e.Return = Interpreter.Instance.ProcessFile(e.Args[0].AsString(), (Utils.GetSafeBool(e.Args, 1)));
-            }
-            else
-            {
-                e.Return = Interpreter.Instance.Process(e.Args[0].AsString(), Utils.GetSafeString(e.Args, 1), (Utils.GetSafeBool(e.Args, 2)));
-            }
+            e.Return = m_isFile
+                ? Interpreter.Instance.ProcessFile(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1))
+                : Interpreter.Instance.Process(e.Args[0].AsString(), Utils.GetSafeString(e.Args, 1), Utils.GetSafeBool(e.Args, 2));
         }
 
         private bool m_isFile = false;
@@ -181,8 +169,8 @@
     {
         public Interpreter_FunctionsFunc()
         {
-            this.Name = "Interpreter_Functions";
-            this.Run += FunctionsFunc_Run;
+            Name = "Interpreter_Functions";
+            Run += FunctionsFunc_Run;
         }
 
         private void FunctionsFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -210,8 +198,7 @@
                 }
                 else
                 {
-                    ///TODO:名前空間の例外追加
-                    throw new System.Exception("指定された名前空間が見つかりませんでした");
+                    throw new ScriptException("指定された名前空間が見つかりませんでした", Exceptions.NAMESPACE_NOT_FOUND);
                 }
             }
         }
@@ -221,8 +208,8 @@
     {
         public Interpreter_NamespacesFunc()
         {
-            this.Name = "Interpreter_Namespaces";
-            this.Run += NamespacesFunc_Run;
+            Name = "Interpreter_Namespaces";
+            Run += NamespacesFunc_Run;
         }
 
         private void NamespacesFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -240,8 +227,8 @@
     {
         public Interpreter_VariablesFunc()
         {
-            this.Name = "Interpreter_GlobalVariables";
-            this.Run += Interpreter_VariablesFunc_Run;
+            Name = "Interpreter_GlobalVariables";
+            Run += Interpreter_VariablesFunc_Run;
         }
 
         private void Interpreter_VariablesFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -259,23 +246,17 @@
     {
         public Interpreter_GetVariable()
         {
-            this.Name = "Interpreter_GetVariable";
-            this.MinimumArgCounts = 1;
-            this.Run += Interpreter_GetVariable_Run;
+            Name = "Interpreter_GetVariable";
+            MinimumArgCounts = 1;
+            Run += Interpreter_GetVariable_Run;
         }
 
         private void Interpreter_GetVariable_Run(object sender, FunctionBaseEventArgs e)
         {
-            ParserFunction impl;
             string name = e.Args[0].AsString();
-            if ((e.Script.TryGetVariable(name, out impl) || ParserFunction.s_functions.TryGetValue(name, out impl)) && impl is GetVarFunction vf)
-            {
-                e.Return = vf.Value;
-            }
-            else
-            {
-                throw new ScriptException("指定された名前の変数は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, e.Script);
-            }
+            e.Return = (e.Script.TryGetVariable(name, out ParserFunction impl) || ParserFunction.s_functions.TryGetValue(name, out impl)) && impl is GetVarFunction vf
+                ? vf.Value
+                : throw new ScriptException("指定された名前の変数は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, e.Script);
         }
     }
 
@@ -285,8 +266,8 @@
     {
         public Interpreter_GetScriptFunc()
         {
-            this.Name = "Interpreter_GetScript";
-            this.Run += Interpreter_GetScriptFunc_Run;
+            Name = "Interpreter_GetScript";
+            Run += Interpreter_GetScriptFunc_Run;
         }
 
         private void Interpreter_GetScriptFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -299,10 +280,10 @@
     {
         public Interpreter_ConstsFunc()
         {
-            this.Name = "Interpreter_Consts";
-            this.MinimumArgCounts = 0;
-            this.Attribute = FunctionAttribute.GENERAL;
-            this.Run += Interpreter_ConstsFunc_Run;
+            Name = "Interpreter_Consts";
+            MinimumArgCounts = 0;
+            Attribute = FunctionAttribute.GENERAL;
+            Run += Interpreter_ConstsFunc_Run;
         }
 
         private void Interpreter_ConstsFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -319,8 +300,8 @@
     {
         public GetPackageFunc()
         {
-            this.Name = "Interpreter_GetPackage";
-            this.Run += GetPackageFunc_Run;
+            Name = "Interpreter_GetPackage";
+            Run += GetPackageFunc_Run;
         }
 
         private void GetPackageFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -334,16 +315,16 @@
         {
             public AlicePackageObject(AlicePackage package)
             {
-                this.Name = "AlicePackage";
+                Name = "AlicePackage";
                 Package = package;
-                this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
-                this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
-                this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
-                this.AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
+                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
+                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
+                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
 
-                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadData));
-                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadText));
-                this.AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.Exists));
+                AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadData));
+                AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadText));
+                AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.Exists));
             }
             public AlicePackage Package { get; set; }
             private class AlicePackageObject_EntryIOFunctions : FunctionBase
@@ -354,26 +335,26 @@
                     {
                         case AlicePackageObjectt_EntryIOFunctionMode.Exists:
                             {
-                                this.Name = "entry_exists";
-                                this.MinimumArgCounts = 1;
+                                Name = "entry_exists";
+                                MinimumArgCounts = 1;
                                 break;
                             }
                         case AlicePackageObjectt_EntryIOFunctionMode.ReadData:
                             {
-                                this.Name = "entry_read_data";
-                                this.MinimumArgCounts = 1;
+                                Name = "entry_read_data";
+                                MinimumArgCounts = 1;
                                 break;
                             }
                         case AlicePackageObjectt_EntryIOFunctionMode.ReadText:
                             {
-                                this.Name = "entry_read_text";
-                                this.MinimumArgCounts = 1;
+                                Name = "entry_read_text";
+                                MinimumArgCounts = 1;
                                 break;
                             }
                     }
                     Mode = mode;
                     Package = package;
-                    this.Run += AlicePackageObject_EntryIOFunctions_Run;
+                    Run += AlicePackageObject_EntryIOFunctions_Run;
                 }
                 public AlicePackageObject Package { get; set; }
                 public AlicePackageObjectt_EntryIOFunctionMode Mode { get; set; }
@@ -410,13 +391,13 @@
                 {
                     Host = host;
                     Mode = mode;
-                    this.Name = Mode.ToString();
-                    this.HandleEvents = true;
-                    this.CanSet = false;
-                    this.Getting += AlicePackageObjectProperty_Getting;
+                    Name = Mode.ToString();
+                    HandleEvents = true;
+                    CanSet = false;
+                    Getting += AlicePackageObjectProperty_Getting;
                 }
 
-                private void AlicePackageObjectProperty_Getting(object sender, PropertyGettingEventArgs e)
+                private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
                 {
                     switch (Mode)
                     {
@@ -461,9 +442,9 @@
     {
         public Interpreter_NameFunc()
         {
-            this.Name = "Interpreter_Name";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.Run += Interpreter_NameFunc_Run;
+            Name = "Interpreter_Name";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            Run += Interpreter_NameFunc_Run;
         }
 
         private void Interpreter_NameFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -475,62 +456,55 @@
     {
         public Interpreter_ScriptObject(ParsingScript script)
         {
-            this.Name = "Script";
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.IsMainFile, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FileName, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.PWD, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalScript, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FunctionName, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.InTryBlock, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StillValid, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Size, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLineNumber, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLine, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Labels, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Generation, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Functions, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Variables, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Consts, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Parent, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Package, this));
-            this.AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StackTrace, this));
+            Name = "Script";
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.IsMainFile, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FileName, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.PWD, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalScript, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FunctionName, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.InTryBlock, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StillValid, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Size, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLineNumber, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLine, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Labels, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Generation, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Functions, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Variables, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Consts, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Parent, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Package, this));
+            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StackTrace, this));
 
-            this.Constructor = new Interpreter_ScriptObject_Constructor();
+            Constructor = new Interpreter_ScriptObject_Constructor();
 
-            this.AddFunction(new Interpreter_ScriptObject_GetConst(this));
-            this.AddFunction(new Interpreter_ScriptObject_GetVariable(this));
-            this.AddFunction(new Interpreter_ScriptObject_GetFunction(this));
-            this.AddFunction(new Interpreter_ScriptObject_ExecuteFunction(this));
-            this.AddFunction(new Interpreter_ScriptObject_GetScriptFunction(this));
-            this.AddFunction(new Interpreter_ScriptObject_UsingFunction(this));
+            AddFunction(new Interpreter_ScriptObject_GetConst(this));
+            AddFunction(new Interpreter_ScriptObject_GetVariable(this));
+            AddFunction(new Interpreter_ScriptObject_GetFunction(this));
+            AddFunction(new Interpreter_ScriptObject_ExecuteFunction(this));
+            AddFunction(new Interpreter_ScriptObject_GetScriptFunction(this));
+            AddFunction(new Interpreter_ScriptObject_UsingFunction(this));
 
             Script = script;
         }
         internal ParsingScript Script;
         public override bool Equals(ObjectBase other)
         {
-            if (other is Interpreter_ScriptObject iso)
-            {
-                return iso.Script.Equals(this.Script);
-            }
-            else
-            {
-                return false;
-            }
+            return other is Interpreter_ScriptObject iso ? iso.Script.Equals(Script) : false;
         }
 
         private class Interpreter_ScriptObject_Constructor : FunctionBase
         {
             public Interpreter_ScriptObject_Constructor()
             {
-                this.MinimumArgCounts = 1;
-                this.Run += Interpreter_ScriptObject_Constructor_Run;
+                MinimumArgCounts = 1;
+                Run += Interpreter_ScriptObject_Constructor_Run;
             }
             private void Interpreter_ScriptObject_Constructor_Run(object sender, FunctionBaseEventArgs e)
             {
-                HashSet<string> defines; Dictionary<int, int> char2Line;
-                string code = Utils.ConvertToScript(e.Args[0].AsString(), out char2Line, out defines);
+                string code = Utils.ConvertToScript(e.Args[0].AsString(), out var char2Line, out var defines, out var setting);
                 var script = new ParsingScript(code, 0, char2Line);
+                script.Settings = setting;
                 script.Defines = defines;
                 script.ParentScript = e.Script;
                 e.Return = new Variable(new Interpreter_ScriptObject(script));
@@ -540,16 +514,15 @@
         {
             public Interpreter_ScriptObject_GetVariable(Interpreter_ScriptObject host)
             {
-                this.Host = host;
-                this.Name = "GetVariable";
-                this.MinimumArgCounts = 1;
-                this.Run += Interpreter_ScriptObject_GetVariable_Run;
+                Host = host;
+                Name = "GetVariable";
+                MinimumArgCounts = 1;
+                Run += Interpreter_ScriptObject_GetVariable_Run;
             }
             public Interpreter_ScriptObject Host { get; set; }
             private void Interpreter_ScriptObject_GetVariable_Run(object sender, FunctionBaseEventArgs e)
             {
-                ParserFunction impl;
-                if (Host.Script.TryGetVariable(e.Args[0].AsString(), out impl) && impl is GetVarFunction vf)
+                if (Host.Script.TryGetVariable(e.Args[0].AsString(), out ParserFunction impl) && impl is GetVarFunction vf)
                 {
                     e.Return = vf.Value;
                 }
@@ -559,16 +532,15 @@
         {
             public Interpreter_ScriptObject_GetConst(Interpreter_ScriptObject host)
             {
-                this.Host = host;
-                this.Name = "GetConst";
-                this.MinimumArgCounts = 1;
-                this.Run += Interpreter_ScriptObject_GetVariable_Run;
+                Host = host;
+                Name = "GetConst";
+                MinimumArgCounts = 1;
+                Run += Interpreter_ScriptObject_GetVariable_Run;
             }
             public Interpreter_ScriptObject Host { get; set; }
             private void Interpreter_ScriptObject_GetVariable_Run(object sender, FunctionBaseEventArgs e)
             {
-                ParserFunction impl;
-                if (Host.Script.TryGetConst(e.Args[0].AsString(), out impl) && impl is GetVarFunction vf)
+                if (Host.Script.TryGetConst(e.Args[0].AsString(), out ParserFunction impl) && impl is GetVarFunction vf)
                 {
                     e.Return = vf.Value;
                 }
@@ -578,16 +550,15 @@
         {
             public Interpreter_ScriptObject_GetFunction(Interpreter_ScriptObject host)
             {
-                this.Host = host;
-                this.Name = "GetFunction";
-                this.MinimumArgCounts = 1;
-                this.Run += Interpreter_ScriptObject_GetVariable_Run;
+                Host = host;
+                Name = "GetFunction";
+                MinimumArgCounts = 1;
+                Run += Interpreter_ScriptObject_GetVariable_Run;
             }
             public Interpreter_ScriptObject Host { get; set; }
             private void Interpreter_ScriptObject_GetVariable_Run(object sender, FunctionBaseEventArgs e)
             {
-                ParserFunction impl;
-                if (Host.Script.TryGetVariable(e.Args[0].AsString(), out impl) && impl is CustomFunction cf)
+                if (Host.Script.TryGetVariable(e.Args[0].AsString(), out ParserFunction impl) && impl is CustomFunction cf)
                 {
                     e.Return = new Variable(cf);
                 }
@@ -598,8 +569,8 @@
             public Interpreter_ScriptObject_ExecuteFunction(Interpreter_ScriptObject host)
             {
                 Host = host;
-                this.Name = "Execute";
-                this.Run += Interpreter_ScriptObject_ExecuteFunction_Run;
+                Name = "Execute";
+                Run += Interpreter_ScriptObject_ExecuteFunction_Run;
             }
 
             private void Interpreter_ScriptObject_ExecuteFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -615,8 +586,8 @@
             public Interpreter_ScriptObject_GetScriptFunction(Interpreter_ScriptObject host)
             {
                 Host = host;
-                this.Name = "GetScript";
-                this.Run += Interpreter_ScriptObject_GetScriptFunction_Run;
+                Name = "GetScript";
+                Run += Interpreter_ScriptObject_GetScriptFunction_Run;
             }
 
             private void Interpreter_ScriptObject_GetScriptFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -630,9 +601,9 @@
             public Interpreter_ScriptObject_UsingFunction(Interpreter_ScriptObject host)
             {
                 Host = host;
-                this.MinimumArgCounts = 1;
-                this.Name = "Using";
-                this.Run += Interpreter_ScriptObject_GetScriptFunction_Run;
+                MinimumArgCounts = 1;
+                Name = "Using";
+                Run += Interpreter_ScriptObject_GetScriptFunction_Run;
             }
 
             private void Interpreter_ScriptObject_GetScriptFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -646,26 +617,26 @@
             {
                 Mode = mode;
                 Host = host;
-                this.Name = Mode.ToString();
+                Name = Mode.ToString();
                 switch (mode)
                 {
                     case Interpreter_ScriptObject_Property_Mode.Parent:
                         {
-                            this.CanSet = true;
+                            CanSet = true;
                             break;
                         }
                     default:
                         {
-                            this.CanSet = false;
+                            CanSet = false;
                             break;
                         }
                 }
-                this.HandleEvents = true;
-                this.Getting += Interpreter_ScriptObject_Property_Getting;
-                this.Setting += Interpreter_ScriptObject_Property_Setting;
+                HandleEvents = true;
+                Getting += Interpreter_ScriptObject_Property_Getting;
+                Setting += Interpreter_ScriptObject_Property_Setting;
             }
 
-            private void Interpreter_ScriptObject_Property_Setting(object sender, PropertySettingEventArgs e)
+            private void Interpreter_ScriptObject_Property_Setting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -694,7 +665,7 @@
             {
                 IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
             }
-            private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyGettingEventArgs e)
+            private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyBaseEventArgs e)
             {
                 switch (Mode)
                 {
@@ -844,21 +815,21 @@
         public TypeObject(AliceScriptClass type)
         {
             Init();
-            this.ClassType = type;
+            ClassType = type;
             foreach (var kvs in type.StaticFunctions)
             {
-                this.Functions.Add(kvs.Key, kvs.Value);
+                Functions.Add(kvs.Key, kvs.Value);
             }
         }
         private void Init()
         {
-            this.Name = "Type";
-            this.Functions.Add("Activate", new ActivateFunction(this));
-            this.Functions.Add("ToString", new ToStringFunction(this));
-            this.Functions.Add("ToNativeProperty", new ToNativeProperty(this));
-            this.Properties.Add("IsObject", new IsObjectProperty(this));
-            this.Properties.Add("Namespace", new NamespaceProperty(this));
-            this.Properties.Add("Base", new BaseProperty(this));
+            Name = "Type";
+            Functions.Add("Activate", new ActivateFunction(this));
+            Functions.Add("ToString", new ToStringFunction(this));
+            Functions.Add("ToNativeProperty", new ToNativeProperty(this));
+            Properties.Add("IsObject", new IsObjectProperty(this));
+            Properties.Add("Namespace", new NamespaceProperty(this));
+            Properties.Add("Base", new BaseProperty(this));
         }
         public Variable.VarType Type { get; set; }
         public TypeObject ArrayType { get; set; }
@@ -867,19 +838,12 @@
         {
             public NamespaceProperty(TypeObject type)
             {
-                this.Name = "Namespace";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                Name = "Namespace";
+                HandleEvents = true;
+                CanSet = false;
+                Getting += delegate (object sender, PropertyBaseEventArgs e)
                 {
-                    if (type.ClassType != null)
-                    {
-                        e.Value = new Variable(type.ClassType.Namespace);
-                    }
-                    else
-                    {
-                        e.Value = Variable.EmptyInstance;
-                    }
+                    e.Value = type.ClassType != null ? new Variable(type.ClassType.Namespace) : Variable.EmptyInstance;
                 };
             }
         }
@@ -887,19 +851,12 @@
         {
             public BaseProperty(TypeObject type)
             {
-                this.Name = "Base";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                Name = "Base";
+                HandleEvents = true;
+                CanSet = false;
+                Getting += delegate (object sender, PropertyBaseEventArgs e)
                 {
-                    if (type.ClassType != null)
-                    {
-                        e.Value = new Variable(type.ClassType.BaseClasses);
-                    }
-                    else
-                    {
-                        e.Value = Variable.EmptyInstance;
-                    }
+                    e.Value = type.ClassType != null ? new Variable(type.ClassType.BaseClasses) : Variable.EmptyInstance;
                 };
             }
         }
@@ -907,10 +864,10 @@
         {
             public IsObjectProperty(TypeObject type)
             {
-                this.Name = "IsObject";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.Getting += delegate (object sender, PropertyGettingEventArgs e)
+                Name = "IsObject";
+                HandleEvents = true;
+                CanSet = false;
+                Getting += delegate (object sender, PropertyBaseEventArgs e)
                 {
                     e.Value = new Variable(type.ClassType != null);
                 };
@@ -920,17 +877,10 @@
         {
             public ToNativeProperty(TypeObject type)
             {
-                this.Name = "ToNativeProperty";
-                this.Run += delegate (object sender, FunctionBaseEventArgs e)
+                Name = "ToNativeProperty";
+                Run += delegate (object sender, FunctionBaseEventArgs e)
                 {
-                    if (type.ClassType != null)
-                    {
-                        e.Return = new Variable(Variable.VarType.OBJECT);
-                    }
-                    else
-                    {
-                        e.Return = new Variable(new TypeObject(type.Type));
-                    }
+                    e.Return = type.ClassType != null ? new Variable(Variable.VarType.OBJECT) : new Variable(new TypeObject(type.Type));
                 };
             }
         }
@@ -941,18 +891,9 @@
         /// <returns>もう一方の型と等しければTrue、それ以外の場合はFalse</returns>
         public bool Equals(TypeObject other)
         {
-            if (this.ClassType != null && other.ClassType != null)
-            {
-                return ClassType.ToString() == other.ClassType.ToString();
-            }
-            else if (this.ClassType != null || other.ClassType != null)
-            {
-                return false;
-            }
-            else
-            {
-                return this.Type == other.Type;
-            }
+            return ClassType != null && other.ClassType != null
+                ? ClassType.ToString() == other.ClassType.ToString()
+                : ClassType != null || other.ClassType != null ? false : Type == other.Type;
         }
 
         public Variable Activate(List<Variable> args, ParsingScript script)
@@ -999,9 +940,9 @@
         {
             public ActivateFunction(TypeObject type)
             {
-                this.Name = "Activate";
-                this.Run += Type_ActivateFunc_Run;
-                this.Type = type;
+                Name = "Activate";
+                Run += Type_ActivateFunc_Run;
+                Type = type;
             }
             public TypeObject Type { get; set; }
             private void Type_ActivateFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -1013,9 +954,9 @@
         {
             public ToStringFunction(TypeObject type)
             {
-                this.Name = "ToString";
-                this.Run += ToStringFunction_Run;
-                this.Type = type;
+                Name = "ToString";
+                Run += ToStringFunction_Run;
+                Type = type;
             }
             public TypeObject Type { get; set; }
             private void ToStringFunction_Run(object sender, FunctionBaseEventArgs e)
@@ -1025,14 +966,7 @@
                     e.Return = new Variable("Alice.Interpreter.Type");
                     return;
                 }
-                if (Type.ClassType != null)
-                {
-                    e.Return = new Variable(Type.ClassType.ToString());
-                }
-                else
-                {
-                    e.Return = new Variable(Constants.TypeToString(Type.Type));
-                }
+                e.Return = Type.ClassType != null ? new Variable(Type.ClassType.ToString()) : new Variable(Constants.TypeToString(Type.Type));
             }
         }
     }

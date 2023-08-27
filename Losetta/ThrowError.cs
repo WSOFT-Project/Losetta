@@ -33,10 +33,10 @@
     {
         public ScriptException(string message, Exceptions erorcode, ParsingScript script = null, ParsingException exception = null) : base(message)
         {
-            this.ErrorCode = erorcode;
-            this.Script = script;
-            this.Exception = exception;
-            this.HelpLink = Constants.HELP_LINK + ((int)ErrorCode).ToString("x3");
+            ErrorCode = erorcode;
+            Script = script;
+            Exception = exception;
+            HelpLink = Constants.HELP_LINK + ((int)ErrorCode).ToString("x3");
         }
         public ParsingScript Script { get; set; }
         public ParsingException Exception { get; set; }

@@ -206,7 +206,7 @@ namespace AliceScript
         private bool IsEqualMagicnumber(byte[] data, byte[] magicnumber)
         {
             byte[] magic = data.Take(magicnumber.Length).ToArray();
-            return (magic.SequenceEqual(magicnumber));
+            return magic.SequenceEqual(magicnumber);
         }
         public async Task<Variable> ProcessFileAsync(string filename, bool mainFile = false)
         {
@@ -219,8 +219,7 @@ namespace AliceScript
         }
         public ParsingScript GetScript(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 data = ";";
@@ -228,6 +227,7 @@ namespace AliceScript
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
             toParse.Defines = def;
+            toParse.Settings = setting;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
             toParse.Tag = tag;
@@ -241,14 +241,16 @@ namespace AliceScript
         }
         public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
+            toParse.TopInFile = true;
+            toParse.Defines = def;
+            toParse.Settings = setting;
             toParse.OriginalScript = script;
             toParse.Filename = filename;
             toParse.Tag = tag;
@@ -263,14 +265,15 @@ namespace AliceScript
         }
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
             }
 
             ParsingScript toParse = new ParsingScript(data, 0, char2Line);
+            toParse.TopInFile = true;
+            toParse.Settings = setting;
             toParse.Defines = def;
             toParse.OriginalScript = script;
             toParse.Filename = filename;

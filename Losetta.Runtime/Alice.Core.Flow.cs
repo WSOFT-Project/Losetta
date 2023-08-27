@@ -6,16 +6,16 @@
     {
         public NewObjectFunction()
         {
-            this.Name = Constants.NEW;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += NewObjectFunction_Run;
+            Name = Constants.NEW;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += NewObjectFunction_Run;
         }
 
         private void NewObjectFunction_Run(object sender, FunctionBaseEventArgs e)
         {
             if (e.Script.Prev == Constants.START_ARG)
             {
-                ///本来の関数のように使用されている
+                //new関数として動作
                 List<Variable> args = e.Script.GetFunctionArgs(this);
                 if (args.Count > 0 && args[0].Object is TypeObject type)
                 {
@@ -29,6 +29,7 @@
             }
             else
             {
+                //new式として動作
                 string className = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
 
                 className = Constants.ConvertName(className);
@@ -55,9 +56,9 @@
     {
         public IfStatement()
         {
-            this.Name = Constants.IF;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += IfStatement_Run;
+            Name = Constants.IF;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += IfStatement_Run;
         }
 
         private void IfStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -71,7 +72,7 @@
             Variable result = script.Execute(Constants.END_ARG_ARRAY);
             bool? isTrue = result?.AsBool();
 
-            if (isTrue==true)
+            if (isTrue == true)
             {
                 result = script.ProcessBlock();
 
@@ -126,9 +127,9 @@
     {
         public ForStatement()
         {
-            this.Name = Constants.FOR;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += ForStatement_Run;
+            Name = Constants.FOR;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += ForStatement_Run;
         }
 
         private void ForStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -188,9 +189,9 @@
     {
         public ForeachStatement()
         {
-            this.Name = Constants.FOREACH;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += ForeachStatement_Run;
+            Name = Constants.FOREACH;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += ForeachStatement_Run;
         }
 
         private void ForeachStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -268,9 +269,9 @@
     {
         public WhileStatement()
         {
-            this.Name = Constants.WHILE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += WhileStatement_Run;
+            Name = Constants.WHILE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += WhileStatement_Run;
         }
         private void WhileStatement_Run(object sender, FunctionBaseEventArgs e)
         {
@@ -308,9 +309,9 @@
     {
         public DoWhileStatement()
         {
-            this.Name = Constants.DO;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += DoWhileStatement_Run;
+            Name = Constants.DO;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += DoWhileStatement_Run;
         }
 
         private void DoWhileStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -349,9 +350,9 @@
     {
         public SwitchStatement()
         {
-            this.Name = Constants.SWITCH;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += SwitchStatement_Run;
+            Name = Constants.SWITCH;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += SwitchStatement_Run;
         }
 
         private void SwitchStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -362,8 +363,8 @@
             Variable result = Variable.EmptyInstance;
             var caseSep = ":".ToCharArray();
 
-            bool fallThrough = e.Script.ContainsSymbol(Constants.FALL_THROUGH);
-            bool needBreak = !e.Script.ContainsSymbol(Constants.CASE_WITHOUT_BREAK);
+            bool fallThrough = e.Script.FallThrough;
+            bool needBreak = e.Script.CheckBreakWhenEndCaseBlock;
             bool caseDone = false;
             bool nextTrue = false;
 
@@ -400,7 +401,7 @@
                         continue;
                     }
                     e.Script.Forward();
-                    if (caseDone ||equal || nextTrue)
+                    if (caseDone || equal || nextTrue)
                     {
                         nextTrue = false;
                         caseDone = true;
@@ -435,9 +436,9 @@
     {
         public CaseStatement()
         {
-            this.Name = Constants.CASE;
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += CaseStatement_Run;
+            Name = Constants.CASE;
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += CaseStatement_Run;
         }
 
         private void CaseStatement_Run(object sender, FunctionBaseEventArgs e)
@@ -459,9 +460,9 @@
     {
         public DelegateCreator()
         {
-            this.Name = "delegate";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += DelegateCreator_Run;
+            Name = "delegate";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += DelegateCreator_Run;
         }
 
         private void DelegateCreator_Run(object sender, FunctionBaseEventArgs e)
@@ -497,9 +498,9 @@
     {
         public TryBlock()
         {
-            this.Name = Constants.TRY;
-            this.Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += TryBlock_Run;
+            Name = Constants.TRY;
+            Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += TryBlock_Run;
         }
         private class CatchData
         {
@@ -550,17 +551,17 @@
                     }
                     if (nextData.Prev != '{' && Utils.GetNextToken(nextData) == Constants.WHEN)
                     {
-                        data.Filter = Utils.GetBodyBetween(nextData, Constants.START_ARG, Constants.END_ARG,"\0",true);
+                        data.Filter = Utils.GetBodyBetween(nextData, Constants.START_ARG, Constants.END_ARG, "\0", true);
                         nextData.Forward();
                     }
-                    data.Body = Utils.GetBodyBetween(nextData, Constants.START_GROUP, Constants.END_GROUP,"\0",true);
+                    data.Body = Utils.GetBodyBetween(nextData, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                     catches.Add(data);
 
                     e.Script.Pointer = nextData.Pointer + 1;
                 }
                 else if (Constants.FINALLY == nextToken)
                 {
-                    final_body= Utils.GetBodyBetween(nextData, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+                    final_body = Utils.GetBodyBetween(nextData, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
 
                     e.Script.Pointer = nextData.Pointer + 1;
                     break;
@@ -571,7 +572,7 @@
                 }
             }
 
-            bool handled = catches.Count > 0 || final_body!=null;
+            bool handled = catches.Count > 0 || final_body != null;
             if (!handled)
             {
                 throw new ScriptException("tryブロックには1つ以上catchまたはfinallyが必要です。", Exceptions.TRY_BLOCK_MISSING_HANDLERS, e.Script);
@@ -614,7 +615,7 @@
 
             result = mainScript.Process();
 
-            if (final_body!=null)
+            if (final_body != null)
             {
                 ParsingScript finallyScript = e.Script.GetTempScript(final_body);
                 finallyScript.Process();

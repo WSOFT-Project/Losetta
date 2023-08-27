@@ -7,37 +7,37 @@
         public string Source { get; set; }
         public Exceptions ErrorCode { get; set; }
         public ParsingScript MainScript { get; set; }
-        public ExceptionObject(string message, Exceptions errorcode, ParsingScript mainScript,string source=null,string helplink=null)
+        public ExceptionObject(string message, Exceptions errorcode, ParsingScript mainScript, string source = null, string helplink = null)
         {
-            this.Name = "Exception";
-            this.Message = message;
-            this.ErrorCode = errorcode;
-            this.MainScript = mainScript;
-            this.Source = source;
-            this.HelpLink = helplink;
-            this.Constructor = new Exception_Constractor();
-            this.AddProperty(new Exception_MessageProperty(this));
-            this.AddProperty(new Exception_SourceProperty(this));
-            this.AddProperty(new Exception_HelpLinkProperty(this));
-            this.AddProperty(new Exception_ErrorcodeProperty(this));
-            this.AddProperty(new Exception_StackTraceProperty(this));
-            this.AddFunction(new Exception_ToStringFunc(this));
+            Name = "Exception";
+            Message = message;
+            ErrorCode = errorcode;
+            MainScript = mainScript;
+            Source = source;
+            HelpLink = helplink;
+            Constructor = new Exception_Constractor();
+            AddProperty(new Exception_MessageProperty(this));
+            AddProperty(new Exception_SourceProperty(this));
+            AddProperty(new Exception_HelpLinkProperty(this));
+            AddProperty(new Exception_ErrorcodeProperty(this));
+            AddProperty(new Exception_StackTraceProperty(this));
+            AddFunction(new Exception_ToStringFunc(this));
         }
         public ExceptionObject()
         {
-            this.Name = "Exception";
-            this.Constructor = new Exception_Constractor();
+            Name = "Exception";
+            Constructor = new Exception_Constractor();
         }
         public override string ToString()
         {
-            return ErrorCode.ToString() + "(0x" + ((int)ErrorCode).ToString("x3")+")"+ (string.IsNullOrWhiteSpace(Message) ? string.Empty : ": " + Message);
+            return ErrorCode.ToString() + "(0x" + ((int)ErrorCode).ToString("x3") + ")" + (string.IsNullOrWhiteSpace(Message) ? string.Empty : ": " + Message);
         }
 
         private class Exception_Constractor : FunctionBase
         {
             public Exception_Constractor()
             {
-                this.Run += Exception_Constractor_Run;
+                Run += Exception_Constractor_Run;
             }
 
             private void Exception_Constractor_Run(object sender, FunctionBaseEventArgs e)
@@ -46,7 +46,7 @@
                 {
                     case 0:
                         {
-                            var exc = new ExceptionObject(string.Empty,Exceptions.USER_DEFINED, e.Script);
+                            var exc = new ExceptionObject(string.Empty, Exceptions.USER_DEFINED, e.Script);
                             e.Return = new Variable(exc);
                             break;
                         }
@@ -89,14 +89,14 @@
         {
             public Exception_MessageProperty(ExceptionObject eo)
             {
-                this.Name = "Message";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.ExceptionObject = eo;
-                this.Getting += Exception_MessageProperty_Getting;
+                Name = "Message";
+                HandleEvents = true;
+                CanSet = false;
+                ExceptionObject = eo;
+                Getting += Exception_MessageProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_MessageProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_MessageProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.Message);
             }
@@ -105,14 +105,14 @@
         {
             public Exception_SourceProperty(ExceptionObject eo)
             {
-                this.Name = "Source";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.ExceptionObject = eo;
-                this.Getting += Exception_SourceProperty_Getting;
+                Name = "Source";
+                HandleEvents = true;
+                CanSet = false;
+                ExceptionObject = eo;
+                Getting += Exception_SourceProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_SourceProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_SourceProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.Source);
             }
@@ -121,14 +121,14 @@
         {
             public Exception_HelpLinkProperty(ExceptionObject eo)
             {
-                this.Name = "HelpLink";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.ExceptionObject = eo;
-                this.Getting += Exception_HelpLinkProperty_Getting;
+                Name = "HelpLink";
+                HandleEvents = true;
+                CanSet = false;
+                ExceptionObject = eo;
+                Getting += Exception_HelpLinkProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_HelpLinkProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_HelpLinkProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.HelpLink);
             }
@@ -138,14 +138,14 @@
         {
             public Exception_StackTraceProperty(ExceptionObject eo)
             {
-                this.Name = "StackTrace";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.ExceptionObject = eo;
-                this.Getting += Exception_StackTraceProperty_Getting;
+                Name = "StackTrace";
+                HandleEvents = true;
+                CanSet = false;
+                ExceptionObject = eo;
+                Getting += Exception_StackTraceProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_StackTraceProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_StackTraceProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = ExceptionObject.MainScript.GetStackTrace();
             }
@@ -155,14 +155,14 @@
         {
             public Exception_ErrorcodeProperty(ExceptionObject eo)
             {
-                this.Name = "ErrorCode";
-                this.HandleEvents = true;
-                this.CanSet = false;
-                this.ExceptionObject = eo;
-                this.Getting += Exception_MessageProperty_Getting;
+                Name = "ErrorCode";
+                HandleEvents = true;
+                CanSet = false;
+                ExceptionObject = eo;
+                Getting += Exception_MessageProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_MessageProperty_Getting(object sender, PropertyGettingEventArgs e)
+            private void Exception_MessageProperty_Getting(object sender, PropertyBaseEventArgs e)
             {
                 e.Value = new Variable((int)ExceptionObject.ErrorCode);
             }
@@ -172,9 +172,9 @@
         {
             public Exception_ToStringFunc(ExceptionObject eo)
             {
-                this.Name = "tostring";
-                this.ExceptionObject = eo;
-                this.Run += Exception_ToStringFunc_Run;
+                Name = "tostring";
+                ExceptionObject = eo;
+                Run += Exception_ToStringFunc_Run;
             }
 
             private void Exception_ToStringFunc_Run(object sender, FunctionBaseEventArgs e)

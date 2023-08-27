@@ -558,19 +558,14 @@ namespace AliceScript
 
         public static bool SpaceNotNeeded(char next)
         {
-            return (next == Constants.SPACE || next == Constants.START_ARG ||
+            return next == Constants.SPACE || next == Constants.START_ARG ||
                     next == Constants.START_GROUP || next == Constants.START_ARRAY ||
-                    next == Constants.EMPTY);
+                    next == Constants.EMPTY;
         }
 
         public static bool KeepSpace(StringBuilder sb, char next)
         {
-            if (SpaceNotNeeded(next))
-            {
-                return false;
-            }
-
-            return EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
+            return SpaceNotNeeded(next) ? false : EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
         }
         public static bool KeepSpaceOnce(StringBuilder sb, char next)
         {
@@ -581,11 +576,7 @@ namespace AliceScript
 
             string str = sb.ToString();
             char last = str.Length < 1 ? Constants.EMPTY : str.Last();
-            if (char.IsLetterOrDigit(last) && char.IsLetterOrDigit(next))
-            {
-                return true;
-            }
-            return EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
+            return char.IsLetterOrDigit(last) && char.IsLetterOrDigit(next) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
         public static List<string> GetCompiledArgs(string source)
@@ -678,12 +669,14 @@ namespace AliceScript
             }
             return args;
         }
-        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, string filename = "")
+        public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, out ParsingScript.ScriptSettings settings, string filename = "")
         {
             const string curlyErrorMsg = "波括弧が不均等です";
             const string bracketErrorMsg = "角括弧が不均等です";
             const string parenthErrorMsg = "括弧が不均等です";
             const string quoteErrorMsg = "クオーテーションが不均等です";
+
+            settings = new ParsingScript.ScriptSettings();
 
             StringBuilder sb = new StringBuilder(source.Length);
 
@@ -791,7 +784,7 @@ namespace AliceScript
                         }
                         break;
                     case '*':
-                        if (!inQuotes && (inComments && next == '/'))
+                        if (!inQuotes && inComments && next == '/')
                         {
                             i++; // skip next character
                             inComments = false;
@@ -803,7 +796,7 @@ namespace AliceScript
                         {
                             ch = '"';
                             inQuotes = inQuotes1 = !inQuotes1;
-                            if (inQuotes && (prev == '"' && lineNumberQuote == 0))
+                            if (inQuotes && prev == '"' && lineNumberQuote == 0)
                             {
                                 lineNumberQuote = lineNumber;
                             }
@@ -817,7 +810,7 @@ namespace AliceScript
                         if (!inComments && (!inIf || If) && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
                         {
                             inQuotes = inQuotes2 = !inQuotes2;
-                            if (inQuotes && (prev == '"' && lineNumberQuote == 0))
+                            if (inQuotes && prev == '"' && lineNumberQuote == 0)
                             {
                                 lineNumberQuote = lineNumber;
                             }
@@ -964,14 +957,55 @@ namespace AliceScript
 
                     switch (command)
                     {
-                        case "include":
+                        case Constants.UNNEED_VAR:
+                            {
+                                settings.UnneedVarKeyword = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.TYPE_INFERENCE:
+                            {
+                                settings.TypeInference = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.FALL_THROUGH:
+                            {
+                                settings.FallThrough = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.CHECK_BREAK_WHEN_CASE:
+                            {
+                                settings.CheckBreakWhenEndCaseBlock = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.ENABLE_USING:
+                            {
+                                settings.EnableUsing = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.ENABLE_IMPORT:
+                            {
+                                settings.EnableImport = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.ENABLE_INCLUDE:
+                            {
+                                settings.EnableInclude = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.DENY_TO_TOPLEVEL_SCRIPT:
+                            {
+                                settings.DenyAccessToTopLevelScript = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.INCLUDE:
                             {
                                 string str = SafeReader.ReadAllText(arg, out _);
-                                str = ConvertToScript(str, out _, out var def, Path.GetFileName(arg));
+                                str = ConvertToScript(str, out _, out var def, out var setting, Path.GetFileName(arg));
                                 foreach (var d in def)
                                 {
                                     defines.Add(d);
                                 }
+                                settings.Union(setting);
                                 sb.Append(str);
                                 break;
                             }
@@ -1030,8 +1064,6 @@ namespace AliceScript
             {
                 char2Line[sb.Length - 1] = lineNumber;
                 lastScriptLength = sb.Length;
-                //result += lineNumber + ": " + (sb.Length - 1) + " " +
-                //  source.Substring(source.Length - Math.Min(source.Length, 40), Math.Min(source.Length, 40)) + "\n";
             }
 
             bool error = levelCurly != 0 || levelBrackets != 0 || levelParentheses != 0 || inQuotes;
@@ -1056,7 +1088,23 @@ namespace AliceScript
             }
             return sb.ToString().Trim();
         }
-
+        private static bool? ConvertBool(string str)
+        {
+            str = str.ToLower().Trim();
+            switch (str)
+            {
+                case Constants.TRUE:
+                    return true;
+                case Constants.FALSE:
+                    return false;
+                case "enable":
+                    return true;
+                case "disable":
+                    return false;
+                default:
+                    return null;
+            }
+        }
 
         public static string GetBodySize(ParsingScript script, string endToken1, string endToken2 = null)
         {

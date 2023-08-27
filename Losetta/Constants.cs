@@ -26,6 +26,7 @@ namespace AliceScript
 
         public const string AS = "as ";
         public const string IS = "is ";
+        public const string IS_NOT = "is not ";
         public const string FOR_EACH = ":";
         public const string FOR_IN = "in";
         public const string FOR_OF = "of";
@@ -184,9 +185,9 @@ namespace AliceScript
         public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=", "=>" };
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS_NOT,IS};
 
-        public static string[] ACTIONS = (OPER_ACTIONS.Union(MATH_ACTIONS)).ToArray();
+        public static string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
         public static string[] CORE_OPERATORS = { TRY, FOR, WHILE };
 
@@ -232,13 +233,13 @@ namespace AliceScript
         /// </summary>
         public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}]*$", RegexOptions.Compiled);
 
-        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}",RegexOptions.Compiled);
+        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
-        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}",RegexOptions.Compiled);
+        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
 
-        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}",RegexOptions.Compiled);
+        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
 
-        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]",RegexOptions.Compiled);
+        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";
@@ -256,48 +257,61 @@ namespace AliceScript
         //varキーワードの型推論を有効にする
         public const string TYPE_INFERENCE = "type_inference";
         public const string FALL_THROUGH = "fall_through";
-        public const string CASE_WITHOUT_BREAK = "case_without_break";
-        public const string DISABLE_USING = "disable_using";
-        public const string DISABLE_IMPORT = "disable_import";
-        public const string DISABLE_INCLUDE = "disable_include";
+        public const string CHECK_BREAK_WHEN_CASE = "check_break_when_case";
+        public const string ENABLE_USING = "enable_using";
+        public const string ENABLE_IMPORT = "enable_import";
+        public const string ENABLE_INCLUDE = "enable_include";
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
         public const string HELP_LINK = "https://a.wsoft.ws/alice/exceptions/0x";
 
 
-        // 関数呼び出し時に丸括弧が不要な関数
+        /// <summary>
+        /// 関数呼び出し時に丸括弧が不要な関数の名前
+        /// </summary>
         public static HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
             FUNCTION, NAMESPACE, NEW, PRINT
         };
-        //関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
+        /// <summary>
+        /// 関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
+        /// </summary>
         public static HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
         {
             CASE, RETURN, THROW, TYPE_OF
         };
 
-        // 言語構造の予約。これらを演算したり返すことは無意味
+        /// <summary>
+        /// 言語構造の関数名
+        /// </summary>
         public static HashSet<string> CONTROL_FLOW = new HashSet<string>
         {
             BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,FOREACH, FUNCTION, IF, INCLUDE, NEW,IMPORT,
             RETURN, THROW, TRY, WHILE
         };
 
-        // Nullをとりえない変数の型
+        /// <summary>
+        /// Nullをとりえない変数の型
+        /// </summary>
         public static HashSet<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.NUMBER,Variable.VarType.BOOLEAN
         };
 
-        //配列添え字演算子を使用できる変数の型
+        /// <summary>
+        /// 配列添え字演算子を使用できる変数の型
+        /// </summary>
         public static HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.ARRAY,Variable.VarType.DELEGATE,Variable.VarType.STRING
         };
-        //インタプリタに最初から定義される定数
-        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> {
+        /// <summary>
+        /// AliceScriptから参照できる定数
+        /// </summary>
+        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> 
+        {
             //Trueを表します
             { TRUE,Variable.True},
             //Falseを表します
@@ -308,6 +322,8 @@ namespace AliceScript
             { INFINITY,new Variable(double.PositiveInfinity)},
             //負の無限を表します
             { NEG_INFINITY,new Variable(double.NegativeInfinity)},
+            //非数を表します
+            {NAN,new Variable(double.NaN) },
             //定義されていないことを表します
             { UNDEFINED,new Variable(Variable.VarType.UNDEFINED)},
             //ループを抜けます
@@ -322,19 +338,24 @@ namespace AliceScript
             {"pointer",Variable.AsType(Variable.VarType.POINTER) },
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
-            //{"type",Variable.AsType(Variable.VarType.TYPE) }
 
         };
-
+        /// <summary>
+        /// AliceScriptのキーワード
+        /// </summary>
         public static HashSet<string> KEYWORD = new HashSet<string>
         {
             PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
-        //型指定修飾子
+        /// <summary>
+        /// 型指定修飾子
+        /// </summary>
         public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
              "string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
-        //算術演算子
+        /// <summary>
+        /// 算術演算子
+        /// </summary>
         public static HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
         {
             "*", "*=" , "+", "+=" , "-", "-=", "/", "/=", "%", "%=", ">", "<", ">=", "<="
@@ -371,12 +392,7 @@ namespace AliceScript
         public static string GetRealName(string name)
         {
             name = name.Trim();
-            string realName;
-            if (!s_realNames.TryGetValue(name, out realName))
-            {
-                return name;
-            }
-            return realName;
+            return !s_realNames.TryGetValue(name, out string realName) ? name : realName;
         }
 
         public static string TypeToString(Variable.VarType type)
@@ -436,8 +452,7 @@ namespace AliceScript
         }
         public static Variable.VarType StringToType(string type)
         {
-            Variable.VarType ptype;
-            TryParseType(type, out ptype);
+            TryParseType(type, out Variable.VarType ptype);
             return ptype;
         }
     }

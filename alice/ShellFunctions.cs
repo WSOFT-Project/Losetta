@@ -1,6 +1,4 @@
-﻿using AliceScript;
-
-namespace alice
+﻿namespace AliceScript.CLI
 {
     internal class ShellFunctions
     {
@@ -20,8 +18,8 @@ namespace alice
     {
         public shell_dumpFunc()
         {
-            this.Name = "dump";
-            this.Run += Shell_dumpFunc_Run;
+            Name = "dump";
+            Run += Shell_dumpFunc_Run;
         }
 
         private void Shell_dumpFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -34,8 +32,8 @@ namespace alice
     {
         public shell_reinitFunc()
         {
-            this.Name = "init";
-            this.Run += Shell_reinitFunc_Run;
+            Name = "init";
+            Run += Shell_reinitFunc_Run;
         }
 
         private void Shell_reinitFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -48,9 +46,9 @@ namespace alice
     {
         public shell_execFunc()
         {
-            this.Name = "exec";
-            this.Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            this.Run += Shell_execFunc_Run;
+            Name = "exec";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += Shell_execFunc_Run;
         }
 
         private void Shell_execFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -64,10 +62,10 @@ namespace alice
     {
         public buildpkgFunc()
         {
-            this.Name = "buildpkg";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.MinimumArgCounts = 2;
-            this.Run += BuildpkgFunc_Run;
+            Name = "buildpkg";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            MinimumArgCounts = 2;
+            Run += BuildpkgFunc_Run;
         }
 
         private void BuildpkgFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -80,10 +78,10 @@ namespace alice
     {
         public testpkgFunc()
         {
-            this.Name = "testpkg";
-            this.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            this.MinimumArgCounts = 1;
-            this.Run += TestpkgFunc_Run;
+            Name = "testpkg";
+            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            MinimumArgCounts = 1;
+            Run += TestpkgFunc_Run;
         }
 
         private void TestpkgFunc_Run(object sender, FunctionBaseEventArgs e)

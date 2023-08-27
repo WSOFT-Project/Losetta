@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
+﻿using System.Text;
 
 namespace AliceScript
 {
@@ -83,7 +82,7 @@ namespace AliceScript
                     return listToMerge;
                 }
 
-                bool negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);
+                PreOperetors negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);
 
                 // We are done getting the next token. The GetValue() call below may
                 // recursively call AliceScript(). This will happen if extracted
@@ -126,7 +125,19 @@ namespace AliceScript
 
             do
             { // Main processing cycle of the first part.
+                HashSet<string> keywords = new HashSet<string>();
+            ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
+
+                if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
+                {
+                    keywords.Add(token);
+                    goto ExtractNextToken;
+                }
+                if (string.IsNullOrEmpty(token) && script.StillValid())
+                {
+                    goto ExtractNextToken;
+                }
 
                 bool ternary = UpdateIfTernary(script, token, ch, listToMerge, (List<Variable> newList) => { listToMerge = newList; });
                 if (ternary)
@@ -134,11 +145,17 @@ namespace AliceScript
                     return listToMerge;
                 }
 
-                bool negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);
+                PreOperetors negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);
 
-                ParserFunction func = new ParserFunction(script, token, ch, ref action);
+                // We are done getting the next token. The GetValue() call below may
+                // recursively call AliceScript(). This will happen if extracted
+                // item is a function or if the next item is starting with a START_ARG '('.
+                ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is StringOrNumberFunction)))
+                {
+                    script.ProcessingFunction = fb;
+                }
                 Variable current = await func.GetValueAsync(script);
-
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {
                     return listToMerge;
@@ -213,7 +230,7 @@ namespace AliceScript
             return result;
         }
 
-        private static bool UpdateResult(ParsingScript script, char[] to, List<Variable> listToMerge, string token, bool negSign,
+        private static bool UpdateResult(ParsingScript script, char[] to, List<Variable> listToMerge, string token, PreOperetors preop,
                                  ref Variable current, ref int negated, ref string action)
         {
             if (current == null)
@@ -222,10 +239,24 @@ namespace AliceScript
             }
             current.ParsingToken = token;
 
-            if (negSign)
+            switch (preop)
             {
-                // -マークがついている場合は数値が0未満
-                current = new Variable(-1 * current.Value);
+                case PreOperetors.Minus:
+                    {
+                        // -マークがついている場合は数値がマイナス
+                        current = new Variable(-1 * current.Value);
+                        break;
+                    }
+                case PreOperetors.Increment:
+                    {
+                        current.Value++;
+                        break;
+                    }
+                case PreOperetors.Decrement:
+                    {
+                        current.Value--;
+                        break;
+                    }
             }
 
             if (negated > 0 && current.Type == Variable.VarType.BOOLEAN)
@@ -262,7 +293,7 @@ namespace AliceScript
             char next = script.TryCurrent(); // 前進済み
             bool done = listToMerge.Count == 0 &&
                         (next == Constants.END_STATEMENT ||
-                        ((action == Constants.NULL_ACTION) && (current != null && current.Type != Variable.VarType.BOOLEAN)) ||
+                        ((action == Constants.NULL_ACTION) && current != null && current.Type != Variable.VarType.BOOLEAN) ||
                          (current != null && current.IsReturn));
             if (done)
             {
@@ -282,16 +313,11 @@ namespace AliceScript
             return false;
         }
 
-        private static bool CheckConsistencyAndSign(ParsingScript script, List<Variable> listToMerge, string action, ref string token)
+        private static PreOperetors CheckConsistencyAndSign(ParsingScript script, List<Variable> listToMerge, string action, ref string token)
         {
             if (Constants.CONTROL_FLOW.Contains(token) && listToMerge.Count > 0)
-            {//&&
-             //item != Constants.RETURN) {
-             // This can happen when the end of statement ";" is forgotten.
+            {
                 listToMerge.Clear();
-                //throw new ArgumentException("Token [" +
-                //   item + "] can't be part of an expression. Check \";\". Stopped at [" +
-                //    script.Rest + " ...]");
             }
 
             script.MoveForwardIf(Constants.SPACE);
@@ -301,10 +327,34 @@ namespace AliceScript
                 script.Forward(action.Length - 1);
             }
 
-            bool negSign = CheckNegativeSign(ref token);
-            return negSign;
+            if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
+            {
+                token = token.Substring(2);
+                return PreOperetors.Increment;
+            }
+            else if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
+            {
+                token = token.Substring(2);
+                return PreOperetors.Decrement;
+            }
+            else if (token.Length > 1 && token[0] == '+' && token[1] != Constants.QUOTE)
+            {
+                token = token.Substring(1);
+                //単項プラス演算子は何もする必要がない
+                return PreOperetors.None;
+            }
+            else if (token.Length > 1 && token[0] == '-' && token[1] != Constants.QUOTE)
+            {
+                token = token.Substring(1);
+                return PreOperetors.Minus;
+            }
+            return PreOperetors.None;
         }
 
+        private enum PreOperetors
+        {
+            Increment, Decrement, Minus, None
+        }
         private static void CheckQuotesIndices(ParsingScript script,
                             char ch, ref bool inQuotes, ref int arrayIndexDepth)
         {
@@ -312,8 +362,8 @@ namespace AliceScript
             {
                 case Constants.QUOTE:
                     {
-                        char prev = script.TryPrevPrev();
-                        char prevprev = script.TryPrevPrevPrev();
+                        char prev = script.TryPrev(2);
+                        char prevprev = script.TryPrev(2);
                         inQuotes = (prev != '\\' || prevprev == '\\') ? !inQuotes : inQuotes;
                         return;
                     }
@@ -336,33 +386,6 @@ namespace AliceScript
             }
         }
 
-        private static bool CheckNegativeSign(ref string token)
-        {
-            if (token.Length < 2 || token[0] != '-' || token[1] == Constants.QUOTE)
-            {
-                return false;
-            }
-            double num = 0;
-            if (Double.TryParse(token, NumberStyles.Number |
-                   NumberStyles.AllowExponent |
-                   NumberStyles.Float,
-                   CultureInfo.InvariantCulture, out num))
-            {
-                return false;
-            }
-
-            token = token.Substring(1);
-            return true;
-        }
-
-        private static void AppendIfNecessary(StringBuilder item, char ch, char[] to)
-        {
-            if (ch == Constants.END_ARRAY && to.Length == 1 && to[0] == Constants.END_ARRAY &&
-                item.Length > 0 && item[item.Length - 1] != Constants.END_ARRAY)
-            {
-                item.Append(ch);
-            }
-        }
         private static bool SkipOrAppendIfNecessary(StringBuilder item, char ch, char[] to)
         {
             if (to.Length == 1 && to[0] == Constants.END_ARRAY && item.Length > 0)
@@ -382,7 +405,7 @@ namespace AliceScript
         private static bool StillCollecting(string item, char[] to, ParsingScript script,
                                     ref string action)
         {
-            char prev = script.TryPrevPrev();
+            char prev = script.TryPrev(2);
             char ch = script.TryPrev();
             char next = script.TryCurrent();
 
@@ -393,19 +416,21 @@ namespace AliceScript
                 return false;
             }
 
-            // 負の数またはポインタまたは]または)で始まる場合
-            if (item.Length == 0 &&
-               ((ch == '-' && next != '-') || ch == '&'
-                                           || ch == Constants.END_ARRAY
-                                           || ch == Constants.END_ARG))
+            //角かっこまたは波かっこまたはポインタ
+            if ((item.Length == 0 && (ch == Constants.END_ARRAY || ch == Constants.END_ARG)) || ch == '&')
+            {
+                return true;
+            }
+            // プラスまたはマイナスはトークン区切りの直後またはプラスマイナスの直後のときのみトークンとしてあつかう
+            if (item.Length < 2 && (ch == '-' || ch == '+') && (prev == '+' || prev == '-' || Constants.TOKEN_SEPARATION.Contains(prev)))
             {
                 return true;
             }
 
             // eを用いた数値記法の場合
-            if (Char.ToUpper(prev) == 'E' &&
-               (ch == '-' || ch == '+' || Char.IsDigit(ch)) &&
-               item.Length > 1 && Char.IsDigit(item[item.Length - 2]))
+            if (char.ToUpper(prev) == 'E' &&
+               (ch == '-' || ch == '+' || char.IsDigit(ch)) &&
+               item.Length > 1 && char.IsDigit(item[item.Length - 2]))
             {
                 return true;
             }
@@ -503,7 +528,7 @@ namespace AliceScript
             // the characters we skipped before getting the action.
             int advance = action == null ? 0 : action.Length;
             script.Forward(advance);
-            return action == null ? Constants.NULL_ACTION : action;
+            return action ?? Constants.NULL_ACTION;
         }
 
         private static Variable MergeList(List<Variable> listToMerge, ParsingScript script)
@@ -559,23 +584,24 @@ namespace AliceScript
         private static Variable MergeCells(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             if (leftCell.IsReturn ||
-                leftCell.Type == Variable.VarType.BREAK ||
-                leftCell.Type == Variable.VarType.CONTINUE)
+     leftCell.Type == Variable.VarType.BREAK ||
+     leftCell.Type == Variable.VarType.CONTINUE)
             {
-                //処理は不要
                 return Variable.EmptyInstance;
             }
-            //[is]演算子、型テスト演算子ですべての型に適応できます
+
             if (leftCell.Action == Constants.IS && rightCell.Object != null && rightCell.Object is TypeObject to)
             {
                 leftCell = new Variable(to.Match(leftCell));
             }
-            //[as]演算子、キャスト演算子で右辺がType型の時すべての型に適応できます
+            else if (leftCell.Action == Constants.IS_NOT && rightCell.Object != null && rightCell.Object is TypeObject t)
+            {
+                leftCell = new Variable(!t.Match(leftCell));
+            }
             else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
             }
-            //[??]演算子、Null合体演算子ですべての型に適応できます
             else if (leftCell.Action == "??")
             {
                 if (leftCell.IsNull())
@@ -583,23 +609,19 @@ namespace AliceScript
                     leftCell = rightCell;
                 }
             }
-            // [==]または[===]つまり、等値演算子の場合はそれぞれのEqualsメソッドを呼び出す
             else if (leftCell.Action == "==" || leftCell.Action == "===")
             {
                 leftCell = new Variable(leftCell.Equals(rightCell));
             }
-            // [!=]または[!==]つまり、非等値演算子の場合はそれぞれのEqualsメソッドを呼び出しそれを反転する
             else if (leftCell.Action == "!=" || leftCell.Action == "!==")
             {
                 leftCell = new Variable(!leftCell.Equals(rightCell));
             }
-            else if (leftCell.Type == Variable.VarType.NUMBER &&
-                rightCell.Type == Variable.VarType.NUMBER)
+            else if (leftCell.Type == Variable.VarType.NUMBER && rightCell.Type == Variable.VarType.NUMBER)
             {
                 leftCell = MergeNumbers(leftCell, rightCell, script);
             }
-            else if (leftCell.Type == Variable.VarType.BOOLEAN &&
-                    rightCell.Type == Variable.VarType.BOOLEAN)
+            else if (leftCell.Type == Variable.VarType.BOOLEAN && rightCell.Type == Variable.VarType.BOOLEAN)
             {
                 leftCell = MergeBooleans(leftCell, rightCell, script);
             }
@@ -615,14 +637,13 @@ namespace AliceScript
             {
                 leftCell = MergeDelegate(leftCell, rightCell, script);
             }
-            else if (leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator)
-            {
-                leftCell = obj.Operator(leftCell, rightCell, leftCell.Action, script);
-            }
             else
             {
-                leftCell = MergeObjects(leftCell, rightCell, script);
+                leftCell = leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
+                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
+                    : MergeObjects(leftCell, rightCell, script);
             }
+
             leftCell.Action = rightCell.Action;
             return leftCell;
         }
@@ -643,6 +664,8 @@ namespace AliceScript
                 case "^":
                     return new Variable(
                         leftCell.Bool ^ rightCell.Bool);
+                case null:
+                case "\0":
                 case ")":
                     return leftCell;
                 default:
@@ -666,14 +689,9 @@ namespace AliceScript
                 case "/":
                     return new Variable(leftCell.Value / rightCell.Value);
                 case "+":
-                    if (rightCell.Type != Variable.VarType.NUMBER)
-                    {
-                        return new Variable(leftCell.AsString() + rightCell.String);
-                    }
-                    else
-                    {
-                        return new Variable(leftCell.Value + rightCell.Value);
-                    }
+                    return rightCell.Type != Variable.VarType.NUMBER
+                        ? new Variable(leftCell.AsString() + rightCell.String)
+                        : new Variable(leftCell.Value + rightCell.Value);
                 case "-":
                     return new Variable(leftCell.Value - rightCell.Value);
                 case "<":
@@ -692,9 +710,9 @@ namespace AliceScript
                     return new Variable((int)leftCell.Value | (int)rightCell.Value);
                 case "**":
                     return new Variable(Math.Pow(leftCell.Value, rightCell.Value));
+                case null:
+                case "\0":
                 case ")":
-                    // Utils.ThrowErrorMsg("Can't process last token [" + rightCell.Value + "] in the expression.",
-                    //      script, script.Current.ToString());
                     return leftCell;
                 default:
                     Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
@@ -725,6 +743,8 @@ namespace AliceScript
                 case ":":
                     leftCell.SetHashVariable(leftCell.AsString(), rightCell);
                     break;
+                case null:
+                case "\0":
                 case ")":
                     break;
                 default:
@@ -787,6 +807,8 @@ namespace AliceScript
 
                         return v;
                     }
+                case null:
+                case "\0":
                 case ")":
                     return leftCell;
                 default:
@@ -833,6 +855,8 @@ namespace AliceScript
 
                         return v;
                     }
+                case null:
+                case "\0":
                 case ")":
                     return leftCell;
                 default:
@@ -847,9 +871,10 @@ namespace AliceScript
         {
             switch (leftCell.Action)
             {
-                case ")":
-                    return leftCell;
                 case ">":
+                case null:
+                case "\0":
+                case ")":
                     return leftCell;
                 default:
                     Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,

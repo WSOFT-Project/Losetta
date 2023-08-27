@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class  Alice_Security_Initer
+    public sealed class Alice_Security
     {
         public static void Init()
         {
@@ -34,9 +34,9 @@ namespace AliceScript.NameSpaces
     {
         public file_encrypt_dataFunc()
         {
-            this.Name = "encrypt_data";
-            this.MinimumArgCounts = 2;
-            this.Run += File_encrypt_dataFunc_Run;
+            Name = "encrypt_data";
+            MinimumArgCounts = 2;
+            Run += File_encrypt_dataFunc_Run;
         }
 
         private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -49,9 +49,9 @@ namespace AliceScript.NameSpaces
     {
         public file_decrypt_dataFunc()
         {
-            this.Name = "decrypt_data";
-            this.MinimumArgCounts = 2;
-            this.Run += File_encrypt_dataFunc_Run;
+            Name = "decrypt_data";
+            MinimumArgCounts = 2;
+            Run += File_encrypt_dataFunc_Run;
         }
 
         private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
@@ -69,15 +69,14 @@ namespace AliceScript.NameSpaces
     {
         public sha256_gethash()
         {
-            this.Name = "sha256_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha256_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA256CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA256.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
@@ -85,15 +84,14 @@ namespace AliceScript.NameSpaces
     {
         public sha384_gethash()
         {
-            this.Name = "sha384_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha384_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA384CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA384.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
@@ -101,15 +99,14 @@ namespace AliceScript.NameSpaces
     {
         public sha512_gethash()
         {
-            this.Name = "sha512_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha512_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA512CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA512.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
@@ -117,15 +114,14 @@ namespace AliceScript.NameSpaces
     {
         public sha1_gethash()
         {
-            this.Name = "sha1_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Sha256_gethash_Run;
+            Name = "sha1_gethash";
+            MinimumArgCounts = 1;
+            Run += Sha256_gethash_Run;
         }
 
         private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new SHA1CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = SHA1.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
@@ -133,15 +129,14 @@ namespace AliceScript.NameSpaces
     {
         public md5_gethash()
         {
-            this.Name = "md5_gethash";
-            this.MinimumArgCounts = 1;
-            this.Run += Md5_gethash_Run;
+            Name = "md5_gethash";
+            MinimumArgCounts = 1;
+            Run += Md5_gethash_Run;
         }
 
         private void Md5_gethash_Run(object sender, FunctionBaseEventArgs e)
         {
-            var crypto = new MD5CryptoServiceProvider();
-            byte[] hashValue = crypto.ComputeHash(e.Args[0].ByteArray);
+            byte[] hashValue = MD5.Create().ComputeHash(e.Args[0].ByteArray);
             e.Return = new Variable(hashValue);
         }
     }
@@ -246,7 +241,7 @@ namespace AliceScript.NameSpaces
             // ハッシュ値を取得
             byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
-            bool i = (e.Args[1].AsByteArray() == hash);
+            bool i = e.Args[1].AsByteArray() == hash;
             e.Return = new Variable(i);
         }
 
@@ -278,13 +273,13 @@ namespace AliceScript.NameSpaces
             // ハッシュ値を取得
             byte[] hash = PasswordSaltHashManerger.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
-            bool i = (e.Args[1].AsByteArray() == hash);
+            bool i = e.Args[1].AsByteArray() == hash;
             e.Return = new Variable(i);
         }
 
 
     }
-    internal sealed class  PasswordSaltHashManerger
+    internal sealed class PasswordSaltHashManerger
     {
         internal static byte[] GetHash(string password, byte[] salt, int size, int cnt)
         {
@@ -309,10 +304,7 @@ namespace AliceScript.NameSpaces
         internal static byte[] GetSalt(int size)
         {
             var bytes = new byte[size];
-            using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
-            {
-                rngCryptoServiceProvider.GetBytes(bytes);
-            }
+            RandomNumberGenerator.Fill(bytes);
             return bytes;
         }
     }
