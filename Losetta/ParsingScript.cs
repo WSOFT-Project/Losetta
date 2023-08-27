@@ -595,17 +595,9 @@ namespace AliceScript
         {
             return m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
         }
-        public char TryPrev()
+        public char TryPrev(int count=1)
         {
-            return m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
-        }
-        public char TryPrevPrev()
-        {
-            return m_from >= 2 ? m_data[m_from - 2] : Constants.EMPTY;
-        }
-        public char TryPrevPrevPrev()
-        {
-            return m_from >= 3 ? m_data[m_from - 3] : Constants.EMPTY;
+            return m_from >= count ? m_data[m_from - count] : Constants.EMPTY;
         }
         public string FromPrev(int backChars = 1, int maxChars = Constants.MAX_CHARS_TO_SHOW)
         {

@@ -363,8 +363,8 @@ namespace AliceScript
             {
                 case Constants.QUOTE:
                     {
-                        char prev = script.TryPrevPrev();
-                        char prevprev = script.TryPrevPrevPrev();
+                        char prev = script.TryPrev(2);
+                        char prevprev = script.TryPrev(2);
                         inQuotes = (prev != '\\' || prevprev == '\\') ? !inQuotes : inQuotes;
                         return;
                     }
@@ -406,7 +406,7 @@ namespace AliceScript
         private static bool StillCollecting(string item, char[] to, ParsingScript script,
                                     ref string action)
         {
-            char prev = script.TryPrevPrev();
+            char prev = script.TryPrev(2);
             char ch = script.TryPrev();
             char next = script.TryCurrent();
 
@@ -422,8 +422,8 @@ namespace AliceScript
             {
                 return true;
             }
-            // プラスまたはマイナスは3つ以上続けて使用できない
-            if (item.Length < 2 && (ch == '-' || ch=='+'))
+            // プラスまたはマイナスはトークン区切りの直後またはプラスマイナスの直後のときのみトークンとしてあつかう
+            if (item.Length < 2 && (ch == '-' || ch=='+') && (prev == '+' || prev == '-' || Constants.TOKEN_SEPARATION.Contains(prev)) )
             {
                 return true;
             }
