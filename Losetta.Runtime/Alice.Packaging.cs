@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Packaging_Initer
+    public sealed class Alice_Packaging
     {
         public static void Init()
         {

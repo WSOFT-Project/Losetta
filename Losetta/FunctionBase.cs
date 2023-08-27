@@ -4,9 +4,13 @@
     {
 
         /// <summary>
-        /// この関数に必要な引数の数を取得または設定します
+        /// この関数に必要な引数の最小個数
         /// </summary>
         public int MinimumArgCounts { get; set; }
+        /// <summary>
+        /// この関数に渡すことができる引数の最大個数
+        /// </summary>
+        public int MaximumArgCounts { get; set; }
 
         /// <summary>
         /// この関数の属性を取得または設定します
@@ -55,26 +59,22 @@
             ex.Script = script;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
-            if (ex.UseObjectResult) { return new Variable(ex.ObjectResult); }
-            return ex.Return;
+            return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
         protected override Variable Evaluate(ParsingScript script)
         {
             List<Variable> args = null;
             if (!Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
             {
-                if (ObjectBase.GETTING)
-                {
-                    args = ObjectBase.LaskVariable;
-                }
-                else
-                {
-                    args = script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
-                }
+                args = ObjectBase.GETTING ? ObjectBase.LaskVariable : script.GetFunctionArgs(this, Constants.START_ARG, Constants.END_ARG);
 
-                if (MinimumArgCounts >= 1)
+                if (MinimumArgCounts > 1)
                 {
                     Utils.CheckArgs(args.Count, MinimumArgCounts, m_name);
+                }
+                if (MaximumArgCounts > 0 && args.Count > MaximumArgCounts)
+                {
+                    throw new ScriptException($"関数 `{m_name}`は、{MaximumArgCounts}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);
                 }
             }
             return Evaluate(args, script);

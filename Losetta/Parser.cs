@@ -428,9 +428,9 @@ namespace AliceScript
             }
 
             // eを用いた数値記法の場合
-            if (Char.ToUpper(prev) == 'E' &&
-               (ch == '-' || ch == '+' || Char.IsDigit(ch)) &&
-               item.Length > 1 && Char.IsDigit(item[item.Length - 2]))
+            if (char.ToUpper(prev) == 'E' &&
+               (ch == '-' || ch == '+' || char.IsDigit(ch)) &&
+               item.Length > 1 && char.IsDigit(item[item.Length - 2]))
             {
                 return true;
             }
@@ -528,7 +528,7 @@ namespace AliceScript
             // the characters we skipped before getting the action.
             int advance = action == null ? 0 : action.Length;
             script.Forward(advance);
-            return action == null ? Constants.NULL_ACTION : action;
+            return action ?? Constants.NULL_ACTION;
         }
 
         private static Variable MergeList(List<Variable> listToMerge, ParsingScript script)
@@ -637,13 +637,11 @@ namespace AliceScript
             {
                 leftCell = MergeDelegate(leftCell, rightCell, script);
             }
-            else if (leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator)
-            {
-                leftCell = obj.Operator(leftCell, rightCell, leftCell.Action, script);
-            }
             else
             {
-                leftCell = MergeObjects(leftCell, rightCell, script);
+                leftCell = leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
+                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
+                    : MergeObjects(leftCell, rightCell, script);
             }
 
             leftCell.Action = rightCell.Action;
@@ -691,14 +689,9 @@ namespace AliceScript
                 case "/":
                     return new Variable(leftCell.Value / rightCell.Value);
                 case "+":
-                    if (rightCell.Type != Variable.VarType.NUMBER)
-                    {
-                        return new Variable(leftCell.AsString() + rightCell.String);
-                    }
-                    else
-                    {
-                        return new Variable(leftCell.Value + rightCell.Value);
-                    }
+                    return rightCell.Type != Variable.VarType.NUMBER
+                        ? new Variable(leftCell.AsString() + rightCell.String)
+                        : new Variable(leftCell.Value + rightCell.Value);
                 case "-":
                     return new Variable(leftCell.Value - rightCell.Value);
                 case "<":

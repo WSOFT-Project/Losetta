@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Threading_Initer
+    public sealed class Alice_Threading
     {
         public static void Init()
         {
@@ -59,7 +59,7 @@
             e.Return = Variable.EmptyInstance;
         }
 
-        private static void ThreadProc(Object stateInfo)
+        private static void ThreadProc(object stateInfo)
         {
             ThreadQueueStateInfo tqsi = (ThreadQueueStateInfo)stateInfo;
             tqsi.Delegate.Invoke(tqsi.Args, tqsi.Script);
@@ -106,14 +106,7 @@
         {
             m_isSignal = isSignal;
             Attribute = FunctionAttribute.CONTROL_FLOW | FunctionAttribute.FUNCT_WITH_SPACE | FunctionAttribute.LANGUAGE_STRUCTURE;
-            if (isSignal)
-            {
-                Name = "signal";
-            }
-            else
-            {
-                Name = "signal_wait";
-            }
+            Name = isSignal ? "signal" : "signal_wait";
             Run += SignalWaitFunction_Run;
         }
 

@@ -46,13 +46,9 @@
             {
                 return Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString();
             }
-            else if (string.IsNullOrEmpty(Namespace))
-            {
-                return Name;
-            }
             else
             {
-                return Namespace + "." + Name;
+                return string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
             }
         }
 
@@ -119,27 +115,18 @@
                     return va;
 
                 }
-                else if (Events.ContainsKey(sPropertyName))
-                {
-                    return Task.FromResult(Events[sPropertyName]);
-                }
                 else
                 {
-                    throw new ScriptException("指定されたプロパティまたはメソッドまたはイベントは存在しません。", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
+                    return Events.ContainsKey(sPropertyName)
+                        ? Task.FromResult(Events[sPropertyName])
+                        : throw new ScriptException("指定されたプロパティまたはメソッドまたはイベントは存在しません。", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
                 }
             }
         }
 
         public virtual PropertyBase GetPropertyBase(string sPropertyName)
         {
-            if (Properties.ContainsKey(sPropertyName))
-            {
-                return Properties[sPropertyName];
-            }
-            else
-            {
-                return null;
-            }
+            return Properties.ContainsKey(sPropertyName) ? Properties[sPropertyName] : null;
         }
 
         public virtual Task<Variable> SetProperty(string sPropertyName, Variable argValue)

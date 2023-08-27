@@ -3,7 +3,6 @@
     public class DelegateObject
     {
         private List<CustomFunction> m_fucntions = new List<CustomFunction>();
-        private CustomFunction m_function = null;
 
         public List<CustomFunction> Functions
         {
@@ -36,17 +35,7 @@
             }
         }
         public int Length => m_fucntions.Count;
-        public string Name
-        {
-            get
-            {
-                if (m_fucntions.Count == 0)
-                {
-                    return string.Empty;
-                }
-                return m_fucntions[0].Name;
-            }
-        }
+        public string Name => m_fucntions.Count == 0 ? string.Empty : m_fucntions[0].Name;
         public DelegateObject()
         {
 
@@ -122,7 +111,7 @@
             ThreadPool.QueueUserWorkItem(ThreadProc, mb);
         }
 
-        private static void ThreadProc(Object stateInfo)
+        private static void ThreadProc(object stateInfo)
         {
             m_BeginInvokeMessanger mb = (m_BeginInvokeMessanger)stateInfo;
             mb.Delegate.Invoke(mb.Args, mb.Script, mb.Instance);

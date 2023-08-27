@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Legacy_Initer
+    public sealed class Alice_Legacy
     {
         public static void Init()
         {

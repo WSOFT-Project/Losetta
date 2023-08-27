@@ -303,9 +303,8 @@
 
         public static bool TryAddToNamespace(string name, string nameSpace, Variable varValue)
         {
-            StackLevel level;
             if (string.IsNullOrWhiteSpace(nameSpace) ||
-               !s_namespaces.TryGetValue(nameSpace, out level))
+               !s_namespaces.TryGetValue(nameSpace, out StackLevel level))
             {
                 return false;
             }
@@ -338,8 +337,7 @@
                 nameSpace = nameSpace.Substring(0, ind);
             }
 
-            StackLevel level;
-            if (!s_namespaces.TryGetValue(nameSpace, out level))
+            if (!s_namespaces.TryGetValue(nameSpace, out StackLevel level))
             {
                 return null;
             }
@@ -350,8 +348,7 @@
             }
 
             var vars = level.Variables;
-            ParserFunction impl;
-            if (!vars.TryGetValue(name, out impl) &&
+            if (!vars.TryGetValue(name, out ParserFunction impl) &&
                 !s_variables.TryGetValue(name, out impl) &&
                 !s_functions.TryGetValue(name, out impl)
                 )
@@ -425,15 +422,10 @@
         {
             //TODO:関数の取得部分
             name = Constants.ConvertName(name);
-            ParserFunction impl;
-            if (script.TryGetFunction(name, out impl) || s_functions.TryGetValue(name, out impl))
+            if (script.TryGetFunction(name, out ParserFunction impl) || s_functions.TryGetValue(name, out impl))
             {
                 //それがデリゲートならデリゲートを返す
-                if (toDelegate && impl is CustomFunction cf)
-                {
-                    return new GetVarFunction(new Variable(cf));
-                }
-                return impl.NewInstance();
+                return toDelegate && impl is CustomFunction cf ? new GetVarFunction(new Variable(cf)) : impl.NewInstance();
             }
             if (script.TryGetVariable(name, out impl) || s_variables.TryGetValue(name, out impl))
             {
@@ -483,12 +475,7 @@
             string className = Constants.ConvertName(name);
 
             var csClass = AliceScriptClass.GetClass(className, script);
-            if (csClass != null)
-            {
-                return new GetVarFunction(new Variable(new TypeObject(csClass)));
-            }
-
-            return GetFromNamespace(name, script);
+            return csClass != null ? new GetVarFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
         }
         private static ParserFunction GetFromNS(string name, ParsingScript script)
         {
@@ -505,11 +492,7 @@
                     return new GetVarFunction(new Variable(new TypeObject(cc)));
                 }
             }
-            if (script.ParentScript != null)
-            {
-                return GetFromNS(name, script.ParentScript);
-            }
-            return null;
+            return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;
         }
         public static ActionFunction GetAction(string action)
         {
@@ -518,8 +501,7 @@
                 return null;
             }
 
-            ActionFunction impl;
-            if (s_actions.TryGetValue(action, out impl))
+            if (s_actions.TryGetValue(action, out ActionFunction impl))
             {
                 // Action exists and is registered (e.g. =, +=, --, etc.)
                 return impl;
@@ -595,8 +577,7 @@
 
             if (!string.IsNullOrWhiteSpace(s_namespace))
             {
-                StackLevel level;
-                if (s_namespaces.TryGetValue(s_namespace, out level) &&
+                if (s_namespaces.TryGetValue(s_namespace, out StackLevel level) &&
                    function is CustomFunction)
                 {
                     ((CustomFunction)function).NamespaceData = level;
@@ -624,8 +605,7 @@
             name = Constants.ConvertName(name);
             function.Name = Constants.GetRealName(name);
 
-            ParserFunction impl = null;
-            if (isLocal && (!FunctionExists(name, script, out impl, true) || impl.IsVirtual))
+            if (isLocal && (!FunctionExists(name, script, out ParserFunction impl, true) || impl.IsVirtual))
             {
                 //ローカル関数でまだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 script.Functions[name] = function;
@@ -654,11 +634,7 @@
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
         {
             name = Constants.ConvertName(name);
-            if (script != null && script.Functions.Remove(name))
-            {
-                return true;
-            }
-            return s_functions.Remove(name);
+            return script != null && script.Functions.Remove(name) ? true : s_functions.Remove(name);
         }
         public static bool UnregisterFunction(string name)
         {
@@ -685,15 +661,13 @@
         private static ParserFunction GetLocalScopeVariable(string name, string scopeName)
         {
             scopeName = Path.GetFileName(scopeName);
-            Dictionary<string, ParserFunction> localScope;
-            if (!s_localScope.TryGetValue(scopeName, out localScope))
+            if (!s_localScope.TryGetValue(scopeName, out Dictionary<string, ParserFunction> localScope))
             {
                 return null;
             }
 
             name = Constants.ConvertName(name);
-            ParserFunction function = null;
-            localScope.TryGetValue(name, out function);
+            localScope.TryGetValue(name, out ParserFunction function);
             return function;
         }
 

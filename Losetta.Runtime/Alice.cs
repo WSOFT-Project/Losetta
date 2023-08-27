@@ -186,14 +186,9 @@ namespace AliceScript.NameSpaces
         private void ConvertFunc_Run(object sender, FunctionBaseEventArgs e)
         {
 
-            if (e.Args[0].Type == Variable.VarType.OBJECT && e.Args[0].Object is TypeObject type)
-            {
-                e.Return = e.CurentVariable.Convert(type.Type);
-            }
-            else
-            {
-                throw new ScriptException("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-            }
+            e.Return = e.Args[0].Type == Variable.VarType.OBJECT && e.Args[0].Object is TypeObject type
+                ? e.CurentVariable.Convert(type.Type)
+                : throw new ScriptException("引数には変換先を表すTypeオブジェクトが必要です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
 
         }
     }
@@ -293,13 +288,11 @@ namespace AliceScript.NameSpaces
                         {
                             e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString()));
                         }
-                        else if (e.Args.Count == 2)
-                        {
-                            e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt()));
-                        }
                         else
                         {
-                            e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt(), e.Args[2].AsInt()));
+                            e.Return = e.Args.Count == 2
+                                ? new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt()))
+                                : new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt(), e.Args[2].AsInt()));
                         }
                         break;
                     }
@@ -445,28 +438,16 @@ namespace AliceScript.NameSpaces
         public str_EmptyOrWhiteFunc(bool isNullOr)
         {
             isNull = isNullOr;
-            if (isNull)
-            {
-                Name = Constants.EMPTY_NULL;
-            }
-            else
-            {
-                Name = Constants.EMPTY_WHITE;
-            }
+            Name = isNull ? Constants.EMPTY_NULL : Constants.EMPTY_WHITE;
             RequestType = new TypeObject(Variable.VarType.STRING);
             Run += String_EmptyOrWhiteFunc_Run;
         }
 
         private void String_EmptyOrWhiteFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (isNull)
-            {
-                e.Return = new Variable(string.IsNullOrEmpty(e.CurentVariable.AsString()));
-            }
-            else
-            {
-                e.Return = new Variable(string.IsNullOrWhiteSpace(e.CurentVariable.AsString()));
-            }
+            e.Return = isNull
+                ? new Variable(string.IsNullOrEmpty(e.CurentVariable.AsString()))
+                : new Variable(string.IsNullOrWhiteSpace(e.CurentVariable.AsString()));
         }
         private bool isNull;
     }
@@ -900,7 +881,7 @@ namespace AliceScript.NameSpaces
             {
                 vs.Add(v.AsString());
             }
-            e.Return = new Variable(String.Join(e.Args[0].AsString(), vs));
+            e.Return = new Variable(string.Join(e.Args[0].AsString(), vs));
         }
     }
     internal sealed class str_ToLowerUpperFunc : FunctionBase
@@ -908,21 +889,14 @@ namespace AliceScript.NameSpaces
         public str_ToLowerUpperFunc(bool upper = false)
         {
             Upper = upper;
-            if (upper) { Name = Constants.UPPER; } else { Name = Constants.LOWER; }
+            Name = upper ? Constants.UPPER : Constants.LOWER;
             RequestType = new TypeObject(Variable.VarType.STRING);
             Run += Str_ToLowerUpperFunc_Run;
         }
 
         private void Str_ToLowerUpperFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (Upper)
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToUpper());
-            }
-            else
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToLower());
-            }
+            e.Return = Upper ? new Variable(e.CurentVariable.AsString().ToUpper()) : new Variable(e.CurentVariable.AsString().ToLower());
         }
 
         private bool Upper = false;
@@ -942,25 +916,11 @@ namespace AliceScript.NameSpaces
         {
             if (EndWith)
             {
-                if (e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal))
-                {
-                    e.Return = Variable.True;
-                }
-                else
-                {
-                    e.Return = Variable.False;
-                }
+                e.Return = e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
             }
             else
             {
-                if (e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal))
-                {
-                    e.Return = Variable.True;
-                }
-                else
-                {
-                    e.Return = Variable.False;
-                }
+                e.Return = e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
             }
         }
 
@@ -981,25 +941,15 @@ namespace AliceScript.NameSpaces
         {
             if (Right)
             {
-                if (e.Args.Count > 1)
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]));
-                }
-                else
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()));
-                }
+                e.Return = e.Args.Count > 1
+                    ? new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
+                    : new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()));
             }
             else
             {
-                if (e.Args.Count > 1)
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]));
-                }
-                else
-                {
-                    e.Return = new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt()));
-                }
+                e.Return = e.Args.Count > 1
+                    ? new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
+                    : new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt()));
             }
         }
 
@@ -1033,7 +983,7 @@ namespace AliceScript.NameSpaces
                     {
                         if (e.Args[0].Object is ExceptionObject eo)
                         {
-                            var s = eo.MainScript == null ? e.Script : eo.MainScript;
+                            var s = eo.MainScript ?? e.Script;
                             throw new ScriptException(eo.Message, eo.ErrorCode, s);
                         }
                         break;
@@ -1048,39 +998,29 @@ namespace AliceScript.NameSpaces
         public GotoGosubFunction(bool gotoMode = true)
         {
             m_isGoto = gotoMode;
-            if (m_isGoto)
-            {
-                Name = Constants.GOTO;
-            }
-            else
-            {
-                Name = Constants.GOSUB;
-            }
+            Name = m_isGoto ? Constants.GOTO : Constants.GOSUB;
         }
 
         protected override Variable Evaluate(ParsingScript script)
         {
             var labelName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
 
-            Dictionary<string, int> labels;
             if (script.AllLabels == null || script.LabelToFile == null |
-               !script.AllLabels.TryGetValue(script.FunctionName, out labels))
+               !script.AllLabels.TryGetValue(script.FunctionName, out Dictionary<string, int> labels))
             {
                 Utils.ThrowErrorMsg("次のラベルは関数内に存在しません [" + script.FunctionName + "]", Exceptions.COULDNT_FIND_LABEL_IN_FUNCTION,
                                     script, m_name);
                 return Variable.EmptyInstance;
             }
 
-            int gotoPointer;
-            if (!labels.TryGetValue(labelName, out gotoPointer))
+            if (!labels.TryGetValue(labelName, out int gotoPointer))
             {
                 Utils.ThrowErrorMsg("ラベル:[" + labelName + "]は定義されていません", Exceptions.COULDNT_FIND_LABEL,
                                     script, m_name);
                 return Variable.EmptyInstance;
             }
 
-            string filename;
-            if (script.LabelToFile.TryGetValue(labelName, out filename) &&
+            if (script.LabelToFile.TryGetValue(labelName, out string filename) &&
                 filename != script.Filename && !string.IsNullOrWhiteSpace(filename))
             {
                 var newScript = script.GetIncludeFileScript(filename, this);
@@ -1163,21 +1103,16 @@ namespace AliceScript.NameSpaces
         public str_ToLowerUpperInvariantFunc(bool upper = false)
         {
             Upper = upper;
-            if (upper) { Name = "ToUpperInvariant"; } else { Name = "ToLowerInvariant"; }
+            Name = upper ? "ToUpperInvariant" : "ToLowerInvariant";
             RequestType = new TypeObject(Variable.VarType.STRING);
             Run += Str_ToLowerUpperFunc_Run;
         }
 
         private void Str_ToLowerUpperFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (Upper)
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToUpperInvariant());
-            }
-            else
-            {
-                e.Return = new Variable(e.CurentVariable.AsString().ToLowerInvariant());
-            }
+            e.Return = Upper
+                ? new Variable(e.CurentVariable.AsString().ToUpperInvariant())
+                : new Variable(e.CurentVariable.AsString().ToLowerInvariant());
         }
 
         private bool Upper = false;
@@ -1293,14 +1228,7 @@ namespace AliceScript.NameSpaces
         public list_FirstOrLastFunc(bool isLast = false)
         {
             m_Last = isLast;
-            if (m_Last)
-            {
-                Name = Constants.LAST;
-            }
-            else
-            {
-                Name = Constants.FIRST;
-            }
+            Name = m_Last ? Constants.LAST : Constants.FIRST;
             RequestType = new TypeObject(Variable.VarType.ARRAY);
             Run += List_FirstOrLastFunc_Run;
         }

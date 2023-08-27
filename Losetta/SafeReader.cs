@@ -440,7 +440,7 @@ namespace AliceScript
                     c = ReadJEnc.GetEncoding(Bytes, Length, out text);
                 }
                 // ここまでで文字コードが決まらなかったらバイナリファイル扱い
-                return c == null ? FileType.GetBinaryType(Bytes, Length) : c;
+                return c ?? FileType.GetBinaryType(Bytes, Length);
             }
             catch (System.IO.IOException) { return FileType.READERROR; } // ■読み取りエラー
             catch (System.UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
@@ -485,7 +485,7 @@ namespace AliceScript
                     c = ReadJEnc.GetEncoding(Bytes, Length, out text);
                 }
                 // ここまでで文字コードが決まらなかったらバイナリファイル扱い
-                return c == null ? FileType.GetBinaryType(Bytes, Length) : c;
+                return c ?? FileType.GetBinaryType(Bytes, Length);
             }
             catch (System.IO.IOException) { return FileType.READERROR; } // ■読み取りエラー
             catch (System.UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
@@ -500,7 +500,7 @@ namespace AliceScript
         /// <summary>現在読み出し済のファイルサイズ</summary><remarks>非読み出し時は0、分割読み出し時は読込済部分のサイズ</remarks>
         protected int Length = 0;
         /// <summary>ファイルから取り出したテキスト文字列</summary>
-        protected String text = null;
+        protected string text = null;
 
         /// <summary>読み込んであるバイト配列のプリアンブル（BOMヘッダ／マジックナンバー）からファイル文字コード種類特定を試みる</summary>
         /// <param name="len">ファイルサイズ(未読込部分も含む。読み込み済サイズはthis.Lengthを参照)</param>
@@ -607,7 +607,7 @@ namespace AliceScript
             // ファイル種類に応じた追加判定
             if (ret == IMGICON && (read < 23 || bytes[4] == 0 || bytes[5] != 0)) { ret = null; } // ICONの誤判別防止用（アイコン個数チェック）            
             // 判定できたファイル種類を返す（どれにも該当しなければ一般バイナリと判定）
-            return ret != null ? ret : BINARY;
+            return ret ?? BINARY;
         }
 
         #region 継承クラス定義--------------------------------------------------

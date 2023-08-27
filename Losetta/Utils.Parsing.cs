@@ -565,12 +565,7 @@ namespace AliceScript
 
         public static bool KeepSpace(StringBuilder sb, char next)
         {
-            if (SpaceNotNeeded(next))
-            {
-                return false;
-            }
-
-            return EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
+            return SpaceNotNeeded(next) ? false : EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
         }
         public static bool KeepSpaceOnce(StringBuilder sb, char next)
         {
@@ -581,11 +576,7 @@ namespace AliceScript
 
             string str = sb.ToString();
             char last = str.Length < 1 ? Constants.EMPTY : str.Last();
-            if (char.IsLetterOrDigit(last) && char.IsLetterOrDigit(next))
-            {
-                return true;
-            }
-            return EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
+            return char.IsLetterOrDigit(last) && char.IsLetterOrDigit(next) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
         public static List<string> GetCompiledArgs(string source)

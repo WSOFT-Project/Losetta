@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Math_Initer
+    public sealed class Alice_Math
     {
         public static void Init()
         {
@@ -51,14 +51,7 @@
         public math_MinMaxFunc(bool max)
         {
             Mode = max;
-            if (Mode)
-            {
-                Name = "math_max";
-            }
-            else
-            {
-                Name = "math_min";
-            }
+            Name = Mode ? "math_max" : "math_min";
             MinimumArgCounts = 2;
             Run += Math_MinMaxFunc_Run;
         }
@@ -100,14 +93,9 @@
 
         private void Math_RoundFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args.Count > 1)
-            {
-                e.Return = new Variable(Math.Round(e.Args[0].AsDouble(), e.Args[1].AsInt()));
-            }
-            else
-            {
-                e.Return = new Variable(Math.Round(e.Args[0].AsDouble()));
-            }
+            e.Return = e.Args.Count > 1
+                ? new Variable(Math.Round(e.Args[0].AsDouble(), e.Args[1].AsInt()))
+                : new Variable(Math.Round(e.Args[0].AsDouble()));
         }
     }
 

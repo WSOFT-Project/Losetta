@@ -267,38 +267,51 @@ namespace AliceScript
         public const string HELP_LINK = "https://a.wsoft.ws/alice/exceptions/0x";
 
 
-        // 関数呼び出し時に丸括弧が不要な関数
+        /// <summary>
+        /// 関数呼び出し時に丸括弧が不要な関数の名前
+        /// </summary>
         public static HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
             FUNCTION, NAMESPACE, NEW, PRINT
         };
-        //関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
+        /// <summary>
+        /// 関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
+        /// </summary>
         public static HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
         {
             CASE, RETURN, THROW, TYPE_OF
         };
 
-        // 言語構造の予約。これらを演算したり返すことは無意味
+        /// <summary>
+        /// 言語構造の関数名
+        /// </summary>
         public static HashSet<string> CONTROL_FLOW = new HashSet<string>
         {
             BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,FOREACH, FUNCTION, IF, INCLUDE, NEW,IMPORT,
             RETURN, THROW, TRY, WHILE
         };
 
-        // Nullをとりえない変数の型
+        /// <summary>
+        /// Nullをとりえない変数の型
+        /// </summary>
         public static HashSet<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.NUMBER,Variable.VarType.BOOLEAN
         };
 
-        //配列添え字演算子を使用できる変数の型
+        /// <summary>
+        /// 配列添え字演算子を使用できる変数の型
+        /// </summary>
         public static HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.ARRAY,Variable.VarType.DELEGATE,Variable.VarType.STRING
         };
-        //インタプリタに最初から定義される定数
-        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> {
+        /// <summary>
+        /// AliceScriptから参照できる定数
+        /// </summary>
+        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> 
+        {
             //Trueを表します
             { TRUE,Variable.True},
             //Falseを表します
@@ -309,6 +322,8 @@ namespace AliceScript
             { INFINITY,new Variable(double.PositiveInfinity)},
             //負の無限を表します
             { NEG_INFINITY,new Variable(double.NegativeInfinity)},
+            //非数を表します
+            {NAN,new Variable(double.NaN) },
             //定義されていないことを表します
             { UNDEFINED,new Variable(Variable.VarType.UNDEFINED)},
             //ループを抜けます
@@ -323,19 +338,24 @@ namespace AliceScript
             {"pointer",Variable.AsType(Variable.VarType.POINTER) },
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
-            //{"type",Variable.AsType(Variable.VarType.TYPE) }
 
         };
-
+        /// <summary>
+        /// AliceScriptのキーワード
+        /// </summary>
         public static HashSet<string> KEYWORD = new HashSet<string>
         {
             PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
-        //型指定修飾子
+        /// <summary>
+        /// 型指定修飾子
+        /// </summary>
         public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
              "string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
-        //算術演算子
+        /// <summary>
+        /// 算術演算子
+        /// </summary>
         public static HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
         {
             "*", "*=" , "+", "+=" , "-", "-=", "/", "/=", "%", "%=", ">", "<", ">=", "<="
@@ -372,12 +392,7 @@ namespace AliceScript
         public static string GetRealName(string name)
         {
             name = name.Trim();
-            string realName;
-            if (!s_realNames.TryGetValue(name, out realName))
-            {
-                return name;
-            }
-            return realName;
+            return !s_realNames.TryGetValue(name, out string realName) ? name : realName;
         }
 
         public static string TypeToString(Variable.VarType type)
@@ -437,8 +452,7 @@ namespace AliceScript
         }
         public static Variable.VarType StringToType(string type)
         {
-            Variable.VarType ptype;
-            TryParseType(type, out ptype);
+            TryParseType(type, out Variable.VarType ptype);
             return ptype;
         }
     }

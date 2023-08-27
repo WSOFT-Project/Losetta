@@ -3,7 +3,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Diagnostics_Initer
+    public sealed class Alice_Diagnostics
     {
         public static void Init()
         {
@@ -40,14 +40,7 @@ namespace AliceScript.NameSpaces
         public Debug_IndentFunction(bool unindent = false)
         {
             m_UnIndent = unindent;
-            if (m_UnIndent)
-            {
-                Name = "Debug_Unindent";
-            }
-            else
-            {
-                Name = "Debug_Indent";
-            }
+            Name = m_UnIndent ? "Debug_Unindent" : "Debug_Indent";
             Run += Debug_IndentFunction_Run;
         }
 
@@ -101,14 +94,7 @@ namespace AliceScript.NameSpaces
             {
                 name += "If";
             }
-            if (isif)
-            {
-                MinimumArgCounts = 2;
-            }
-            else
-            {
-                MinimumArgCounts = 1;
-            }
+            MinimumArgCounts = isif ? 2 : 1;
             m_isIf = isif;
             m_isWrite = iswrite;
             Name = name;
@@ -177,14 +163,7 @@ namespace AliceScript.NameSpaces
         public Process_GetProcessFunc(bool byname = false)
         {
             m_ByName = byname;
-            if (m_ByName)
-            {
-                Name = "Process_GetProcessesByName";
-            }
-            else
-            {
-                Name = "Process_GetProcessById";
-            }
+            Name = m_ByName ? "Process_GetProcessesByName" : "Process_GetProcessById";
             MinimumArgCounts = 1;
             Run += Process_GetProcessFunc_Run;
         }

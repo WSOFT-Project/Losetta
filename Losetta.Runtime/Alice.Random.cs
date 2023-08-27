@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Random_Initer
+    public sealed class Alice_Random
     {
         internal static Random random;
         public static void Init()
@@ -41,15 +41,15 @@ namespace AliceScript.NameSpaces
         {
             if (e.Args.Count == 0)
             {
-                e.Return = new Variable(Alice_Random_Initer.random.Next());
+                e.Return = new Variable(Alice_Random.random.Next());
             }
             else if (e.Args.Count == 1)
             {
-                e.Return = new Variable(Alice_Random_Initer.random.Next(e.Args[0].AsInt()));
+                e.Return = new Variable(Alice_Random.random.Next(e.Args[0].AsInt()));
             }
             else if (e.Args.Count == 2)
             {
-                e.Return = new Variable(Alice_Random_Initer.random.Next(e.Args[0].AsInt(), e.Args[1].AsInt()));
+                e.Return = new Variable(Alice_Random.random.Next(e.Args[0].AsInt(), e.Args[1].AsInt()));
             }
         }
     }
@@ -66,7 +66,7 @@ namespace AliceScript.NameSpaces
         private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             byte[] bs = new byte[e.Args[0].AsInt()];
-            Alice_Random_Initer.random.NextBytes(bs);
+            Alice_Random.random.NextBytes(bs);
             e.Return = new Variable(bs);
         }
     }
@@ -82,7 +82,7 @@ namespace AliceScript.NameSpaces
 
         private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(Alice_Random_Initer.random.NextDouble());
+            e.Return = new Variable(Alice_Random.random.NextDouble());
         }
     }
 

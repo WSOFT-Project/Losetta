@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_IO_Intiter
+    public sealed class Alice_IO
     {
         public static void Init()
         {
@@ -213,14 +213,9 @@ namespace AliceScript.NameSpaces
 
         private void Path_get_FullPathFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (e.Args.Count > 1)
-            {
-                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString(), e.Args[1].AsString()));
-            }
-            else
-            {
-                e.Return = new Variable(Path.GetFullPath(e.Args[0].AsString()));
-            }
+            e.Return = e.Args.Count > 1
+                ? new Variable(Path.GetFullPath(e.Args[0].AsString(), e.Args[1].AsString()))
+                : new Variable(Path.GetFullPath(e.Args[0].AsString()));
         }
     }
 
@@ -426,8 +421,7 @@ namespace AliceScript.NameSpaces
         private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             var data = Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script);
-            string charcode;
-            SafeReader.ReadAllText(data, out charcode);
+            SafeReader.ReadAllText(data, out string charcode);
             e.Return = new Variable(charcode);
         }
     }

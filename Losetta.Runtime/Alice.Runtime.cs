@@ -1,26 +1,42 @@
 ﻿using AliceScript.Interop;
+using AliceScript.NameSpaces;
 
-namespace AliceScript.NameSpaces
+namespace AliceScript
 {
-    public class Alice_Runtime : ILibrary
+    public class Runtime : ILibrary
     {
         public string Name => "Alice.Runtime";
 
         public void Main()
         {
-            Alice_Initer.Init();
+            Init();
+        }
+
+        /// <summary>
+        /// Alice.Runtimeで使用できるすべてのAPIを読み込みます
+        /// </summary>
+        public static void Init()
+        {
+            InitBasicAPI();
             Alice_Console.Init();
-            Alice_Regex_Initer.Init();
-            Alice_Diagnostics_Initer.Init();
-            Alice_IO_Intiter.Init();
-            Alice_Math_Initer.Init();
-            Alice_Net_Initer.Init();
-            Alice_Random_Initer.Init();
-            Alice_Threading_Initer.Init();
-            Alice_Security_Initer.Init();
-            Alice_Packaging_Initer.Init();
-            Alice_Environment_Initer.Init();
-            Alice_Legacy_Initer.Init();
+            Alice_Regex.Init();
+            Alice_Diagnostics.Init();
+            Alice_IO.Init();
+            Alice_Math.Init();
+            Alice_Net.Init();
+            Alice_Random.Init();
+            Alice_Threading.Init();
+            Alice_Security.Init();
+            Alice_Packaging.Init();
+            Alice_Environment.Init();
+            Alice_Legacy.Init();
+        }
+        /// <summary>
+        /// 基本的なAPIのみを読み込みます
+        /// </summary>
+        public static void InitBasicAPI()
+        {
+            Alice_Initer.Init();
         }
     }
 }

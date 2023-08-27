@@ -219,8 +219,7 @@ namespace AliceScript
         }
         public ParsingScript GetScript(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, out var setting, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 data = ";";
@@ -242,8 +241,7 @@ namespace AliceScript
         }
         public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, out var setting, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
@@ -267,8 +265,7 @@ namespace AliceScript
         }
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
         {
-            Dictionary<int, int> char2Line;
-            string data = Utils.ConvertToScript(script, out char2Line, out var def, out var setting, filename);
+            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;

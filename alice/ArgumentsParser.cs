@@ -21,15 +21,16 @@ namespace AliceScript.CLI
             bool src = false;
             foreach (string arg in args)
             {
-                if (arg.ToLower() == "--arg" || arg.ToLower() == "--args")
+                var argl = arg.ToLower();
+                if (argl == "--arg" || argl == "--args")
                 {
                     aarg = true;
                     continue;
                 }
-                if (arg.ToLower() == "-s" || arg.ToLower() == "-script")
+                if (argl == "-e" || argl == "-execute" || argl == "-evaluate")
                 {
                     src = true;
-                    Flags.Add("s");
+                    Flags.Add("e");
                     continue;
                 }
                 if (aarg)

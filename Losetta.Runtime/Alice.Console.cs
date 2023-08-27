@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Console
+    public sealed class Alice_Console
     {
         public static void Init()
         {
@@ -66,27 +66,13 @@
         public Console_GetColorFunc(bool bgcolor = true)
         {
             m_BGColor = bgcolor;
-            if (m_BGColor)
-            {
-                Name = "Console_GetBackgroundColor";
-            }
-            else
-            {
-                Name = "Console_GetForegroundColor";
-            }
+            Name = m_BGColor ? "Console_GetBackgroundColor" : "Console_GetForegroundColor";
             Run += Console_GetColorFunc_Run;
         }
 
         private void Console_GetColorFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (m_BGColor)
-            {
-                e.Return = new Variable((int)Console.BackgroundColor);
-            }
-            else
-            {
-                e.Return = new Variable((int)Console.ForegroundColor);
-            }
+            e.Return = m_BGColor ? new Variable((int)Console.BackgroundColor) : new Variable((int)Console.ForegroundColor);
         }
 
         private bool m_BGColor = true;
@@ -97,14 +83,7 @@
         public Console_SetColorFunc(bool bgcolor = true)
         {
             m_BGColor = bgcolor;
-            if (m_BGColor)
-            {
-                Name = "Console_SetBackgroundColor";
-            }
-            else
-            {
-                Name = "Console_SetForegroundColor";
-            }
+            Name = m_BGColor ? "Console_SetBackgroundColor" : "Console_SetForegroundColor";
             Run += Console_GetColorFunc_Run;
         }
 
@@ -473,14 +452,7 @@
         {
             m_WLine = wline;
             Run += Console_WriteLineFunc_Run;
-            if (m_WLine)
-            {
-                Name = "Console_WriteLine";
-            }
-            else
-            {
-                Name = "Console_Write";
-            }
+            Name = m_WLine ? "Console_WriteLine" : "Console_Write";
         }
 
         private void Console_WriteLineFunc_Run(object sender, FunctionBaseEventArgs e)

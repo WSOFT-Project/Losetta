@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Security_Initer
+    public sealed class Alice_Security
     {
         public static void Init()
         {

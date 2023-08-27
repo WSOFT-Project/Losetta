@@ -132,8 +132,7 @@ namespace AliceScript
             {
                 if (isGlobal)
                 {
-                    FunctionBase fb;
-                    if (!Variable.Functions.TryGetValue(funcName, out fb) || !fb.IsVirtual)
+                    if (!Variable.Functions.TryGetValue(funcName, out FunctionBase fb) || !fb.IsVirtual)
                     {
                         Variable.AddFunc(new CustomMethodFunction(customFunc, funcName));
                     }
@@ -168,8 +167,7 @@ namespace AliceScript
 
         private bool FunctionIsVirtual(string name, ParsingScript script)
         {
-            ParserFunction impl;
-            if (script != null && script.TryGetFunction(name, out impl))
+            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
             {
                 if (impl.IsVirtual)
                 {
@@ -292,8 +290,7 @@ namespace AliceScript
                 }
             }
 
-            AliceScriptClass theClass = null;
-            if (s_allClasses.TryGetValue(name, out theClass))
+            if (s_allClasses.TryGetValue(name, out AliceScriptClass theClass))
             {
                 return theClass;
             }
@@ -340,11 +337,7 @@ namespace AliceScript
                     return fc;
                 }
             }
-            if (script.ParentScript != null)
-            {
-                return GetFromNS(name, script.ParentScript);
-            }
-            return null;
+            return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;
         }
 
         private static Dictionary<string, AliceScriptClass> s_allClasses =
@@ -382,8 +375,7 @@ namespace AliceScript
                 }
 
                 // Run "constructor" if any is defined for this number of args.
-                CustomFunction constructor = null;
-                if (m_cscsClass.m_constructors.TryGetValue(args.Count, out constructor))
+                if (m_cscsClass.m_constructors.TryGetValue(args.Count, out CustomFunction constructor))
                 {
                     constructor.ARun(args, script, this);
                 }
@@ -398,9 +390,8 @@ namespace AliceScript
 
             public override string ToString()
             {
-                FunctionBase customFunction = null;
                 if (!m_cscsClass.m_customFunctions.TryGetValue(Constants.PROP_TO_STRING.ToLower(),
-                     out customFunction))
+                     out FunctionBase customFunction))
                 {
                     return m_cscsClass.Name + "." + InstanceName;
                 }
@@ -466,11 +457,7 @@ namespace AliceScript
 
             public bool FunctionExists(string name)
             {
-                if (!m_cscsClass.m_customFunctions.TryGetValue(name, out FunctionBase customFunction))
-                {
-                    return false;
-                }
-                return true;
+                return m_cscsClass.m_customFunctions.TryGetValue(name, out FunctionBase customFunction);
             }
         }
     }
@@ -546,12 +533,7 @@ namespace AliceScript
                 enumType = enumType.GetNestedType(tokens[i]);
             }
 
-            if (enumType == null || !enumType.IsEnum)
-            {
-                return null;
-            }
-
-            return enumType;
+            return enumType == null || !enumType.IsEnum ? null : enumType;
         }
 
         public static Type GetType(string typeName)
@@ -696,14 +678,7 @@ namespace AliceScript
                     refs = options.Contains(Constants.REF);
                     if (options.Contains("this"))
                     {
-                        if (m_this == -1)
-                        {
-                            m_this = i;
-                        }
-                        else
-                        {
-                            throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
-                        }
+                        m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
 
                     }
                     else if (!refs && options.Count > 1)
@@ -918,14 +893,9 @@ namespace AliceScript
                     bool refd = args[i].Keywords.Contains(Constants.REF);
                     if (m_refMap.Contains(i))
                     {
-                        if (refd)
-                        {
-                            val = args[i];
-                        }
-                        else
-                        {
-                            throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
-                        }
+                        val = refd
+                            ? args[i]
+                            : throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
                     }
                     else
                     {
@@ -949,14 +919,9 @@ namespace AliceScript
                 bool refd = args[i].Keywords.Contains(Constants.REF);
                 if (m_refMap.Contains(i))
                 {
-                    if (refd)
-                    {
-                        val = args[i];
-                    }
-                    else
-                    {
-                        throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
-                    }
+                    val = refd
+                        ? args[i]
+                        : throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
                 }
                 else
                 {
@@ -968,8 +933,11 @@ namespace AliceScript
                     val.Assign(args[i]);
                 }
                 var arg = new GetVarFunction(val);
+                if (i + 1 > m_args.Length)
+                {
+                    throw new ScriptException($"関数 `{m_name}`は、{m_args.Length}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);
+                }
                 arg.Name = m_args[i];
-                //m_VarMap[args[i].ParamName] = arg;
                 script.Variables[args[i].ParamName] = arg;
             }
 
@@ -1082,20 +1050,7 @@ namespace AliceScript
 
         public StackLevel NamespaceData { get; set; }
         public bool IsMethod => m_this != -1;
-        public TypeObject MethodRequestType
-        {
-            get
-            {
-                if (IsMethod && m_typArgMap.ContainsKey(m_this))
-                {
-                    return m_typArgMap[m_this];
-                }
-                else
-                {
-                    return new TypeObject();
-                }
-            }
-        }
+        public TypeObject MethodRequestType => IsMethod && m_typArgMap.ContainsKey(m_this) ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
@@ -1393,11 +1348,7 @@ namespace AliceScript
                 }
                 return var.CustomFunctionGet.ARun(args, script);
             }
-            if (var != null && !string.IsNullOrWhiteSpace(var.CustomGet))
-            {
-                return ParsingScript.RunString(var.CustomGet, script);
-            }
-            return var;
+            return var != null && !string.IsNullOrWhiteSpace(var.CustomGet) ? ParsingScript.RunString(var.CustomGet, script) : var;
         }
         public int Delta
         {

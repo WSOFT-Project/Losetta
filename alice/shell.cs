@@ -46,7 +46,10 @@ namespace AliceScript.CLI
         private static bool mainfile = false;
         internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
         {
-
+            if (!Program.allow_throw)
+            {
+                return;
+            }
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + ")" + (string.IsNullOrEmpty(e.Message) ? string.Empty : ": " + e.Message));
             //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
@@ -114,14 +117,7 @@ namespace AliceScript.CLI
         private static string Centering(string s, int width)
         {
             int space = width - s.Length;
-            if (space >= 0)
-            {
-                return new string(' ', space / 2) + s + new string(' ', space - (space / 2));
-            }
-            else
-            {
-                return s.Substring(-space / 2).Remove(width);
-            }
+            return space >= 0 ? new string(' ', space / 2) + s + new string(' ', space - (space / 2)) : s.Substring(-space / 2).Remove(width);
         }
         private static void AddDictionaryScriptVariables(ParsingScript script, ref Dictionary<string, ParserFunction> dic)
         {
@@ -442,14 +438,7 @@ namespace AliceScript.CLI
                 else
                 {
                     //Interpreter.Instance.ProcessAsync(script, filename)).Result;
-                    if (CurrentScript == null)
-                    {
-                        CurrentScript = Alice.GetScript(script, filename, true);
-                    }
-                    else
-                    {
-                        CurrentScript = CurrentScript.GetTempScript(script);
-                    }
+                    CurrentScript = CurrentScript == null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
                     result = CurrentScript.Process();
                 }
             }

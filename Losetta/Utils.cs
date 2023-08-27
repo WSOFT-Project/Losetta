@@ -191,11 +191,7 @@ namespace AliceScript
             {
                 return script.Package.GetEntryData(filename);
             }
-            if (fromPackage || !File.Exists(filename))
-            {
-                throw new FileNotFoundException(null, filename);
-            }
-            return File.ReadAllBytes(filename);
+            return fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
         }
         public static string GetFileLines(string filename)
         {
@@ -241,34 +237,20 @@ namespace AliceScript
 
         public static string GetSafeString(List<Variable> args, int index, string defaultValue = "")
         {
-            if (args.Count <= index)
-            {
-                return defaultValue;
-            }
-            return args[index].AsString();
+            return args.Count <= index ? defaultValue : args[index].AsString();
         }
         public static bool GetSafeBool(List<Variable> args, int index, bool defaultValue = false)
         {
-            if (args.Count <= index)
-            {
-                return defaultValue;
-            }
-            return args[index].AsBool();
+            return args.Count <= index ? defaultValue : args[index].AsBool();
         }
         public static Variable GetSafeVariable(List<Variable> args, int index, Variable defaultValue = null)
         {
-            if (args.Count <= index)
-            {
-                return defaultValue;
-            }
-            return args[index];
+            return args.Count <= index ? defaultValue : args[index];
         }
         public static double ConvertToDouble(object obj, ParsingScript script = null, bool throwError = true)
         {
             string str = obj.ToString().ToLower();
-            double num = 0;
-            if (script.Tag is string s && s == "DELEGATE") { return 0; }
-            if (!CanConvertToDouble(str, out num) &&
+            if (!CanConvertToDouble(str, out double num) &&
                 script != null && str != Constants.END_ARRAY.ToString() && throwError)
             {
                 ProcessErrorMsg(str, script);
@@ -312,7 +294,7 @@ namespace AliceScript
             {
                 throw new ScriptException("無効な数値表現です", Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
-            return Double.TryParse(str, NumberStyles.Float,
+            return double.TryParse(str, NumberStyles.Float,
                                     CultureInfo.InvariantCulture, out num);
         }
 
@@ -372,7 +354,7 @@ namespace AliceScript
             {
                 //UTF-32モード
                 int charCode32 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                return Char.ConvertFromUtf32(charCode32);
+                return char.ConvertFromUtf32(charCode32);
             }
 
         }
@@ -394,11 +376,7 @@ namespace AliceScript
             }
 
             int index = data.IndexOf(".", StringComparison.Ordinal);
-            if (index < 0 || index >= data.Length - 1)
-            {
-                return 0;
-            }
-            return data.Length - index - 1;
+            return index < 0 || index >= data.Length - 1 ? 0 : data.Length - index - 1;
         }
         public static string GetFileContents(byte[] data)
         {
@@ -418,11 +396,7 @@ namespace AliceScript
 
         public static string GetDirectoryName(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return GetCurrentDirectory();
-            }
-            return Path.GetDirectoryName(path);
+            return string.IsNullOrWhiteSpace(path) ? GetCurrentDirectory() : Path.GetDirectoryName(path);
         }
 
         public static string GetCurrentDirectory()

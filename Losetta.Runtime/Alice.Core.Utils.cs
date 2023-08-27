@@ -19,11 +19,9 @@ namespace AliceScript.NameSpaces
         {
 
             string expr = e.Args[0].AsString();
-            Dictionary<int, int> char2Line;
-            expr = Utils.ConvertToScript(expr, out char2Line, out var def, out var settings);
+            expr = Utils.ConvertToScript(expr, out Dictionary<int, int> char2Line, out var def, out var settings);
 
-            Variable result;
-            if (m_singletons.TryGetValue(expr, out result))
+            if (m_singletons.TryGetValue(expr, out Variable result))
             {
                 e.Return = result;
                 return;

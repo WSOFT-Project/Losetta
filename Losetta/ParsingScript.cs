@@ -37,11 +37,9 @@ namespace AliceScript
                 //トップレベルスクリプトは親を持たない
                 m_toplevel_script.ParentScript = null;
             }
-            if (script != null && script.DenyAccessToTopLevelScript)
-            {
-                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, script);
-            }
-            return m_toplevel_script;
+            return script != null && script.DenyAccessToTopLevelScript
+                ? throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, script)
+                : m_toplevel_script;
         }
 
         /// <summary>
@@ -665,7 +663,7 @@ namespace AliceScript
         }
         public bool StartsWith(string str, bool caseSensitive = true)
         {
-            if (String.IsNullOrEmpty(str) || str.Length > m_data.Length - m_from)
+            if (string.IsNullOrEmpty(str) || str.Length > m_data.Length - m_from)
             {
                 return false;
             }
@@ -732,12 +730,7 @@ namespace AliceScript
             }
 
             string[] lines = m_originalScript.Split(Constants.END_LINE);
-            if (lineNumber < lines.Length)
-            {
-                return lines[lineNumber];
-            }
-
-            return "";
+            return lineNumber < lines.Length ? lines[lineNumber] : "";
         }
 
         public int OriginalLineNumber => GetOriginalLineNumber();
@@ -745,8 +738,7 @@ namespace AliceScript
         {
             get
             {
-                int lineNumber;
-                return GetOriginalLine(out lineNumber);
+                return GetOriginalLine(out int lineNumber);
             }
         }
 
@@ -927,7 +919,7 @@ namespace AliceScript
 
         public Variable Execute(char[] toArray = null, int from = -1)
         {
-            toArray = toArray == null ? Constants.END_PARSE_ARRAY : toArray;
+            toArray = toArray ?? Constants.END_PARSE_ARRAY;
             Pointer = from < 0 ? Pointer : from;
 
             if (!m_data.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
@@ -1003,7 +995,7 @@ namespace AliceScript
 
         public async Task<Variable> ExecuteAsync(char[] toArray = null, int from = -1)
         {
-            toArray = toArray == null ? Constants.END_PARSE_ARRAY : toArray;
+            toArray = toArray ?? Constants.END_PARSE_ARRAY;
             Pointer = from < 0 ? Pointer : from;
 
             if (!m_data.EndsWith(Constants.END_STATEMENT.ToString(), StringComparison.Ordinal))
@@ -1217,13 +1209,10 @@ namespace AliceScript
         }
         public ParsingScript GetIncludeFileScript(string filename, FunctionBase callFrom)
         {
-            string pathname;
             if (EnableInclude)
             {
-                bool isPackageFile;
-                string includeFile = GetIncludeFileLine(filename, out pathname, out isPackageFile);
-                Dictionary<int, int> char2Line;
-                var includeScript = Utils.ConvertToScript(includeFile, out char2Line, out var def, out var setting, pathname);
+                string includeFile = GetIncludeFileLine(filename, out string pathname, out bool isPackageFile);
+                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out var def, out var setting, pathname);
                 ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
                 tempScript.TopInFile = true;
                 tempScript.Settings = setting;

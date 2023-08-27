@@ -57,14 +57,7 @@ namespace AliceScript
                 manifest.Description = config.Read("description");
                 manifest.Publisher = config.Read("publisher");
                 string sip = config.Read("target");
-                if (!string.IsNullOrEmpty(sip) && sip.ToLower() != "any")
-                {
-                    manifest.Target = new List<string>(sip.Split(','));
-                }
-                else
-                {
-                    manifest.Target = null;
-                }
+                manifest.Target = !string.IsNullOrEmpty(sip) && sip.ToLower() != "any" ? new List<string>(sip.Split(',')) : null;
                 sip = config.Read("targetapp");
                 if (!string.IsNullOrEmpty(sip) && sip.ToLower() != "any")
                 {
@@ -138,14 +131,9 @@ namespace AliceScript
                     if (!package.Manifest.UseInlineScript)
                     {
                         ZipArchiveEntry entry = a.GetEntry(srcname);
-                        if (entry == null)
-                        {
-                            throw new ScriptException("エントリポイント:[" + srcname + "]が見つかりません", Exceptions.BAD_PACKAGE);
-                        }
-                        else
-                        {
-                            package.Manifest.Script = GetEntryScript(entry, srcname);
-                        }
+                        package.Manifest.Script = entry == null
+                            ? throw new ScriptException("エントリポイント:[" + srcname + "]が見つかりません", Exceptions.BAD_PACKAGE)
+                            : GetEntryScript(entry, srcname);
                     }
                     Interpreter.Instance.Process(package.Manifest.Script, filename + "\\" + srcname, true, null, package);
                 }
@@ -159,11 +147,7 @@ namespace AliceScript
         public Variable ExecuteEntry(string filename)
         {
             string script = GetEntryScript(archive.GetEntry(filename), filename);
-            if (script == null)
-            {
-                return Variable.EmptyInstance;
-            }
-            return Interpreter.Instance.Process(script, "main.alice", true, null, this);
+            return script == null ? Variable.EmptyInstance : Interpreter.Instance.Process(script, "main.alice", true, null, this);
         }
         public bool ExistsEntry(string filename)
         {
@@ -261,14 +245,7 @@ namespace AliceScript
                 byte[] newCode = new byte[16];
                 for (i = 0; i < newCode.Length; i++)
                 {
-                    if (i < controlCode.Length)
-                    {
-                        newCode[i] = controlCode[i];
-                    }
-                    else
-                    {
-                        newCode[i] = 0x00;
-                    }
+                    newCode[i] = i < controlCode.Length ? controlCode[i] : (byte)0x00;
                 }
                 controlCode = newCode;
             }

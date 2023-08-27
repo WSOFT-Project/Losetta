@@ -38,10 +38,15 @@ namespace AliceScript.CLI
                     throw_redirect_files.Add(pa.Values["throw"]);
                 }
             }
-            if (!pa.Values.TryGetValue("runtime", out string v) || v.ToLower() != "disable")
+            if (pa.Values.TryGetValue("runtime", out string v) && v.ToLower() == "disable")
+            {
+                //最小モードで初期化
+                Runtime.InitBasicAPI();
+            }
+            else
             {
                 //ランタイムを初期化
-                new AliceScript.NameSpaces.Alice_Runtime().Main();
+                Runtime.Init();
             }
             //ShellFunctions登録
             ShellFunctions.Init();
@@ -62,12 +67,8 @@ namespace AliceScript.CLI
 
             if (pa.Flags.Contains("e"))
             {
-                string f = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
-                if (File.Exists(f))
-                {
-                    Alice.ExecuteFile(f);
-                }
-                Alice.Execute(pa.Script);
+                //単一行評価モード
+                Console.Write(Alice.Execute(pa.Script));
                 return;
             }
             else
@@ -92,8 +93,7 @@ namespace AliceScript.CLI
             else if (pa.Flags.Contains("b") || pa.Flags.Contains("build"))
             {
                 //パッケージ生成モード
-                string outfile;
-                if (pa.Values.TryGetValue("out", out outfile))
+                if (pa.Values.TryGetValue("out", out string outfile))
                 {
                     int success = 0;
                     int error = 0;
@@ -136,7 +136,7 @@ namespace AliceScript.CLI
         internal static bool IsDebugMode { get; set; }
         private static bool allow_print = true;
         private static List<string> print_redirect_files = new List<string>();
-        private static bool allow_throw = true;
+        internal static bool allow_throw = true;
         private static List<string> throw_redirect_files = new List<string>();
         private static string ListToString(List<string> list)
         {
@@ -164,11 +164,7 @@ namespace AliceScript.CLI
                 return path;
             }
             string fpath = Path.Combine(AppContext.BaseDirectory, ".alice", path);
-            if (File.Exists(fpath))
-            {
-                return fpath;
-            }
-            return path;
+            return File.Exists(fpath) ? fpath : path;
         }
         internal static void CreateAliceDirectory(bool force)
         {

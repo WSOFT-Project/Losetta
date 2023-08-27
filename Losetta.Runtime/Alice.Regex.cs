@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Regex_Initer
+    public sealed class Alice_Regex
     {
         public static void Init()
         {

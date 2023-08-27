@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.NameSpaces
 {
-    internal sealed class Alice_Environment_Initer
+    public sealed class Alice_Environment
     {
         public static void Init()
         {
@@ -66,14 +66,7 @@
         public static List<string> Args { get; set; }
         private void Env_CommandLineArgsFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (Args == null)
-            {
-                e.Return = new Variable(Environment.GetCommandLineArgs());
-            }
-            else
-            {
-                e.Return = new Variable(Args);
-            }
+            e.Return = Args == null ? new Variable(Environment.GetCommandLineArgs()) : new Variable(Args);
         }
     }
     internal sealed class env_currentdirFunc : FunctionBase
