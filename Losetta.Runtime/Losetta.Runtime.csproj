@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <ApplicationIcon>alice_logo.ico</ApplicationIcon>
@@ -21,8 +21,18 @@
     <Description>Package of basic functions and APIs available in AliceScript</Description>
     <PackageTags>scripting;scripting-language;scripting-engine;runtime;api;wrapper;</PackageTags>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+             
     <RepositoryType>git</RepositoryType>
     <PackageOutputPath>bin\packages\Losetta.Runtime</PackageOutputPath>
+	  <!-- ネイティブAOT向けの項目 -->
+	  <PublishAot>true</PublishAot>
+	  <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+	  <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
+	  <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
+	  <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+	  <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+	  <IlcDisableUnhandledExceptionExperience>false</IlcDisableUnhandledExceptionExperience>
+	  <!-- ネイティブAOT向けの項目(終わり) -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">

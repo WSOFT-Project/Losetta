@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Company>WSOFT</Company>
     <Authors>WSOFT</Authors>
     <Product>Losetta</Product>
@@ -25,6 +26,15 @@
     <RootNamespace>AliceScript</RootNamespace>
     <RepositoryType>git</RepositoryType>
     <PackageOutputPath>bin\package\Losetta</PackageOutputPath>
+	  <!-- ネイティブAOT向けの項目 -->
+	  <PublishAot>true</PublishAot>
+	  <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+	  <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
+	  <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
+	  <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+	  <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+	  <IlcDisableUnhandledExceptionExperience>false</IlcDisableUnhandledExceptionExperience>
+	  <!-- ネイティブAOT向けの項目(終わり) -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">
