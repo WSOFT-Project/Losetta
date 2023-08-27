@@ -26,7 +26,7 @@
 	  <RootNamespace>AliceScript.CLI</RootNamespace>
 	  <RepositoryType>git</RepositoryType>
 	  <PackageTags>scripting;scripting-language;scripting-engine;cli;repl;</PackageTags>
-	  <PackageOutputPath>\bin\package\alice</PackageOutputPath>
+	  <PackageOutputPath>bin\packages</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -318,6 +318,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
