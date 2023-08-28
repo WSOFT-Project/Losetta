@@ -135,8 +135,6 @@ namespace AliceScript
             FunctionBaseManerger.Add(new ArrayTypeFunction());
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
-            ParserFunction.AddAction(Constants.POINTER, new PointerFunction());
-            ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
         }
 
 

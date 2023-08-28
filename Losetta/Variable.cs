@@ -24,7 +24,6 @@ namespace AliceScript
             ENUM = 0b10000000000000,
             VARIABLE = 0b100000000000000,
             CUSTOM = 0b1000000000000000,
-            POINTER = 0b10000000000000000,
             DELEGATE = 0b100000000000000000,
             BOOLEAN = 0b1000000000000000000
         };
@@ -297,10 +296,6 @@ namespace AliceScript
                 case VarType.STRING:
                     {
                         return String == null;
-                    }
-                case VarType.POINTER:
-                    {
-                        return Pointer == null;
                     }
                 case VarType.OBJECT:
                     {
@@ -1510,11 +1505,6 @@ namespace AliceScript
             set { m_byteArray = value; Type = VarType.BYTES; }
         }
 
-        public string Pointer
-        {
-            get;
-            set;
-        } = null;
 
         public CustomFunction CustomFunctionGet
         {

@@ -92,9 +92,9 @@
                 return stringOrNumberFunction;
             }
 
-            if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL, StringComparison.Ordinal))
+            if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL_PREFIX, StringComparison.Ordinal))
             {
-                item = item.Substring(Constants.UTF8_LITERAL.Length);
+                item = item.Substring(Constants.UTF8_LITERAL_PREFIX.Length);
                 stringOrNumberFunction.DetectionUTF8_Literal = true;
             }
 

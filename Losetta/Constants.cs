@@ -114,8 +114,6 @@ namespace AliceScript
         public const string ON_EXCEPTION = "OnException";
         public const string OBJECT_PROPERTIES = "Properties";
         public const string OBJECT_TYPE = "Type";
-        public const string POINTER = "->";
-        public const string POINTER_REF = "&";
         public const string PRINT = "print";
         public const string REGEX = "Regex";
         public const string REMOVE = "RemoveItem";
@@ -175,14 +173,14 @@ namespace AliceScript
         /// </summary>
         public const string LANGUAGE = "AliceScript";
 
-        public const string UTF8_LITERAL = "u8";
+        public const string UTF8_LITERAL_PREFIX = "u8";
 
         public const string PROP_TO_STRING = "ToString";
 
         public static string END_ARG_STR = END_ARG.ToString();
         public static string NULL_ACTION = END_ARG.ToString();
 
-        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=", "=>" };
+        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", ":", "??=", "=>" };
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS_NOT,IS};
@@ -256,7 +254,7 @@ namespace AliceScript
         /// </summary>
         public static HashSet<string> KEYWORD = new HashSet<string>
         {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,READONLY,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,READONLY,"string","number","array","bytes","object","enum","delegate","bool","type"
         };
 
         // シンボル
@@ -320,7 +318,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptから参照できる定数
         /// </summary>
-        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> 
+        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable>
         {
             //Trueを表します
             { TRUE,Variable.True},
@@ -345,7 +343,6 @@ namespace AliceScript
             {"bytes",Variable.AsType(Variable.VarType.BYTES) },
             {"object",Variable.AsType(Variable.VarType.OBJECT) },
             {"enum",Variable.AsType(Variable.VarType.ENUM) },
-            {"pointer",Variable.AsType(Variable.VarType.POINTER) },
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
 
@@ -354,7 +351,7 @@ namespace AliceScript
         /// 型指定修飾子
         /// </summary>
         public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","pointer","delegate","bool","type"
+             "string","number","array","bytes","object","enum","delegate","bool","type"
         };
         /// <summary>
         /// 算術演算子

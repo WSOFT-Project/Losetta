@@ -42,14 +42,9 @@
         public override string ToString()
         {
             var tsf = Functions.Keys.Where(x => x.ToLower() == "tostring").FirstOrDefault();
-            if (tsf != null)
-            {
-                return Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString();
-            }
-            else
-            {
-                return string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
-            }
+            return tsf != null
+                ? Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString()
+                : string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
         }
 
         public virtual Variable GetImplementation(List<Variable> args, ParsingScript script)
