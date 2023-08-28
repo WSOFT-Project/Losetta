@@ -424,8 +424,17 @@
             name = Constants.ConvertName(name);
             if (script.TryGetFunction(name, out ParserFunction impl) || s_functions.TryGetValue(name, out impl))
             {
-                //それがデリゲートならデリゲートを返す
-                return toDelegate && impl is CustomFunction cf ? new GetVarFunction(new Variable(cf)) : impl.NewInstance();
+                if(toDelegate && impl is CustomFunction cf)
+                {
+                    //デリゲートとして返したい場合
+                    var f = new Variable(cf);
+                    f.Readonly = f.TypeChecked = true;
+                    return new GetVarFunction(f);
+                }
+                else
+                {
+                    return impl.NewInstance();
+                }
             }
             if (script.TryGetVariable(name, out impl) || s_variables.TryGetValue(name, out impl))
             {
@@ -528,11 +537,11 @@
 
             if (globalOnly)
             {
-                AddLocalVariable(function, ParsingScript.GetTopLevelScript(script), "", true, registVar, type_modifer);
+                AddLocalVariable(function, ParsingScript.GetTopLevelScript(script),  true, registVar, type_modifer);
             }
             else
             {
-                AddLocalVariable(function, script, "", true, registVar, type_modifer);
+                AddLocalVariable(function, script, true, registVar, type_modifer);
             }
         }
 
@@ -676,14 +685,14 @@
             s_actions[name] = action;
         }
 
-        public static void AddLocalVariable(ParserFunction local, ParsingScript script, string varName = "", bool setScript = true, bool registVar = false, string type_modifer = null)
+        public static void AddLocalVariable(ParserFunction local, ParsingScript script, bool setScript = true, bool registVar = false, string type_modifer = null)
         {
             bool type_inference = script.TypeInference;
             NormalizeValue(local);
             local.m_isGlobal = false;
             if (setScript)
             {
-                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
+                var name = Constants.ConvertName(local.Name);
 
                 local.Name = Constants.GetRealName(name);
                 if (local is GetVarFunction)
@@ -713,7 +722,7 @@
                         v.Value.Assign(g2.Value);
                     }
                 }
-                else
+                else if(func == null)
                 {
                     //変数定義の場合
                     if (local is GetVarFunction v2)
@@ -722,13 +731,13 @@
                         newVar.Parent = script;
                         if (type_modifer != null)
                         {
-                            newVar.TypeSafe = true;
+                            newVar.TypeChecked = true;
                             newVar.Type = Constants.StringToType(type_modifer);
                         }
                         newVar.Assign(v2.Value);
                         if (type_inference)
                         {
-                            newVar.TypeSafe = true;
+                            newVar.TypeChecked = true;
                         }
                         local = new GetVarFunction(newVar);
                     }
@@ -747,7 +756,7 @@
                     }
                 }
 
-                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
+                var name = Constants.ConvertName(local.Name);
                 local.Name = Constants.GetRealName(name);
                 if (local is GetVarFunction)
                 {

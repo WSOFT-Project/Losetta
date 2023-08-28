@@ -246,7 +246,7 @@ namespace AliceScript
             Variable result = new Variable();
             bool valueProvided = false;
             bool setgetProvided = false;
-            bool writable = false;
+            bool _readonly = false;
             bool configurable = false;
             bool enumerable = false;
             script.MoveForwardIf('{');
@@ -288,8 +288,8 @@ namespace AliceScript
                         setgetProvided = true;
                         SetPropertyFromStr(token, result, script, lower, customFunc);
                         break;
-                    case "writable":
-                        writable = ConvertToDouble(token.ToLower(), script) > 0;
+                    case "readonly":
+                        _readonly = ConvertToDouble(token.ToLower(), script) < 1;
                         break;
                     case "enumerable":
                         enumerable = ConvertToDouble(token.ToLower(), script) > 0;
@@ -303,7 +303,7 @@ namespace AliceScript
             {
                 result.Type = Variable.VarType.CUSTOM;
             }
-            result.Writable = writable;
+            result.Readonly = _readonly;
             result.Enumerable = enumerable;
             result.Configurable = configurable;
 

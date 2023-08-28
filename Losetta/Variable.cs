@@ -221,11 +221,15 @@ namespace AliceScript
         /// <param name="v">代入する値</param>
         public void Assign(Variable v)
         {
-            if (TypeSafe && Constants.NOT_NULLABLE_VARIABLE_TYPES.Contains(m_type) && v.IsNull())
+            if (Readonly)
+            {
+                throw new ScriptException("readonly属性を持つ変数は、代入できません", Exceptions.CANT_ASSIGN_TO_READ_ONLY);
+            }
+            if (TypeChecked && Constants.NOT_NULLABLE_VARIABLE_TYPES.Contains(m_type) && v.IsNull())
             {
                 throw new ScriptException($"`{m_type}`型はnullをとりえません", Exceptions.VARIABLE_IS_NULL);
             }
-            if (TypeSafe && m_type != v.Type)
+            if (TypeChecked && m_type != v.Type)
             {
                 throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
             }
@@ -1077,9 +1081,9 @@ namespace AliceScript
             if (m_propertyMap.TryGetValue(propName, out result) ||
                 m_propertyMap.TryGetValue(GetRealName(propName), out result))
             {
-                if (!result.Writable)
+                if (result.Readonly)
                 {
-                    throw new ScriptException("プロパティ:[" + propName + "]は読み取り専用です", Exceptions.PROPERTY_IS_READ_ONLY, script);
+                    throw new ScriptException("プロパティ:[" + propName + "]は読み取り専用です", Exceptions.CANT_ASSIGN_TO_READ_ONLY, script);
                 }
                 if (result.CustomFunctionSet != null)
                 {
@@ -1543,10 +1547,13 @@ namespace AliceScript
         public string ParamName { get; set; } = "";
 
         /// <summary>
-        /// この変数が型安全であればTrue、それ以外の場合はFalse。
+        /// この変数が型検査を受ける場合はtrue
         /// </summary>
-        public bool TypeSafe { get; set; }
-        public bool Writable { get; set; } = true;
+        public bool TypeChecked { get; set; }
+        /// <summary>
+        /// この変数が読み取り専用の場合はtrue。
+        /// </summary>
+        public bool Readonly { get; set; }
         public bool Enumerable { get; set; } = true;
         public bool Configurable { get; set; } = true;
 

@@ -607,7 +607,7 @@ namespace AliceScript
             m_body = body;
             m_forceReturn = forceReturn;
 
-            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            //Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
 
             Run += CustomFunction_Run;
 
@@ -742,32 +742,24 @@ namespace AliceScript
 
         private void CustomFunction_Run(object sender, FunctionBaseEventArgs e)
         {
+            /*
             List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
                 // Special case of extracting args.
                 Utils.GetFunctionArgsAsStrings(e.Script) :
-                e.Script.GetFunctionArgs(this);
+                e.Script.GetFunctionArgs(this);*/
 
-            Utils.ExtractParameterNames(args, m_name, e.Script);
+            Utils.ExtractParameterNames(e.Args, m_name, e.Script);
 
             if (m_args == null)
             {
                 m_args = new string[0];
             }
-            if (args.Count + m_defaultArgs.Count < m_args.Length)
+            if (e.Args.Count + m_defaultArgs.Count < m_args.Length)
             {
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
-            Variable result = ARun(args, e.Script);
-            //このCustomFunctionに子があればそれも実行する
-            if (Children != null)
-            {
-                foreach (CustomFunction child in Children)
-                {
-                    result = child.Evaluate(e.Script);
-                }
-            }
+            Variable result = ARun(e.Args, e.Script);
             e.Return = result;
-            return;
         }
 
         private int parmsindex = -1;
@@ -1010,25 +1002,28 @@ namespace AliceScript
             // さて実行
 
 
-            while (tempScript.Pointer < m_body.Length - 1 &&
+            while (tempScript.Pointer < m_body.Length &&
                   (result == null || !result.IsReturn))
             {
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();
             }
 
+            if (result == null || (!result.IsReturn && !m_forceReturn))
+            {
+                result = Variable.EmptyInstance;
+            }
 
-            if (result == null)
+            result.IsReturn = false;
+
+
+            //このCustomFunctionに子があればそれも実行する
+            if (Children != null)
             {
-                result = Variable.EmptyInstance;
-            }
-            else if (result.IsReturn || m_forceReturn)
-            {
-                result.IsReturn = false;
-            }
-            else
-            {
-                result = Variable.EmptyInstance;
+                foreach (CustomFunction child in Children)
+                {
+                    result = child.ARun(args, script, instance, current);
+                }
             }
 
             return result;
@@ -1042,6 +1037,7 @@ namespace AliceScript
         }
 
         public ParsingScript ParentScript { set => m_parentScript = value; }
+
         public int ParentOffset { set => m_parentOffset = value; }
         public string Body => m_body;
 
@@ -1800,7 +1796,7 @@ namespace AliceScript
                 }
                 else
                 {
-                    throw new ScriptException("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_VALUE_TO_CONSTANT, script);
+                    throw new ScriptException("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_TO_READ_ONLY, script);
                 }
             }
             else

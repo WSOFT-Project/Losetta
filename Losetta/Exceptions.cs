@@ -171,9 +171,9 @@
         /// </summary>
         COULDNT_ASSIGN_THIS_PROPERTY = 0x02c,
         /// <summary>
-        /// プロパティは読み取り専用です
+        /// 読み取り専用の値には代入できません
         /// </summary>
-        PROPERTY_IS_READ_ONLY = 0x02f,
+        CANT_ASSIGN_TO_READ_ONLY = 0x02f,
         /// <summary>
         /// 値を混合して取得/設定することはできません
         /// </summary>
@@ -222,10 +222,6 @@
         /// 互換性のないパッケージです
         /// </summary>
         NOT_COMPATIBLE_PACKAGES = 0x03c,
-        /// <summary>
-        /// 定数に値を代入することはできません
-        /// </summary>
-        CANT_ASSIGN_VALUE_TO_CONSTANT = 0x03d,
         /// <summary>
         /// 変数はすでに定義されています
         /// </summary>
