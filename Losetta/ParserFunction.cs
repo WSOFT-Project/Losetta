@@ -424,7 +424,7 @@
             name = Constants.ConvertName(name);
             if (script.TryGetFunction(name, out ParserFunction impl) || s_functions.TryGetValue(name, out impl))
             {
-                if(toDelegate && impl is CustomFunction cf)
+                if (toDelegate && impl is CustomFunction cf)
                 {
                     //デリゲートとして返したい場合
                     var f = new Variable(cf);
@@ -526,7 +526,7 @@
         }
 
         public static void AddGlobalOrLocalVariable(string name, GetVarFunction function,
-            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null)
+            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null, bool isReadOnly = false)
         {
             name = Constants.ConvertName(name);
             Utils.CheckLegalName(name);
@@ -537,12 +537,65 @@
 
             if (globalOnly)
             {
-                AddLocalVariable(function, ParsingScript.GetTopLevelScript(script),  true, registVar, type_modifer);
+                script = ParsingScript.GetTopLevelScript(script);
             }
-            else
+
+            bool type_inference = script.TypeInference;
+            NormalizeValue(function);
+            function.m_isGlobal = false;
+            name = Constants.ConvertName(function.Name);
+
+            function.Name = Constants.GetRealName(name);
+            if (function is GetVarFunction)
             {
-                AddLocalVariable(function, script, true, registVar, type_modifer);
+                function.Value.ParamName = function.Name;
             }
+            bool exists = FunctionExists(name, script, out var func);
+            bool unneed = script.UnneedVarKeyword;
+
+            if (exists && registVar)
+            {
+                throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
+            }
+            else if (!exists && !registVar && !unneed && !string.IsNullOrEmpty(name))
+            {
+                throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
+            }
+            if (func != null && func is GetVarFunction v)
+            {
+                //代入の場合
+                if (v.Value.Parent == null)
+                {
+                    v.Value.Parent = script;
+                }
+                if (function is GetVarFunction g2)
+                {
+                    v.Value.Assign(g2.Value);
+                }
+            }
+            else if (func == null)
+            {
+                //変数定義の場合
+                if (function is GetVarFunction v2)
+                {
+                    Variable newVar = Variable.EmptyInstance;
+                    newVar.Parent = script;
+                    if (type_modifer != null)
+                    {
+                        newVar.TypeChecked = true;
+                        newVar.Type = Constants.StringToType(type_modifer);
+                    }
+                    newVar.Assign(v2.Value);
+                    if (type_inference)
+                    {
+                        newVar.TypeChecked = true;
+                    }
+                    newVar.Readonly = isReadOnly;
+                    function = new GetVarFunction(newVar);
+                }
+                script.Variables[name] = function;
+            }
+
         }
 
         public static bool TryGetGlobal(string name, out ParserFunction function, bool continueConst = false)
@@ -685,115 +738,13 @@
             s_actions[name] = action;
         }
 
-        public static void AddLocalVariable(ParserFunction local, ParsingScript script, bool setScript = true, bool registVar = false, string type_modifer = null)
-        {
-            bool type_inference = script.TypeInference;
-            NormalizeValue(local);
-            local.m_isGlobal = false;
-            if (setScript)
-            {
-                var name = Constants.ConvertName(local.Name);
-
-                local.Name = Constants.GetRealName(name);
-                if (local is GetVarFunction)
-                {
-                    ((GetVarFunction)local).Value.ParamName = local.Name;
-                }
-                bool exists = FunctionExists(name, script, out var func);
-                bool unneed = script.UnneedVarKeyword;
-
-                if (exists && registVar)
-                {
-                    throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
-                }
-                else if (!exists && !registVar && !unneed && !string.IsNullOrEmpty(name))
-                {
-                    throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
-                }
-                if (func != null && func is GetVarFunction v)
-                {
-                    //代入の場合
-                    if (v.Value.Parent == null)
-                    {
-                        v.Value.Parent = script;
-                    }
-                    if (local is GetVarFunction g2)
-                    {
-                        v.Value.Assign(g2.Value);
-                    }
-                }
-                else if(func == null)
-                {
-                    //変数定義の場合
-                    if (local is GetVarFunction v2)
-                    {
-                        Variable newVar = Variable.EmptyInstance;
-                        newVar.Parent = script;
-                        if (type_modifer != null)
-                        {
-                            newVar.TypeChecked = true;
-                            newVar.Type = Constants.StringToType(type_modifer);
-                        }
-                        newVar.Assign(v2.Value);
-                        if (type_inference)
-                        {
-                            newVar.TypeChecked = true;
-                        }
-                        local = new GetVarFunction(newVar);
-                    }
-                    script.Variables[name] = local;
-                }
-            }
-            else
-            {
-                lock (s_variables)
-                {
-
-                    if (s_lastExecutionLevel == null)
-                    {
-                        s_lastExecutionLevel = new StackLevel();
-                        s_locals.Push(s_lastExecutionLevel);
-                    }
-                }
-
-                var name = Constants.ConvertName(local.Name);
-                local.Name = Constants.GetRealName(name);
-                if (local is GetVarFunction)
-                {
-                    ((GetVarFunction)local).Value.ParamName = local.Name;
-                }
-
-                var handle = OnVariableChange;
-                bool exists = handle != null && s_lastExecutionLevel.Variables.ContainsKey(name);
-
-                s_lastExecutionLevel.Variables[name] = local;
-
-                if (handle != null && local is GetVarFunction)
-                {
-                    handle.Invoke(local.Name, ((GetVarFunction)local).Value, exists);
-                }
-            }
-        }
-
-
-
+      
         public static int GetCurrentStackLevel()
         {
             lock (s_variables)
             {
                 return s_locals.Count;
             }
-        }
-
-        public static bool PopLocalVariable(string name)
-        {
-            if (s_lastExecutionLevel == null)
-            {
-                return false;
-            }
-            Dictionary<string, ParserFunction> locals = s_lastExecutionLevel.Variables;
-            name = Constants.ConvertName(name);
-            return locals.Remove(name);
         }
 
         public Variable GetValue(ParsingScript script)

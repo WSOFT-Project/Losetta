@@ -1056,6 +1056,10 @@ namespace AliceScript
                 result = Execute(Constants.END_LINE_ARRAY);
                 GoToNextStatement();
             }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
+            }
             return result;
         }
         public Variable Process()
@@ -1065,6 +1069,10 @@ namespace AliceScript
             {
                 result = Execute();
                 GoToNextStatement();
+            }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
             }
             return result;
         }
@@ -1080,6 +1088,10 @@ namespace AliceScript
                 }
                 GoToNextStatement();
             }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
+            }
             return result;
         }
         public async Task<Variable> ProcessAsync()
@@ -1089,6 +1101,10 @@ namespace AliceScript
             {
                 result = await ExecuteAsync();
                 GoToNextStatement();
+            }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
             }
             return result;
         }

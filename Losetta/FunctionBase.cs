@@ -59,6 +59,10 @@
             ex.Script = script;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
+            if (ex.Return == null)
+            {
+                ex.Return = Variable.EmptyInstance;
+            }
             return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
         protected override Variable Evaluate(ParsingScript script)

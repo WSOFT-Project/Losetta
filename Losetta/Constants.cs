@@ -248,6 +248,16 @@ namespace AliceScript
         public const string VIRTUAL = "virtual";
         public const string OVERRIDE = "override";
         public const string COMMAND = "command";
+        public const string READONLY = "readonly";
+
+
+        /// <summary>
+        /// AliceScriptのキーワード
+        /// </summary>
+        public static HashSet<string> KEYWORD = new HashSet<string>
+        {
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,READONLY,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
+        };
 
         // シンボル
         public const string UNNEED_VAR = "unneed_var";
@@ -339,13 +349,6 @@ namespace AliceScript
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
 
-        };
-        /// <summary>
-        /// AliceScriptのキーワード
-        /// </summary>
-        public static HashSet<string> KEYWORD = new HashSet<string>
-        {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
         /// <summary>
         /// 型指定修飾子

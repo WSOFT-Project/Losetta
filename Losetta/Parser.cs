@@ -416,8 +416,8 @@ namespace AliceScript
                 return false;
             }
 
-            //角かっこまたは波かっこまたはポインタ
-            if ((item.Length == 0 && (ch == Constants.END_ARRAY || ch == Constants.END_ARG)) || ch == '&')
+            //角かっこまたは波かっこ
+            if ((item.Length == 0 && (ch == Constants.END_ARRAY || ch == Constants.END_ARG)))
             {
                 return true;
             }
