@@ -1,6 +1,6 @@
 # Losetta
 
-|English|[Japanese](README-ja.md)|
+|[English](README.md)|Japanese|
 |-|-|
 
 ![AliceScript](https://wsoft.ws/products/AliceScript.svg)

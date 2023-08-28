@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace AliceScript.Interop
 {
@@ -47,6 +48,7 @@ namespace AliceScript.Interop
         private static FunctionBase CreateBindingFunction(MethodInfo methodInfo, bool needBind)
         {
             string name = methodInfo.Name;
+            if (!methodInfo.IsStatic) { return null; }
             if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute) && attribute.Name != null)
             {
                 name = attribute.Name;
@@ -55,9 +57,34 @@ namespace AliceScript.Interop
             {
                 return null;
             }
+
             var func = new BindingFunction();
             func.Name = name;
             func.TrueParameters = methodInfo.GetParameters();
+
+            var args = Expression.Parameter(typeof(object[]), "args");
+            var parameters = func.TrueParameters.Select((x, index) =>
+            Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), x.ParameterType)).ToArray();
+
+            Func<object[], object> lambda = null;
+            Action<object[]> lambda2 = null;
+            if (methodInfo.ReturnType == typeof(void))
+            {
+                lambda2 = Expression.Lambda<Action<object[]>>(
+                Expression.Convert(
+                    Expression.Call(methodInfo, parameters),
+                    typeof(void)),
+                args).Compile();
+            }
+            else
+            {
+                lambda = Expression.Lambda<Func<object[], object>>(
+                Expression.Convert(
+                    Expression.Call(methodInfo, parameters),
+                    typeof(object)),
+                args).Compile();
+            }
+
             func.Run += delegate (object sender, FunctionBaseEventArgs e)
             {
                 var parametors = new List<object>(e.Args.Count);
@@ -71,10 +98,17 @@ namespace AliceScript.Interop
                     parametors.Add(e.Args[i].ConvertTo(func.TrueParameters[i].ParameterType));
                 }
 
-                e.Return = Variable.ConvetFrom(methodInfo.Invoke(null, parametors.ToArray()));
+                // これでふつーのInvokeで呼び出せるように！
+                if (lambda2 != null)
+                {
+                    lambda2.Invoke(parametors.ToArray());
+                    e.Return = Variable.EmptyInstance;
+                }
+                else
+                {
+                    e.Return = Variable.ConvetFrom(lambda.Invoke(parametors.ToArray()));
+                };
             };
-
-
             return func;
         }
 
