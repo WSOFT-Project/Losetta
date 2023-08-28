@@ -363,7 +363,7 @@ namespace AliceScript
                 case Constants.QUOTE:
                     {
                         char prev = script.TryPrev(2);
-                        char prevprev = script.TryPrev(2);
+                        char prevprev = script.TryPrev(3);
                         inQuotes = (prev != '\\' || prevprev == '\\') ? !inQuotes : inQuotes;
                         return;
                     }
