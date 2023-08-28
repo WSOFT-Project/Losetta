@@ -26,6 +26,7 @@
                 space.Add(new Interpreter_GetScriptFunc());
                 space.Add(new gc_collectFunc());
                 space.Add(new gc_gettotalmemoryFunc());
+                space.Add(new Bind_RegisterFunc());
                 space.Add(new TypeObject());
 
                 NameSpaceManerger.Add(space);
@@ -33,7 +34,25 @@
             catch { }
         }
     }
+    internal class Bind_RegisterFunc : FunctionBase
+    {
+        public Bind_RegisterFunc()
+        {
+            Name = "Bind_Register";
+            MinimumArgCounts = 1;
+            Run += Bind_Register_Run;
+        }
 
+        private void Bind_Register_Run(object sender, FunctionBaseEventArgs e)
+        {
+            Type t = Type.GetType(e.Args[0].ToString());
+            if (t == null)
+            {
+                throw new ScriptException($"{e.Args[0]}という名前の型を検索できませんでした。アセンブリ名の指定を忘れていませんか？",Exceptions.OBJECT_DOESNT_EXIST);
+            }
+            NameSpaceManerger.Add(t);
+        }
+    }
     internal class Interpreter_GetParentFunc : FunctionBase
     {
         public Interpreter_GetParentFunc()

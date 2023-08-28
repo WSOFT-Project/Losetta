@@ -197,7 +197,7 @@
         /// <summary>
         /// オーバーライド可能です。CanOverrideプロパティもしくはこの属性が定義のいずれかが定義されている場合、オーバーライド可能です。
         /// </summary>
-        VIRTUAL = 5
+        VIRTUAL = 5,
     }
 
     public static class FunctionBaseManerger

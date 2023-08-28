@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using AliceScript.Interop;
+
+namespace AliceScript
 {
 
     public static class NameSpaceManerger
@@ -17,6 +19,10 @@
             {
                 NameSpaces.Add(name, space);
             }
+        }
+        public static void Add(Type type, string name = null)
+        {
+            Add(BindingFunction.BindToNameSpace(type), name);
         }
         public static bool Contains(NameSpace name)
         {

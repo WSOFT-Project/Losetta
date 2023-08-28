@@ -254,38 +254,6 @@ namespace AliceScript
         {
             return new Variable();
         }
-        public static Variable ConvertToVariable(object obj)
-        {
-            if (obj == null)
-            {
-                return Variable.EmptyInstance;
-            }
-            if (obj is Variable)
-            {
-                return (Variable)obj;
-            }
-            if (obj is string || obj is char)
-            {
-                return new Variable(System.Convert.ToString(obj));
-            }
-            if (obj is double || obj is float || obj is int || obj is long)
-            {
-                return new Variable(System.Convert.ToDouble(obj));
-            }
-            if (obj is bool)
-            {
-                return new Variable((bool)obj);
-            }
-            if (obj is byte[])
-            {
-                return new Variable((byte[])obj);
-            }
-            if (obj is List<string>)
-            {
-                return new Variable((List<string>)obj);
-            }
-            return obj is List<double> ? new Variable((List<double>)obj) : new Variable(obj);
-        }
 
         public void Reset()
         {
@@ -801,11 +769,9 @@ namespace AliceScript
             {
                 return Delegate == del;
             }
-            if (obj is byte[] data)
-            {
-                return ByteArray == data;
-            }
-            return obj is ObjectBase ob && Object is ObjectBase ob2 ? ob.Equals(ob2) : obj.Equals(Object);
+            return obj is byte[] data
+                ? ByteArray == data
+                : obj is ObjectBase ob && Object is ObjectBase ob2 ? ob.Equals(ob2) : obj.Equals(Object);
         }
         public int CompareTo(Variable? other)
         {
@@ -825,47 +791,87 @@ namespace AliceScript
             {
                 return String.CompareTo(other.String);
             }
-            if (other.Type == VarType.BOOLEAN)
+            return other.Type == VarType.BOOLEAN
+                ? Bool.CompareTo(other.Bool)
+                : other.Type == VarType.OBJECT && Object is ObjectBase ob ? ob.CompareTo(other.Object) : 0;
+        }
+        public static Variable ConvetFrom(object obj)
+        {
+            if (obj == null)
             {
-                return Bool.CompareTo(other.Bool);
+                return Variable.EmptyInstance;
             }
-            return other.Type == VarType.OBJECT && Object is ObjectBase ob ? ob.CompareTo(other.Object) : 0;
+            if (obj is Variable)
+            {
+                return (Variable)obj;
+            }
+            if (obj is string || obj is char)
+            {
+                return new Variable(System.Convert.ToString(obj));
+            }
+            if (obj is double || obj is float || obj is int || obj is long)
+            {
+                return new Variable(System.Convert.ToDouble(obj));
+            }
+            if (obj is bool)
+            {
+                return new Variable((bool)obj);
+            }
+            if (obj is byte[])
+            {
+                return new Variable((byte[])obj);
+            }
+            return obj is List<string>
+                ? new Variable((List<string>)obj)
+                : obj is List<double> ? new Variable((List<double>)obj) : new Variable(obj);
         }
         public T ConvertTo<T>()
         {
-            if (typeof(T) == typeof(string))
+            return (T)ConvertTo(typeof(T));
+        }
+        public object ConvertTo(Type type)
+        {
+            if (type == typeof(string))
             {
-                return (T)(object)AsString();
+                return AsString();
             }
-            if (typeof(T) == typeof(bool))
+            if (type == typeof(bool))
             {
-                return (T)(object)AsBool();
+                return AsBool();
             }
-            if (typeof(T) == typeof(byte[]))
+            if (type == typeof(byte[]))
             {
-                return (T)(object)AsByteArray();
+                return AsByteArray();
             }
-            if (typeof(T) == typeof(double))
+            if (type == typeof(double))
             {
-                return (T)(object)AsDouble();
+                return AsDouble();
             }
-            if (typeof(T) == typeof(float))
+            if (type == typeof(float))
             {
-                return (T)(object)AsFloat();
+                return AsFloat();
             }
-            if (typeof(T) == typeof(int))
+            if (type == typeof(int))
             {
-                return (T)(object)AsInt();
+                return AsInt();
             }
-            if (typeof(T) == typeof(long))
+            if (type == typeof(long))
             {
-                return (T)(object)AsLong();
+                return AsLong();
             }
-            if (typeof(T) == typeof(TypeObject))
+            if (type == typeof(TypeObject))
             {
-                return (T)(object)AsType();
+                return AsType();
             }
-            return typeof(T) == typeof(DelegateObject) ? (T)(object)AsDelegate() : (T)AsObject();
+            if (type == typeof(VariableCollection))
+            {
+                return Tuple;
+            }
+            if (type == typeof(Variable[]))
+            {
+                return Tuple.ToArray();
+            }
+            return type == typeof(List<Variable>) ? Tuple.ToList() : type == typeof(DelegateObject) ? AsDelegate() : AsObject();
         }
         public object AsObject()
         {
@@ -907,10 +913,12 @@ namespace AliceScript
                 case VarType.ENUM:
                     {
                         var sb = new StringBuilder();
-                        sb.Append(Constants.START_GROUP.ToString() + " ");
+                        sb.Append(Constants.START_GROUP.ToString());
+                        sb.Append(Constants.SPACE);
                         foreach (string key in m_propertyMap.Keys)
                         {
-                            sb.Append(key + " ");
+                            sb.Append(key);
+                            sb.Append(Constants.SPACE);
                         }
                         sb.Append(Constants.END_GROUP.ToString());
                         return sb.ToString();
@@ -951,7 +959,8 @@ namespace AliceScript
                                         value = ": " + value;
                                     }
                                 }
-                                sb.Append(prop + value);
+                                sb.Append(prop);
+                                sb.Append(value);
                                 if (i < allProps.Count - 1)
                                 {
                                     sb.Append(", ");
@@ -1262,7 +1271,7 @@ namespace AliceScript
             {
                 return result;
             }
-            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type==Variable.VarType.NONE))
+            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type == Variable.VarType.NONE))
             {
                 return p.GetProperty(this);
             }
@@ -1367,11 +1376,9 @@ namespace AliceScript
 
         public virtual string GetTypeString()
         {
-            if (Type == VarType.OBJECT && Object != null)
-            {
-                return Object is ObjectBase ? ((ObjectBase)Object).Name : Object.GetType().ToString();
-            }
-            return Constants.TypeToString(Type);
+            return Type == VarType.OBJECT && Object != null
+                ? Object is ObjectBase ? ((ObjectBase)Object).Name : Object.GetType().ToString()
+                : Constants.TypeToString(Type);
         }
 
         public Variable GetValue(int index)

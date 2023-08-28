@@ -73,15 +73,6 @@ namespace AliceScript
 
         public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script, string token = null)
         {
-            /*
-             * TODO:ThrowErrorMSGの引継ぎ等
-            string code     = script == null || string.IsNullOrWhiteSpace(script.OriginalScript) ? "" : script.OriginalScript;
-            int lineNumber  = script == null ? 0 : script.OriginalLineNumber;
-            string filename = script == null || string.IsNullOrWhiteSpace(script.Filename) ? "" : script.Filename;
-            int minLines    = script == null || script.OriginalLine.ToLower().Contains(token.ToLower()) ? 1 : 2;
-
-            ThrowErrorMsg(msg, code, lineNumber, filename, minLines);
-            */
             throw new ScriptException(msg, errorcode, script);
         }
 
@@ -100,7 +91,7 @@ namespace AliceScript
 
 
             StringBuilder stack = new StringBuilder();
-            stack.AppendLine("" + currentLineNumber);
+            stack.AppendLine(currentLineNumber.ToString());
             stack.AppendLine(filename);
             stack.AppendLine(line);
             throw new ScriptException(msg + stack.ToString(), ecode);
@@ -187,11 +178,9 @@ namespace AliceScript
         /// <returns></returns>
         public static byte[] GetFileFromPackageOrLocal(string filename, bool fromPackage = false, ParsingScript script = null)
         {
-            if (script != null && script.Package != null && script.Package.ExistsEntry(filename))
-            {
-                return script.Package.GetEntryData(filename);
-            }
-            return fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
+            return script != null && script.Package != null && script.Package.ExistsEntry(filename)
+                ? script.Package.GetEntryData(filename)
+                : fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
         }
         public static string GetFileLines(string filename)
         {

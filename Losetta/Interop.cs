@@ -1,5 +1,96 @@
-﻿namespace AliceScript.Interop
+﻿using System.Reflection;
+
+namespace AliceScript.Interop
 {
+    /// <summary>
+    /// AliceScriptで使用できる関数として公開するメソッド
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class AliceFunctionAttribute : Attribute
+    {
+        public string Name = null;
+    }
+
+    /// <summary>
+    /// AliceScriptの名前空間として公開するクラス
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class AliceNameSpaceAttribute : Attribute
+    {
+        public string Name = null;
+        public bool NeedBindAttribute = true;
+    }
+    public class BindingFunction : FunctionBase
+    {
+        public static NameSpace BindToNameSpace(Type type)
+        {
+            var space = new NameSpace(type.Name);
+            bool needbind = false;
+            if (TryGetAttibutte<AliceNameSpaceAttribute>(type, out var attribute))
+            {
+                if (attribute.Name != null)
+                {
+                    space.Name = attribute.Name;
+                }
+                needbind = attribute.NeedBindAttribute;
+            }
+            foreach (var m in type.GetMethods())
+            {
+                var func = CreateBindingFunction(m, needbind);
+                if (func != null)
+                {
+                    space.Add(func);
+                }
+            }
+            return space;
+        }
+        private static FunctionBase CreateBindingFunction(MethodInfo methodInfo, bool needBind)
+        {
+            string name = methodInfo.Name;
+            if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute) && attribute.Name != null)
+            {
+                name = attribute.Name;
+            }
+            else if (needBind)
+            {
+                return null;
+            }
+            var func = new BindingFunction();
+            func.Name = name;
+            func.TrueParameters = methodInfo.GetParameters();
+            func.Run += delegate (object sender, FunctionBaseEventArgs e)
+            {
+                var parametors = new List<object>(e.Args.Count);
+
+                if (e.Args.Count != func.TrueParameters.Length)
+                {
+                    throw new ScriptException($"`{func.Name}`は{func.TrueParameters.Length}個の引数をとる必要があります", Exceptions.INCOMPLETE_ARGUMENTS);
+                }
+                for (int i = 0; i < func.TrueParameters.Length; i++)
+                {
+                    parametors.Add(e.Args[i].ConvertTo(func.TrueParameters[i].ParameterType));
+                }
+
+                e.Return = Variable.ConvetFrom(methodInfo.Invoke(null, parametors.ToArray()));
+            };
+
+
+            return func;
+        }
+
+        private static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
+        {
+            attribute = null;
+            var attr = System.Attribute.GetCustomAttributes(memberInfo, typeof(T));
+            if (attr.Length > 0)
+            {
+                attribute = attr[0] as T;
+                return true;
+            }
+            return false;
+        }
+        private ParameterInfo[] TrueParameters { get; set; }
+    }
     public class NetLibraryLoader
     {
         public static void LoadLibrary(string path)
@@ -66,18 +157,9 @@
     {
         public virtual void Main()
         {
-
         }
 
         public string Name { get; set; }
 
-    }
-    [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class ScriptClass : System.Attribute
-    {
-        public ScriptClass()
-        {
-
-        }
     }
 }
