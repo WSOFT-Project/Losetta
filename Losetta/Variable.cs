@@ -1258,7 +1258,7 @@ namespace AliceScript
             {
                 return result;
             }
-            else if (script != null && Properties.TryGetValue(propName, out var p) && p.Type.HasFlag(Type))
+            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type==Variable.VarType.NONE))
             {
                 return p.GetProperty(this);
             }
