@@ -1723,8 +1723,6 @@ namespace AliceScript
             {
                 baseScript = script;
             }
-
-
             if (varValue == null)
             {
                 return Variable.EmptyInstance;
@@ -1734,7 +1732,7 @@ namespace AliceScript
 
             foreach (string str in Keywords)
             {
-                if (Constants.TYPE_MODIFER.Contains(str))
+                if (Constants.TYPE_MODIFER.Contains(str.TrimEnd(Constants.TERNARY_OPERATOR)))
                 {
                     type_modifer = str;
                     break;
@@ -1806,11 +1804,6 @@ namespace AliceScript
                 Variable result = ProcessObject(m_name, script, varValue);
                 if (result != null)
                 {
-                    if (script.CurrentClass == null && script.ClassInstance == null)
-                    {
-                        //TODO:これ無効化したけど大丈夫そ？
-                        //  ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(result), baseScript, localIfPossible, registVar, isGlobal);
-                    }
                     return result;
                 }
 
@@ -1820,7 +1813,7 @@ namespace AliceScript
 
                 if (arrayIndices.Count == 0)
                 {
-                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal, type_modifer,isReadOnly);
+                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly);
                     Variable retVar = varValue.DeepClone();
                     retVar.CurrentAssign = m_name;
                     return retVar;
@@ -1833,7 +1826,7 @@ namespace AliceScript
 
                 ExtendArray(array, arrayIndices, 0, varValue);
 
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal, type_modifer,isReadOnly);
+                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly);
                 return array;
             }
         }
@@ -1857,8 +1850,6 @@ namespace AliceScript
             {
                 return null;
             }
-
-            Utils.CheckLegalName(varName);
 
             string name = varName.Substring(0, ind);
             string prop = varName.Substring(ind + 1);

@@ -583,6 +583,11 @@
                     if (type_modifer != null)
                     {
                         newVar.TypeChecked = true;
+                        if (type_modifer.EndsWith("?", StringComparison.Ordinal))
+                        {
+                            newVar.Nullable = true;
+                            type_modifer = type_modifer.Substring(0, type_modifer.Length - 1);
+                        }
                         newVar.Type = Constants.StringToType(type_modifer);
                     }
                     newVar.Assign(v2.Value);
@@ -738,7 +743,7 @@
             s_actions[name] = action;
         }
 
-      
+
         public static int GetCurrentStackLevel()
         {
             lock (s_variables)

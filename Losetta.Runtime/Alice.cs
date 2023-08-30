@@ -15,6 +15,7 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new DeepCloneFunc());
             Variable.AddFunc(new ToStringFunc());
             Variable.AddFunc(new ConvertFunc());
+            Variable.AddFunc(new IsNullFunc());
             Variable.AddProp(new PropertiesProp());
             Variable.AddProp(new TypProp());
             //統合関数(終わり)
@@ -122,6 +123,7 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new ImportFunc());
             FunctionBaseManerger.Add(new DelegateCreator());
             FunctionBaseManerger.Add(new LockFunction());
+
         }
     }
 
@@ -499,7 +501,7 @@ namespace AliceScript.NameSpaces
 
         private void ResetFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.CurentVariable.Reset();
+            e.CurentVariable.AssignNull();
         }
     }
 
@@ -575,8 +577,22 @@ namespace AliceScript.NameSpaces
 
         private void DisposeFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.CurentVariable.Reset();
+            e.CurentVariable.AssignNull();
 
+        }
+    }
+
+    internal sealed class IsNullFunc : FunctionBase
+    {
+        public IsNullFunc()
+        {
+            Name = "IsNull";
+            Run += IsNullFunc_Run;
+        }
+
+        private void IsNullFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(e.CurentVariable.IsNull());
         }
     }
 

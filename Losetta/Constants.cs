@@ -208,7 +208,7 @@ namespace AliceScript
 
         public static char[] COMPARE_ARRAY = "<>=)".ToCharArray();
         public static char[] IF_ARG_ARRAY = "&|)".ToCharArray();
-        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n' };
+        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n','?' };
         public static char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
         public static char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
 
@@ -229,7 +229,7 @@ namespace AliceScript
         /// <summary>
         /// 変数・定数・関数名などの識別子がとるパターン
         /// </summary>
-        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}]*$", RegexOptions.Compiled);
+        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
 
         public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
@@ -254,7 +254,7 @@ namespace AliceScript
         /// </summary>
         public static HashSet<string> KEYWORD = new HashSet<string>
         {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,READONLY,"string","number","array","bytes","object","enum","delegate","bool","type"
+            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,READONLY,"string","number","array","bytes","object","enum","delegate","bool","type","number?","bool?"
         };
 
         // シンボル
@@ -351,7 +351,7 @@ namespace AliceScript
         /// 型指定修飾子
         /// </summary>
         public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","delegate","bool","type"
+             "string","number","array","bytes","object","enum","delegate","bool","type","number?","bool?"
         };
         /// <summary>
         /// 算術演算子

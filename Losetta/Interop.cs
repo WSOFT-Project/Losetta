@@ -23,6 +23,31 @@ namespace AliceScript.Interop
     }
     public class BindingFunction : FunctionBase
     {
+        public BindingFunction()
+        {
+            Run += BindingFunction_Run;
+        }
+
+        private void BindingFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            foreach (var load in Overloads)
+            {
+                if (load.TryConvertParameters(e.Args, out var args))
+                {
+                    if (load.IsVoidFunc)
+                    {
+                        load.VoidFunc.Invoke(args);
+                    }
+                    else
+                    {
+                        e.Return = Variable.ConvetFrom(load.ObjFunc.Invoke(args));
+                    }
+                    return;
+                }
+            }
+            throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
+        }
+
         public static NameSpace BindToNameSpace(Type type)
         {
             var space = new NameSpace(type.Name);
@@ -35,80 +60,68 @@ namespace AliceScript.Interop
                 }
                 needbind = attribute.NeedBindAttribute;
             }
+            List<MethodInfo> sameNames = new List<MethodInfo>();
+            string prevName = "";
             foreach (var m in type.GetMethods())
             {
-                var func = CreateBindingFunction(m, needbind);
-                if (func != null)
+                if (m.Name != prevName && sameNames.Count > 0)
                 {
-                    space.Add(func);
+                    var func = CreateBindingFunction(sameNames.ToArray(), needbind);
+                    if (func != null)
+                    {
+                        space.Add(func);
+                    }
+                    sameNames.Clear();
                 }
+                prevName = m.Name;
+                sameNames.Add(m);
             }
             return space;
         }
-        private static FunctionBase CreateBindingFunction(MethodInfo methodInfo, bool needBind)
+        private static FunctionBase CreateBindingFunction(MethodInfo[] methodInfos, bool needBind)
         {
-            string name = methodInfo.Name;
-            if (!methodInfo.IsStatic) { return null; }
-            if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute) && attribute.Name != null)
-            {
-                name = attribute.Name;
-            }
-            else if (needBind)
-            {
-                return null;
-            }
-
             var func = new BindingFunction();
-            func.Name = name;
-            func.TrueParameters = methodInfo.GetParameters();
-
-            var args = Expression.Parameter(typeof(object[]), "args");
-            var parameters = func.TrueParameters.Select((x, index) =>
-            Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), x.ParameterType)).ToArray();
-
-            Func<object[], object> lambda = null;
-            Action<object[]> lambda2 = null;
-            if (methodInfo.ReturnType == typeof(void))
+            foreach (var methodInfo in methodInfos)
             {
-                lambda2 = Expression.Lambda<Action<object[]>>(
-                Expression.Convert(
-                    Expression.Call(methodInfo, parameters),
-                    typeof(void)),
-                args).Compile();
-            }
-            else
-            {
-                lambda = Expression.Lambda<Func<object[], object>>(
-                Expression.Convert(
-                    Expression.Call(methodInfo, parameters),
-                    typeof(object)),
-                args).Compile();
-            }
-
-            func.Run += delegate (object sender, FunctionBaseEventArgs e)
-            {
-                var parametors = new List<object>(e.Args.Count);
-
-                if (e.Args.Count != func.TrueParameters.Length)
+                string name = methodInfo.Name;
+                if (!methodInfo.IsStatic) { return null; }
+                if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute) && attribute.Name != null)
                 {
-                    throw new ScriptException($"`{func.Name}`は{func.TrueParameters.Length}個の引数をとる必要があります", Exceptions.INCOMPLETE_ARGUMENTS);
+                    name = attribute.Name;
                 }
-                for (int i = 0; i < func.TrueParameters.Length; i++)
+                else if (needBind)
                 {
-                    parametors.Add(e.Args[i].ConvertTo(func.TrueParameters[i].ParameterType));
+                    return null;
                 }
 
-                // これでふつーのInvokeで呼び出せるように！
-                if (lambda2 != null)
+                func.Name = name;
+                var load = new BindingOverloadFunction();
+                load.TrueParameters = methodInfo.GetParameters();
+
+                var args = Expression.Parameter(typeof(object[]), "args");
+                var parameters = load.TrueParameters.Select((x, index) =>
+                Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), x.ParameterType)).ToArray();
+                if (methodInfo.ReturnType == typeof(void))
                 {
-                    lambda2.Invoke(parametors.ToArray());
-                    e.Return = Variable.EmptyInstance;
+                    load.VoidFunc = Expression.Lambda<Action<object[]>>(
+                    Expression.Convert(
+                        Expression.Call(methodInfo, parameters),
+                        typeof(void)),
+                    args).Compile();
+                    load.IsVoidFunc = true;
                 }
                 else
                 {
-                    e.Return = Variable.ConvetFrom(lambda.Invoke(parametors.ToArray()));
-                };
-            };
+                    load.ObjFunc = Expression.Lambda<Func<object[], object>>(
+                    Expression.Convert(
+                        Expression.Call(methodInfo, parameters),
+                        typeof(object)),
+                    args).Compile();
+                }
+                func.Overloads.Add(load);
+            }
+
+
             return func;
         }
 
@@ -123,7 +136,38 @@ namespace AliceScript.Interop
             }
             return false;
         }
-        private ParameterInfo[] TrueParameters { get; set; }
+        private sealed class BindingOverloadFunction : FunctionBase
+        {
+            public ParameterInfo[] TrueParameters { get; set; }
+            public Action<object[]> VoidFunc { get; set; }
+            public Func<object[], object> ObjFunc { get; set; }
+            public bool IsVoidFunc { get; set; }
+            public bool TryConvertParameters(List<Variable> args, out object[] converted)
+            {
+                converted = null;
+                var parametors = new List<object>(args.Count);
+
+                if (args.Count != TrueParameters.Length)
+                {
+                    return false;
+                }
+                for (int i = 0; i < TrueParameters.Length; i++)
+                {
+                    if(args[i].TryConvertTo(TrueParameters[i].ParameterType,out var result))
+                    {
+                        parametors.Add(result);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                converted = parametors.ToArray();
+                return true;
+            }
+        }
+        private List<BindingOverloadFunction> Overloads = new List<BindingOverloadFunction>();
+
     }
     public class NetLibraryLoader
     {
