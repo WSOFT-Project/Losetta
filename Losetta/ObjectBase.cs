@@ -173,7 +173,7 @@
     }
 
 
-    public class ObjectBaseManerger
+    public class ObjectBaseManager
     {
         public static void AddObject(ObjectBase obj)
         {

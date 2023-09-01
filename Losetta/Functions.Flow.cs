@@ -155,7 +155,7 @@ namespace AliceScript
             {
                 if (!FunctionExists(funcName, e.Script, out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
                 {
-                    FunctionBaseManerger.Add(customFunc, funcName, e.Script, isGlobal);
+                    FunctionBaseManager.Add(customFunc, funcName, e.Script, isGlobal);
                 }
                 else
                 {
@@ -305,7 +305,7 @@ namespace AliceScript
             {
                 string namespacename = string.Empty;
 
-                foreach (string nsn in NameSpaceManerger.NameSpaces.Keys)
+                foreach (string nsn in NameSpaceManager.NameSpaces.Keys)
                 {
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
                     if (name.StartsWith(nsn.ToLower() + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
@@ -317,7 +317,7 @@ namespace AliceScript
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    var cfc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cfc != null)
                     {
                         return cfc;

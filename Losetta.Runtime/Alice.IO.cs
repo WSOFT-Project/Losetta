@@ -56,7 +56,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new zip_CreateFromDirectoryFunc());
                 space.Add(new zip_ExtactToDirectoryFunc());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

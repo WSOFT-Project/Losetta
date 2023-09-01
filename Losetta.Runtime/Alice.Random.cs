@@ -22,7 +22,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new guid_new_bytesFunc());
 
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

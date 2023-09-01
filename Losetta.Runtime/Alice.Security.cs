@@ -25,7 +25,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new file_encrypt_dataFunc());
                 space.Add(new file_decrypt_dataFunc());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }
@@ -163,7 +163,7 @@ namespace AliceScript.NameSpaces
             byte[] salt = e.Args[0].AsByteArray();
 
             // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
+            byte[] hash = PasswordSaltHashManager.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
             e.Return = new Variable(hash);
         }
@@ -193,7 +193,7 @@ namespace AliceScript.NameSpaces
             byte[] salt = e.Args[0].AsByteArray();
 
             // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
+            byte[] hash = PasswordSaltHashManager.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
             e.Return = new Variable(hash);
         }
@@ -211,7 +211,7 @@ namespace AliceScript.NameSpaces
 
         private void Class3_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = new Variable(PasswordSaltHashManerger.GetSalt(Utils.GetSafeInt(e.Args, 0, 30)));
+            e.Return = new Variable(PasswordSaltHashManager.GetSalt(Utils.GetSafeInt(e.Args, 0, 30)));
         }
 
     }
@@ -239,7 +239,7 @@ namespace AliceScript.NameSpaces
             byte[] salt = e.Args[2].AsByteArray();
 
             // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
+            byte[] hash = PasswordSaltHashManager.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
             bool i = e.Args[1].AsByteArray() == hash;
             e.Return = new Variable(i);
@@ -271,7 +271,7 @@ namespace AliceScript.NameSpaces
             byte[] salt = e.Args[2].AsByteArray();
 
             // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
+            byte[] hash = PasswordSaltHashManager.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
 
             bool i = e.Args[1].AsByteArray() == hash;
             e.Return = new Variable(i);
@@ -279,7 +279,7 @@ namespace AliceScript.NameSpaces
 
 
     }
-    internal sealed class PasswordSaltHashManerger
+    internal sealed class PasswordSaltHashManager
     {
         internal static byte[] GetHash(string password, byte[] salt, int size, int cnt)
         {

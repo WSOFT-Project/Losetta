@@ -200,7 +200,7 @@
         VIRTUAL = 5,
     }
 
-    public static class FunctionBaseManerger
+    public static class FunctionBaseManager
     {
         /// <summary>
         /// 関数をインタプリタに登録し、必要に応じて属性を設定します

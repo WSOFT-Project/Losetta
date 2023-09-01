@@ -75,7 +75,7 @@ namespace AliceScript
                         //本来の位置に進めておく
                         script.Forward();
                     }
-                    keywords.Add(token);
+                    keywords.Add(token.ToLower());
                     goto ExtractNextToken;
                 }
                 if (string.IsNullOrEmpty(token) && script.StillValid())
@@ -639,17 +639,15 @@ namespace AliceScript
             {
                 leftCell = MergeStrings(leftCell, rightCell, script);
             }
-            else if (leftCell.Type == Variable.VarType.ARRAY)
-            {
-                leftCell = MergeArray(leftCell, rightCell, script);
-            }
             else
             {
-                leftCell = leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE
-                    ? MergeDelegate(leftCell, rightCell, script)
-                    : leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
-                                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
-                                    : MergeObjects(leftCell, rightCell, script);
+                leftCell = leftCell.Type == Variable.VarType.ARRAY
+                    ? MergeArray(leftCell, rightCell, script)
+                    : leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE
+                                    ? MergeDelegate(leftCell, rightCell, script)
+                                    : leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
+                                                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
+                                                    : MergeObjects(leftCell, rightCell, script);
             }
 
             leftCell.Action = rightCell.Action;

@@ -39,7 +39,7 @@
             space.Add(new env_versionFunc());
             space.Add(new env_WorkingSetFunc());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
         }
     }
 

@@ -3,7 +3,7 @@
 namespace AliceScript
 {
 
-    public static class NameSpaceManerger
+    public static class NameSpaceManager
     {
         public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>();
         public static void Add(NameSpace space, string name = null)
@@ -22,7 +22,7 @@ namespace AliceScript
         }
         public static void Add(Type type, string name = null)
         {
-            Add(BindingFunction.BindToNameSpace(type), name);
+            Add(BindFunction.BindToNameSpace(type), name);
         }
         public static bool Contains(NameSpace name)
         {

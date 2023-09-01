@@ -21,14 +21,14 @@ namespace AliceScript.Interop
         public string Name = null;
         public bool NeedBindAttribute = true;
     }
-    public class BindingFunction : FunctionBase
+    public class BindFunction : FunctionBase
     {
-        public BindingFunction()
+        public BindFunction()
         {
-            Run += BindingFunction_Run;
+            Run += BindFunction_Run;
         }
 
-        private void BindingFunction_Run(object sender, FunctionBaseEventArgs e)
+        private void BindFunction_Run(object sender, FunctionBaseEventArgs e)
         {
             foreach (var load in Overloads)
             {
@@ -63,7 +63,7 @@ namespace AliceScript.Interop
             Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
             foreach (var m in type.GetMethods())
             {
-                if (m.IsPublic)
+                if (m.IsPublic && m.IsStatic)
                 {
                     if (!methods.ContainsKey(m.Name))
                     {
@@ -75,7 +75,7 @@ namespace AliceScript.Interop
             foreach (HashSet<MethodInfo> mi in methods.Values)
             {
                 var method = mi.OrderByDescending(x=>x.GetParameters().Length);
-                var func = CreateBindingFunction(method.ToArray(), needbind);
+                var func = CreateBindFunction(method.ToArray(), needbind);
                 if (func != null)
                 {
                     space.Add(func);
@@ -83,13 +83,12 @@ namespace AliceScript.Interop
             }
             return space;
         }
-        private static FunctionBase CreateBindingFunction(MethodInfo[] methodInfos, bool needBind)
+        private static FunctionBase CreateBindFunction(MethodInfo[] methodInfos, bool needBind)
         {
-            var func = new BindingFunction();
+            var func = new BindFunction();
             foreach (var methodInfo in methodInfos)
             {
                 string name = methodInfo.Name;
-                if (!methodInfo.IsStatic) { return null; }
                 if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute) && attribute.Name != null)
                 {
                     name = attribute.Name;

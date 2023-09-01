@@ -14,7 +14,7 @@
                 space.Add(new SignalWaitFunction(false));
                 space.Add(new task_runFunc());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

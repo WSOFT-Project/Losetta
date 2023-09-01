@@ -11,7 +11,7 @@
 
             space.Add(new PackageManifestObject());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
         }
     }
     internal sealed class AlicePackageObject : ObjectBase

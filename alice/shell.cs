@@ -30,7 +30,7 @@ namespace AliceScript.CLI
             //デバッグ出力
             Interpreter.Instance.OnDebug += Debug_Print;
             //例外出力
-            ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
+            ThrowErrorManager.ThrowError += ThrowErrorManager_ThrowError;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
 
@@ -44,7 +44,7 @@ namespace AliceScript.CLI
         }
 
         private static bool mainfile = false;
-        internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
+        internal static void ThrowErrorManager_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (!Program.allow_throw)
             {

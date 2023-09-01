@@ -52,7 +52,7 @@ namespace AliceScript.CLI
             ShellFunctions.Init();
 
 
-            ThrowErrorManerger.ThrowError += Shell.ThrowErrorManerger_ThrowError;
+            ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
@@ -125,7 +125,7 @@ namespace AliceScript.CLI
             }
             else
             {
-                ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
+                ThrowErrorManager.ThrowError -= Shell.ThrowErrorManager_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }

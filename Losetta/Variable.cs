@@ -232,6 +232,12 @@ namespace AliceScript
             {
                 throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
             }
+
+            if (m_type == VarType.VARIABLE)
+            {
+                //variable型に他の型が代入される前に型チェックをオフにする
+                TypeChecked = false;
+            }
             m_bool = v.m_bool;
             m_byteArray = v.m_byteArray;
             m_customFunctionGet = v.m_customFunctionGet;

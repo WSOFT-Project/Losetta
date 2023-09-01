@@ -253,8 +253,8 @@ namespace AliceScript
         /// 型指定修飾子
         /// </summary>
         public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","delegate","bool","type",
-              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","type?"
+             "string","number","array","bytes","object","enum","delegate","bool","type","variable",
+              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","type?","variable?"
         };
         /// <summary>
         /// AliceScriptのキーワード
@@ -403,7 +403,6 @@ namespace AliceScript
                 case Variable.VarType.DELEGATE: return "DELEGATE";
                 case Variable.VarType.BOOLEAN: return "BOOLEAN";
                 case Variable.VarType.BYTES: return "BYTES";
-                //case Variable.VarType.TYPE:     return "TYPE";
                 case Variable.VarType.UNDEFINED: return "UNDEFINED";
                 default: return "NONE";
             }
@@ -436,7 +435,6 @@ namespace AliceScript
                 case "CONTINUE": type = Variable.VarType.CONTINUE; break;
                 case "DELEGATE": type = Variable.VarType.DELEGATE; break;
                 case "VARIABLE": type = Variable.VarType.VARIABLE; break;
-                //case "TYPE": type= Variable.VarType.TYPE; break;
                 default: type = Variable.VarType.NONE; return false;
             }
             return true;

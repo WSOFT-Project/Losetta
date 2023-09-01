@@ -81,7 +81,7 @@ public static class MyFunctions
 定義した名前空間と関数を実際にAliceScriptから呼び出すためには、バインド登録が必要です。次の例では、先ほど定義した`MyFunctions`を登録します。
 
 ```cs
-NameSpaceManerger.Add(typeof(MyFunctions));
+NameSpaceManager.Add(typeof(MyFunctions));
 ```
 
 AliceScriptにカスタム関数を定義するもうひとつの方法は、`FunctionBase`クラスを継承したクラスを定義することです。
@@ -110,7 +110,7 @@ AliceScriptにカスタム関数を定義するもうひとつの方法は、`Fu
 定義した関数を実際にAliceScriptから呼び出すためには、登録が必要です。次の例では、先ほど定義した`MyFunction`を登録します。
 
 ```cs
-FunctionBaseManerger.Add(new MyFunction());
+FunctionBaseManager.Add(new MyFunction());
 ```
 
 使用可能なAPIは、[APIブラウザ](https://docs.wsoft.ws/products/alice/api/)で確認できます。

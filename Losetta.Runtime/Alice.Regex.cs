@@ -20,7 +20,7 @@ namespace AliceScript.NameSpaces
                 Variable.AddFunc(new str_IsMatchFunc());
                 Variable.AddFunc(new str_MatchesFunc());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

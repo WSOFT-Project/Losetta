@@ -25,7 +25,7 @@ namespace AliceScript.NameSpaces
                 space.Add(new web_send_pingFunc());
 
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

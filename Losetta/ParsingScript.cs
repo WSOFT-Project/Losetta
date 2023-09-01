@@ -101,7 +101,7 @@ namespace AliceScript
                     sb.Append(Constants.COMMAND);
                     sb.Append(Constants.SPACE);
                 }
-                if (Function is BindingFunction)
+                if (Function is BindFunction)
                 {
                     sb.Append("bind ");
                 }
@@ -545,7 +545,7 @@ namespace AliceScript
             m_char2Line = char2Line;
             if (usingAlice)
             {
-                Using(Constants.TOP_NAMESPACE);
+                Using(Constants.TOP_NAMESPACE,true);
             }
         }
 
@@ -580,14 +580,15 @@ namespace AliceScript
         /// 現在のスクリプトで名前空間を参照します
         /// </summary>
         /// <param name="name"></param>
-        public void Using(string name)
+        /// <param name="whenPossible">名前空間が存在しない場合に例外を発生させない場合にtrue</param>
+        public void Using(string name,bool whenPossible=false)
         {
             name = name.ToLower();
-            if (NameSpaceManerger.Contains(name))
+            if (NameSpaceManager.Contains(name))
             {
-                UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
+                UsingNamespaces.Add(NameSpaceManager.NameSpaces[name]);
             }
-            else
+            else if(!whenPossible)
             {
                 throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
             }
@@ -996,7 +997,7 @@ namespace AliceScript
             ex.Script.OnThrowError(ex.Script, ex);
             if (!ex.Handled)
             {
-                ThrowErrorManerger.OnThrowError(ex.Script, ex);
+                ThrowErrorManager.OnThrowError(ex.Script, ex);
             }
         }
 

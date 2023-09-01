@@ -40,7 +40,7 @@
                 space.Add(new math_MinMaxFunc(true));
                 space.Add(new math_MinMaxFunc(false));
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

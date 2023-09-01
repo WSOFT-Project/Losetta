@@ -100,35 +100,57 @@ namespace AliceScript.NameSpaces
             space.Add(new StringFormatFunction());
             space.Add(new ExceptionObject());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
 
-            FunctionBaseManerger.Add(new IfStatement());
-            FunctionBaseManerger.Add(new DoWhileStatement());
-            FunctionBaseManerger.Add(new WhileStatement());
-            FunctionBaseManerger.Add(new SwitchStatement());
-            FunctionBaseManerger.Add(new CaseStatement());
-            FunctionBaseManerger.Add(new CaseStatement(), Constants.DEFAULT);
-            FunctionBaseManerger.Add(new ForStatement());
-            FunctionBaseManerger.Add(new ForeachStatement());
-            FunctionBaseManerger.Add(new GotoGosubFunction(true));
-            FunctionBaseManerger.Add(new GotoGosubFunction(false));
-            FunctionBaseManerger.Add(new IncludeFile());
-            FunctionBaseManerger.Add(new ReturnStatement());
-            FunctionBaseManerger.Add(new ThrowFunction());
-            FunctionBaseManerger.Add(new TryBlock());
-            FunctionBaseManerger.Add(new BlockStatement());
+            FunctionBaseManager.Add(new IfStatement());
+            FunctionBaseManager.Add(new DoWhileStatement());
+            FunctionBaseManager.Add(new WhileStatement());
+            FunctionBaseManager.Add(new SwitchStatement());
+            FunctionBaseManager.Add(new CaseStatement());
+            FunctionBaseManager.Add(new CaseStatement(), Constants.DEFAULT);
+            FunctionBaseManager.Add(new ForStatement());
+            FunctionBaseManager.Add(new ForeachStatement());
+            FunctionBaseManager.Add(new GotoGosubFunction(true));
+            FunctionBaseManager.Add(new GotoGosubFunction(false));
+            FunctionBaseManager.Add(new IncludeFile());
+            FunctionBaseManager.Add(new ReturnStatement());
+            FunctionBaseManager.Add(new ThrowFunction());
+            FunctionBaseManager.Add(new TryBlock());
+            FunctionBaseManager.Add(new BlockStatement());
 
-            FunctionBaseManerger.Add(new NewObjectFunction());
+            FunctionBaseManager.Add(new NewObjectFunction());
 
-            FunctionBaseManerger.Add(new UsingStatement());
-            FunctionBaseManerger.Add(new ImportFunc());
-            FunctionBaseManerger.Add(new DelegateCreator());
-            FunctionBaseManerger.Add(new LockFunction());
+            FunctionBaseManager.Add(new UsingStatement());
+            FunctionBaseManager.Add(new ImportFunc());
+            FunctionBaseManager.Add(new DelegateCreator());
+            FunctionBaseManager.Add(new LockFunction());
 
-            NameSpaceManerger.Add(typeof(Console));
+            NameSpaceManager.Add(typeof(Test));
         }
     }
+    internal static class Test
+    {
+        public static int Pow(int x)
+        {
+            return x * x;
+        }
+    }
+    internal class PowFunc : FunctionBase
+    {
+        public PowFunc()
+        {
+            this.Name = "Pow";
+            this.MinimumArgCounts = 1;
+            this.MaximumArgCounts = 1;
+            this.Run += PowFunc_Run;
+        }
 
+        private void PowFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            int x = Utils.GetSafeInt(e.Args,0);
+            e.Return = new Variable(x * x);
+        }
+    }
     internal sealed class ReturnStatement : FunctionBase
     {
         public ReturnStatement()

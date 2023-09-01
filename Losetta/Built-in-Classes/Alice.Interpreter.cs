@@ -29,7 +29,7 @@
                 space.Add(new Bind_RegisterFunc());
                 space.Add(new TypeObject());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }
@@ -50,7 +50,7 @@
             {
                 throw new ScriptException($"{e.Args[0]}という名前の型を検索できませんでした。アセンブリ名の指定を忘れていませんか？",Exceptions.OBJECT_DOESNT_EXIST);
             }
-            NameSpaceManerger.Add(t);
+            NameSpaceManager.Add(t);
         }
     }
     internal class Interpreter_GetParentFunc : FunctionBase
@@ -197,7 +197,7 @@
             if (e.Args.Count == 0)
             {
                 Variable v = new Variable(Variable.VarType.ARRAY);
-                foreach (string s in FunctionBaseManerger.Functions)
+                foreach (string s in FunctionBaseManager.Functions)
                 {
                     v.Tuple.Add(new Variable(s));
                 }
@@ -206,10 +206,10 @@
             else
             {
                 string str = Utils.GetSafeString(e.Args, 0);
-                if (NameSpaceManerger.Contains(str))
+                if (NameSpaceManager.Contains(str))
                 {
                     Variable v = new Variable(Variable.VarType.ARRAY);
-                    foreach (FunctionBase fb in NameSpaceManerger.NameSpaces[str].Functions)
+                    foreach (FunctionBase fb in NameSpaceManager.NameSpaces[str].Functions)
                     {
                         v.Tuple.Add(new Variable(fb.Name));
                     }
@@ -234,7 +234,7 @@
         private void NamespacesFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             Variable v = new Variable(Variable.VarType.ARRAY);
-            foreach (string s in NameSpaceManerger.NameSpaces.Keys)
+            foreach (string s in NameSpaceManager.NameSpaces.Keys)
             {
                 v.Tuple.Add(new Variable(s));
             }

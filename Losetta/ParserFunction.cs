@@ -456,7 +456,7 @@
             {
                 string namespacename = string.Empty;
 
-                foreach (var ns in NameSpaceManerger.NameSpaces)
+                foreach (var ns in NameSpaceManager.NameSpaces)
                 {
                     var nsn = ns.Key.ToLower();
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
@@ -469,12 +469,12 @@
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    fc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (fc != null)
                     {
                         return fc;
                     }
-                    var cc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    var cc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cc != null)
                     {
                         return new GetVarFunction(new Variable(new TypeObject(cc)));
