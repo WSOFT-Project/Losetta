@@ -25,7 +25,6 @@ namespace AliceScript
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
 
-
         /// <summary>
         /// 最上位のスクリプトを取得します
         /// </summary>

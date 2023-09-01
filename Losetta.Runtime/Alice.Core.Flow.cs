@@ -299,7 +299,7 @@
                 }
             }
 
-            // 条件はもうtrueではないので、ブロックをスキップします
+            // 条件はもうtrueではないので、ブロックをスキップ
             e.Script.SkipBlock();
             e.Return = result.IsReturn ? result : Variable.EmptyInstance;
         }
@@ -623,6 +623,20 @@
 
             e.Script.SkipRestBlocks();
             e.Return = result;
+        }
+    }
+    internal sealed class BlockStatement : FunctionBase
+    {
+        public BlockStatement()
+        {
+            Name = "block";
+            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
+            Run += DoWhileStatement_Run;
+        }
+
+        private void DoWhileStatement_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = e.Script.ProcessBlock();
         }
     }
 }

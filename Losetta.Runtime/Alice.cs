@@ -116,6 +116,7 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new ReturnStatement());
             FunctionBaseManerger.Add(new ThrowFunction());
             FunctionBaseManerger.Add(new TryBlock());
+            FunctionBaseManerger.Add(new BlockStatement());
 
             FunctionBaseManerger.Add(new NewObjectFunction());
 
