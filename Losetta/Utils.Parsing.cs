@@ -997,6 +997,11 @@ namespace AliceScript
                                 settings.DenyAccessToTopLevelScript = ConvertBool(arg);
                                 break;
                             }
+                        case Constants.NULLABLE:
+                            {
+                                settings.Nullable = ConvertBool(arg);
+                                break;
+                            }
                         case Constants.INCLUDE:
                             {
                                 string str = SafeReader.ReadAllText(arg, out _);

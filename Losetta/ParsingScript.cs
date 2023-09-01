@@ -299,6 +299,8 @@ namespace AliceScript
             public bool? EnableInclude { get; set; }
             public bool? DenyAccessToTopLevelScript { get; set; }
 
+            public bool? Nullable { get; set; }
+
             /// <summary>
             /// この設定ともう一方の設定を結合します。設定値がどちらにもある場合はotherを優先します。
             /// </summary>

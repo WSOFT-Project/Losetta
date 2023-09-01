@@ -40,7 +40,7 @@ namespace AliceScript.Interop
                     }
                     else
                     {
-                        e.Return = Variable.ConvetFrom(load.ObjFunc.Invoke(args));
+                        e.Return = Variable.ConvetFrom(load.ReturnType,load.ObjFunc.Invoke(args));
                     }
                     return;
                 }
@@ -60,21 +60,26 @@ namespace AliceScript.Interop
                 }
                 needbind = attribute.NeedBindAttribute;
             }
-            List<MethodInfo> sameNames = new List<MethodInfo>();
-            string prevName = "";
+            Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
             foreach (var m in type.GetMethods())
             {
-                if (m.Name != prevName && sameNames.Count > 0)
+                if (m.IsPublic)
                 {
-                    var func = CreateBindingFunction(sameNames.ToArray(), needbind);
-                    if (func != null)
+                    if (!methods.ContainsKey(m.Name))
                     {
-                        space.Add(func);
+                        methods[m.Name] = new HashSet<MethodInfo>();
                     }
-                    sameNames.Clear();
+                    methods[m.Name].Add(m);
                 }
-                prevName = m.Name;
-                sameNames.Add(m);
+            }
+            foreach (HashSet<MethodInfo> mi in methods.Values)
+            {
+                var method = mi.OrderByDescending(x=>x.GetParameters().Length);
+                var func = CreateBindingFunction(method.ToArray(), needbind);
+                if (func != null)
+                {
+                    space.Add(func);
+                }
             }
             return space;
         }
@@ -141,19 +146,35 @@ namespace AliceScript.Interop
             public ParameterInfo[] TrueParameters { get; set; }
             public Action<object[]> VoidFunc { get; set; }
             public Func<object[], object> ObjFunc { get; set; }
+            public Type ReturnType { get; set; }
             public bool IsVoidFunc { get; set; }
             public bool TryConvertParameters(List<Variable> args, out object[] converted)
             {
                 converted = null;
-                var parametors = new List<object>(args.Count);
 
-                if (args.Count != TrueParameters.Length)
+                var parametors = new List<object>(args.Count);
+                if(args.Count > TrueParameters.Length)
                 {
+                    //入力の引数の方が多い場合
                     return false;
                 }
                 for (int i = 0; i < TrueParameters.Length; i++)
                 {
-                    if(args[i].TryConvertTo(TrueParameters[i].ParameterType,out var result))
+                    if(i > args.Count - 1)
+                    {
+                        //マッチしたい引数の数の方が多い場合
+                        if (TrueParameters[i].IsOptional)
+                        {
+                            parametors.Add(TrueParameters[i].DefaultValue);
+                            continue;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    
+                    if (args[i].TryConvertTo(TrueParameters[i].ParameterType, out var result))
                     {
                         parametors.Add(result);
                     }
@@ -166,7 +187,7 @@ namespace AliceScript.Interop
                 return true;
             }
         }
-        private List<BindingOverloadFunction> Overloads = new List<BindingOverloadFunction>();
+        private HashSet<BindingOverloadFunction> Overloads = new HashSet<BindingOverloadFunction>();
 
     }
     public class NetLibraryLoader

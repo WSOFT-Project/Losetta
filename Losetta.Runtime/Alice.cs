@@ -124,6 +124,7 @@ namespace AliceScript.NameSpaces
             FunctionBaseManerger.Add(new DelegateCreator());
             FunctionBaseManerger.Add(new LockFunction());
 
+            NameSpaceManerger.Add(typeof(Console));
         }
     }
 

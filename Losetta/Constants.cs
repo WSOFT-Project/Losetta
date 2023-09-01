@@ -208,7 +208,7 @@ namespace AliceScript
 
         public static char[] COMPARE_ARRAY = "<>=)".ToCharArray();
         public static char[] IF_ARG_ARRAY = "&|)".ToCharArray();
-        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n','?' };
+        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n', '?' };
         public static char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
         public static char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
 
@@ -250,12 +250,16 @@ namespace AliceScript
 
 
         /// <summary>
+        /// 型指定修飾子
+        /// </summary>
+        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
+             "string","number","array","bytes","object","enum","delegate","bool","type",
+              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","type?"
+        };
+        /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static HashSet<string> KEYWORD = new HashSet<string>
-        {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,READONLY,"string","number","array","bytes","object","enum","delegate","bool","type","number?","bool?"
-        };
+        public static HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY }).ToHashSet();
 
         // シンボル
         public const string UNNEED_VAR = "unneed_var";
@@ -269,6 +273,7 @@ namespace AliceScript
         public const string ENABLE_USING = "enable_using";
         public const string ENABLE_IMPORT = "enable_import";
         public const string ENABLE_INCLUDE = "enable_include";
+        public const string NULLABLE = "nullable";
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
@@ -298,14 +303,6 @@ namespace AliceScript
         {
             BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,FOREACH, FUNCTION, IF, INCLUDE, NEW,IMPORT,
             RETURN, THROW, TRY, WHILE
-        };
-
-        /// <summary>
-        /// Nullをとりえない変数の型
-        /// </summary>
-        public static HashSet<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new HashSet<Variable.VarType>()
-        {
-            Variable.VarType.NUMBER,Variable.VarType.BOOLEAN
         };
 
         /// <summary>
@@ -346,12 +343,6 @@ namespace AliceScript
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
 
-        };
-        /// <summary>
-        /// 型指定修飾子
-        /// </summary>
-        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","delegate","bool","type","number?","bool?"
         };
         /// <summary>
         /// 算術演算子

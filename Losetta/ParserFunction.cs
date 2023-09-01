@@ -590,6 +590,11 @@
                         }
                         newVar.Type = Constants.StringToType(type_modifer);
                     }
+                    else
+                    {
+                        //型指定がない場合はnullを許容する
+                        newVar.Nullable = true;
+                    }
                     newVar.Assign(v2.Value);
                     if (type_inference)
                     {
