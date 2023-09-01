@@ -28,10 +28,6 @@ namespace AliceScript
             BOOLEAN = 0b1000000000000000000
         };
 
-        ~Variable()
-        {
-            Console.WriteLine($"Done : {AsString()}");
-        }
         public static Variable True => new Variable(true);
         public static Variable False => new Variable(false);
         public static Variable FromText(string text)
