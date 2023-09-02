@@ -11,10 +11,8 @@ namespace AliceScript.CLI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-
-
             ParsedArguments pa = new ParsedArguments(args);
-            AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
+            AliceScript.Runtime.Args = pa.Args;
             CreateAliceDirectory(false);
             if (pa.Values.ContainsKey("print"))
             {
@@ -51,8 +49,13 @@ namespace AliceScript.CLI
             //ShellFunctions登録
             ShellFunctions.Init();
 
+            //デバッグモードのフラグ
+            if (pa.Flags.Contains("d"))
+            {
+                Program.IsDebugMode = true;
+            }
 
-            ThrowErrorManerger.ThrowError += Shell.ThrowErrorManerger_ThrowError;
+            ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
@@ -125,7 +128,7 @@ namespace AliceScript.CLI
             }
             else
             {
-                ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
+                ThrowErrorManager.ThrowError -= Shell.ThrowErrorManager_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }

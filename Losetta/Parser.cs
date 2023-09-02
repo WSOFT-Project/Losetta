@@ -66,13 +66,20 @@ namespace AliceScript
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
 
-                if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
-                {
-                    keywords.Add(token);
-                    goto ExtractNextToken;
-                }
                 if (string.IsNullOrEmpty(token) && script.StillValid())
                 {
+                    goto ExtractNextToken;
+                }
+                if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
+                {
+                    //null許容型修飾子の場合(bool?とか)
+                    if (script.Current == '?')
+                    {
+                        token += '?';
+                        //本来の位置に進めておく
+                        script.Forward();
+                    }
+                    keywords.Add(token.ToLower());
                     goto ExtractNextToken;
                 }
 
@@ -363,7 +370,7 @@ namespace AliceScript
                 case Constants.QUOTE:
                     {
                         char prev = script.TryPrev(2);
-                        char prevprev = script.TryPrev(2);
+                        char prevprev = script.TryPrev(3);
                         inQuotes = (prev != '\\' || prevprev == '\\') ? !inQuotes : inQuotes;
                         return;
                     }
@@ -410,14 +417,14 @@ namespace AliceScript
             char next = script.TryCurrent();
 
             if (to.Contains(ch) || ch == Constants.START_ARG ||
-                                   ch == Constants.START_GROUP ||
+                                   ch == Constants.START_GROUP || ch == '?' ||
                                  next == Constants.EMPTY)
             {
                 return false;
             }
 
-            //角かっこまたは波かっこまたはポインタ
-            if ((item.Length == 0 && (ch == Constants.END_ARRAY || ch == Constants.END_ARG)) || ch == '&')
+            //角かっこまたは波かっこ
+            if (item.Length == 0 && (ch == Constants.END_ARRAY || ch == Constants.END_ARG))
             {
                 return true;
             }
@@ -442,24 +449,27 @@ namespace AliceScript
                 return false;
             }
 
+            //TODO:3項条件演算の実装
+            /*
             if (ch == Constants.TERNARY_OPERATOR)
             {
-                script.Backward();
+                //script.Backward();
+                //今のところ?が途中に入るトークンはない（許可されない）
                 return false;
-            }
+            }*/
             return true;
         }
 
         private static bool UpdateIfTernary(ParsingScript script, string token, char ch, List<Variable> listInput, Action<List<Variable>> listToMerge)
         {
-            if (listInput.Count < 1 || ch != Constants.TERNARY_OPERATOR || token.Length > 0)
+            if (listInput.Count < 1 || /*ch != Constants.TERNARY_OPERATOR ||*/ token.Length > 0)
             {
                 return false;
             }
 
             Variable result;
             Variable arg1 = MergeList(listInput, script);
-            script.MoveForwardIf(Constants.TERNARY_OPERATOR);
+            //script.MoveForwardIf(Constants.TERNARY_OPERATOR);
             bool condition = arg1.AsBool();
             if (condition)
             {
@@ -621,27 +631,19 @@ namespace AliceScript
             {
                 leftCell = MergeNumbers(leftCell, rightCell, script);
             }
-            else if (leftCell.Type == Variable.VarType.BOOLEAN && rightCell.Type == Variable.VarType.BOOLEAN)
-            {
-                leftCell = MergeBooleans(leftCell, rightCell, script);
-            }
-            else if (leftCell.Type == Variable.VarType.STRING || rightCell.Type == Variable.VarType.STRING)
-            {
-                leftCell = MergeStrings(leftCell, rightCell, script);
-            }
-            else if (leftCell.Type == Variable.VarType.ARRAY)
-            {
-                leftCell = MergeArray(leftCell, rightCell, script);
-            }
-            else if (leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE)
-            {
-                leftCell = MergeDelegate(leftCell, rightCell, script);
-            }
             else
             {
-                leftCell = leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
-                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
-                    : MergeObjects(leftCell, rightCell, script);
+                leftCell = leftCell.Type == Variable.VarType.BOOLEAN && rightCell.Type == Variable.VarType.BOOLEAN
+                    ? MergeBooleans(leftCell, rightCell, script)
+                    : leftCell.Type == Variable.VarType.STRING || rightCell.Type == Variable.VarType.STRING
+                                    ? MergeStrings(leftCell, rightCell, script)
+                                    : leftCell.Type == Variable.VarType.ARRAY
+                                                    ? MergeArray(leftCell, rightCell, script)
+                                                    : leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE
+                                                                    ? MergeDelegate(leftCell, rightCell, script)
+                                                                    : leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
+                                                                                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
+                                                                                    : MergeObjects(leftCell, rightCell, script);
             }
 
             leftCell.Action = rightCell.Action;

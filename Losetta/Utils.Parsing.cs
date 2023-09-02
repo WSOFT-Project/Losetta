@@ -246,7 +246,7 @@ namespace AliceScript
             Variable result = new Variable();
             bool valueProvided = false;
             bool setgetProvided = false;
-            bool writable = false;
+            bool _readonly = false;
             bool configurable = false;
             bool enumerable = false;
             script.MoveForwardIf('{');
@@ -288,8 +288,8 @@ namespace AliceScript
                         setgetProvided = true;
                         SetPropertyFromStr(token, result, script, lower, customFunc);
                         break;
-                    case "writable":
-                        writable = ConvertToDouble(token.ToLower(), script) > 0;
+                    case "readonly":
+                        _readonly = ConvertToDouble(token.ToLower(), script) < 1;
                         break;
                     case "enumerable":
                         enumerable = ConvertToDouble(token.ToLower(), script) > 0;
@@ -303,7 +303,7 @@ namespace AliceScript
             {
                 result.Type = Variable.VarType.CUSTOM;
             }
-            result.Writable = writable;
+            result.Readonly = _readonly;
             result.Enumerable = enumerable;
             result.Configurable = configurable;
 
@@ -358,7 +358,7 @@ namespace AliceScript
                         break;
                     case Constants.END_STATEMENT:
                         return;
-                    case Constants.TERNARY_OPERATOR:
+                    /*case Constants.TERNARY_OPERATOR:*/
                     case Constants.NEXT_ARG:
                         if (argRead <= 0)
                         {
@@ -374,10 +374,6 @@ namespace AliceScript
                 prev = currentChar;
             }
         }
-
-
-
-
         public static List<Variable> GetArgs(ParsingScript script,
             char start, char end, Action<bool> outList, FunctionBase callFrom)
         {
@@ -995,6 +991,11 @@ namespace AliceScript
                         case Constants.DENY_TO_TOPLEVEL_SCRIPT:
                             {
                                 settings.DenyAccessToTopLevelScript = ConvertBool(arg);
+                                break;
+                            }
+                        case Constants.NULLABLE:
+                            {
+                                settings.Nullable = ConvertBool(arg);
                                 break;
                             }
                         case Constants.INCLUDE:

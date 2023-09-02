@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using AliceScript.Interop;
+using System.Text;
 
 namespace AliceScript
 {
@@ -22,7 +23,6 @@ namespace AliceScript
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private List<NameSpace> m_namespace = new List<NameSpace>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
-
 
 
         /// <summary>
@@ -93,11 +93,17 @@ namespace AliceScript
                 sb.Append("場所 ");
                 foreach (string k in Function.Keywords)
                 {
-                    sb.Append(k + " ");
+                    sb.Append(k);
+                    sb.Append(Constants.SPACE);
                 }
                 if (Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
                 {
-                    sb.Append(Constants.COMMAND + " ");
+                    sb.Append(Constants.COMMAND);
+                    sb.Append(Constants.SPACE);
+                }
+                if (Function is BindFunction)
+                {
+                    sb.Append("bind ");
                 }
                 if (Function is CustomFunction)
                 {
@@ -107,18 +113,22 @@ namespace AliceScript
                 {
                     sb.Append("keyword ");
                 }
-                sb.Append(Constants.FUNCTION + " ");
+                sb.Append(Constants.FUNCTION);
+                sb.Append(Constants.SPACE);
                 if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
                 {
-                    sb.Append(Function.RelatedNameSpace + ".");
+                    sb.Append(Function.RelatedNameSpace);
+                    sb.Append(".");
                 }
-                sb.Append((string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name) + "(");
+                sb.Append(string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name);
+                sb.Append(Constants.START_ARG);
                 int args_count = 0;
                 if (Function is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)
                 {
                     foreach (string a in Function.RealArgs)
                     {
-                        sb.Append(a + (++args_count == Function.RealArgs.Length ? string.Empty : ","));
+                        sb.Append(a);
+                        sb.Append(++args_count == Function.RealArgs.Length ? string.Empty : ",");
                     }
                 }
                 sb.Append(");");
@@ -126,7 +136,8 @@ namespace AliceScript
                 {
                     sb.Append(" 場所 ");
                     sb.Append(FileName);
-                    sb.Append(":行 " + LineNumber);
+                    sb.Append(":行 ");
+                    sb.Append(LineNumber);
                 }
                 return sb.ToString();
             }
@@ -286,6 +297,8 @@ namespace AliceScript
             public bool? EnableImport { get; set; }
             public bool? EnableInclude { get; set; }
             public bool? DenyAccessToTopLevelScript { get; set; }
+
+            public bool? Nullable { get; set; }
 
             /// <summary>
             /// この設定ともう一方の設定を結合します。設定値がどちらにもある場合はotherを優先します。
@@ -532,7 +545,7 @@ namespace AliceScript
             m_char2Line = char2Line;
             if (usingAlice)
             {
-                Using(Constants.TOP_NAMESPACE);
+                Using(Constants.TOP_NAMESPACE, true);
             }
         }
 
@@ -567,14 +580,15 @@ namespace AliceScript
         /// 現在のスクリプトで名前空間を参照します
         /// </summary>
         /// <param name="name"></param>
-        public void Using(string name)
+        /// <param name="whenPossible">名前空間が存在しない場合に例外を発生させない場合にtrue</param>
+        public void Using(string name, bool whenPossible = false)
         {
             name = name.ToLower();
-            if (NameSpaceManerger.Contains(name))
+            if (NameSpaceManager.Contains(name))
             {
-                UsingNamespaces.Add(NameSpaceManerger.NameSpaces[name]);
+                UsingNamespaces.Add(NameSpaceManager.NameSpaces[name]);
             }
-            else
+            else if (!whenPossible)
             {
                 throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
             }
@@ -734,13 +748,7 @@ namespace AliceScript
         }
 
         public int OriginalLineNumber => GetOriginalLineNumber();
-        public string OriginalLine
-        {
-            get
-            {
-                return GetOriginalLine(out int lineNumber);
-            }
-        }
+        public string OriginalLine => GetOriginalLine(out int lineNumber);
 
         public int GetOriginalLineNumber()
         {
@@ -989,7 +997,7 @@ namespace AliceScript
             ex.Script.OnThrowError(ex.Script, ex);
             if (!ex.Handled)
             {
-                ThrowErrorManerger.OnThrowError(ex.Script, ex);
+                ThrowErrorManager.OnThrowError(ex.Script, ex);
             }
         }
 
@@ -1056,29 +1064,27 @@ namespace AliceScript
                 result = Execute(Constants.END_LINE_ARRAY);
                 GoToNextStatement();
             }
-            return result;
-        }
-        public Variable Process()
-        {
-            Variable result = null;
-            while (Pointer < m_data.Length)
+            if (result == null)
             {
-                result = Execute();
-                GoToNextStatement();
+                result = Variable.EmptyInstance;
             }
             return result;
         }
-        public Variable ProcessForWhile()
+        public Variable Process(bool checkBreak = false)
         {
             Variable result = null;
             while (Pointer < m_data.Length)
             {
                 result = Execute();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if (checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
                 {
                     return result;
                 }
                 GoToNextStatement();
+            }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
             }
             return result;
         }
@@ -1089,6 +1095,10 @@ namespace AliceScript
             {
                 result = await ExecuteAsync();
                 GoToNextStatement();
+            }
+            if (result == null)
+            {
+                result = Variable.EmptyInstance;
             }
             return result;
         }
@@ -1169,13 +1179,15 @@ namespace AliceScript
         /// <summary>
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
         /// </summary>
+        /// <param name="inForOrWhile">forブロックやwhileブロックなど、breakなどで抜けるブロック</param>
         /// <returns>ブロックの値</returns>
-        public Variable ProcessBlock()
+        public Variable ProcessBlock(bool inForOrWhile = false)
         {
             string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = GetTempScript(body);
-            return mainScript.Process();
+            return mainScript.Process(inForOrWhile);
         }
+
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
             str = Utils.ConvertToScript(str, out _, out var def, out var settings);

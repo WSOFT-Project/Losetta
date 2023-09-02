@@ -1,156 +1,70 @@
-﻿using System.Security.Cryptography;
+﻿using AliceScript.Interop;
+using System.Security.Cryptography;
 
 namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Random
     {
-        internal static Random random;
         public static void Init()
         {
-            try
-            {
-                random = new Random();
-                NameSpace space = new NameSpace("Alice.Random");
-
-                space.Add(new randFunc());
-                space.Add(new rand_bytesFunc());
-                space.Add(new random_intFunc());
-                space.Add(new rand_doubleFunc());
-                space.Add(new random_bytesFunc());
-
-                space.Add(new guid_new_textFunc());
-                space.Add(new guid_new_bytesFunc());
-
-
-                NameSpaceManerger.Add(space);
-            }
-            catch { }
+            NameSpaceManager.Add(typeof(RandomFunctions));
         }
     }
-
-    internal sealed class randFunc : FunctionBase
+    [AliceNameSpace(Name = "Alice.Random")]
+    internal static class RandomFunctions
     {
-        public randFunc()
+        #region 乱数生成
+        private static Random random = new Random();
+        public static int Rand()
         {
-            Name = "rand";
-            MinimumArgCounts = 0;
-            Run += RandFunc_Run;
+            return random.Next();
         }
-
-        private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static int Rand(int max)
         {
-            if (e.Args.Count == 0)
-            {
-                e.Return = new Variable(Alice_Random.random.Next());
-            }
-            else if (e.Args.Count == 1)
-            {
-                e.Return = new Variable(Alice_Random.random.Next(e.Args[0].AsInt()));
-            }
-            else if (e.Args.Count == 2)
-            {
-                e.Return = new Variable(Alice_Random.random.Next(e.Args[0].AsInt(), e.Args[1].AsInt()));
-            }
+            return random.Next(max);
         }
-    }
-
-    internal sealed class rand_bytesFunc : FunctionBase
-    {
-        public rand_bytesFunc()
+        public static int Rand(int min, int max)
         {
-            Name = "rand_bytes";
-            MinimumArgCounts = 1;
-            Run += RandFunc_Run;
+            return random.Next(min, max);
         }
-
-        private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static byte[] Rand_Bytes(int length)
         {
-            byte[] bs = new byte[e.Args[0].AsInt()];
-            Alice_Random.random.NextBytes(bs);
-            e.Return = new Variable(bs);
+            byte[] bs = new byte[length];
+            random.NextBytes(bs);
+            return bs;
         }
-    }
-
-    internal sealed class rand_doubleFunc : FunctionBase
-    {
-        public rand_doubleFunc()
+        public static double Rand_Double()
         {
-            Name = "rand_double";
-            MinimumArgCounts = 0;
-            Run += RandFunc_Run;
+            return random.NextDouble();
         }
-
-        private void RandFunc_Run(object sender, FunctionBaseEventArgs e)
+        #endregion
+        #region 暗号学的乱数生成
+        public static int Random_Int()
         {
-            e.Return = new Variable(Alice_Random.random.NextDouble());
+            return RandomNumberGenerator.GetInt32(int.MaxValue);
         }
-    }
-
-    internal sealed class random_intFunc : FunctionBase
-    {
-        public random_intFunc()
+        public static int Random_Int(int max)
         {
-            Name = "random_int";
-            MinimumArgCounts = 0;
-            Run += Random_intFunc_Run;
+            return RandomNumberGenerator.GetInt32(max);
         }
-        private void Random_intFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static int Random_Int(int min, int max)
         {
-            if (e.Args.Count == 0)
-            {
-                e.Return = new Variable(RandomNumberGenerator.GetInt32(int.MaxValue));
-            }
-            else if (e.Args.Count == 1)
-            {
-                e.Return = new Variable(RandomNumberGenerator.GetInt32(e.Args[0].AsInt()));
-            }
-            else if (e.Args.Count == 2)
-            {
-                e.Return = new Variable(RandomNumberGenerator.GetInt32(e.Args[0].AsInt(), e.Args[1].AsInt()));
-            }
+            return RandomNumberGenerator.GetInt32(min, max);
         }
-    }
-
-    internal sealed class random_bytesFunc : FunctionBase
-    {
-        public random_bytesFunc()
+        public static byte[] Random_Bytes(int length)
         {
-            Name = "random_bytes";
-            MinimumArgCounts = 1;
-            Run += Random_bytesFunc_Run;
+            return RandomNumberGenerator.GetBytes(length);
         }
-
-        private void Random_bytesFunc_Run(object sender, FunctionBaseEventArgs e)
+        #endregion
+        #region GUID生成
+        public static string Guid_New_Text()
         {
-            e.Return = new Variable(RandomNumberGenerator.GetBytes(e.Args[0].AsInt()));
+            return Guid.NewGuid().ToString();
         }
-    }
-
-    internal sealed class guid_new_textFunc : FunctionBase
-    {
-        public guid_new_textFunc()
+        public static byte[] Guid_New_Bytes()
         {
-            Name = "guid_new_text";
-            Run += GuidFunc_Run;
+            return Guid.NewGuid().ToByteArray();
         }
-
-        private void GuidFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Guid.NewGuid().ToString());
-        }
-    }
-
-    internal sealed class guid_new_bytesFunc : FunctionBase
-    {
-        public guid_new_bytesFunc()
-        {
-            Name = "guid_new_bytes";
-            Run += GuidFunc_Run;
-        }
-
-        private void GuidFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Guid.NewGuid().ToByteArray());
-        }
+        #endregion
     }
 }
