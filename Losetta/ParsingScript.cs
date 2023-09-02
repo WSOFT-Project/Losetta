@@ -545,7 +545,7 @@ namespace AliceScript
             m_char2Line = char2Line;
             if (usingAlice)
             {
-                Using(Constants.TOP_NAMESPACE,true);
+                Using(Constants.TOP_NAMESPACE, true);
             }
         }
 
@@ -581,14 +581,14 @@ namespace AliceScript
         /// </summary>
         /// <param name="name"></param>
         /// <param name="whenPossible">名前空間が存在しない場合に例外を発生させない場合にtrue</param>
-        public void Using(string name,bool whenPossible=false)
+        public void Using(string name, bool whenPossible = false)
         {
             name = name.ToLower();
             if (NameSpaceManager.Contains(name))
             {
                 UsingNamespaces.Add(NameSpaceManager.NameSpaces[name]);
             }
-            else if(!whenPossible)
+            else if (!whenPossible)
             {
                 throw new ScriptException("該当する名前空間がありません", Exceptions.NAMESPACE_NOT_FOUND, this);
             }
@@ -1070,13 +1070,13 @@ namespace AliceScript
             }
             return result;
         }
-        public Variable Process(bool checkBreak=false)
+        public Variable Process(bool checkBreak = false)
         {
             Variable result = null;
             while (Pointer < m_data.Length)
             {
                 result = Execute();
-                if(checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
+                if (checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
                 {
                     return result;
                 }
@@ -1181,7 +1181,7 @@ namespace AliceScript
         /// </summary>
         /// <param name="inForOrWhile">forブロックやwhileブロックなど、breakなどで抜けるブロック</param>
         /// <returns>ブロックの値</returns>
-        public Variable ProcessBlock(bool inForOrWhile=false)
+        public Variable ProcessBlock(bool inForOrWhile = false)
         {
             string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = GetTempScript(body);

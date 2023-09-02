@@ -32,7 +32,6 @@ namespace AliceScript
         {
             return NameSpaces.ContainsKey(name);
         }
-
     }
     public class NameSpace
     {

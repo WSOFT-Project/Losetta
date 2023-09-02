@@ -24,7 +24,6 @@ namespace AliceScript.CLI
         {
             ClearLine();
 
-
             //標準出力
             Interpreter.Instance.OnOutput += Print;
             //デバッグ出力
@@ -33,7 +32,6 @@ namespace AliceScript.CLI
             ThrowErrorManager.ThrowError += ThrowErrorManager_ThrowError;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
-
             //REPLはデバッグモードに
             Program.IsDebugMode = true;
             if (File.Exists(filename))
@@ -52,8 +50,6 @@ namespace AliceScript.CLI
             }
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + ")" + (string.IsNullOrEmpty(e.Message) ? string.Empty : ": " + e.Message));
-            //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
-            //sb.AppendLine("説明: "+e.Message);
             if (!string.IsNullOrWhiteSpace(e.HelpLink))
             {
                 sb.AppendLine("詳細情報: " + e.HelpLink);
@@ -78,15 +74,13 @@ namespace AliceScript.CLI
             if (allow_throw)
             {
                 PrintColor(sb.ToString(), ConsoleColor.White, ConsoleColor.DarkRed);
-                //DumpLocalVariables(e.Script);
-                //DumpGlobalVariables();
                 if (Program.IsDebugMode)
                 {
-                    Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
                 PauseInput:
+                    Console.Write("このエラーを無視して続行するには[C]を、終了する場合はそれ以外のキーを入力してください...");
                     switch (Console.ReadKey().Key)
                     {
-                        case ConsoleKey.Enter:
+                        case ConsoleKey.C:
                             {
                                 e.Handled = true;
                                 break;
@@ -95,6 +89,14 @@ namespace AliceScript.CLI
                             {
                                 Console.WriteLine();
                                 DumpLocalVariables(e.Script);
+                                goto PauseInput;
+                            }
+                        case ConsoleKey.W:
+                            {
+                                Console.WriteLine();
+                                Console.Write("評価する式>>>>");
+                                string code = Console.ReadLine();
+                                Console.WriteLine(e.Script.GetTempScript(code).Process());
                                 goto PauseInput;
                             }
                     }

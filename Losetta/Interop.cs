@@ -76,7 +76,7 @@ namespace AliceScript.Interop
             }
             foreach (HashSet<MethodInfo> mi in methods.Values)
             {
-                var method = mi.OrderByDescending(x=>x.GetParameters().Length);
+                var method = mi.OrderByDescending(x => x.GetParameters().Length);
                 var func = CreateBindFunction(method.ToArray(), needbind);
                 if (func != null)
                 {
@@ -159,14 +159,14 @@ namespace AliceScript.Interop
                 converted = null;
 
                 var parametors = new List<object>(args.Count);
-                if(args.Count > TrueParameters.Length)
+                if (args.Count > TrueParameters.Length)
                 {
                     //入力の引数の方が多い場合
                     return false;
                 }
                 for (int i = 0; i < TrueParameters.Length; i++)
                 {
-                    if(i > args.Count - 1)
+                    if (i > args.Count - 1)
                     {
                         //マッチしたい引数の数の方が多い場合
                         if (TrueParameters[i].IsOptional)
@@ -179,7 +179,7 @@ namespace AliceScript.Interop
                             return false;
                         }
                     }
-                    
+
                     if (args[i].TryConvertTo(TrueParameters[i].ParameterType, out var result))
                     {
                         parametors.Add(result);

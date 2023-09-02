@@ -48,7 +48,7 @@
             Type t = Type.GetType(e.Args[0].ToString());
             if (t == null)
             {
-                throw new ScriptException($"{e.Args[0]}という名前の型を検索できませんでした。アセンブリ名の指定を忘れていませんか？",Exceptions.OBJECT_DOESNT_EXIST);
+                throw new ScriptException($"{e.Args[0]}という名前の型を検索できませんでした。アセンブリ名の指定を忘れていませんか？", Exceptions.OBJECT_DOESNT_EXIST);
             }
             NameSpaceManager.Add(t);
         }

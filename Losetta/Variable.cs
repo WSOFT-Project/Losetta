@@ -224,7 +224,7 @@ namespace AliceScript
                 Value = l;
                 return;
             }
-            if(o is IEnumerable<Variable> tuple)
+            if (o is IEnumerable<Variable> tuple)
             {
                 Tuple = new VariableCollection();
                 foreach (var v in tuple)
@@ -896,11 +896,9 @@ namespace AliceScript
             {
                 return Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value;
             }
-            if (type == typeof(float?))
-            {
-                return (float?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value);
-            }
-            return type == typeof(int?)
+            return type == typeof(float?)
+                ? (float?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
+                : type == typeof(int?)
                 ? (int?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
                 : type == typeof(long?)
                 ? (long?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
@@ -1586,7 +1584,6 @@ namespace AliceScript
         }
 
 
-
         public virtual double Value
         {
             get => !m_value.HasValue ? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) : m_value.Value;
@@ -1595,7 +1592,7 @@ namespace AliceScript
         public virtual bool Bool
         {
             get => !m_bool.HasValue ? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) : m_bool.Value;
-            set => m_bool = value;
+            set { m_bool = value; Type = VarType.BOOLEAN; }
         }
         public virtual string String
         {
