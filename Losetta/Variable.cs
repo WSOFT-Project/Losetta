@@ -224,12 +224,21 @@ namespace AliceScript
                 Value = l;
                 return;
             }
-            if (o is VariableCollection tuple)
+            if(o is IEnumerable<Variable> tuple)
             {
                 Tuple = new VariableCollection();
                 foreach (var v in tuple)
                 {
                     Tuple.Add(v);
+                }
+                return;
+            }
+            if (o is IEnumerable<object> ary)
+            {
+                Tuple = new VariableCollection();
+                foreach (var v in ary)
+                {
+                    Tuple.Add(new Variable(v));
                 }
                 return;
             }

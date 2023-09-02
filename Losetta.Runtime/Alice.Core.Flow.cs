@@ -172,7 +172,7 @@
                 string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 ParsingScript mainScript = initScript.GetTempScript(body);
                 //mainScript.Variables = initScript.Variables;
-                Variable result = mainScript.Process();
+                Variable result = mainScript.Process(true);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     return;
@@ -250,7 +250,7 @@
                 ParsingScript mainScript = e.Script.GetTempScript(body);
                 ParserFunction.AddGlobalOrLocalVariable(varName,
                                new GetVarFunction(current), mainScript, false, registVar, false);
-                Variable result = mainScript.Process();
+                Variable result = mainScript.Process(true);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     //script.Pointer = startForCondition;
@@ -290,8 +290,7 @@
                 {
                     break;
                 }
-
-                result = e.Script.ProcessBlock();
+                result = e.Script.ProcessBlock(true);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     e.Script.Pointer = startWhileCondition;
@@ -324,9 +323,7 @@
             {
                 e.Script.Pointer = startDoCondition;
 
-                string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-                ParsingScript mainScript = e.Script.GetTempScript(body);
-                result = mainScript.ProcessForWhile();
+                result = e.Script.ProcessBlock(true);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     e.Script.Pointer = startDoCondition;
@@ -341,7 +338,6 @@
                 }
             }
 
-            //SkipBlock(script);
             e.Return = result.IsReturn ? result : Variable.EmptyInstance;
         }
     }

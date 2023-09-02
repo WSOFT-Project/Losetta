@@ -49,6 +49,11 @@ namespace AliceScript.CLI
             //ShellFunctions登録
             ShellFunctions.Init();
 
+            //デバッグモードのフラグ
+            if (pa.Flags.Contains("d"))
+            {
+                Program.IsDebugMode = true;
+            }
 
             ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;

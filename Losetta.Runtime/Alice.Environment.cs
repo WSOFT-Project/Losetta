@@ -85,16 +85,12 @@ namespace AliceScript.NameSpaces
             return Environment.OSVersion.VersionString;
         }
         #endregion
+
         #region プロセスの情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static string Env_CommandLine()
         {
             return Environment.CommandLine;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static string[] Env_CommandLineArgs()
-        {
-            return Runtime.Args == null ? Environment.GetCommandLineArgs() : Runtime.Args.ToArray();
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static int Env_ProcessId()
@@ -117,6 +113,7 @@ namespace AliceScript.NameSpaces
             return Environment.CurrentDirectory;
         }
         #endregion
+
         #region 言語の情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static string Env_Lang_Version()
@@ -129,6 +126,7 @@ namespace AliceScript.NameSpaces
             return Constants.LANGUAGE;
         }
         #endregion
+
         #region 実装の情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static string Env_Impl_Version()
@@ -178,6 +176,7 @@ namespace AliceScript.NameSpaces
 #endif
         }
         #endregion
+
         #region 共通言語ランタイムの情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static string Env_Clr_Version()
@@ -185,6 +184,12 @@ namespace AliceScript.NameSpaces
             return Environment.Version.ToString();
         }
         #endregion
+
+        public static string[] Env_CommandLineArgs()
+        {
+            return Runtime.Args == null ? Environment.GetCommandLineArgs() : Runtime.Args.ToArray();
+        }
+
         public static void env_Exit(int exitCode)
         {
             Environment.Exit(exitCode);
@@ -197,19 +202,19 @@ namespace AliceScript.NameSpaces
         {
             return Environment.ExpandEnvironmentVariables(name);
         }
-        public static string Env_GetEnvironmentVariable(string variable)
+        public static string Env_Get_EnvironmentVariable(string variable)
         {
             return Environment.GetEnvironmentVariable(variable);
         }
-        public static string Env_GetEnvironmentVariable(string? variable, int target)
+        public static string Env_Get_EnvironmentVariable(string? variable, int target)
         {
             return Environment.GetEnvironmentVariable(variable, (EnvironmentVariableTarget)target);
         }
-        public static void Env_SetEnvironmentVariable(string? variable)
+        public static void Env_Set_EnvironmentVariable(string? variable)
         {
             Environment.GetEnvironmentVariable(variable);
         }
-        public static void Env_SetEnvironmentVariable(string? variable, string? value, int target)
+        public static void Env_Set_EnvironmentVariable(string? variable, string? value, int target)
         {
             Environment.SetEnvironmentVariable(variable, value, (EnvironmentVariableTarget)target);
         }

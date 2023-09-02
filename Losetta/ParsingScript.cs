@@ -1070,27 +1070,13 @@ namespace AliceScript
             }
             return result;
         }
-        public Variable Process()
+        public Variable Process(bool checkBreak=false)
         {
             Variable result = null;
             while (Pointer < m_data.Length)
             {
                 result = Execute();
-                GoToNextStatement();
-            }
-            if (result == null)
-            {
-                result = Variable.EmptyInstance;
-            }
-            return result;
-        }
-        public Variable ProcessForWhile()
-        {
-            Variable result = null;
-            while (Pointer < m_data.Length)
-            {
-                result = Execute();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if(checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
                 {
                     return result;
                 }
@@ -1193,13 +1179,15 @@ namespace AliceScript
         /// <summary>
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
         /// </summary>
+        /// <param name="inForOrWhile">forブロックやwhileブロックなど、breakなどで抜けるブロック</param>
         /// <returns>ブロックの値</returns>
-        public Variable ProcessBlock()
+        public Variable ProcessBlock(bool inForOrWhile=false)
         {
             string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = GetTempScript(body);
-            return mainScript.Process();
+            return mainScript.Process(inForOrWhile);
         }
+
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
             str = Utils.ConvertToScript(str, out _, out var def, out var settings);
