@@ -33,7 +33,7 @@ namespace AliceScript
             bool over = variable.Value > trueMax;
             if (type || less || over)
             {
-                throw new ScriptException($"数値は {(min != null ? min + "以上" : string.Empty)} {(max != null ? max + "以下" : string.Empty)}の{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
+                throw new ScriptException($"数値は{(min != null ? $" {min}以上かつ" : string.Empty)}{(max != null ? $" {max}以下の" : string.Empty)}{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
             }
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
@@ -103,17 +103,16 @@ namespace AliceScript
             ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
         }
 
-        public static void CheckLegalName(string name)
+        public static void CheckLegalName(string name, bool checkReserved = false)
         {
             if (string.IsNullOrEmpty(name))
             {
                 Utils.ThrowErrorMsg("識別子を空にすることはできません", Exceptions.ILLEGAL_IDENTIFIER, null, name);
             }
-            /*
-            if (Constants.CheckReserved(name))
+            if (checkReserved && Constants.CheckReserved(name))
             {
                 Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
-            }*/
+            }
 
             if (!Constants.IDENTIFIER_PATTERN.IsMatch(name))
             {

@@ -125,29 +125,21 @@ namespace AliceScript.NameSpaces
             FunctionBaseManager.Add(new DelegateCreator());
             FunctionBaseManager.Add(new LockFunction());
 
-            NameSpaceManager.Add(typeof(Test));
-        }
-    }
-    internal static class Test
-    {
-        public static int Pow(int x)
-        {
-            return x * x;
         }
     }
     internal class PowFunc : FunctionBase
     {
         public PowFunc()
         {
-            this.Name = "Pow";
-            this.MinimumArgCounts = 1;
-            this.MaximumArgCounts = 1;
-            this.Run += PowFunc_Run;
+            Name = "Pow";
+            MinimumArgCounts = 1;
+            MaximumArgCounts = 1;
+            Run += PowFunc_Run;
         }
 
         private void PowFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            int x = Utils.GetSafeInt(e.Args,0);
+            int x = Utils.GetSafeInt(e.Args, 0);
             e.Return = new Variable(x * x);
         }
     }
@@ -310,16 +302,11 @@ namespace AliceScript.NameSpaces
             {
                 case Variable.VarType.STRING:
                     {
-                        if (e.Args.Count == 1)
-                        {
-                            e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString()));
-                        }
-                        else
-                        {
-                            e.Return = e.Args.Count == 2
+                        e.Return = e.Args.Count == 1
+                            ? new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString()))
+                            : e.Args.Count == 2
                                 ? new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt()))
                                 : new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt(), e.Args[2].AsInt()));
-                        }
                         break;
                     }
                 case Variable.VarType.ARRAY:
@@ -954,14 +941,9 @@ namespace AliceScript.NameSpaces
 
         private void Str_SEWithFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (EndWith)
-            {
-                e.Return = e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
-            }
-            else
-            {
-                e.Return = e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
-            }
+            e.Return = EndWith
+                ? e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False
+                : e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
         }
 
         private bool EndWith = false;
@@ -979,18 +961,13 @@ namespace AliceScript.NameSpaces
 
         private void Str_PadFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (Right)
-            {
-                e.Return = e.Args.Count > 1
+            e.Return = Right
+                ? e.Args.Count > 1
                     ? new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
-                    : new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()));
-            }
-            else
-            {
-                e.Return = e.Args.Count > 1
+                    : new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()))
+                : e.Args.Count > 1
                     ? new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
                     : new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt()));
-            }
         }
 
         private bool Right = false;

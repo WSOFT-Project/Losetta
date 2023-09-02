@@ -9,7 +9,8 @@ namespace AliceScript.Interop
     [AttributeUsage(AttributeTargets.Method)]
     public class AliceFunctionAttribute : Attribute
     {
-        public string Name = null;
+        public string Name { get; set; }
+        public FunctionAttribute Attribute { get; set; }
     }
 
     /// <summary>
@@ -18,8 +19,9 @@ namespace AliceScript.Interop
     [AttributeUsage(AttributeTargets.Class)]
     public class AliceNameSpaceAttribute : Attribute
     {
-        public string Name = null;
-        public bool NeedBindAttribute = true;
+        public string Name { get; set; }
+        public bool NeedBindAttribute { get; set; }
+
     }
     public class BindFunction : FunctionBase
     {
@@ -40,7 +42,7 @@ namespace AliceScript.Interop
                     }
                     else
                     {
-                        e.Return = Variable.ConvetFrom(load.ReturnType,load.ObjFunc.Invoke(args));
+                        e.Return = new Variable(load.ObjFunc.Invoke(args));
                     }
                     return;
                 }
@@ -89,9 +91,14 @@ namespace AliceScript.Interop
             foreach (var methodInfo in methodInfos)
             {
                 string name = methodInfo.Name;
-                if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute) && attribute.Name != null)
+                FunctionAttribute funcAttribute = FunctionAttribute.GENERAL;
+                if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {
-                    name = attribute.Name;
+                    if (attribute.Name != null)
+                    {
+                        name = attribute.Name;
+                    }
+                    funcAttribute = attribute.Attribute;
                 }
                 else if (needBind)
                 {
@@ -100,6 +107,7 @@ namespace AliceScript.Interop
 
                 func.Name = name;
                 var load = new BindingOverloadFunction();
+                load.Attribute = funcAttribute;
                 load.TrueParameters = methodInfo.GetParameters();
 
                 var args = Expression.Parameter(typeof(object[]), "args");
@@ -145,7 +153,6 @@ namespace AliceScript.Interop
             public ParameterInfo[] TrueParameters { get; set; }
             public Action<object[]> VoidFunc { get; set; }
             public Func<object[], object> ObjFunc { get; set; }
-            public Type ReturnType { get; set; }
             public bool IsVoidFunc { get; set; }
             public bool TryConvertParameters(List<Variable> args, out object[] converted)
             {

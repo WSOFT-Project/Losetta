@@ -526,10 +526,10 @@
         }
 
         public static void AddGlobalOrLocalVariable(string name, GetVarFunction function,
-            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null, bool isReadOnly = false)
+            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null, bool isReadOnly = false,bool fromAssign=false)
         {
             name = Constants.ConvertName(name);
-            Utils.CheckLegalName(name);
+            Utils.CheckLegalName(name,fromAssign);
 
 
             function.Name = Constants.GetRealName(name);
@@ -596,7 +596,7 @@
                         newVar.Nullable = true;
                     }
                     newVar.Assign(v2.Value);
-                    if (type_inference)
+                    if (type_inference && type_modifer==Constants.VAR)
                     {
                         newVar.TypeChecked = true;
                     }

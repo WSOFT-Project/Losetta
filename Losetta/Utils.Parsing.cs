@@ -374,10 +374,6 @@ namespace AliceScript
                 prev = currentChar;
             }
         }
-
-
-
-
         public static List<Variable> GetArgs(ParsingScript script,
             char start, char end, Action<bool> outList, FunctionBase callFrom)
         {

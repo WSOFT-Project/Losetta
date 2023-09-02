@@ -70,7 +70,6 @@ AliceScriptでは、関数のオーバーロードがひとつのみの場合、
 [AliceNameSpace]
 public static class MyFunctions
 {
-    [AliceFunction]
     public static double Pow(double x)
     {
         return x * x;

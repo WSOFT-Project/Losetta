@@ -11,10 +11,8 @@ namespace AliceScript.CLI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-
-
             ParsedArguments pa = new ParsedArguments(args);
-            AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
+            AliceScript.Runtime.Args = pa.Args;
             CreateAliceDirectory(false);
             if (pa.Values.ContainsKey("print"))
             {

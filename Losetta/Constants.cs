@@ -253,8 +253,8 @@ namespace AliceScript
         /// 型指定修飾子
         /// </summary>
         public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","delegate","bool","type","variable",
-              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","type?","variable?"
+             "string","number","array","bytes","object","enum","delegate","bool","variable",
+              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?"
         };
         /// <summary>
         /// AliceScriptのキーワード

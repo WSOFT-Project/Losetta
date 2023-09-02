@@ -70,7 +70,6 @@ In AliceScript, you can bind a C# function as is if it has only one function ove
 [AliceNameSpace]
 public static class MyFunctions
 {
-    [AliceFunction]
     public static double Pow(double x)
     {
         return x * x;
