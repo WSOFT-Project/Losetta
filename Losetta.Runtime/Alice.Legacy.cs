@@ -15,7 +15,7 @@
             space.Add(new GetAllKeysFunction()); ;
             space.Add(new CancelFunction());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
         }
     }
     internal sealed class AddVariablesToHashFunction : FunctionBase

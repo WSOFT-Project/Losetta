@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace AliceScript
 {
-    //The code from WSOFTConfigManerger and WebSailing.
+    //The code from WSOFTConfigManager and WebSailing.
     //Allrights reserved WSOFT 2020.
 
     /// <summary>

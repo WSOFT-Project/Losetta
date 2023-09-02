@@ -26,14 +26,33 @@
                 space.Add(new Interpreter_GetScriptFunc());
                 space.Add(new gc_collectFunc());
                 space.Add(new gc_gettotalmemoryFunc());
+                space.Add(new Bind_RegisterFunc());
                 space.Add(new TypeObject());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }
     }
+    internal class Bind_RegisterFunc : FunctionBase
+    {
+        public Bind_RegisterFunc()
+        {
+            Name = "Bind_Register";
+            MinimumArgCounts = 1;
+            Run += Bind_Register_Run;
+        }
 
+        private void Bind_Register_Run(object sender, FunctionBaseEventArgs e)
+        {
+            Type t = Type.GetType(e.Args[0].ToString());
+            if (t == null)
+            {
+                throw new ScriptException($"{e.Args[0]}という名前の型を検索できませんでした。アセンブリ名の指定を忘れていませんか？", Exceptions.OBJECT_DOESNT_EXIST);
+            }
+            NameSpaceManager.Add(t);
+        }
+    }
     internal class Interpreter_GetParentFunc : FunctionBase
     {
         public Interpreter_GetParentFunc()
@@ -178,7 +197,7 @@
             if (e.Args.Count == 0)
             {
                 Variable v = new Variable(Variable.VarType.ARRAY);
-                foreach (string s in FunctionBaseManerger.Functions)
+                foreach (string s in FunctionBaseManager.Functions)
                 {
                     v.Tuple.Add(new Variable(s));
                 }
@@ -187,10 +206,10 @@
             else
             {
                 string str = Utils.GetSafeString(e.Args, 0);
-                if (NameSpaceManerger.Contains(str))
+                if (NameSpaceManager.Contains(str))
                 {
                     Variable v = new Variable(Variable.VarType.ARRAY);
-                    foreach (FunctionBase fb in NameSpaceManerger.NameSpaces[str].Functions)
+                    foreach (FunctionBase fb in NameSpaceManager.NameSpaces[str].Functions)
                     {
                         v.Tuple.Add(new Variable(fb.Name));
                     }
@@ -215,7 +234,7 @@
         private void NamespacesFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             Variable v = new Variable(Variable.VarType.ARRAY);
-            foreach (string s in NameSpaceManerger.NameSpaces.Keys)
+            foreach (string s in NameSpaceManager.NameSpaces.Keys)
             {
                 v.Tuple.Add(new Variable(s));
             }

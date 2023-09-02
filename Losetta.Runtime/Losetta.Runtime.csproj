@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-    <Version>0.9.22</Version>
+    <Version>0.9.23</Version>
     <Company>WSOFT</Company>
     <Product>Losetta</Product>
     <Title>Alice.Runtime</Title>
@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://docs.wsoft.ws/products/alice/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/WSOFT-Project/Losetta</RepositoryUrl>
     <PackageIcon>alice_logo.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64;Debug_Throw</Configurations>
     <Platforms>AnyCPU;ARM32;ARM64;x64</Platforms>
@@ -23,7 +23,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
              
     <RepositoryType>git</RepositoryType>
-    <PackageOutputPath>bin\packages\Losetta.Runtime</PackageOutputPath>
+    <PackageOutputPath>bin\packages</PackageOutputPath>
 	  <!-- ネイティブAOT向けの項目 -->
 	  <PublishAot>true</PublishAot>
 	  <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
@@ -176,6 +176,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Losetta\Losetta.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

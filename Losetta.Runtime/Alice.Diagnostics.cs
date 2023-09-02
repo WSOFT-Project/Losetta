@@ -30,7 +30,7 @@ namespace AliceScript.NameSpaces
 
                 space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

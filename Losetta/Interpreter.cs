@@ -127,16 +127,14 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
-            NameSpaceManerger.Add(new NameSpace(Constants.TOP_NAMESPACE));
+            NameSpaceManager.Add(new NameSpace(Constants.TOP_NAMESPACE));
 
-            FunctionBaseManerger.Add(new ClassCreator());
-            FunctionBaseManerger.Add(new FunctionCreator());
-            FunctionBaseManerger.Add(new EnumFunction());
-            FunctionBaseManerger.Add(new ArrayTypeFunction());
+            FunctionBaseManager.Add(new ClassCreator());
+            FunctionBaseManager.Add(new FunctionCreator());
+            FunctionBaseManager.Add(new EnumFunction());
+            FunctionBaseManager.Add(new ArrayTypeFunction());
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
-            ParserFunction.AddAction(Constants.POINTER, new PointerFunction());
-            ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
         }
 
 

@@ -114,8 +114,6 @@ namespace AliceScript
         public const string ON_EXCEPTION = "OnException";
         public const string OBJECT_PROPERTIES = "Properties";
         public const string OBJECT_TYPE = "Type";
-        public const string POINTER = "->";
-        public const string POINTER_REF = "&";
         public const string PRINT = "print";
         public const string REGEX = "Regex";
         public const string REMOVE = "RemoveItem";
@@ -175,14 +173,14 @@ namespace AliceScript
         /// </summary>
         public const string LANGUAGE = "AliceScript";
 
-        public const string UTF8_LITERAL = "u8";
+        public const string UTF8_LITERAL_PREFIX = "u8";
 
         public const string PROP_TO_STRING = "ToString";
 
         public static string END_ARG_STR = END_ARG.ToString();
         public static string NULL_ACTION = END_ARG.ToString();
 
-        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "->", ":", "??=", "=>" };
+        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", ":", "??=", "=>" };
         public static string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS_NOT,IS};
@@ -210,7 +208,7 @@ namespace AliceScript
 
         public static char[] COMPARE_ARRAY = "<>=)".ToCharArray();
         public static char[] IF_ARG_ARRAY = "&|)".ToCharArray();
-        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n' };
+        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n', '?' };
         public static char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
         public static char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
 
@@ -231,7 +229,7 @@ namespace AliceScript
         /// <summary>
         /// 変数・定数・関数名などの識別子がとるパターン
         /// </summary>
-        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}]*$", RegexOptions.Compiled);
+        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
 
         public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
@@ -248,6 +246,20 @@ namespace AliceScript
         public const string VIRTUAL = "virtual";
         public const string OVERRIDE = "override";
         public const string COMMAND = "command";
+        public const string READONLY = "readonly";
+
+
+        /// <summary>
+        /// 型指定修飾子
+        /// </summary>
+        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
+             "string","number","array","bytes","object","enum","delegate","bool","variable",
+              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?"
+        };
+        /// <summary>
+        /// AliceScriptのキーワード
+        /// </summary>
+        public static HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY }).ToHashSet();
 
         // シンボル
         public const string UNNEED_VAR = "unneed_var";
@@ -261,6 +273,7 @@ namespace AliceScript
         public const string ENABLE_USING = "enable_using";
         public const string ENABLE_IMPORT = "enable_import";
         public const string ENABLE_INCLUDE = "enable_include";
+        public const string NULLABLE = "nullable";
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
@@ -293,14 +306,6 @@ namespace AliceScript
         };
 
         /// <summary>
-        /// Nullをとりえない変数の型
-        /// </summary>
-        public static HashSet<Variable.VarType> NOT_NULLABLE_VARIABLE_TYPES = new HashSet<Variable.VarType>()
-        {
-            Variable.VarType.NUMBER,Variable.VarType.BOOLEAN
-        };
-
-        /// <summary>
         /// 配列添え字演算子を使用できる変数の型
         /// </summary>
         public static HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
@@ -310,7 +315,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptから参照できる定数
         /// </summary>
-        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable> 
+        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable>
         {
             //Trueを表します
             { TRUE,Variable.True},
@@ -335,23 +340,9 @@ namespace AliceScript
             {"bytes",Variable.AsType(Variable.VarType.BYTES) },
             {"object",Variable.AsType(Variable.VarType.OBJECT) },
             {"enum",Variable.AsType(Variable.VarType.ENUM) },
-            {"pointer",Variable.AsType(Variable.VarType.POINTER) },
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
 
-        };
-        /// <summary>
-        /// AliceScriptのキーワード
-        /// </summary>
-        public static HashSet<string> KEYWORD = new HashSet<string>
-        {
-            PUBLIC,VAR,CONST, VIRTUAL, OVERRIDE,COMMAND,REF,"string","number","array","bytes","object","enum","pointer","delegate","bool","type"
-        };
-        /// <summary>
-        /// 型指定修飾子
-        /// </summary>
-        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","pointer","delegate","bool","type"
         };
         /// <summary>
         /// 算術演算子
@@ -412,7 +403,6 @@ namespace AliceScript
                 case Variable.VarType.DELEGATE: return "DELEGATE";
                 case Variable.VarType.BOOLEAN: return "BOOLEAN";
                 case Variable.VarType.BYTES: return "BYTES";
-                //case Variable.VarType.TYPE:     return "TYPE";
                 case Variable.VarType.UNDEFINED: return "UNDEFINED";
                 default: return "NONE";
             }
@@ -445,7 +435,6 @@ namespace AliceScript
                 case "CONTINUE": type = Variable.VarType.CONTINUE; break;
                 case "DELEGATE": type = Variable.VarType.DELEGATE; break;
                 case "VARIABLE": type = Variable.VarType.VARIABLE; break;
-                //case "TYPE": type= Variable.VarType.TYPE; break;
                 default: type = Variable.VarType.NONE; return false;
             }
             return true;

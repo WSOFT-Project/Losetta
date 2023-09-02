@@ -15,6 +15,7 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new DeepCloneFunc());
             Variable.AddFunc(new ToStringFunc());
             Variable.AddFunc(new ConvertFunc());
+            Variable.AddFunc(new IsNullFunc());
             Variable.AddProp(new PropertiesProp());
             Variable.AddProp(new TypProp());
             //統合関数(終わり)
@@ -99,32 +100,49 @@ namespace AliceScript.NameSpaces
             space.Add(new StringFormatFunction());
             space.Add(new ExceptionObject());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
 
-            FunctionBaseManerger.Add(new IfStatement());
-            FunctionBaseManerger.Add(new DoWhileStatement());
-            FunctionBaseManerger.Add(new WhileStatement());
-            FunctionBaseManerger.Add(new SwitchStatement());
-            FunctionBaseManerger.Add(new CaseStatement());
-            FunctionBaseManerger.Add(new CaseStatement(), Constants.DEFAULT);
-            FunctionBaseManerger.Add(new ForStatement());
-            FunctionBaseManerger.Add(new ForeachStatement());
-            FunctionBaseManerger.Add(new GotoGosubFunction(true));
-            FunctionBaseManerger.Add(new GotoGosubFunction(false));
-            FunctionBaseManerger.Add(new IncludeFile());
-            FunctionBaseManerger.Add(new ReturnStatement());
-            FunctionBaseManerger.Add(new ThrowFunction());
-            FunctionBaseManerger.Add(new TryBlock());
+            FunctionBaseManager.Add(new IfStatement());
+            FunctionBaseManager.Add(new DoWhileStatement());
+            FunctionBaseManager.Add(new WhileStatement());
+            FunctionBaseManager.Add(new SwitchStatement());
+            FunctionBaseManager.Add(new CaseStatement());
+            FunctionBaseManager.Add(new CaseStatement(), Constants.DEFAULT);
+            FunctionBaseManager.Add(new ForStatement());
+            FunctionBaseManager.Add(new ForeachStatement());
+            FunctionBaseManager.Add(new GotoGosubFunction(true));
+            FunctionBaseManager.Add(new GotoGosubFunction(false));
+            FunctionBaseManager.Add(new IncludeFile());
+            FunctionBaseManager.Add(new ReturnStatement());
+            FunctionBaseManager.Add(new ThrowFunction());
+            FunctionBaseManager.Add(new TryBlock());
+            FunctionBaseManager.Add(new BlockStatement());
 
-            FunctionBaseManerger.Add(new NewObjectFunction());
+            FunctionBaseManager.Add(new NewObjectFunction());
 
-            FunctionBaseManerger.Add(new UsingStatement());
-            FunctionBaseManerger.Add(new ImportFunc());
-            FunctionBaseManerger.Add(new DelegateCreator());
-            FunctionBaseManerger.Add(new LockFunction());
+            FunctionBaseManager.Add(new UsingStatement());
+            FunctionBaseManager.Add(new ImportFunc());
+            FunctionBaseManager.Add(new DelegateCreator());
+            FunctionBaseManager.Add(new LockFunction());
+
         }
     }
+    internal class PowFunc : FunctionBase
+    {
+        public PowFunc()
+        {
+            Name = "Pow";
+            MinimumArgCounts = 1;
+            MaximumArgCounts = 1;
+            Run += PowFunc_Run;
+        }
 
+        private void PowFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            int x = Utils.GetSafeInt(e.Args, 0);
+            e.Return = new Variable(x * x);
+        }
+    }
     internal sealed class ReturnStatement : FunctionBase
     {
         public ReturnStatement()
@@ -284,16 +302,11 @@ namespace AliceScript.NameSpaces
             {
                 case Variable.VarType.STRING:
                     {
-                        if (e.Args.Count == 1)
-                        {
-                            e.Return = new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString()));
-                        }
-                        else
-                        {
-                            e.Return = e.Args.Count == 2
+                        e.Return = e.Args.Count == 1
+                            ? new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString()))
+                            : e.Args.Count == 2
                                 ? new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt()))
                                 : new Variable(e.CurentVariable.AsString().IndexOf(e.Args[0].AsString(), e.Args[1].AsInt(), e.Args[2].AsInt()));
-                        }
                         break;
                     }
                 case Variable.VarType.ARRAY:
@@ -499,7 +512,7 @@ namespace AliceScript.NameSpaces
 
         private void ResetFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.CurentVariable.Reset();
+            e.CurentVariable.AssignNull();
         }
     }
 
@@ -575,8 +588,22 @@ namespace AliceScript.NameSpaces
 
         private void DisposeFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.CurentVariable.Reset();
+            e.CurentVariable.AssignNull();
 
+        }
+    }
+
+    internal sealed class IsNullFunc : FunctionBase
+    {
+        public IsNullFunc()
+        {
+            Name = "IsNull";
+            Run += IsNullFunc_Run;
+        }
+
+        private void IsNullFunc_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = new Variable(e.CurentVariable.IsNull());
         }
     }
 
@@ -914,14 +941,9 @@ namespace AliceScript.NameSpaces
 
         private void Str_SEWithFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (EndWith)
-            {
-                e.Return = e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
-            }
-            else
-            {
-                e.Return = e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
-            }
+            e.Return = EndWith
+                ? e.CurentVariable.AsString().EndsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False
+                : e.CurentVariable.AsString().StartsWith(e.Args[0].AsString(), StringComparison.Ordinal) ? Variable.True : Variable.False;
         }
 
         private bool EndWith = false;
@@ -939,18 +961,13 @@ namespace AliceScript.NameSpaces
 
         private void Str_PadFunc_Run(object sender, FunctionBaseEventArgs e)
         {
-            if (Right)
-            {
-                e.Return = e.Args.Count > 1
+            e.Return = Right
+                ? e.Args.Count > 1
                     ? new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
-                    : new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()));
-            }
-            else
-            {
-                e.Return = e.Args.Count > 1
+                    : new Variable(e.CurentVariable.AsString().PadRight(e.Args[0].AsInt()))
+                : e.Args.Count > 1
                     ? new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt(), e.Args[1].AsString().ToCharArray()[0]))
                     : new Variable(e.CurentVariable.AsString().PadLeft(e.Args[0].AsInt()));
-            }
         }
 
         private bool Right = false;

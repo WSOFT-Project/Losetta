@@ -24,11 +24,9 @@ namespace AliceScript
             ENUM = 0b10000000000000,
             VARIABLE = 0b100000000000000,
             CUSTOM = 0b1000000000000000,
-            POINTER = 0b10000000000000000,
             DELEGATE = 0b100000000000000000,
             BOOLEAN = 0b1000000000000000000
         };
-
         public static Variable True => new Variable(true);
         public static Variable False => new Variable(false);
         public static Variable FromText(string text)
@@ -120,7 +118,6 @@ namespace AliceScript
         }
         public Variable()
         {
-            Reset();
         }
         public Variable(VarType type)
         {
@@ -129,12 +126,25 @@ namespace AliceScript
         }
         public Variable(double d)
         {
-            Value = d;
+            m_value = d;
+            Type = VarType.NUMBER;
+        }
+        public Variable(double? d)
+        {
+            m_value = d;
+            Type = VarType.NUMBER;
+            Nullable = true;
         }
         public Variable(bool b)
         {
-            Bool = b;
+            m_bool = b;
             Type = VarType.BOOLEAN;
+        }
+        public Variable(bool? b)
+        {
+            m_bool = b;
+            Type = VarType.BOOLEAN;
+            Nullable = true;
         }
         public Variable(string s)
         {
@@ -177,12 +187,68 @@ namespace AliceScript
                 Tuple.Add(new Variable(i));
             }
         }
-        public Variable(object o)
+        public Variable(object? o)
         {
+            if (o is string s)
+            {
+                String = s;
+                return;
+            }
+            if (o is bool b)
+            {
+                Bool = b;
+                return;
+            }
+            if (o is byte[] data)
+            {
+                ByteArray = data;
+                return;
+            }
+            if (o is double d)
+            {
+                Value = d;
+                return;
+            }
+            if (o is int i)
+            {
+                Value = i;
+                return;
+            }
+            if (o is float f)
+            {
+                Value = f;
+                return;
+            }
+            if (o is long l)
+            {
+                Value = l;
+                return;
+            }
+            if (o is IEnumerable<Variable> tuple)
+            {
+                Tuple = new VariableCollection();
+                foreach (var v in tuple)
+                {
+                    Tuple.Add(v);
+                }
+                return;
+            }
+            if (o is IEnumerable<object> ary)
+            {
+                Tuple = new VariableCollection();
+                foreach (var v in ary)
+                {
+                    Tuple.Add(new Variable(v));
+                }
+                return;
+            }
+            if (o is DelegateObject m)
+            {
+                Delegate = m;
+                return;
+            }
             Object = o;
         }
-
-
         public virtual Variable Clone()
         {
             Variable newVar = (Variable)MemberwiseClone();
@@ -221,19 +287,29 @@ namespace AliceScript
         /// <param name="v">代入する値</param>
         public void Assign(Variable v)
         {
-            if (TypeSafe && Constants.NOT_NULLABLE_VARIABLE_TYPES.Contains(m_type) && v.IsNull())
+            if (m_type == VarType.VARIABLE)
             {
-                throw new ScriptException($"`{m_type}`型はnullをとりえません", Exceptions.VARIABLE_IS_NULL);
+                //variable型に他の型が代入される前に型チェックをオフにする
+                TypeChecked = false;
             }
-            if (TypeSafe && m_type != v.Type)
+            if (Readonly)
+            {
+                throw new ScriptException("readonly属性を持つ変数には、代入できません", Exceptions.CANT_ASSIGN_TO_READ_ONLY);
+            }
+            if (v.IsNull())
+            {
+                AssignNull();
+                return;
+            }
+            else if (TypeChecked && !IsNull() && m_type != v.Type)
             {
                 throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
             }
+
             m_bool = v.m_bool;
             m_byteArray = v.m_byteArray;
             m_customFunctionGet = v.m_customFunctionGet;
             m_customFunctionSet = v.m_customFunctionSet;
-            m_datetime = v.m_datetime;
             m_delegate = v.m_delegate;
             m_dictionary = v.m_dictionary;
             m_enumMap = v.m_enumMap;
@@ -249,56 +325,6 @@ namespace AliceScript
         public static Variable NewEmpty()
         {
             return new Variable();
-        }
-        public static Variable ConvertToVariable(object obj)
-        {
-            if (obj == null)
-            {
-                return Variable.EmptyInstance;
-            }
-            if (obj is Variable)
-            {
-                return (Variable)obj;
-            }
-            if (obj is string || obj is char)
-            {
-                return new Variable(System.Convert.ToString(obj));
-            }
-            if (obj is double || obj is float || obj is int || obj is long)
-            {
-                return new Variable(System.Convert.ToDouble(obj));
-            }
-            if (obj is bool)
-            {
-                return new Variable((bool)obj);
-            }
-            if (obj is byte[])
-            {
-                return new Variable((byte[])obj);
-            }
-            if (obj is List<string>)
-            {
-                return new Variable((List<string>)obj);
-            }
-            return obj is List<double> ? new Variable((List<double>)obj) : new Variable(obj);
-        }
-
-        public void Reset()
-        {
-            m_value = double.NaN;
-            m_bool = false;
-            m_string = null;
-            m_object = null;
-            m_tuple = null;
-            m_byteArray = null;
-            m_delegate = null;
-            Action = null;
-            IsReturn = false;
-            Type = VarType.NONE;
-            m_dictionary.Clear();
-            m_keyMappings.Clear();
-            m_propertyMap.Clear();
-            m_propertyStringMap.Clear();
         }
         /// <summary>
         /// この変数またはそれが表す値がnullであるかどうかを取得します
@@ -326,15 +352,37 @@ namespace AliceScript
                     {
                         return String == null;
                     }
-                case VarType.POINTER:
-                    {
-                        return Pointer == null;
-                    }
                 case VarType.OBJECT:
                     {
                         return Object == null;
                     }
             }
+        }
+
+        /// <summary>
+        /// この変数をNullに設定します
+        /// </summary>
+        public void AssignNull()
+        {
+            if (TypeChecked && !Nullable && IsNull())
+            {
+                throw new ScriptException($"この変数はnullをとりえません", Exceptions.VARIABLE_IS_NULL);
+            }
+            m_value = null;
+            m_bool = null;
+            m_string = null;
+            m_object = null;
+            m_tuple = null;
+            m_byteArray = null;
+            m_delegate = null;
+            Action = null;
+            IsReturn = false;
+            //Type = VarType.NONE;
+            m_dictionary = null;
+            m_keyMappings = null;
+            m_propertyMap = new Dictionary<string, Variable>();
+            m_propertyStringMap = new Dictionary<string, string>();
+            m_tuple = null;
         }
         /// <summary>
         /// 明示的キャスト(as)を実行する時に呼ばれます。この変換は最も広範囲の型変換をサポートします
@@ -609,7 +657,7 @@ namespace AliceScript
 
         public virtual bool AsBool()
         {
-            return Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_bool;
+            return Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : Bool;
         }
 
         public virtual int AsInt(bool check = true)
@@ -777,91 +825,161 @@ namespace AliceScript
         /// <returns>二つのオブジェクトが等しければTrue、それ以外の場合はFalse</returns>
         private bool ValueEquals(object obj)
         {
-            if (obj is double || obj is int || obj is decimal || obj is float)
-            {
-                return Value == (double)obj;
-            }
-            if (obj is string str)
-            {
-                return string.Equals(String, str, StringComparison.Ordinal);
-            }
-            if (obj is bool bol)
-            {
-                return Bool == bol;
-            }
-            if (obj is VariableCollection tup)
-            {
-                return Tuple == tup;
-            }
-            if (obj is DelegateObject del)
-            {
-                return Delegate == del;
-            }
-            if (obj is byte[] data)
-            {
-                return ByteArray == data;
-            }
-            return obj is ObjectBase ob && Object is ObjectBase ob2 ? ob.Equals(ob2) : obj.Equals(Object);
+            return obj is double || obj is int || obj is decimal || obj is float
+                ? Value == (double)obj
+                : obj is string str
+                ? string.Equals(String, str, StringComparison.Ordinal)
+                : obj is bool bol
+                ? Bool == bol
+                : obj is VariableCollection tup
+                ? Tuple == tup
+                : obj is DelegateObject del
+                ? Delegate == del
+                : obj is byte[] data
+                ? ByteArray == data
+                : obj is ObjectBase ob && Object is ObjectBase ob2 ? ob.Equals(ob2) : obj.Equals(Object);
         }
         public int CompareTo(Variable? other)
         {
-            if (other == null)
-            {
-                return 0;
-            }
-            if (other.Type != Type)
-            {
-                return 0;
-            }
-            if (other.Type == VarType.NUMBER)
-            {
-                return Value.CompareTo(other.Value);
-            }
-            if (other.Type == VarType.STRING)
-            {
-                return String.CompareTo(other.String);
-            }
-            if (other.Type == VarType.BOOLEAN)
-            {
-                return Bool.CompareTo(other.Bool);
-            }
-            return other.Type == VarType.OBJECT && Object is ObjectBase ob ? ob.CompareTo(other.Object) : 0;
+            return other == null
+                ? 0
+                : other.Type != Type
+                ? 0
+                : other.Type == VarType.NUMBER
+                ? Value.CompareTo(other.Value)
+                : other.Type == VarType.STRING
+                ? String.CompareTo(other.String)
+                : other.Type == VarType.BOOLEAN
+                ? Bool.CompareTo(other.Bool)
+                : other.Type == VarType.OBJECT && Object is ObjectBase ob ? ob.CompareTo(other.Object) : 0;
         }
+
         public T ConvertTo<T>()
         {
-            if (typeof(T) == typeof(string))
+            return (T)ConvertTo(typeof(T));
+        }
+        public object ConvertTo(Type type)
+        {
+            if (type == typeof(string))
             {
-                return (T)(object)AsString();
+                return AsString();
             }
-            if (typeof(T) == typeof(bool))
+            if (type == typeof(bool))
             {
-                return (T)(object)AsBool();
+                return AsBool();
             }
-            if (typeof(T) == typeof(byte[]))
+            if (type == typeof(byte[]))
             {
-                return (T)(object)AsByteArray();
+                return AsByteArray();
             }
-            if (typeof(T) == typeof(double))
+            if (type == typeof(double))
             {
-                return (T)(object)AsDouble();
+                return AsDouble();
             }
-            if (typeof(T) == typeof(float))
+            if (type == typeof(float))
             {
-                return (T)(object)AsFloat();
+                return AsFloat();
             }
-            if (typeof(T) == typeof(int))
+            if (type == typeof(int))
             {
-                return (T)(object)AsInt();
+                return AsInt();
             }
-            if (typeof(T) == typeof(long))
+            if (type == typeof(long))
             {
-                return (T)(object)AsLong();
+                return AsLong();
             }
-            if (typeof(T) == typeof(TypeObject))
+            if (type == typeof(bool?))
             {
-                return (T)(object)AsType();
+                return Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_bool;
             }
-            return typeof(T) == typeof(DelegateObject) ? (T)(object)AsDelegate() : (T)AsObject();
+            if (type == typeof(double?))
+            {
+                return Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value;
+            }
+            return type == typeof(float?)
+                ? (float?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
+                : type == typeof(int?)
+                ? (int?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
+                : type == typeof(long?)
+                ? (long?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
+                : type == typeof(TypeObject)
+                ? AsType()
+                : type == typeof(VariableCollection)
+                ? Tuple
+                : type == typeof(Variable[])
+                ? Tuple.ToArray()
+                : type == typeof(List<Variable>) ? Tuple.ToList() : type == typeof(DelegateObject) ? AsDelegate() : AsObject();
+        }
+        public bool TryConvertTo<T>(out T result)
+        {
+            bool r = TryConvertTo(typeof(T), out object obj);
+            result = (T)obj;
+            return r;
+        }
+        public bool TryConvertTo(Type type, out object result)
+        {
+            if (type == typeof(string) && Type == VarType.STRING)
+            {
+                result = AsString();
+                return true;
+            }
+            if (type == typeof(bool) && Type == VarType.BOOLEAN)
+            {
+                result = AsBool();
+                return true;
+            }
+            if (type == typeof(byte[]) && Type == VarType.BYTES)
+            {
+                result = AsByteArray();
+                return true;
+            }
+            if (type == typeof(double) && Type == VarType.NUMBER)
+            {
+                result = AsDouble();
+                return true;
+            }
+            if (type == typeof(float) && Type == VarType.NUMBER)
+            {
+                result = AsFloat();
+                return true;
+            }
+            if (type == typeof(int) && Type == VarType.NUMBER)
+            {
+                result = AsInt();
+                return true;
+            }
+            if (type == typeof(long) && Type == VarType.NUMBER)
+            {
+                result = AsLong();
+                return true;
+            }
+            if (type == typeof(TypeObject) && Object is TypeObject to)
+            {
+                result = to;
+                return true;
+            }
+            if (type == typeof(VariableCollection) && Type == VarType.ARRAY)
+            {
+                result = Tuple;
+                return true;
+            }
+            if (type == typeof(Variable[]) && Type == VarType.ARRAY)
+            {
+                result = Tuple.ToArray();
+                return true;
+            }
+            if (type == typeof(List<Variable>) && Type == VarType.ARRAY)
+            {
+                result = Tuple.ToList();
+                return true;
+            }
+            if (type == typeof(DelegateObject) && Type == VarType.DELEGATE)
+            {
+                result = AsDelegate();
+                return true;
+            }
+            result = null;
+            return false;
         }
         public object AsObject()
         {
@@ -891,7 +1009,7 @@ namespace AliceScript
             switch (Type)
             {
                 case VarType.BOOLEAN:
-                    return m_bool ? Constants.TRUE : Constants.FALSE;
+                    return Bool ? Constants.TRUE : Constants.FALSE;
                 case VarType.NUMBER:
                     return Value.ToString();
                 case VarType.STRING:
@@ -903,10 +1021,12 @@ namespace AliceScript
                 case VarType.ENUM:
                     {
                         var sb = new StringBuilder();
-                        sb.Append(Constants.START_GROUP.ToString() + " ");
+                        sb.Append(Constants.START_GROUP.ToString());
+                        sb.Append(Constants.SPACE);
                         foreach (string key in m_propertyMap.Keys)
                         {
-                            sb.Append(key + " ");
+                            sb.Append(key);
+                            sb.Append(Constants.SPACE);
                         }
                         sb.Append(Constants.END_GROUP.ToString());
                         return sb.ToString();
@@ -947,7 +1067,8 @@ namespace AliceScript
                                         value = ": " + value;
                                     }
                                 }
-                                sb.Append(prop + value);
+                                sb.Append(prop);
+                                sb.Append(value);
                                 if (i < allProps.Count - 1)
                                 {
                                     sb.Append(", ");
@@ -1077,9 +1198,9 @@ namespace AliceScript
             if (m_propertyMap.TryGetValue(propName, out result) ||
                 m_propertyMap.TryGetValue(GetRealName(propName), out result))
             {
-                if (!result.Writable)
+                if (result.Readonly)
                 {
-                    throw new ScriptException("プロパティ:[" + propName + "]は読み取り専用です", Exceptions.PROPERTY_IS_READ_ONLY, script);
+                    throw new ScriptException("プロパティ:[" + propName + "]は読み取り専用です", Exceptions.CANT_ASSIGN_TO_READ_ONLY, script);
                 }
                 if (result.CustomFunctionSet != null)
                 {
@@ -1093,6 +1214,10 @@ namespace AliceScript
                 }
             }
 
+            if (Object is ObjectBase ob)
+            {
+                ob.SetProperty(propName, value).Wait();
+            }
             m_propertyMap[propName] = value;
 
             string converted = Constants.ConvertName(propName);
@@ -1258,7 +1383,7 @@ namespace AliceScript
             {
                 return result;
             }
-            else if (script != null && Properties.TryGetValue(propName, out var p) && p.Type.HasFlag(Type))
+            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type == Variable.VarType.NONE))
             {
                 return p.GetProperty(this);
             }
@@ -1363,11 +1488,9 @@ namespace AliceScript
 
         public virtual string GetTypeString()
         {
-            if (Type == VarType.OBJECT && Object != null)
-            {
-                return Object is ObjectBase ? ((ObjectBase)Object).Name : Object.GetType().ToString();
-            }
-            return Constants.TypeToString(Type);
+            return Type == VarType.OBJECT && Object != null
+                ? Object is ObjectBase ? ((ObjectBase)Object).Name : Object.GetType().ToString()
+                : Constants.TypeToString(Type);
         }
 
         public Variable GetValue(int index)
@@ -1461,16 +1584,15 @@ namespace AliceScript
         }
 
 
-
         public virtual double Value
         {
-            get => m_value;
+            get => !m_value.HasValue ? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) : m_value.Value;
             set { m_value = value; Type = VarType.NUMBER; }
         }
         public virtual bool Bool
         {
-            get => m_bool;
-            set => m_bool = value;
+            get => !m_bool.HasValue ? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) : m_bool.Value;
+            set { m_bool = value; Type = VarType.BOOLEAN; }
         }
         public virtual string String
         {
@@ -1499,11 +1621,6 @@ namespace AliceScript
             set { m_byteArray = value; Type = VarType.BYTES; }
         }
 
-        public string Pointer
-        {
-            get;
-            set;
-        } = null;
 
         public CustomFunction CustomFunctionGet
         {
@@ -1543,10 +1660,18 @@ namespace AliceScript
         public string ParamName { get; set; } = "";
 
         /// <summary>
-        /// この変数が型安全であればTrue、それ以外の場合はFalse。
+        /// この変数が型検査を受ける場合はtrue
         /// </summary>
-        public bool TypeSafe { get; set; }
-        public bool Writable { get; set; } = true;
+        public bool TypeChecked { get; set; }
+
+        /// <summary>
+        /// この変数がどのような型でもnullをとりうる場合はtrue
+        /// </summary>
+        public bool Nullable { get; set; }
+        /// <summary>
+        /// この変数が読み取り専用の場合はtrue。
+        /// </summary>
+        public bool Readonly { get; set; }
         public bool Enumerable { get; set; } = true;
         public bool Configurable { get; set; } = true;
 
@@ -1566,7 +1691,15 @@ namespace AliceScript
 
         public List<Variable> StackVariables { get; set; }
 
-        public static Variable EmptyInstance => new Variable();
+        public static Variable EmptyInstance
+        {
+            get
+            {
+                var v = new Variable();
+                v.AssignNull();
+                return v;
+            }
+        }
         public static Variable Undefined = new Variable(VarType.UNDEFINED);
 
         public virtual Variable Default()
@@ -1576,17 +1709,16 @@ namespace AliceScript
 
 
 
-        protected double m_value;
-        protected string m_string;
-        protected object m_object;
-        protected bool m_bool;
-        protected DateTime m_datetime;
-        protected DelegateObject m_delegate;
+        protected double? m_value = default;
+        protected string m_string = default;
+        protected object m_object = null;
+        protected bool? m_bool = default;
+        protected DelegateObject m_delegate = null;
         protected VarType m_type;
         private CustomFunction m_customFunctionGet;
         private CustomFunction m_customFunctionSet;
-        protected VariableCollection m_tuple;
-        protected byte[] m_byteArray;
+        protected VariableCollection m_tuple = null;
+        protected byte[] m_byteArray = null;
         private HashSet<string> m_keywords = new HashSet<string>();
         private Dictionary<string, int> m_dictionary = new Dictionary<string, int>();
         private Dictionary<string, string> m_keyMappings = new Dictionary<string, string>();

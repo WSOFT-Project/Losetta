@@ -41,7 +41,7 @@
 
                 space.Add("ConsoleColor", "System.ConsoleColor");
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }
