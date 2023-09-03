@@ -24,8 +24,7 @@
             ThrowError?.Invoke(sender, e);
             if (!e.Handled)
             {
-                //続行されなかった場合はそこで終了
-                Alice.OnExiting(255);
+                Alice.OnExiting(256);
             }
         }
     }

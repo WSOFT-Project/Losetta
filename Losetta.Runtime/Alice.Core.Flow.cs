@@ -524,7 +524,6 @@
             // tryブロック内のスクリプト
             string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = e.Script.GetTempScript(body);
-            mainScript.InTryBlock = true;
             // catchブロックのリスト
             List<CatchData> catches = new List<CatchData>();
             // finallyブロック

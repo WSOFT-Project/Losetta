@@ -133,7 +133,6 @@ namespace AliceScript
                 tempScript.OriginalScript = parentScript.OriginalScript;
             }
             tempScript.ParentScript = script;
-            tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
             if (script != null)

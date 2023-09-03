@@ -481,7 +481,6 @@
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.PWD, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalScript, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FunctionName, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.InTryBlock, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StillValid, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Size, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLineNumber, this));
@@ -682,7 +681,7 @@
             private Interpreter_ScriptObject Host;
             internal enum Interpreter_ScriptObject_Property_Mode
             {
-                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
+                IsMainFile, FileName, PWD, OriginalScript, FunctionName, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
             }
             private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyBaseEventArgs e)
             {
@@ -713,11 +712,6 @@
                     case Interpreter_ScriptObject_Property_Mode.FunctionName:
                         {
                             e.Value = new Variable(Host.Script.FunctionName);
-                            break;
-                        }
-                    case Interpreter_ScriptObject_Property_Mode.InTryBlock:
-                        {
-                            e.Value = new Variable(Host.Script.InTryBlock);
                             break;
                         }
                     case Interpreter_ScriptObject_Property_Mode.StillValid:
