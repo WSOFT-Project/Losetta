@@ -26,7 +26,7 @@
 	  <RootNamespace>AliceScript.CLI</RootNamespace>
 	  <RepositoryType>git</RepositoryType>
 	  <PackageTags>scripting;scripting-language;scripting-engine;cli;repl;</PackageTags>
-	  <PackageOutputPath>bin\package\alice</PackageOutputPath>
+	  <PackageOutputPath>\bin\package\alice</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -28,8 +28,6 @@ namespace AliceScript.CLI
             Interpreter.Instance.OnOutput += Print;
             //デバッグ出力
             Interpreter.Instance.OnDebug += Debug_Print;
-            //例外出力
-            ThrowErrorManager.ThrowError += ThrowErrorManager_ThrowError;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
             //REPLはデバッグモードに

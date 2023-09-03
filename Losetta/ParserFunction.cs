@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using System;
+
+namespace AliceScript
 {
     public class ParserFunction
     {
@@ -29,6 +31,12 @@
                 keywords = new HashSet<string>();
             }
 
+            m_impl = CheckGroup(script,item,ch,ref action);
+            if(m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
 
             m_impl = CheckString(script, item, ch);
             if (m_impl != null)
@@ -74,13 +82,33 @@
                 return;
             }
 
+            string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
             if (m_impl == null)
             {
                 Utils.ProcessErrorMsg(item, script);
             }
 
         }
+        public static ParserFunction CheckGroup(ParsingScript script, string item, char ch,ref string action)
+        {
+            if (string.IsNullOrEmpty(item))
+            {
+                string body;
+                if (script.Prev == Constants.START_GROUP)
+                {
+                    body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                }
+                else
+                {
+                    body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                }
 
+                
+                action = null;
+                return new StatementFunction(body,script);
+            }
+            return null;
+        }
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
             StringOrNumberFunction stringOrNumberFunction = new StringOrNumberFunction();

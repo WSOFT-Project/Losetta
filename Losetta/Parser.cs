@@ -66,7 +66,7 @@ namespace AliceScript
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
 
-                if (string.IsNullOrEmpty(token) && script.StillValid())
+                if (string.IsNullOrEmpty(token) && script.Prev!=Constants.START_ARG && script.Prev!=Constants.START_GROUP && script.StillValid())
                 {
                     goto ExtractNextToken;
                 }
@@ -442,6 +442,7 @@ namespace AliceScript
                 return true;
             }
 
+
             //それ以外の場合完了
             if ((action = Utils.ValidAction(script.FromPrev())) != null ||
                 (item.Length > 0 && ch == Constants.SPACE))
@@ -623,27 +624,23 @@ namespace AliceScript
             {
                 leftCell = new Variable(leftCell.Equals(rightCell));
             }
-            else if (leftCell.Action == "!=" || leftCell.Action == "!==")
-            {
-                leftCell = new Variable(!leftCell.Equals(rightCell));
-            }
-            else if (leftCell.Type == Variable.VarType.NUMBER && rightCell.Type == Variable.VarType.NUMBER)
-            {
-                leftCell = MergeNumbers(leftCell, rightCell, script);
-            }
             else
             {
-                leftCell = leftCell.Type == Variable.VarType.BOOLEAN && rightCell.Type == Variable.VarType.BOOLEAN
-                    ? MergeBooleans(leftCell, rightCell, script)
-                    : leftCell.Type == Variable.VarType.STRING || rightCell.Type == Variable.VarType.STRING
-                                    ? MergeStrings(leftCell, rightCell, script)
-                                    : leftCell.Type == Variable.VarType.ARRAY
-                                                    ? MergeArray(leftCell, rightCell, script)
-                                                    : leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE
-                                                                    ? MergeDelegate(leftCell, rightCell, script)
-                                                                    : leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
-                                                                                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
-                                                                                    : MergeObjects(leftCell, rightCell, script);
+                leftCell = leftCell.Action == "!=" || leftCell.Action == "!=="
+                    ? new Variable(!leftCell.Equals(rightCell))
+                    : leftCell.Type == Variable.VarType.NUMBER && rightCell.Type == Variable.VarType.NUMBER
+                                    ? MergeNumbers(leftCell, rightCell, script)
+                                    : leftCell.Type == Variable.VarType.BOOLEAN && rightCell.Type == Variable.VarType.BOOLEAN
+                                    ? MergeBooleans(leftCell, rightCell, script)
+                                    : leftCell.Type == Variable.VarType.STRING || rightCell.Type == Variable.VarType.STRING
+                                                                    ? MergeStrings(leftCell, rightCell, script)
+                                                                    : leftCell.Type == Variable.VarType.ARRAY
+                                                                                    ? MergeArray(leftCell, rightCell, script)
+                                                                                    : leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE
+                                                                                                    ? MergeDelegate(leftCell, rightCell, script)
+                                                                                                    : leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator
+                                                                                                                    ? obj.Operator(leftCell, rightCell, leftCell.Action, script)
+                                                                                                                    : MergeObjects(leftCell, rightCell, script);
             }
 
             leftCell.Action = rightCell.Action;

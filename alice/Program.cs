@@ -49,13 +49,14 @@ namespace AliceScript.CLI
             //ShellFunctions登録
             ShellFunctions.Init();
 
+            //例外出力
+            ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;
             //デバッグモードのフラグ
             if (pa.Flags.Contains("d"))
             {
                 Program.IsDebugMode = true;
             }
 
-            ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
@@ -128,7 +129,6 @@ namespace AliceScript.CLI
             }
             else
             {
-                ThrowErrorManager.ThrowError -= Shell.ThrowErrorManager_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }

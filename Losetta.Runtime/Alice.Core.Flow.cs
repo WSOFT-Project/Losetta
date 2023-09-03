@@ -85,8 +85,8 @@
                     script.SkipBlock();
                 }
                 script.Forward();
-                script.SkipRestBlocks();
-                //script.SkipBlock();
+                //script.SkipRestBlocks();
+                script.SkipBlock();
 
                 //return result;
                 return result != null && (result.IsReturn ||
@@ -546,7 +546,7 @@
                     }
                     if (nextData.Prev != '{' && Utils.GetNextToken(nextData) == Constants.WHEN)
                     {
-                        data.Filter = Utils.GetBodyBetween(nextData, Constants.START_ARG, Constants.END_ARG, "\0", true);
+                        data.Filter = Utils.GetBodyBetween(nextData, Constants.START_ARG, Constants.END_ARG, Constants.START_GROUP.ToString() + '\0', true);
                         nextData.Forward();
                     }
                     data.Body = Utils.GetBodyBetween(nextData, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
@@ -575,7 +575,6 @@
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
             {
-                e.Handled = handled;
                 foreach (var data in catches)
                 {
                     GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
@@ -600,11 +599,14 @@
                         catchScript.Variables.Add(data.ExceptionName, excMsgFunc);
                     }
                     result = catchScript.Process();
+                    e.Handled = true;
+                    break;
                 }
                 if (final_body != null)
                 {
                     ParsingScript finallyScript = e.Script.GetTempScript(final_body);
                     finallyScript.Process();
+                    e.Handled = true;
                 }
             };
 

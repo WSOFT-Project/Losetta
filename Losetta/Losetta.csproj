@@ -24,7 +24,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>AliceScript</RootNamespace>
     <RepositoryType>git</RepositoryType>
-    <PackageOutputPath>bin\package\Losetta</PackageOutputPath>
+    <PackageOutputPath>\bin\package\alice</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">
@@ -193,6 +193,13 @@
 
   <ItemGroup>
     <None Include="..\..\..\WSOFT_Documents\Alice\alice_logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

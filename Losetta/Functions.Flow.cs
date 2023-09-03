@@ -597,7 +597,23 @@ namespace AliceScript
         }
 
     }
+    internal sealed class StatementFunction : FunctionBase
+    {
+        public StatementFunction(string body, ParsingScript script)
+        {
+            Name = "Statement";
+            RelatedNameSpace = Constants.PARSING_NAMESPACE;
+            Script = script.GetTempScript(body, this);
+            Run += StatementFunction_Run;
+        }
 
+        private void StatementFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            e.Return = Script.Process();
+        }
+
+        public ParsingScript Script { get; set; }
+    }
     public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
@@ -989,7 +1005,6 @@ namespace AliceScript
             tempScript.Filename = m_parentScript.Filename;
             if (script != null)
             {
-                script.CloneThrowTryInfo(tempScript);
                 tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.m_stacktrace);
                 tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
             }
