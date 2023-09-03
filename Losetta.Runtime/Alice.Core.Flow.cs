@@ -84,11 +84,8 @@
                     script.Pointer = startIfCondition;
                     script.SkipBlock();
                 }
-                script.Forward();
-                //script.SkipRestBlocks();
-                script.SkipBlock();
+                script.SkipRestBlocks();
 
-                //return result;
                 return result != null && (result.IsReturn ||
                        result.Type == Variable.VarType.BREAK ||
                        result.Type == Variable.VarType.CONTINUE) ? result : Variable.EmptyInstance;

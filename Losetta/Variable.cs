@@ -337,25 +337,19 @@ namespace AliceScript
                 case VarType.NONE: return true;
                 default: return false;
                 case VarType.ARRAY:
-                    {
-                        return Tuple == null;
-                    }
+                    return Tuple == null;
                 case VarType.DELEGATE:
-                    {
-                        return Delegate == null;
-                    }
+                    return Delegate == null;
                 case VarType.BYTES:
-                    {
-                        return ByteArray == null;
-                    }
+                    return ByteArray == null;
                 case VarType.STRING:
-                    {
-                        return String == null;
-                    }
+                    return String == null;
                 case VarType.OBJECT:
-                    {
-                        return Object == null;
-                    }
+                    return Object == null;
+                case VarType.BOOLEAN:
+                    return m_bool == null;
+                case VarType.NUMBER:
+                    return m_value == null;
             }
         }
 
@@ -733,7 +727,10 @@ namespace AliceScript
             }
             if (obj is Variable item)
             {
-
+                if(item.Type == VarType.NONE)
+                {
+                    return IsNull();
+                }
                 if (item.Type != Type)
                 {
                     return false;

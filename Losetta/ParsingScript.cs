@@ -1059,6 +1059,10 @@ namespace AliceScript
             while (Pointer < m_data.Length)
             {
                 result = Execute();
+                if (result == null)
+                {
+                    result = Variable.EmptyInstance;
+                }
                 if (checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
                 {
                     return result;
@@ -1145,19 +1149,21 @@ namespace AliceScript
         }
         public void SkipRestBlocks()
         {
+            ParsingScript nextData = new ParsingScript(this);
+            nextData.Forward();
             while (StillValid())
             {
-                int endOfToken = Pointer;
-                ParsingScript nextData = new ParsingScript(this);
+                int endOfToken = nextData.Pointer;
                 string nextToken = Utils.GetNextToken(nextData);
                 if (Constants.ELSE_IF != nextToken &&
                     Constants.ELSE != nextToken)
                 {
+                    Pointer = endOfToken;
                     return;
                 }
-                Pointer = nextData.Pointer;
-                SkipBlock();
+                nextData.SkipBlock();
             }
+            Pointer = nextData.Pointer;
         }
         /// <summary>
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
