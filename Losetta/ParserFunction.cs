@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AliceScript
+﻿namespace AliceScript
 {
     public class ParserFunction
     {
@@ -31,8 +29,8 @@ namespace AliceScript
                 keywords = new HashSet<string>();
             }
 
-            m_impl = CheckGroup(script,item,ch,ref action);
-            if(m_impl != null)
+            m_impl = CheckGroup(script, item, ch, ref action);
+            if (m_impl != null)
             {
                 m_impl.Keywords = keywords;
                 return;
@@ -82,30 +80,27 @@ namespace AliceScript
                 return;
             }
 
-            string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+            m_impl = TryCustomFunction(item, script, false, keywords);
+            if (m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
+
             if (m_impl == null)
             {
                 Utils.ProcessErrorMsg(item, script);
             }
-
         }
-        public static ParserFunction CheckGroup(ParsingScript script, string item, char ch,ref string action)
+        public static ParserFunction CheckGroup(ParsingScript script, string item, char ch, ref string action)
         {
             if (string.IsNullOrEmpty(item))
             {
-                string body;
-                if (script.Prev == Constants.START_GROUP)
-                {
-                    body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
-                }
-                else
-                {
-                    body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
-                }
-
-                
+                string body = script.Prev == Constants.START_GROUP
+                    ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET)
+                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
                 action = null;
-                return new StatementFunction(body,script);
+                return new StatementFunction(body, script);
             }
             return null;
         }
@@ -148,7 +143,94 @@ namespace AliceScript
 
             return null;
         }
+        public static ParserFunction TryCustomFunction(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
+        {
+            if (script != null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
+            {
+                bool? mode = null;
+                bool isGlobal = keywords.Contains(Constants.PUBLIC);
+                bool isCommand = keywords.Contains(Constants.COMMAND);
+                if (keywords.Contains(Constants.OVERRIDE))
+                {
+                    mode = true;
+                }
+                else if (keywords.Contains(Constants.VIRTUAL))
+                {
+                    mode = false;
+                }
 
+                Variable.VarType type_modifer = Variable.VarType.VARIABLE;
+                bool nullable = false;
+                foreach (string str in keywords)
+                {
+                    string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
+                    nullable = type_str.Length != str.Length;
+                    if (Constants.TYPE_MODIFER.Contains(type_str))
+                    {
+                        type_modifer = Constants.StringToType(str);
+                        break;
+                    }
+                }
+
+                string[] args = Utils.GetFunctionSignature(script);
+                if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
+                {
+                    args = new string[0];
+                }
+                if (script.Current != Constants.START_GROUP)
+                {
+                    return null;
+                }
+
+                script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+                /*string line = */
+                script.GetOriginalLine(out _);
+
+                int parentOffset = script.Pointer;
+
+                if (script.CurrentClass != null)
+                {
+                    parentOffset += script.CurrentClass.ParentOffset;
+                }
+
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+                script.MoveForwardIf(Constants.END_GROUP);
+
+                CustomFunction customFunc = new CustomFunction(name, body, args, script, false, type_modifer, nullable);
+                customFunc.ParentScript = script;
+                customFunc.ParentOffset = parentOffset;
+                if (isCommand)
+                {
+                    customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+                }
+                if (mode != null)
+                {
+                    customFunc.IsVirtual = true;
+                }
+                //ここまでくる=その関数は存在しない=存在チェックは不要
+                FunctionBaseManager.Add(customFunc, name, script, isGlobal);
+                return new StatementFunction(string.Empty,script);
+            }
+            return null;
+        }
+        private static bool FunctionIsVirtual(string name, ParsingScript script)
+        {
+            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            if (s_functions.TryGetValue(name, out impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         private static bool IsQuotedString(string item)
         {
             return item.Length > 1 && ((item[0] == Constants.QUOTE && item[item.Length - 1] == Constants.QUOTE) ||

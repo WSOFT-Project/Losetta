@@ -95,6 +95,19 @@ namespace AliceScript
                 mode = false;
             }
 
+            Variable.VarType type_modifer = Variable.VarType.VARIABLE;
+            bool nullable = false;
+            foreach (string str in Keywords)
+            {
+                string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
+                nullable = type_str.Length != str.Length;
+                if (Constants.TYPE_MODIFER.Contains(type_str))
+                {
+                    type_modifer = Constants.StringToType(str);
+                    break;
+                }
+            }
+
             funcName = Constants.ConvertName(funcName);
 
             string[] args = Utils.GetFunctionSignature(e.Script);
@@ -117,7 +130,7 @@ namespace AliceScript
             string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
             e.Script.MoveForwardIf(Constants.END_GROUP);
 
-            CustomFunction customFunc = new CustomFunction(funcName, body, args, e.Script);
+            CustomFunction customFunc = new CustomFunction(funcName, body, args, e.Script,false,type_modifer,nullable);
             customFunc.ParentScript = e.Script;
             customFunc.ParentOffset = parentOffset;
             if (isCommand)
@@ -617,14 +630,13 @@ namespace AliceScript
     public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
-                                string body, string[] args, ParsingScript script, bool forceReturn = false)
+                                string body, string[] args, ParsingScript script, bool forceReturn = false, Variable.VarType returnType = Variable.VarType.VARIABLE,bool nullable=true)
         {
             Name = funcName;
             m_body = body;
+            m_nullable = nullable;
             m_forceReturn = forceReturn;
-
-            //Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-
+            m_returnType = returnType;
             Run += CustomFunction_Run;
 
             //正確な変数名の一覧
@@ -758,12 +770,6 @@ namespace AliceScript
 
         private void CustomFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            /*
-            List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
-                // Special case of extracting args.
-                Utils.GetFunctionArgsAsStrings(e.Script) :
-                e.Script.GetFunctionArgs(this);*/
-
             Utils.ExtractParameterNames(e.Args, m_name, e.Script);
 
             if (m_args == null)
@@ -775,6 +781,10 @@ namespace AliceScript
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(e.Args, e.Script);
+            if(m_returnType!=Variable.VarType.VARIABLE && m_returnType != result.Type || (!m_nullable && result.IsNull()))
+            {
+                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.IsNull()?"?":"")}型を返しました",Exceptions.TYPE_MISMATCH, m_parentScript);
+            }
             e.Return = result;
         }
 
@@ -1073,7 +1083,9 @@ namespace AliceScript
         protected string m_body;
         protected object m_tag;
         protected bool m_forceReturn;
+        protected bool m_nullable;
         protected string[] m_args;
+        protected Variable.VarType m_returnType;
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;
         private List<Variable> m_defaultArgs = new List<Variable>();
