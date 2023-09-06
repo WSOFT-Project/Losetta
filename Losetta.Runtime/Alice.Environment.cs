@@ -1,4 +1,6 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Interop;
 
 namespace AliceScript.NameSpaces
 {

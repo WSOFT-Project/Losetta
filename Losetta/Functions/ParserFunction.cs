@@ -1,4 +1,8 @@
-﻿namespace AliceScript
+﻿using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.Functions
 {
     public class ParserFunction
     {
@@ -29,6 +33,12 @@
                 keywords = new HashSet<string>();
             }
 
+            m_impl = CheckGroup(script, item, ch, ref action);
+            if (m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
 
             m_impl = CheckString(script, item, ch);
             if (m_impl != null)
@@ -74,13 +84,30 @@
                 return;
             }
 
+            m_impl = TryCustomFunction(item, script, false, keywords);
+            if (m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
+
             if (m_impl == null)
             {
                 Utils.ProcessErrorMsg(item, script);
             }
-
         }
-
+        public static ParserFunction CheckGroup(ParsingScript script, string item, char ch, ref string action)
+        {
+            if (string.IsNullOrEmpty(item))
+            {
+                string body = script.Prev == Constants.START_GROUP
+                    ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET)
+                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                action = null;
+                return new StatementFunction(body, script);
+            }
+            return null;
+        }
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
             StringOrNumberFunction stringOrNumberFunction = new StringOrNumberFunction();
@@ -120,7 +147,94 @@
 
             return null;
         }
+        public static ParserFunction TryCustomFunction(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
+        {
+            if (script != null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
+            {
+                bool? mode = null;
+                bool isGlobal = keywords.Contains(Constants.PUBLIC);
+                bool isCommand = keywords.Contains(Constants.COMMAND);
+                if (keywords.Contains(Constants.OVERRIDE))
+                {
+                    mode = true;
+                }
+                else if (keywords.Contains(Constants.VIRTUAL))
+                {
+                    mode = false;
+                }
 
+                Variable.VarType type_modifer = Variable.VarType.VARIABLE;
+                bool nullable = false;
+                foreach (string str in keywords)
+                {
+                    string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
+                    nullable = type_str.Length != str.Length;
+                    if (Constants.TYPE_MODIFER.Contains(type_str))
+                    {
+                        type_modifer = Constants.StringToType(str);
+                        break;
+                    }
+                }
+
+                string[] args = Utils.GetFunctionSignature(script);
+                if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
+                {
+                    args = new string[0];
+                }
+                if (script.Current != Constants.START_GROUP)
+                {
+                    return null;
+                }
+
+                script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+                /*string line = */
+                script.GetOriginalLine(out _);
+
+                int parentOffset = script.Pointer;
+
+                if (script.CurrentClass != null)
+                {
+                    parentOffset += script.CurrentClass.ParentOffset;
+                }
+
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+                script.MoveForwardIf(Constants.END_GROUP);
+
+                CustomFunction customFunc = new CustomFunction(name, body, args, script, false, type_modifer, nullable);
+                customFunc.ParentScript = script;
+                customFunc.ParentOffset = parentOffset;
+                if (isCommand)
+                {
+                    customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+                }
+                if (mode != null)
+                {
+                    customFunc.IsVirtual = true;
+                }
+                //ここまでくる=その関数は存在しない=存在チェックは不要
+                FunctionBaseManager.Add(customFunc, name, script, isGlobal);
+                return new StatementFunction(string.Empty, script);
+            }
+            return null;
+        }
+        private static bool FunctionIsVirtual(string name, ParsingScript script)
+        {
+            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            if (s_functions.TryGetValue(name, out impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         private static bool IsQuotedString(string item)
         {
             return item.Length > 1 && ((item[0] == Constants.QUOTE && item[item.Length - 1] == Constants.QUOTE) ||
@@ -149,14 +263,14 @@
             Variable ary = Utils.GetItem(script.GetTempScript(varName));
             int max = ary == null ? 0 : ary.Count;
             int delta = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; }, null, max);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (arr, del) => { arrayName = arr; delta = del; }, null, max);
 
             if (arrayIndices.Count == 0)
             {
                 return null;
             }
 
-            ParserFunction pf = ParserFunction.GetVariable(arrayName, script);
+            ParserFunction pf = GetVariable(arrayName, script);
             GetVarFunction varFunc = pf as GetVarFunction;
             if (varFunc == null)
             {
@@ -206,17 +320,17 @@
 
             string prop = name.Substring(ind + 1);
 
-            ParserFunction pf = ParserFunction.GetFromNamespace(prop, baseName, script);
+            ParserFunction pf = GetFromNamespace(prop, baseName, script);
             if (pf != null)
             {
                 pf.Keywords = keywords;
                 return pf;
             }
 
-            pf = ParserFunction.GetVariable(baseName, script, true);
+            pf = GetVariable(baseName, script, true);
             if (pf == null || !(pf is GetVarFunction))
             {
-                pf = ParserFunction.GetFunction(baseName, script);
+                pf = GetFunction(baseName, script);
                 if (pf == null)
                 {
                     pf = Utils.ExtractArrayElement(baseName, script);
@@ -832,7 +946,7 @@
 
         public static bool IsNumericFunction(string paramName, ParsingScript script = null)
         {
-            ParserFunction function = ParserFunction.GetFunction(paramName, script);
+            ParserFunction function = GetFunction(paramName, script);
             return function is INumericFunction;
         }
 

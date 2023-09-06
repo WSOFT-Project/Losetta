@@ -1,7 +1,7 @@
 ﻿using System.Security;
 using System.Xml;
 
-namespace AliceScript
+namespace AliceScript.Extra
 {
     //The code from WSOFTConfigManager and WebSailing.
     //Allrights reserved WSOFT 2020.

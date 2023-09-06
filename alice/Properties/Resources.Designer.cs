@@ -130,6 +130,8 @@ namespace AliceScript.CLI.Properties {
         /// <summary>
         ///   public using Alice.Shell;
         ///include(&quot;version&quot;);
+        ///print();
+        ///print(&quot;https://a.wsoft.ws/alice&quot;);
         ///print(); に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string shell {

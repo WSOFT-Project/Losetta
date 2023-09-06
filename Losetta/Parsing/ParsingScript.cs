@@ -1,7 +1,11 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Packaging;
 using System.Text;
 
-namespace AliceScript
+namespace AliceScript.Parsing
 {
     public class ParsingScript
     {
@@ -30,7 +34,7 @@ namespace AliceScript
         /// </summary>
         /// <param name="script">呼び出し元のスクリプト</param>
         /// <returns>最上位のスクリプト</returns>
-        public static ParsingScript GetTopLevelScript(ParsingScript script)
+        public static ParsingScript GetTopLevelScript(ParsingScript script = null)
         {
             if (m_toplevel_script.ParentScript != null)
             {
@@ -103,15 +107,15 @@ namespace AliceScript
                 }
                 if (Function is BindFunction)
                 {
-                    sb.Append("bind ");
+                    sb.Append(".bind ");
                 }
                 if (Function is CustomFunction)
                 {
-                    sb.Append("custom ");
+                    sb.Append(".custom ");
                 }
                 else if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
                 {
-                    sb.Append("keyword ");
+                    sb.Append(".structure ");
                 }
                 sb.Append(Constants.FUNCTION);
                 sb.Append(Constants.SPACE);
@@ -232,15 +236,6 @@ namespace AliceScript
         /// </summary>
         public event ThrowErrorEventhandler ThrowError;
 
-        /// <summary>
-        /// 他のスクリプトに対してこのスクリプトの例外処理情報を引き継ぎます
-        /// </summary>
-        /// <param name="other">引き継ぐ対象のスクリプト</param>
-        internal void CloneThrowTryInfo(ParsingScript other)
-        {
-            other.InTryBlock = InTryBlock;
-            other.ThrowError = ThrowError;
-        }
 
         public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
         public char Current => m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
@@ -525,7 +520,6 @@ namespace AliceScript
         public bool ProcessingList { get; set; }
 
         public bool DisableBreakpoints;
-        public bool InTryBlock;
         public string MainFilename;
 
         public ParsingScript ParentScript
@@ -533,7 +527,6 @@ namespace AliceScript
             get => m_parentScript;
             set => m_parentScript = value;
         }
-
         public AliceScriptClass CurrentClass { get; set; }
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
 
@@ -561,7 +554,6 @@ namespace AliceScript
             CurrentClass = other.CurrentClass;
             ClassInstance = other.ClassInstance;
             ScriptOffset = other.ScriptOffset;
-            InTryBlock = other.InTryBlock;
             AllLabels = other.AllLabels;
             LabelToFile = other.LabelToFile;
             FunctionName = other.FunctionName;
@@ -938,46 +930,39 @@ namespace AliceScript
             Variable result = null;
 
 
-            if (InTryBlock)
+#if !DEBUG_THROW
+            try
+#endif
             {
                 result = Parser.AliceScript(this, toArray);
             }
-            else
+#if !DEBUG_THROW
+            catch (ScriptException scriptExc)
             {
-#if !DEBUG_THROW
-                try
-#endif
-                {
-                    result = Parser.AliceScript(this, toArray);
-                }
-#if !DEBUG_THROW
-                catch (ScriptException scriptExc)
-                {
-                    OnThrowError(scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script, scriptExc.Exception);
-                }
-                catch (ParsingException parseExc)
-                {
-                    OnThrowError(parseExc.Message, Exceptions.COULDNT_PARSE, parseExc.Source, parseExc.HelpLink, this, parseExc);
-                }
-                catch (FileNotFoundException fileNotFoundExc)
-                {
-                    OnThrowError("ファイル" + (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ") + "が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source, fileNotFoundExc.HelpLink);
-                }
-                catch (IndexOutOfRangeException indexOutOfRangeExc)
-                {
-                    OnThrowError("インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
-                }
-                catch (Exception otherExc)
-                {
-                    OnThrowError(otherExc.Message, Exceptions.NONE, otherExc.Source, otherExc.HelpLink);
-                }
+                OnThrowError(scriptExc, scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script, scriptExc.Exception);
+            }
+            catch (ParsingException parseExc)
+            {
+                OnThrowError(parseExc, parseExc.Message, Exceptions.COULDNT_PARSE, parseExc.Source, parseExc.HelpLink, this, parseExc);
+            }
+            catch (FileNotFoundException fileNotFoundExc)
+            {
+                OnThrowError(fileNotFoundExc, "ファイル" + (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ") + "が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source, fileNotFoundExc.HelpLink);
+            }
+            catch (IndexOutOfRangeException indexOutOfRangeExc)
+            {
+                OnThrowError(indexOutOfRangeExc, "インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
+            }
+            catch (Exception otherExc)
+            {
+                OnThrowError(otherExc, otherExc.Message, Exceptions.NONE, otherExc.Source, otherExc.HelpLink);
+            }
 
 #endif
-            }
             return result;
 
         }
-        private void OnThrowError(string message, Exceptions errorCode, string source, string helpLink = null, ParsingScript script = null, ParsingException parsingException = null)
+        private void OnThrowError(Exception exc, string message, Exceptions errorCode, string source, string helpLink = null, ParsingScript script = null, ParsingException parsingException = null)
         {
             var ex = new ThrowErrorEventArgs();
             ex.Message = message;
@@ -997,7 +982,16 @@ namespace AliceScript
             ex.Script.OnThrowError(ex.Script, ex);
             if (!ex.Handled)
             {
-                ThrowErrorManager.OnThrowError(ex.Script, ex);
+                //続行されなかった場合は再スロー
+                if (ParentScript != null)
+                {
+                    //throw exc;
+                    ParentScript.OnThrowError(exc, message, errorCode, source, helpLink, script, parsingException);
+                }
+                else
+                {
+                    ThrowErrorManager.OnThrowError(ex.Script, ex);
+                }
             }
         }
 
@@ -1014,44 +1008,37 @@ namespace AliceScript
             Variable result = null;
 
 
-            if (InTryBlock)
+            result = await Parser.AliceScriptAsync(this, toArray);
+            try
             {
                 result = await Parser.AliceScriptAsync(this, toArray);
             }
-            else
+            catch (Exception e)
             {
-                try
-                {
-                    result = await Parser.AliceScriptAsync(this, toArray);
-                }
-                catch (Exception e)
-                {
-                    ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
-                    ex.Message = e.Message;
-                    ex.Script = this;
+                ThrowErrorEventArgs ex = new ThrowErrorEventArgs();
+                ex.Message = e.Message;
+                ex.Script = this;
 
-                    if (e is ScriptException scriptExc)
+                if (e is ScriptException scriptExc)
+                {
+                    ex.ErrorCode = scriptExc.ErrorCode;
+                    ex.Exception = scriptExc.Exception;
+                    if (scriptExc.Script != null)
                     {
-                        ex.ErrorCode = scriptExc.ErrorCode;
-                        ex.Exception = scriptExc.Exception;
-                        if (scriptExc.Script != null)
-                        {
-                            ex.Script = scriptExc.Script;
-                        }
+                        ex.Script = scriptExc.Script;
                     }
-                    else if (e is ParsingException parseExc)
-                    {
-                        ex.ErrorCode = Exceptions.COULDNT_PARSE;
-                        ex.Exception = parseExc;
-                    }
-                    ex.Script.OnThrowError(ex.Script, ex);
-                    if (ex.Handled)
-                    {
-                        return result;
-                    }
-                    if (InTryBlock) { return result; }
-                    ThrowError?.Invoke(ex.Script, ex);
                 }
+                else if (e is ParsingException parseExc)
+                {
+                    ex.ErrorCode = Exceptions.COULDNT_PARSE;
+                    ex.Exception = parseExc;
+                }
+                ex.Script.OnThrowError(ex.Script, ex);
+                if (ex.Handled)
+                {
+                    return result;
+                }
+                ThrowError?.Invoke(ex.Script, ex);
             }
             return result;
         }
@@ -1076,6 +1063,10 @@ namespace AliceScript
             while (Pointer < m_data.Length)
             {
                 result = Execute();
+                if (result == null)
+                {
+                    result = Variable.EmptyInstance;
+                }
                 if (checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
                 {
                     return result;
@@ -1162,19 +1153,21 @@ namespace AliceScript
         }
         public void SkipRestBlocks()
         {
+            ParsingScript nextData = new ParsingScript(this);
+            nextData.Forward();
             while (StillValid())
             {
-                int endOfToken = Pointer;
-                ParsingScript nextData = new ParsingScript(this);
+                int endOfToken = nextData.Pointer;
                 string nextToken = Utils.GetNextToken(nextData);
                 if (Constants.ELSE_IF != nextToken &&
                     Constants.ELSE != nextToken)
                 {
+                    Pointer = endOfToken;
                     return;
                 }
-                Pointer = nextData.Pointer;
-                SkipBlock();
+                nextData.SkipBlock();
             }
+            Pointer = nextData.Pointer;
         }
         /// <summary>
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
@@ -1198,7 +1191,6 @@ namespace AliceScript
             tempScript.ParentScript = this;
             tempScript.Char2Line = Char2Line;
             tempScript.OriginalScript = OriginalScript;
-            tempScript.InTryBlock = InTryBlock;
             tempScript.StackLevel = StackLevel;
             tempScript.AllLabels = AllLabels;
             tempScript.LabelToFile = LabelToFile;
@@ -1207,7 +1199,7 @@ namespace AliceScript
             tempScript.Package = Package;
             tempScript.Generation = Generation + 1;
             tempScript.ThrowError = ThrowError;
-            tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
+            tempScript.m_stacktrace = new List<StackInfo>(m_stacktrace);
             if (callFrom != null)
             {
                 tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
@@ -1231,11 +1223,10 @@ namespace AliceScript
                 tempScript.Filename = pathname;
                 tempScript.OriginalScript = includeFile.Replace(Environment.NewLine, Constants.END_LINE.ToString());
                 tempScript.ParentScript = this;
-                tempScript.InTryBlock = InTryBlock;
                 tempScript.Tag = Tag;
                 tempScript.Generation = Generation + 1;
                 tempScript.ThrowError = ThrowError;
-                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
+                tempScript.m_stacktrace = new List<StackInfo>(m_stacktrace);
 
 
                 if (callFrom != null)

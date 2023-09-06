@@ -1,6 +1,10 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using AliceScript.Extra;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
 
 namespace AliceScript
 {
@@ -133,7 +137,6 @@ namespace AliceScript
                 tempScript.OriginalScript = parentScript.OriginalScript;
             }
             tempScript.ParentScript = script;
-            tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
             if (script != null)
@@ -308,28 +311,6 @@ namespace AliceScript
 
         }
 
-        public static string ConvertUnicodeLiteral(string input)
-        {
-            if (input.Contains("\\"))
-            {
-                //UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
-                }
-                //可変長UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_VARIABLE_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
-                }
-                //UTF-32文字コードの置き換え
-                foreach (Match match in Constants.UTF32_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
-                }
-            }
-            return input;
-        }
         private static string ConvertUnicodeToChar(string charCode, bool mode = true)
         {
             if (mode)

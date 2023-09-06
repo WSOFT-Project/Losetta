@@ -2,22 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-	  <!-- ネイティブAOT向けの項目 -->
-	  <PublishAot>true</PublishAot>
-	  <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-	  <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
-	  <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
-	  <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
-	  <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
-	  <IlcDisableUnhandledExceptionExperience>false</IlcDisableUnhandledExceptionExperience>
-	  <!-- ネイティブAOT向けの項目(終わり) -->
-	  
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-	  <Version>0.9.24</Version>
+	  <Version>0.9.23</Version>
 	  <Title>Losetta.CLI</Title>
 	  <Authors>WSOFT</Authors>
 	  <Company>WSOFT</Company>
@@ -36,7 +26,7 @@
 	  <RootNamespace>AliceScript.CLI</RootNamespace>
 	  <RepositoryType>git</RepositoryType>
 	  <PackageTags>scripting;scripting-language;scripting-engine;cli;repl;</PackageTags>
-	  <PackageOutputPath>bin\packages</PackageOutputPath>
+	  <PackageOutputPath>\bin\package\alice</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -302,11 +292,6 @@
   <ItemGroup>
     <Content Include="alice_logo.ico" />
   </ItemGroup>
-	<!-- ネイティブAOT向けの項目 -->
-	<ItemGroup>
-		<RdXmlFile Include="rd.xml" />
-	</ItemGroup>
-	<!-- ネイティブAOT向けの項目(終わり) -->
 
   <ItemGroup>
     <None Include="..\..\..\WSOFT_Documents\Alice\alice_logo.png">

@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+using System.Text;
 
 namespace AliceScript.NameSpaces
 {
@@ -125,22 +128,6 @@ namespace AliceScript.NameSpaces
             FunctionBaseManager.Add(new DelegateCreator());
             FunctionBaseManager.Add(new LockFunction());
 
-        }
-    }
-    internal class PowFunc : FunctionBase
-    {
-        public PowFunc()
-        {
-            Name = "Pow";
-            MinimumArgCounts = 1;
-            MaximumArgCounts = 1;
-            Run += PowFunc_Run;
-        }
-
-        private void PowFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            int x = Utils.GetSafeInt(e.Args, 0);
-            e.Return = new Variable(x * x);
         }
     }
     internal sealed class ReturnStatement : FunctionBase

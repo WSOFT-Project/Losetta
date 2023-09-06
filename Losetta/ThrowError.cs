@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using AliceScript.Parsing;
+
+namespace AliceScript
 {
     public class ThrowErrorEventArgs : EventArgs
     {
@@ -24,8 +26,7 @@
             ThrowError?.Invoke(sender, e);
             if (!e.Handled)
             {
-                //続行されなかった場合はそこで終了
-                Alice.OnExiting(255);
+                Alice.OnExiting(256);
             }
         }
     }
@@ -42,7 +43,5 @@
         public ParsingException Exception { get; set; }
         public Exceptions ErrorCode { get; set; }
         public bool Handled { get; set; }
-
-
     }
 }
