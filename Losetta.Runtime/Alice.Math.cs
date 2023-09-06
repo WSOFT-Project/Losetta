@@ -1,4 +1,6 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Interop;
 
 namespace AliceScript.NameSpaces
 {
@@ -50,7 +52,7 @@ namespace AliceScript.NameSpaces
         private bool Mode { get; set; }
     }
 
-    [AliceScript.Interop.AliceNameSpace(Name = "Alice.Math")]
+    [AliceNameSpace(Name = "Alice.Math")]
     internal static class MathFunctions
     {
         public static double Math_Round(double x)

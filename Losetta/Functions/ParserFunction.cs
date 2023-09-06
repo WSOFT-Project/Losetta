@@ -1,4 +1,8 @@
-﻿namespace AliceScript
+﻿using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.Functions
 {
     public class ParserFunction
     {
@@ -209,7 +213,7 @@
                 }
                 //ここまでくる=その関数は存在しない=存在チェックは不要
                 FunctionBaseManager.Add(customFunc, name, script, isGlobal);
-                return new StatementFunction(string.Empty,script);
+                return new StatementFunction(string.Empty, script);
             }
             return null;
         }
@@ -259,14 +263,14 @@
             Variable ary = Utils.GetItem(script.GetTempScript(varName));
             int max = ary == null ? 0 : ary.Count;
             int delta = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; }, null, max);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (arr, del) => { arrayName = arr; delta = del; }, null, max);
 
             if (arrayIndices.Count == 0)
             {
                 return null;
             }
 
-            ParserFunction pf = ParserFunction.GetVariable(arrayName, script);
+            ParserFunction pf = GetVariable(arrayName, script);
             GetVarFunction varFunc = pf as GetVarFunction;
             if (varFunc == null)
             {
@@ -316,17 +320,17 @@
 
             string prop = name.Substring(ind + 1);
 
-            ParserFunction pf = ParserFunction.GetFromNamespace(prop, baseName, script);
+            ParserFunction pf = GetFromNamespace(prop, baseName, script);
             if (pf != null)
             {
                 pf.Keywords = keywords;
                 return pf;
             }
 
-            pf = ParserFunction.GetVariable(baseName, script, true);
+            pf = GetVariable(baseName, script, true);
             if (pf == null || !(pf is GetVarFunction))
             {
-                pf = ParserFunction.GetFunction(baseName, script);
+                pf = GetFunction(baseName, script);
                 if (pf == null)
                 {
                     pf = Utils.ExtractArrayElement(baseName, script);
@@ -942,7 +946,7 @@
 
         public static bool IsNumericFunction(string paramName, ParsingScript script = null)
         {
-            ParserFunction function = ParserFunction.GetFunction(paramName, script);
+            ParserFunction function = GetFunction(paramName, script);
             return function is INumericFunction;
         }
 

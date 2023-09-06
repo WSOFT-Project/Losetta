@@ -1,7 +1,9 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.NameSpaces
 {
-
-
     internal sealed class NewObjectFunction : FunctionBase
     {
         public NewObjectFunction()

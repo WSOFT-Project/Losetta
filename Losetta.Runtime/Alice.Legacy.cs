@@ -1,4 +1,6 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Legacy
     {

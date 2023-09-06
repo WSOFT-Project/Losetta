@@ -1,4 +1,7 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Extra;
+using AliceScript.Functions;
+using AliceScript.Interop;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;

@@ -1,4 +1,9 @@
-﻿using System.Text;
+﻿using AliceScript.Extra;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -688,8 +693,12 @@ namespace AliceScript
             bool inPragmaArgs = false;
             bool inIf = false;
             bool If = false;
+
+            //文字列リテラルなど、クオーテーションの内部
             bool inQuotes = false;
+            //シングルクオーテーション
             bool inQuotes1 = false;
+            //ダブルクオーテーション
             bool inQuotes2 = false;
             bool spaceOK = false;
             bool inComments = false;
@@ -708,8 +717,6 @@ namespace AliceScript
 
             int lastScriptLength = 0;
 
-            bool precompiledPart = false;
-            int precompiledCounter = 0;
             StringBuilder lastToken = new StringBuilder();
 
             // Remove these two lines for quality time debugging in case the user has special
@@ -748,7 +755,6 @@ namespace AliceScript
                         {
                             inComments = simpleComments = false;
                         }
-                        spaceOK = precompiledPart;
                         lastToken.Clear();
                         continue;
                     }
@@ -876,7 +882,6 @@ namespace AliceScript
                                 lineNumberCurly = lineNumber;
                             }
                             levelCurly++;
-                            precompiledCounter = precompiledPart ? precompiledCounter + 1 : 0;
                         }
                         break;
                     case Constants.END_GROUP:
@@ -887,11 +892,6 @@ namespace AliceScript
                             if (levelCurly < 0)
                             {
                                 ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
-                            }
-                            if (precompiledPart && --precompiledCounter <= 0)
-                            {
-                                precompiledPart = false;
-                                precompiledCounter = 0;
                             }
                         }
                         break;
@@ -934,8 +934,7 @@ namespace AliceScript
                     sb.Append(ch);
                     lastToken.Append(ch);
                 }
-
-                if (inPragmaCommand)
+                else if (inPragmaCommand)
                 {
                     pragmaCommand.Append(ch);
                 }
@@ -1087,7 +1086,32 @@ namespace AliceScript
                     ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
                 }
             }
-            return sb.ToString().Trim();
+
+
+            return ConvertUnicodeLiteral(sb.ToString().Trim());
+        }
+
+        private static string ConvertUnicodeLiteral(string input)
+        {
+            if (input.Contains("\\", StringComparison.Ordinal) && (input.Contains("u", StringComparison.OrdinalIgnoreCase) || input.Contains("x", StringComparison.Ordinal)))
+            {
+                //UTF-16文字コードの置き換え
+                foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
+                {
+                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
+                }
+                //可変長UTF-16文字コードの置き換え
+                foreach (Match match in Constants.UTF16_VARIABLE_LITERAL.Matches(input))
+                {
+                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
+                }
+                //UTF-32文字コードの置き換え
+                foreach (Match match in Constants.UTF32_LITERAL.Matches(input))
+                {
+                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
+                }
+            }
+            return input;
         }
         private static bool? ConvertBool(string str)
         {

@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using AliceScript.Functions;
+using AliceScript.Parsing;
+
+namespace AliceScript.Objects
 {
     public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
@@ -81,7 +84,7 @@
             //継承先によって定義されます
             throw new NotImplementedException();
         }
-        public virtual int CompareTo(object? other)
+        public virtual int CompareTo(object other)
         {
             return 0;
         }

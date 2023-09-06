@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using AliceScript.Extra;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+using System.Text;
 
 namespace AliceScript
 {
@@ -85,10 +89,6 @@ namespace AliceScript
 
             if (Functions.ContainsKey(sPropertyName))
             {
-                //issue#1「ObjectBase内の関数で引数が認識されない」に対する対処
-                //原因:先に値検出関数にポインタが移動されているため正常に引数が認識できていない
-                //対処:値検出関数で拾った引数のリストをバックアップし、関数で使用する
-                //ただしこれは、根本的な解決にはなっていない可能性がある
                 GETTING = true;
 
                 Task<Variable> va = Task.FromResult(Functions[sPropertyName].GetValue(script));
@@ -106,7 +106,6 @@ namespace AliceScript
         {
 
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
-
 
             return Task.FromResult(Variable.EmptyInstance);
         }
@@ -301,7 +300,7 @@ namespace AliceScript
                 AssignNull();
                 return;
             }
-            else if (TypeChecked && !IsNull() && m_type != v.Type)
+            else if (TypeChecked && m_type != v.Type)
             {
                 throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
             }
@@ -727,7 +726,7 @@ namespace AliceScript
             }
             if (obj is Variable item)
             {
-                if(item.Type == VarType.NONE)
+                if (item.Type == VarType.NONE)
                 {
                     return IsNull();
                 }
@@ -857,6 +856,10 @@ namespace AliceScript
         }
         public object ConvertTo(Type type)
         {
+            if (type == typeof(Variable))
+            {
+                return this;
+            }
             if (type == typeof(string))
             {
                 return AsString();
@@ -885,15 +888,11 @@ namespace AliceScript
             {
                 return AsLong();
             }
-            if (type == typeof(bool?))
-            {
-                return Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_bool;
-            }
-            if (type == typeof(double?))
-            {
-                return Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value;
-            }
-            return type == typeof(float?)
+            return type == typeof(bool?)
+                ? Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_bool
+                : type == typeof(double?)
+                ? Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value
+                : type == typeof(float?)
                 ? (float?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
                 : type == typeof(int?)
                 ? (int?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)

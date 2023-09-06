@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using AliceScript.Functions;
+using AliceScript.Parsing;
 
 namespace AliceScript.CLI
 {

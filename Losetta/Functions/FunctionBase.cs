@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.Functions
 {
     public class FunctionBase : ParserFunction
     {

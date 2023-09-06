@@ -1,7 +1,11 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Packaging;
 using System.Text;
 
-namespace AliceScript
+namespace AliceScript.Parsing
 {
     public class ParsingScript
     {
@@ -103,15 +107,15 @@ namespace AliceScript
                 }
                 if (Function is BindFunction)
                 {
-                    sb.Append("bind ");
+                    sb.Append(".bind ");
                 }
                 if (Function is CustomFunction)
                 {
-                    sb.Append("custom ");
+                    sb.Append(".custom ");
                 }
                 else if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
                 {
-                    sb.Append("keyword ");
+                    sb.Append(".structure ");
                 }
                 sb.Append(Constants.FUNCTION);
                 sb.Append(Constants.SPACE);
@@ -1195,7 +1199,7 @@ namespace AliceScript
             tempScript.Package = Package;
             tempScript.Generation = Generation + 1;
             tempScript.ThrowError = ThrowError;
-            tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
+            tempScript.m_stacktrace = new List<StackInfo>(m_stacktrace);
             if (callFrom != null)
             {
                 tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
@@ -1222,7 +1226,7 @@ namespace AliceScript
                 tempScript.Tag = Tag;
                 tempScript.Generation = Generation + 1;
                 tempScript.ThrowError = ThrowError;
-                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(m_stacktrace);
+                tempScript.m_stacktrace = new List<StackInfo>(m_stacktrace);
 
 
                 if (callFrom != null)

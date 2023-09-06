@@ -1,6 +1,8 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Objects;
 
-namespace AliceScript
+namespace AliceScript.NameSpaces
 {
 
     public static class NameSpaceManager

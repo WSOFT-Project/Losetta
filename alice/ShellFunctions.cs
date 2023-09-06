@@ -1,4 +1,8 @@
-﻿namespace AliceScript.CLI
+﻿using AliceScript.Functions;
+using AliceScript.NameSpaces;
+using AliceScript.Packaging;
+
+namespace AliceScript.CLI
 {
     internal class ShellFunctions
     {

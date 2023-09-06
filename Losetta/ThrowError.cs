@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using AliceScript.Parsing;
+
+namespace AliceScript
 {
     public class ThrowErrorEventArgs : EventArgs
     {
@@ -41,7 +43,5 @@
         public ParsingException Exception { get; set; }
         public Exceptions ErrorCode { get; set; }
         public bool Handled { get; set; }
-
-
     }
 }

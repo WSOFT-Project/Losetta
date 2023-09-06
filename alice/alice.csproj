@@ -7,7 +7,7 @@
     <Nullable>disable</Nullable>
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-	  <Version>0.9.23</Version>
+	  <Version>0.9.24</Version>
 	  <Title>Losetta.CLI</Title>
 	  <Authors>WSOFT</Authors>
 	  <Company>WSOFT</Company>
