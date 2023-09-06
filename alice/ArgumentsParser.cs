@@ -22,6 +22,10 @@ namespace AliceScript.CLI
             foreach (string arg in args)
             {
                 var argl = arg.ToLower();
+                if(argl=="-h" || argl=="-help" || argl == "?")
+                {
+                    NeedHelp = true;
+                }
                 if (argl == "--arg" || argl == "--args")
                 {
                     aarg = true;
@@ -99,6 +103,7 @@ namespace AliceScript.CLI
             get => m_files;
             set => m_files = value;
         }
+        public bool NeedHelp { get; set; }
         public string Script { get; set; }
     }
 }

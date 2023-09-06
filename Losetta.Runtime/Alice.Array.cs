@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using AliceScript.Functions;
+using AliceScript.Objects;
+
+namespace AliceScript
 {
     internal sealed class list_addFunc : FunctionBase
     {

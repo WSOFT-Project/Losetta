@@ -1,3 +1,5 @@
 public using Alice.Shell;
 include("version");
 print();
+print("https://a.wsoft.ws/alice");
+print();

@@ -1,4 +1,8 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Threading
     {
@@ -14,7 +18,7 @@
                 space.Add(new SignalWaitFunction(false));
                 space.Add(new task_runFunc());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

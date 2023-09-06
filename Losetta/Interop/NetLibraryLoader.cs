@@ -53,31 +53,4 @@
 
         private static List<int> Loadeds = new List<int>();
     }
-    public interface ILibrary
-    {
-        string Name { get; }
-        void Main();
-    }
-
-    /// <summary>
-    /// ネイティブプラグインの基礎です。このクラスを継承してネイティブプラグインを作成します。
-    /// </summary>
-    public class LibraryBase : ILibrary
-    {
-        public virtual void Main()
-        {
-
-        }
-
-        public string Name { get; set; }
-
-    }
-    [System.AttributeUsage(System.AttributeTargets.Class)]
-    public class ScriptClass : System.Attribute
-    {
-        public ScriptClass()
-        {
-
-        }
-    }
 }

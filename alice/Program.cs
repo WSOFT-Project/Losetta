@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Text;
+using AliceScript.Packaging;
 
 namespace AliceScript.CLI
 {
@@ -11,10 +12,13 @@ namespace AliceScript.CLI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-
-
             ParsedArguments pa = new ParsedArguments(args);
-            AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
+            AliceScript.Runtime.Args = pa.Args;
+            if (pa.NeedHelp)
+            {
+                ShowHelp();
+                return;
+            }
             CreateAliceDirectory(false);
             if (pa.Values.ContainsKey("print"))
             {
@@ -38,7 +42,7 @@ namespace AliceScript.CLI
                     throw_redirect_files.Add(pa.Values["throw"]);
                 }
             }
-            if (pa.Values.TryGetValue("runtime", out string v) && v.ToLower() == "disable")
+            if (pa.Values.TryGetValue("runtime", out string v) && v.ToLower() == "nano")
             {
                 //最小モードで初期化
                 Runtime.InitBasicAPI();
@@ -51,8 +55,14 @@ namespace AliceScript.CLI
             //ShellFunctions登録
             ShellFunctions.Init();
 
+            //例外出力
+            ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;
+            //デバッグモードのフラグ
+            if (pa.Flags.Contains("d"))
+            {
+                Program.IsDebugMode = true;
+            }
 
-            ThrowErrorManerger.ThrowError += Shell.ThrowErrorManerger_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
@@ -125,7 +135,6 @@ namespace AliceScript.CLI
             }
             else
             {
-                ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }
@@ -165,6 +174,26 @@ namespace AliceScript.CLI
             }
             string fpath = Path.Combine(AppContext.BaseDirectory, ".alice", path);
             return File.Exists(fpath) ? fpath : path;
+        }
+        internal static void ShowHelp()
+        {
+            Console.WriteLine("AliceScript言語で記述されたプログラムを実行します。");
+            Console.WriteLine();
+            Console.WriteLine("使用法：alice [ファイル名] [オプション] [-e 式] [--args パラメータ]");
+            Console.WriteLine();
+            Console.WriteLine("  [ファイル名]           ファイルを実行");
+            Console.WriteLine();
+            Console.WriteLine("  -d                     デバッグモードを有効化");
+            Console.WriteLine("  -print=off             標準出力を無効化");
+            Console.WriteLine("  -throw=off             例外のハンドルを無効化");
+            Console.WriteLine("  -runtime=nano          ランタイムを最小モードで初期化");
+            Console.WriteLine("  -run                   ファイルをスクリプトとして実行");
+            Console.WriteLine("  -run -mainfile         ファイルをスクリプトとしてメインファイルで実行");
+            Console.WriteLine();
+            Console.WriteLine("  -e,-execute,-evaluate  後続の式を評価");
+            Console.WriteLine("  --arg,--args           後続の引数をすべてAliceScriptで使う");
+            Console.WriteLine();
+            Console.WriteLine("AliceScriptについて詳しく知るには、https://docs.wsoft.ws/products/alice を参照してください。");
         }
         internal static void CreateAliceDirectory(bool force)
         {

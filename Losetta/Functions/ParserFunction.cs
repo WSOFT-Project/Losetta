@@ -1,4 +1,8 @@
-﻿namespace AliceScript
+﻿using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.Functions
 {
     public class ParserFunction
     {
@@ -29,6 +33,12 @@
                 keywords = new HashSet<string>();
             }
 
+            m_impl = CheckGroup(script, item, ch, ref action);
+            if (m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
 
             m_impl = CheckString(script, item, ch);
             if (m_impl != null)
@@ -74,13 +84,30 @@
                 return;
             }
 
+            m_impl = TryCustomFunction(item, script, false, keywords);
+            if (m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
+
             if (m_impl == null)
             {
                 Utils.ProcessErrorMsg(item, script);
             }
-
         }
-
+        public static ParserFunction CheckGroup(ParsingScript script, string item, char ch, ref string action)
+        {
+            if (string.IsNullOrEmpty(item))
+            {
+                string body = script.Prev == Constants.START_GROUP
+                    ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET)
+                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                action = null;
+                return new StatementFunction(body, script);
+            }
+            return null;
+        }
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
             StringOrNumberFunction stringOrNumberFunction = new StringOrNumberFunction();
@@ -92,9 +119,9 @@
                 return stringOrNumberFunction;
             }
 
-            if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL, StringComparison.Ordinal))
+            if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL_PREFIX, StringComparison.Ordinal))
             {
-                item = item.Substring(Constants.UTF8_LITERAL.Length);
+                item = item.Substring(Constants.UTF8_LITERAL_PREFIX.Length);
                 stringOrNumberFunction.DetectionUTF8_Literal = true;
             }
 
@@ -120,7 +147,94 @@
 
             return null;
         }
+        public static ParserFunction TryCustomFunction(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
+        {
+            if (script != null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
+            {
+                bool? mode = null;
+                bool isGlobal = keywords.Contains(Constants.PUBLIC);
+                bool isCommand = keywords.Contains(Constants.COMMAND);
+                if (keywords.Contains(Constants.OVERRIDE))
+                {
+                    mode = true;
+                }
+                else if (keywords.Contains(Constants.VIRTUAL))
+                {
+                    mode = false;
+                }
 
+                Variable.VarType type_modifer = Variable.VarType.VARIABLE;
+                bool nullable = false;
+                foreach (string str in keywords)
+                {
+                    string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
+                    nullable = type_str.Length != str.Length;
+                    if (Constants.TYPE_MODIFER.Contains(type_str))
+                    {
+                        type_modifer = Constants.StringToType(str);
+                        break;
+                    }
+                }
+
+                string[] args = Utils.GetFunctionSignature(script);
+                if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
+                {
+                    args = new string[0];
+                }
+                if (script.Current != Constants.START_GROUP)
+                {
+                    return null;
+                }
+
+                script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+                /*string line = */
+                script.GetOriginalLine(out _);
+
+                int parentOffset = script.Pointer;
+
+                if (script.CurrentClass != null)
+                {
+                    parentOffset += script.CurrentClass.ParentOffset;
+                }
+
+                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+                script.MoveForwardIf(Constants.END_GROUP);
+
+                CustomFunction customFunc = new CustomFunction(name, body, args, script, false, type_modifer, nullable);
+                customFunc.ParentScript = script;
+                customFunc.ParentOffset = parentOffset;
+                if (isCommand)
+                {
+                    customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+                }
+                if (mode != null)
+                {
+                    customFunc.IsVirtual = true;
+                }
+                //ここまでくる=その関数は存在しない=存在チェックは不要
+                FunctionBaseManager.Add(customFunc, name, script, isGlobal);
+                return new StatementFunction(string.Empty, script);
+            }
+            return null;
+        }
+        private static bool FunctionIsVirtual(string name, ParsingScript script)
+        {
+            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            if (s_functions.TryGetValue(name, out impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         private static bool IsQuotedString(string item)
         {
             return item.Length > 1 && ((item[0] == Constants.QUOTE && item[item.Length - 1] == Constants.QUOTE) ||
@@ -149,14 +263,14 @@
             Variable ary = Utils.GetItem(script.GetTempScript(varName));
             int max = ary == null ? 0 : ary.Count;
             int delta = 0;
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (string arr, int del) => { arrayName = arr; delta = del; }, null, max);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (arr, del) => { arrayName = arr; delta = del; }, null, max);
 
             if (arrayIndices.Count == 0)
             {
                 return null;
             }
 
-            ParserFunction pf = ParserFunction.GetVariable(arrayName, script);
+            ParserFunction pf = GetVariable(arrayName, script);
             GetVarFunction varFunc = pf as GetVarFunction;
             if (varFunc == null)
             {
@@ -206,17 +320,17 @@
 
             string prop = name.Substring(ind + 1);
 
-            ParserFunction pf = ParserFunction.GetFromNamespace(prop, baseName, script);
+            ParserFunction pf = GetFromNamespace(prop, baseName, script);
             if (pf != null)
             {
                 pf.Keywords = keywords;
                 return pf;
             }
 
-            pf = ParserFunction.GetVariable(baseName, script, true);
+            pf = GetVariable(baseName, script, true);
             if (pf == null || !(pf is GetVarFunction))
             {
-                pf = ParserFunction.GetFunction(baseName, script);
+                pf = GetFunction(baseName, script);
                 if (pf == null)
                 {
                     pf = Utils.ExtractArrayElement(baseName, script);
@@ -424,8 +538,17 @@
             name = Constants.ConvertName(name);
             if (script.TryGetFunction(name, out ParserFunction impl) || s_functions.TryGetValue(name, out impl))
             {
-                //それがデリゲートならデリゲートを返す
-                return toDelegate && impl is CustomFunction cf ? new GetVarFunction(new Variable(cf)) : impl.NewInstance();
+                if (toDelegate && impl is CustomFunction cf)
+                {
+                    //デリゲートとして返したい場合
+                    var f = new Variable(cf);
+                    f.Readonly = f.TypeChecked = true;
+                    return new GetVarFunction(f);
+                }
+                else
+                {
+                    return impl.NewInstance();
+                }
             }
             if (script.TryGetVariable(name, out impl) || s_variables.TryGetValue(name, out impl))
             {
@@ -447,7 +570,7 @@
             {
                 string namespacename = string.Empty;
 
-                foreach (var ns in NameSpaceManerger.NameSpaces)
+                foreach (var ns in NameSpaceManager.NameSpaces)
                 {
                     var nsn = ns.Key.ToLower();
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
@@ -460,12 +583,12 @@
                 //完全修飾名で関数を検索
                 if (namespacename != string.Empty)
                 {
-                    fc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    fc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (fc != null)
                     {
                         return fc;
                     }
-                    var cc = NameSpaceManerger.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    var cc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cc != null)
                     {
                         return new GetVarFunction(new Variable(new TypeObject(cc)));
@@ -517,10 +640,10 @@
         }
 
         public static void AddGlobalOrLocalVariable(string name, GetVarFunction function,
-            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null)
+            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null, bool isReadOnly = false, bool fromAssign = false)
         {
             name = Constants.ConvertName(name);
-            Utils.CheckLegalName(name);
+            Utils.CheckLegalName(name, fromAssign);
 
 
             function.Name = Constants.GetRealName(name);
@@ -528,12 +651,75 @@
 
             if (globalOnly)
             {
-                AddLocalVariable(function, ParsingScript.GetTopLevelScript(script), "", true, registVar, type_modifer);
+                script = ParsingScript.GetTopLevelScript(script);
             }
-            else
+
+            bool type_inference = script.TypeInference;
+            NormalizeValue(function);
+            function.m_isGlobal = false;
+            name = Constants.ConvertName(function.Name);
+
+            function.Name = Constants.GetRealName(name);
+            if (function is GetVarFunction)
             {
-                AddLocalVariable(function, script, "", true, registVar, type_modifer);
+                function.Value.ParamName = function.Name;
             }
+            bool exists = FunctionExists(name, script, out var func);
+            bool unneed = script.UnneedVarKeyword;
+
+            if (exists && registVar)
+            {
+                throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
+            }
+            else if (!exists && !registVar && !unneed && !string.IsNullOrEmpty(name))
+            {
+                throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
+            }
+            if (func != null && func is GetVarFunction v)
+            {
+                //代入の場合
+                if (v.Value.Parent == null)
+                {
+                    v.Value.Parent = script;
+                }
+                if (function is GetVarFunction g2)
+                {
+                    v.Value.Assign(g2.Value);
+                }
+            }
+            else if (func == null)
+            {
+                //変数定義の場合
+                if (function is GetVarFunction v2)
+                {
+                    Variable newVar = Variable.EmptyInstance;
+                    newVar.Parent = script;
+                    if (type_modifer != null)
+                    {
+                        newVar.TypeChecked = true;
+                        if (type_modifer.EndsWith("?", StringComparison.Ordinal))
+                        {
+                            newVar.Nullable = true;
+                            type_modifer = type_modifer.Substring(0, type_modifer.Length - 1);
+                        }
+                        newVar.Type = Constants.StringToType(type_modifer);
+                    }
+                    else
+                    {
+                        //型指定がない場合はnullを許容する
+                        newVar.Nullable = true;
+                    }
+                    newVar.Assign(v2.Value);
+                    if (type_inference && type_modifer == Constants.VAR)
+                    {
+                        newVar.TypeChecked = true;
+                    }
+                    newVar.Readonly = isReadOnly;
+                    function = new GetVarFunction(newVar);
+                }
+                script.Variables[name] = function;
+            }
+
         }
 
         public static bool TryGetGlobal(string name, out ParserFunction function, bool continueConst = false)
@@ -676,97 +862,6 @@
             s_actions[name] = action;
         }
 
-        public static void AddLocalVariable(ParserFunction local, ParsingScript script, string varName = "", bool setScript = true, bool registVar = false, string type_modifer = null)
-        {
-            bool type_inference = script.TypeInference;
-            NormalizeValue(local);
-            local.m_isGlobal = false;
-            if (setScript)
-            {
-                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
-
-                local.Name = Constants.GetRealName(name);
-                if (local is GetVarFunction)
-                {
-                    ((GetVarFunction)local).Value.ParamName = local.Name;
-                }
-                bool exists = FunctionExists(name, script, out var func);
-                bool unneed = script.UnneedVarKeyword;
-
-                if (exists && registVar)
-                {
-                    throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
-                }
-                else if (!exists && !registVar && !unneed && !string.IsNullOrEmpty(name))
-                {
-                    throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
-                }
-                if (func != null && func is GetVarFunction v)
-                {
-                    //代入の場合
-                    if (v.Value.Parent == null)
-                    {
-                        v.Value.Parent = script;
-                    }
-                    if (local is GetVarFunction g2)
-                    {
-                        v.Value.Assign(g2.Value);
-                    }
-                }
-                else
-                {
-                    //変数定義の場合
-                    if (local is GetVarFunction v2)
-                    {
-                        Variable newVar = Variable.EmptyInstance;
-                        newVar.Parent = script;
-                        if (type_modifer != null)
-                        {
-                            newVar.TypeSafe = true;
-                            newVar.Type = Constants.StringToType(type_modifer);
-                        }
-                        newVar.Assign(v2.Value);
-                        if (type_inference)
-                        {
-                            newVar.TypeSafe = true;
-                        }
-                        local = new GetVarFunction(newVar);
-                    }
-                    script.Variables[name] = local;
-                }
-            }
-            else
-            {
-                lock (s_variables)
-                {
-
-                    if (s_lastExecutionLevel == null)
-                    {
-                        s_lastExecutionLevel = new StackLevel();
-                        s_locals.Push(s_lastExecutionLevel);
-                    }
-                }
-
-                var name = Constants.ConvertName(string.IsNullOrWhiteSpace(varName) ? local.Name : varName);
-                local.Name = Constants.GetRealName(name);
-                if (local is GetVarFunction)
-                {
-                    ((GetVarFunction)local).Value.ParamName = local.Name;
-                }
-
-                var handle = OnVariableChange;
-                bool exists = handle != null && s_lastExecutionLevel.Variables.ContainsKey(name);
-
-                s_lastExecutionLevel.Variables[name] = local;
-
-                if (handle != null && local is GetVarFunction)
-                {
-                    handle.Invoke(local.Name, ((GetVarFunction)local).Value, exists);
-                }
-            }
-        }
-
-
 
         public static int GetCurrentStackLevel()
         {
@@ -774,17 +869,6 @@
             {
                 return s_locals.Count;
             }
-        }
-
-        public static bool PopLocalVariable(string name)
-        {
-            if (s_lastExecutionLevel == null)
-            {
-                return false;
-            }
-            Dictionary<string, ParserFunction> locals = s_lastExecutionLevel.Variables;
-            name = Constants.ConvertName(name);
-            return locals.Remove(name);
         }
 
         public Variable GetValue(ParsingScript script)
@@ -862,7 +946,7 @@
 
         public static bool IsNumericFunction(string paramName, ParsingScript script = null)
         {
-            ParserFunction function = ParserFunction.GetFunction(paramName, script);
+            ParserFunction function = GetFunction(paramName, script);
             return function is INumericFunction;
         }
 

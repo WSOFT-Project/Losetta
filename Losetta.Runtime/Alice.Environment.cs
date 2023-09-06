@@ -1,510 +1,224 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Interop;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Environment
     {
         public static void Init()
         {
-            NameSpace space = new NameSpace("Alice.Environment");
-
-            space.Add(new Env_CommandLineArgsFunc());
-            space.Add(new Env_CommandLineFunc());
-            space.Add(new env_clr_versionFunc());
-            space.Add(new env_currentdirFunc());
-            space.Add(new env_Expand_EnvironmentVariablesFunc());
-            space.Add(new env_get_envirnomentVariableFunc());
-            space.Add(new env_set_envirnomentVariableFunc());
-            space.Add(new env_HasShutdownStartedFunc());
-            space.Add(new env_lang_nameFunc());
-            space.Add(new env_lang_versionFunc());
-            space.Add(new env_impl_nameFunc());
-            space.Add(new env_impl_versionFunc());
-            space.Add(new env_impl_locationFunc());
-            space.Add(new env_impl_architectureFunc());
-            space.Add(new env_impl_targetFunc());
-            space.Add(new env_Is64BitOperatingSystemFunc());
-            space.Add(new env_Is64BitProcessFunc());
-            space.Add(new env_MachineNameFunc());
-            space.Add(new env_NewLineFunc());
-            space.Add(new env_OS_PlatformFunc());
-            space.Add(new env_OS_VersionFunc());
-            space.Add(new env_ProcessorCountFunc());
-            space.Add(new env_Process_IdFunc());
-            space.Add(new env_Process_PathFunc());
-            space.Add(new env_setExitCodeFunc());
-            space.Add(new env_SystemnDirectoryFunc());
-            space.Add(new env_SystemPageSizeFunc());
-            space.Add(new env_TickCountFunc());
-            space.Add(new env_UserDomainNameFunc());
-            space.Add(new env_UserNameFunc());
-            space.Add(new env_versionFunc());
-            space.Add(new env_WorkingSetFunc());
-
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(typeof(EnvironmentFunctions));
         }
     }
-
-    internal sealed class Env_CommandLineFunc : FunctionBase
+    [AliceNameSpace(Name = "Alice.Environment")]
+    internal static class EnvironmentFunctions
     {
-        public Env_CommandLineFunc()
+        #region システムの情報
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_NewLine()
         {
-            Name = "env_commandLine";
-            Run += Env_CommandLineFunc_Run;
+            return Environment.NewLine;
         }
-
-        private void Env_CommandLineFunc_Run(object sender, FunctionBaseEventArgs e)
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static long Env_TickCount64()
         {
-            e.Return = new Variable(Environment.CommandLine);
+            return Environment.TickCount64;
         }
-    }
-    public class Env_CommandLineArgsFunc : FunctionBase
-    {
-        public Env_CommandLineArgsFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static int Env_ProcessorCount()
         {
-            Name = "env_commandLineArgs";
-            Run += Env_CommandLineArgsFunc_Run;
+            return Environment.ProcessorCount;
         }
-        public static List<string> Args { get; set; }
-        private void Env_CommandLineArgsFunc_Run(object sender, FunctionBaseEventArgs e)
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static bool Env_HasShutdownStarted()
         {
-            e.Return = Args == null ? new Variable(Environment.GetCommandLineArgs()) : new Variable(Args);
+            return Environment.HasShutdownStarted;
         }
-    }
-    internal sealed class env_currentdirFunc : FunctionBase
-    {
-        public env_currentdirFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static bool Env_Is64BitOperatingSystem()
         {
-            Name = "env_currentdir";
-            Run += Env_currentdirFunc_Run;
+            return Environment.Is64BitOperatingSystem;
         }
-
-        private void Env_currentdirFunc_Run(object sender, FunctionBaseEventArgs e)
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static bool Env_Is64BitProcess()
         {
-            e.Return = new Variable(Environment.CurrentDirectory);
+            return Environment.Is64BitProcess;
         }
-    }
-    internal sealed class env_setExitCodeFunc : FunctionBase
-    {
-        public env_setExitCodeFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_MachineName()
         {
-            Name = "env_set_ExitCode";
-            MinimumArgCounts = 1;
-            Run += Env_setExitCodeFunc_Run;
+            return Environment.MachineName;
         }
 
-        private void Env_setExitCodeFunc_Run(object sender, FunctionBaseEventArgs e)
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_SystemDirectory()
         {
-            Environment.ExitCode = e.Args[0].AsInt();
+            return Environment.SystemDirectory;
         }
-    }
-    internal sealed class env_HasShutdownStartedFunc : FunctionBase
-    {
-        public env_HasShutdownStartedFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static int Env_SystemPageSize()
         {
-            Name = "env_HasShutdownStarted";
-            Run += Env_HasShutdownStartedFunc_Run;
+            return Environment.SystemPageSize;
         }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static int Env_TickCount()
+        {
+            return Environment.TickCount;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_UserName()
+        {
+            return Environment.UserName;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static long Env_WorkingSet()
+        {
+            return Environment.WorkingSet;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_OS_Platform()
+        {
+            return Environment.OSVersion.Platform.ToString();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_OS_Version()
+        {
+            return Environment.OSVersion.VersionString;
+        }
+        #endregion
 
-        private void Env_HasShutdownStartedFunc_Run(object sender, FunctionBaseEventArgs e)
+        #region プロセスの情報
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_CommandLine()
         {
-            e.Return = new Variable(Environment.HasShutdownStarted);
+            return Environment.CommandLine;
         }
-    }
-    internal sealed class env_Is64BitOperatingSystemFunc : FunctionBase
-    {
-        public env_Is64BitOperatingSystemFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static int Env_ProcessId()
         {
-            Name = "env_Is64BitOperatingSystem";
-            Run += Env_Is64BitOperatingSystemFunc_Run;
+            return Environment.ProcessId;
         }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_ProcessPath()
+        {
+            return Environment.ProcessPath;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static bool Env_UserInteractive()
+        {
+            return Environment.UserInteractive;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Current()
+        {
+            return Environment.CurrentDirectory;
+        }
+        #endregion
 
-        private void Env_Is64BitOperatingSystemFunc_Run(object sender, FunctionBaseEventArgs e)
+        #region 言語の情報
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Lang_Version()
         {
-            e.Return = new Variable(Environment.Is64BitOperatingSystem);
+            return Alice.Version.ToString();
         }
-    }
-    internal sealed class env_Is64BitProcessFunc : FunctionBase
-    {
-        public env_Is64BitProcessFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Lang_Name()
         {
-            Name = "env_is64bitProcess";
-            Run += Env_Is64BitProcessFunc_Run;
+            return Constants.LANGUAGE;
         }
+        #endregion
 
-        private void Env_Is64BitProcessFunc_Run(object sender, FunctionBaseEventArgs e)
+        #region 実装の情報
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Impl_Version()
         {
-            e.Return = new Variable(Environment.Is64BitProcess);
+            return Alice.ImplementationVersion.ToString();
         }
-    }
-    internal sealed class env_MachineNameFunc : FunctionBase
-    {
-        public env_MachineNameFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Impl_Name()
         {
-            Name = "env_MachineName";
-            Run += Env_MachineNameFunc_Run;
+            return Alice.ImplementationName;
         }
-
-        private void Env_MachineNameFunc_Run(object sender, FunctionBaseEventArgs e)
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Impl_Location()
         {
-            e.Return = new Variable(Environment.MachineName);
+            return Alice.ImplementationLocation;
         }
-    }
-    internal sealed class env_NewLineFunc : FunctionBase
-    {
-        public env_NewLineFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Impl_Architecture()
         {
-            Name = "env_NewLine";
-            Run += Env_NewLineFunc_Run;
-        }
-
-        private void Env_NewLineFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.NewLine);
-        }
-    }
-    internal sealed class env_OS_PlatformFunc : FunctionBase
-    {
-        public env_OS_PlatformFunc()
-        {
-            Name = "env_os_platform";
-            Run += Env_OS_PlatformFunc_Run;
-        }
-
-        private void Env_OS_PlatformFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.OSVersion.Platform);
-        }
-    }
-    internal sealed class env_OS_VersionFunc : FunctionBase
-    {
-        public env_OS_VersionFunc()
-        {
-            Name = "env_os_version";
-            Run += Env_OS_PlatformFunc_Run;
-        }
-
-        private void Env_OS_PlatformFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.OSVersion.VersionString);
-        }
-    }
-    internal sealed class env_Process_IdFunc : FunctionBase
-    {
-        public env_Process_IdFunc()
-        {
-            Name = "env_process_id";
-            Run += Env_Process_IdFunc_Run;
-        }
-
-        private void Env_Process_IdFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.ProcessId);
-        }
-    }
-    internal sealed class env_Process_PathFunc : FunctionBase
-    {
-        public env_Process_PathFunc()
-        {
-            Name = "env_process_path";
-            Run += Env_Process_PathFunc_Run;
-        }
-
-        private void Env_Process_PathFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.ProcessPath);
-        }
-    }
-    internal sealed class env_ProcessorCountFunc : FunctionBase
-    {
-        public env_ProcessorCountFunc()
-        {
-            Name = "env_ProcessorCount";
-            Run += Env_ProcessorCountFunc_Run;
-        }
-
-        private void Env_ProcessorCountFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.ProcessorCount);
-        }
-    }
-    internal sealed class env_SystemnDirectoryFunc : FunctionBase
-    {
-        public env_SystemnDirectoryFunc()
-        {
-            Name = "env_SystemDir";
-            Run += Env_SystemnDirectoryFunc_Run;
-        }
-
-        private void Env_SystemnDirectoryFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.SystemDirectory);
-        }
-    }
-    internal sealed class env_SystemPageSizeFunc : FunctionBase
-    {
-        public env_SystemPageSizeFunc()
-        {
-            Name = "env_SystemPageSize";
-            Run += Env_SystemPageSizeFunc_Run;
-        }
-
-        private void Env_SystemPageSizeFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.SystemPageSize);
-        }
-    }
-    internal sealed class env_TickCountFunc : FunctionBase
-    {
-        public env_TickCountFunc()
-        {
-            Name = "env_TickCount";
-            Run += Env_TickCountFunc_Run;
-        }
-
-        private void Env_TickCountFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.TickCount64);
-        }
-    }
-    internal sealed class env_UserDomainNameFunc : FunctionBase
-    {
-        public env_UserDomainNameFunc()
-        {
-            Name = "env_User_DomainName";
-            Run += Env_UserDomainNameFunc_Run;
-        }
-
-        private void Env_UserDomainNameFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.UserDomainName);
-        }
-    }
-    internal sealed class env_UserNameFunc : FunctionBase
-    {
-        public env_UserNameFunc()
-        {
-            Name = "env_User_Name";
-            Run += Env_UserNameFunc_Run;
-        }
-
-        private void Env_UserNameFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.UserName);
-        }
-    }
-    internal sealed class env_WorkingSetFunc : FunctionBase
-    {
-        public env_WorkingSetFunc()
-        {
-            Name = "env_workingset";
-            Run += Env_WorkingSetFunc_Run;
-        }
-
-        private void Env_WorkingSetFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Environment.WorkingSet);
-        }
-    }
-    internal sealed class env_versionFunc : FunctionBase
-    {
-        public env_versionFunc()
-        {
-            Name = "env_version";
-            Run += Env_versionFunc_Run;
-        }
-
-        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Alice.Version.ToString());
-        }
-    }
-    internal sealed class env_lang_versionFunc : FunctionBase
-    {
-        public env_lang_versionFunc()
-        {
-            Name = "env_lang_version";
-            Run += Env_versionFunc_Run;
-        }
-
-        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Alice.Version.ToString());
-        }
-    }
-    internal sealed class env_lang_nameFunc : FunctionBase
-    {
-        public env_lang_nameFunc()
-        {
-            Name = "env_lang_name";
-            Run += Env_versionFunc_Run;
-        }
-
-        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Constants.LANGUAGE);
-        }
-    }
-    internal sealed class env_impl_versionFunc : FunctionBase
-    {
-        public env_impl_versionFunc()
-        {
-            Name = "env_impl_version";
-            Run += Env_versionFunc_Run;
-        }
-
-        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Alice.ImplementationVersion.ToString());
-        }
-    }
-    internal sealed class env_impl_nameFunc : FunctionBase
-    {
-        public env_impl_nameFunc()
-        {
-            Name = "env_impl_name";
-            Run += Env_versionFunc_Run;
-        }
-
-        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Alice.ImplementationName);
-        }
-    }
-    internal sealed class env_impl_locationFunc : FunctionBase
-    {
-        public env_impl_locationFunc()
-        {
-            Name = "env_impl_location";
-            Run += Env_impl_locationFunc_Run;
-        }
-
-        private void Env_impl_locationFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Alice.ImplementationLocation);
-        }
-    }
-    internal sealed class env_impl_architectureFunc : FunctionBase
-    {
-        public env_impl_architectureFunc()
-        {
-            Name = "env_impl_architecture";
-            Run += Env_impl_architectureFunc_Run;
-        }
-
-        private void Env_impl_architectureFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string arch_name = string.Empty;
 
 #if RELEASE_WIN_X64 || RELEASE_LINUX_X64 || RELEASE_OSX_X64
-            arch_name = "x64";
+            return "x64";
 #elif RELEASE_WIN_X86
-            arch_name = "x86";
+            return "x86";
 #elif RELEASE_WIN_ARM || RELEASE_LINUX_ARM
-            arch_name = "ARM32";
+            return "ARM32";
 #elif RELEASE_WIN_ARM64 || RELEASE_LINUX_ARM64 || RELEASE_OSX_ARM64
-            arch_name = "ARM64";
+            return "ARM64";
 #elif DEBUG
-            arch_name = "Debug";
+            return "Debug";
 #else
-            arch_name = "Release";
+            return "Release";
 #endif
-
-            e.Return = new Variable(arch_name);
         }
-    }
-    internal sealed class env_impl_targetFunc : FunctionBase
-    {
-        public env_impl_targetFunc()
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Impl_Target()
         {
-            Name = "env_impl_target";
-            Run += Env_impl_architectureFunc_Run;
-        }
-
-        private void Env_impl_architectureFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string arch_name = string.Empty;
 
 #if RELEASE_WIN_X64 || RELEASE_WIN_X86 || RELEASE_WIN_ARM || RELEASE_WIN_ARM64
-            arch_name = "Windows";
+            return "Windows";
 #elif RELEASE_OSX_X64 || RELEASE_OSX_ARM64
-            arch_name = "OSX";
+            return "OSX";
 #elif RELEASE_LINUX_X64 || RELEASE_LINUX_ARM || RELEASE_LINUX_ARM64
-            arch_name = "Linux";
+            return "Linux";
 #else
-            arch_name = "NET";
+            return "NET";
 #endif
+        }
+        #endregion
 
-            e.Return = new Variable(arch_name);
-        }
-    }
-    internal sealed class env_clr_versionFunc : FunctionBase
-    {
-        public env_clr_versionFunc()
+        #region 共通言語ランタイムの情報
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static string Env_Clr_Version()
         {
-            Name = "env_clr_version";
-            Run += Env_versionFunc_Run;
+            return Environment.Version.ToString();
         }
+        #endregion
 
-        private void Env_versionFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static string[] Env_CommandLineArgs()
         {
-            e.Return = new Variable(Environment.Version.ToString());
-        }
-    }
-    internal sealed class env_Expand_EnvironmentVariablesFunc : FunctionBase
-    {
-        public env_Expand_EnvironmentVariablesFunc()
-        {
-            Name = "env_expand_environmentVariables";
-            MinimumArgCounts = 1;
-            Run += Env_Expand_EnvironmentVariablesFunc_Run;
+            return Runtime.Args == null ? Environment.GetCommandLineArgs() : Runtime.Args.ToArray();
         }
 
-        private void Env_Expand_EnvironmentVariablesFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static void env_Exit(int exitCode)
         {
-            e.Return = new Variable(Environment.ExpandEnvironmentVariables(e.Args[0].AsString() ?? string.Empty));
+            Environment.Exit(exitCode);
         }
-    }
-    internal sealed class env_get_envirnomentVariableFunc : FunctionBase
-    {
-        public env_get_envirnomentVariableFunc()
+        public static void env_SetExitCode(int exitCode)
         {
-            Name = "env_get_environmentvariable";
-            Run += Env_get_envirnomentVariable_Run;
-            MinimumArgCounts = 1;
+            Environment.ExitCode = exitCode;
         }
-
-        private void Env_get_envirnomentVariable_Run(object sender, FunctionBaseEventArgs e)
+        public static string env_Expand_EnvironmentVariables(string name)
         {
-            if (e.Args.Count > 1)
-            {
-                Utils.CheckNumInRange(e.Args[1], true, 0, 2);
-                e.Return = new Variable(Environment.GetEnvironmentVariable(e.Args[0].AsString(), (EnvironmentVariableTarget)e.Args[1].AsInt()));
-            }
-            else
-            {
-                e.Return = new Variable(Environment.GetEnvironmentVariable(e.Args[0].AsString()));
-            }
+            return Environment.ExpandEnvironmentVariables(name);
         }
-    }
-    internal sealed class env_set_envirnomentVariableFunc : FunctionBase
-    {
-        public env_set_envirnomentVariableFunc()
+        public static string Env_Get_EnvironmentVariable(string variable)
         {
-            Name = "env_set_environmentvariable";
-            MinimumArgCounts = 2;
-            Run += Env_get_envirnomentVariable_Run;
+            return Environment.GetEnvironmentVariable(variable);
         }
-
-        private void Env_get_envirnomentVariable_Run(object sender, FunctionBaseEventArgs e)
+        public static string Env_Get_EnvironmentVariable(string? variable, int target)
         {
-            if (e.Args.Count > 2)
-            {
-                Utils.CheckNumInRange(e.Args[2], true, 0, 2);
-                Environment.SetEnvironmentVariable(e.Args[0].AsString(), e.Args[1].AsString(), (EnvironmentVariableTarget)e.Args[2].AsInt());
-            }
-            else
-            {
-                Environment.SetEnvironmentVariable(e.Args[0].AsString(), e.Args[1].AsString());
-            }
+            return Environment.GetEnvironmentVariable(variable, (EnvironmentVariableTarget)target);
+        }
+        public static void Env_Set_EnvironmentVariable(string? variable)
+        {
+            Environment.GetEnvironmentVariable(variable);
+        }
+        public static void Env_Set_EnvironmentVariable(string? variable, string? value, int target)
+        {
+            Environment.SetEnvironmentVariable(variable, value, (EnvironmentVariableTarget)target);
         }
     }
 }

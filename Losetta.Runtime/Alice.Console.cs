@@ -1,4 +1,6 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Console
     {
@@ -41,7 +43,7 @@
 
                 space.Add("ConsoleColor", "System.ConsoleColor");
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

@@ -1,6 +1,10 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using AliceScript.Extra;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
 
 namespace AliceScript
 {
@@ -33,7 +37,7 @@ namespace AliceScript
             bool over = variable.Value > trueMax;
             if (type || less || over)
             {
-                throw new ScriptException($"数値は {(min != null ? min + "以上" : string.Empty)} {(max != null ? max + "以下" : string.Empty)}の{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
+                throw new ScriptException($"数値は{(min != null ? $" {min}以上かつ" : string.Empty)}{(max != null ? $" {max}以下の" : string.Empty)}{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
             }
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
@@ -73,15 +77,6 @@ namespace AliceScript
 
         public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script, string token = null)
         {
-            /*
-             * TODO:ThrowErrorMSGの引継ぎ等
-            string code     = script == null || string.IsNullOrWhiteSpace(script.OriginalScript) ? "" : script.OriginalScript;
-            int lineNumber  = script == null ? 0 : script.OriginalLineNumber;
-            string filename = script == null || string.IsNullOrWhiteSpace(script.Filename) ? "" : script.Filename;
-            int minLines    = script == null || script.OriginalLine.ToLower().Contains(token.ToLower()) ? 1 : 2;
-
-            ThrowErrorMsg(msg, code, lineNumber, filename, minLines);
-            */
             throw new ScriptException(msg, errorcode, script);
         }
 
@@ -100,7 +95,7 @@ namespace AliceScript
 
 
             StringBuilder stack = new StringBuilder();
-            stack.AppendLine("" + currentLineNumber);
+            stack.AppendLine(currentLineNumber.ToString());
             stack.AppendLine(filename);
             stack.AppendLine(line);
             throw new ScriptException(msg + stack.ToString(), ecode);
@@ -112,17 +107,16 @@ namespace AliceScript
             ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
         }
 
-        public static void CheckLegalName(string name)
+        public static void CheckLegalName(string name, bool checkReserved = false)
         {
             if (string.IsNullOrEmpty(name))
             {
                 Utils.ThrowErrorMsg("識別子を空にすることはできません", Exceptions.ILLEGAL_IDENTIFIER, null, name);
             }
-            /*
-            if (Constants.CheckReserved(name))
+            if (checkReserved && Constants.CheckReserved(name))
             {
                 Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
-            }*/
+            }
 
             if (!Constants.IDENTIFIER_PATTERN.IsMatch(name))
             {
@@ -143,7 +137,6 @@ namespace AliceScript
                 tempScript.OriginalScript = parentScript.OriginalScript;
             }
             tempScript.ParentScript = script;
-            tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
             if (script != null)
@@ -187,11 +180,9 @@ namespace AliceScript
         /// <returns></returns>
         public static byte[] GetFileFromPackageOrLocal(string filename, bool fromPackage = false, ParsingScript script = null)
         {
-            if (script != null && script.Package != null && script.Package.ExistsEntry(filename))
-            {
-                return script.Package.GetEntryData(filename);
-            }
-            return fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
+            return script != null && script.Package != null && script.Package.ExistsEntry(filename)
+                ? script.Package.GetEntryData(filename)
+                : fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
         }
         public static string GetFileLines(string filename)
         {
@@ -320,28 +311,6 @@ namespace AliceScript
 
         }
 
-        public static string ConvertUnicodeLiteral(string input)
-        {
-            if (input.Contains("\\"))
-            {
-                //UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
-                }
-                //可変長UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_VARIABLE_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
-                }
-                //UTF-32文字コードの置き換え
-                foreach (Match match in Constants.UTF32_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
-                }
-            }
-            return input;
-        }
         private static string ConvertUnicodeToChar(string charCode, bool mode = true)
         {
             if (mode)

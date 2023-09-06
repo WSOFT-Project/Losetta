@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using AliceScript.Parsing;
+
+namespace AliceScript
 {
     public class ThrowErrorEventArgs : EventArgs
     {
@@ -11,12 +13,12 @@
         public bool Handled { get; set; }
     }
     public delegate void ThrowErrorEventhandler(object sender, ThrowErrorEventArgs e);
-    public static class ThrowErrorManerger
+    public static class ThrowErrorManager
     {
         public static event ThrowErrorEventhandler ThrowError;
 
         /// <summary>
-        /// スクリプトの実行時に生じた例外を、ThrowErrorManergerでキャッチせずそのままスローする場合はTrue、それ以外の場合はFalse。
+        /// スクリプトの実行時に生じた例外を、ThrowErrorManagerでキャッチせずそのままスローする場合はTrue、それ以外の場合はFalse。
         /// </summary>
         public static bool NotCatch { get; set; }
         public static void OnThrowError(object sender, ThrowErrorEventArgs e)
@@ -24,8 +26,7 @@
             ThrowError?.Invoke(sender, e);
             if (!e.Handled)
             {
-                //続行されなかった場合はそこで終了
-                Alice.OnExiting(255);
+                Alice.OnExiting(256);
             }
         }
     }
@@ -42,7 +43,5 @@
         public ParsingException Exception { get; set; }
         public Exceptions ErrorCode { get; set; }
         public bool Handled { get; set; }
-
-
     }
 }

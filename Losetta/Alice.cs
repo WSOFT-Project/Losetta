@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using AliceScript.Parsing;
+
+namespace AliceScript
 {
     public static class Alice
     {

@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using AliceScript.Binding;
+using System.Security.Cryptography;
 
 namespace AliceScript.NameSpaces
 {
@@ -6,280 +7,110 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            try
-            {
-                NameSpace space = new NameSpace("Alice.Security");
-
-                space.Add(new Password_Hash());
-                space.Add(new Password_Salt());
-                space.Add(new Password_Verify());
-                space.Add(new Password_HashData());
-                space.Add(new Password_VerifyData());
-
-                space.Add(new md5_gethash());
-                space.Add(new sha1_gethash());
-                space.Add(new sha256_gethash());
-                space.Add(new sha384_gethash());
-                space.Add(new sha512_gethash());
-
-                space.Add(new file_encrypt_dataFunc());
-                space.Add(new file_decrypt_dataFunc());
-
-                NameSpaceManerger.Add(space);
-            }
-            catch { }
+            NameSpaceManager.Add(typeof(SecurityFunctions));
         }
     }
-    internal sealed class file_encrypt_dataFunc : FunctionBase
+    [AliceNameSpace(Name = "Alice.Security")]
+    internal static class SecurityFunctions
     {
-        public file_encrypt_dataFunc()
+        #region バイト配列暗号化
+        public static byte[] Data_Encrypt(byte[] data, string password)
         {
-            Name = "encrypt_data";
-            MinimumArgCounts = 2;
-            Run += File_encrypt_dataFunc_Run;
+            return FileEncrypter.Encrypt(data, password);
         }
+        public static byte[] Data_Decrypt(byte[] data, string password)
+        {
+            return FileEncrypter.Decrypt(data, password);
+        }
+        #endregion
 
-        private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
+        #region ハッシュ関数
+        public static byte[] MD5_GetHash(byte[] data)
         {
-            e.Return = new Variable(FileEncrypter.Encrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
+            return MD5.HashData(data);
         }
+        public static byte[] SHA1_GetHash(byte[] data)
+        {
+            return SHA1.HashData(data);
+        }
+        public static byte[] SHA256_GetHash(byte[] data)
+        {
+            return SHA256.HashData(data);
+        }
+        public static byte[] SHA384_GetHash(byte[] data)
+        {
+            return SHA384.HashData(data);
+        }
+        public static byte[] SHA512_GetHash(byte[] data)
+        {
+            return SHA512.HashData(data);
+        }
+        #endregion
+
+        #region パスワード認証
+        private const int HASH_SIZE = 32;
+
+        private const int STRETCH_COUNT = 1000;
+
+        public static byte[] Password_Hash(string password, byte[] salt)
+        {
+            return PasswordSaltHashManager.GetHash(password, salt, HASH_SIZE, STRETCH_COUNT);
+        }
+        public static byte[] Password_Hash(string password, byte[] salt, int size)
+        {
+            return PasswordSaltHashManager.GetHash(password, salt, size, STRETCH_COUNT);
+        }
+        public static byte[] Password_Hash(string password, byte[] salt, int size, int cnt)
+        {
+            return PasswordSaltHashManager.GetHash(password, salt, size, cnt);
+        }
+        public static byte[] Password_HashData(byte[] password, byte[] salt)
+        {
+            return PasswordSaltHashManager.GetHashData(password, salt, HASH_SIZE, STRETCH_COUNT);
+        }
+        public static byte[] Password_HashData(byte[] password, byte[] salt, int size)
+        {
+            return PasswordSaltHashManager.GetHashData(password, salt, size, STRETCH_COUNT);
+        }
+        public static byte[] Password_HashData(byte[] password, byte[] salt, int size, int cnt)
+        {
+            return PasswordSaltHashManager.GetHashData(password, salt, size, cnt);
+        }
+        public static byte[] Password_GetSalt()
+        {
+            return PasswordSaltHashManager.GetSalt(30);
+        }
+        public static byte[] Password_GetSalt(int length)
+        {
+            return PasswordSaltHashManager.GetSalt(length);
+        }
+        public static bool Password_Verify(string password, byte[] hash, byte[] salt)
+        {
+            return PasswordSaltHashManager.GetHash(password, salt, HASH_SIZE, STRETCH_COUNT) == hash;
+        }
+        public static bool Password_Verify(string password, byte[] hash, byte[] salt, int size)
+        {
+            return PasswordSaltHashManager.GetHash(password, salt, size, STRETCH_COUNT) == hash;
+        }
+        public static bool Password_Verify(string password, byte[] hash, byte[] salt, int size, int cnt)
+        {
+            return PasswordSaltHashManager.GetHash(password, salt, size, cnt) == hash;
+        }
+        public static bool Password_VerifyData(byte[] password, byte[] hash, byte[] salt)
+        {
+            return PasswordSaltHashManager.GetHashData(password, salt, HASH_SIZE, STRETCH_COUNT) == hash;
+        }
+        public static bool Password_VerifyData(byte[] password, byte[] hash, byte[] salt, int size)
+        {
+            return PasswordSaltHashManager.GetHashData(password, salt, size, STRETCH_COUNT) == hash;
+        }
+        public static bool Password_VerifyData(byte[] password, byte[] hash, byte[] salt, int size, int cnt)
+        {
+            return PasswordSaltHashManager.GetHashData(password, salt, size, cnt) == hash;
+        }
+        #endregion
     }
-
-    internal sealed class file_decrypt_dataFunc : FunctionBase
-    {
-        public file_decrypt_dataFunc()
-        {
-            Name = "decrypt_data";
-            MinimumArgCounts = 2;
-            Run += File_encrypt_dataFunc_Run;
-        }
-
-        private void File_encrypt_dataFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(FileEncrypter.Decrypt(e.Args[0].AsByteArray(), e.Args[1].AsString()));
-        }
-    }
-    internal sealed class PSS
-    {
-        public static int HASH_SIZE = 32;
-
-        public static int STRETCH_COUNT = 1000;
-    }
-    internal sealed class sha256_gethash : FunctionBase
-    {
-        public sha256_gethash()
-        {
-            Name = "sha256_gethash";
-            MinimumArgCounts = 1;
-            Run += Sha256_gethash_Run;
-        }
-
-        private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
-        {
-            byte[] hashValue = SHA256.Create().ComputeHash(e.Args[0].ByteArray);
-            e.Return = new Variable(hashValue);
-        }
-    }
-    internal sealed class sha384_gethash : FunctionBase
-    {
-        public sha384_gethash()
-        {
-            Name = "sha384_gethash";
-            MinimumArgCounts = 1;
-            Run += Sha256_gethash_Run;
-        }
-
-        private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
-        {
-            byte[] hashValue = SHA384.Create().ComputeHash(e.Args[0].ByteArray);
-            e.Return = new Variable(hashValue);
-        }
-    }
-    internal sealed class sha512_gethash : FunctionBase
-    {
-        public sha512_gethash()
-        {
-            Name = "sha512_gethash";
-            MinimumArgCounts = 1;
-            Run += Sha256_gethash_Run;
-        }
-
-        private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
-        {
-            byte[] hashValue = SHA512.Create().ComputeHash(e.Args[0].ByteArray);
-            e.Return = new Variable(hashValue);
-        }
-    }
-    internal sealed class sha1_gethash : FunctionBase
-    {
-        public sha1_gethash()
-        {
-            Name = "sha1_gethash";
-            MinimumArgCounts = 1;
-            Run += Sha256_gethash_Run;
-        }
-
-        private void Sha256_gethash_Run(object sender, FunctionBaseEventArgs e)
-        {
-            byte[] hashValue = SHA1.Create().ComputeHash(e.Args[0].ByteArray);
-            e.Return = new Variable(hashValue);
-        }
-    }
-    internal sealed class md5_gethash : FunctionBase
-    {
-        public md5_gethash()
-        {
-            Name = "md5_gethash";
-            MinimumArgCounts = 1;
-            Run += Md5_gethash_Run;
-        }
-
-        private void Md5_gethash_Run(object sender, FunctionBaseEventArgs e)
-        {
-            byte[] hashValue = MD5.Create().ComputeHash(e.Args[0].ByteArray);
-            e.Return = new Variable(hashValue);
-        }
-    }
-    internal sealed class Password_Hash : FunctionBase
-    {
-
-        public Password_Hash()
-        {
-            Name = "password_hash";
-            MinimumArgCounts = 2;
-            Run += Class1_Run;
-        }
-
-        private void Class1_Run(object sender, FunctionBaseEventArgs e)
-        {
-            //引数チェック
-            if (e.Args[0].Type != Variable.VarType.STRING || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null)
-            {
-                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-            }
-            string password = e.Args[0].ToString();
-
-            // ソルトを取得
-            byte[] salt = e.Args[0].AsByteArray();
-
-            // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
-
-            e.Return = new Variable(hash);
-        }
-
-    }
-
-    internal sealed class Password_HashData : FunctionBase
-    {
-
-        public Password_HashData()
-        {
-            Name = "password_hash_data";
-            MinimumArgCounts = 2;
-            Run += Class1_Run;
-        }
-
-        private void Class1_Run(object sender, FunctionBaseEventArgs e)
-        {
-            //引数チェック
-            if (e.Args[0].Type != Variable.VarType.BYTES || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null)
-            {
-                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-            }
-            byte[] password = e.Args[0].AsByteArray();
-
-            // ソルトを取得
-            byte[] salt = e.Args[0].AsByteArray();
-
-            // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
-
-            e.Return = new Variable(hash);
-        }
-
-    }
-
-    internal sealed class Password_Salt : FunctionBase
-    {
-        public Password_Salt()
-        {
-            Name = "password_salt";
-            MinimumArgCounts = 0;
-            Run += Class3_Run;
-        }
-
-        private void Class3_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(PasswordSaltHashManerger.GetSalt(Utils.GetSafeInt(e.Args, 0, 30)));
-        }
-
-    }
-
-    internal sealed class Password_Verify : FunctionBase
-    {
-
-        public Password_Verify()
-        {
-            Name = "password_verify";
-            MinimumArgCounts = 3;
-            Run += Class1_Run;
-        }
-
-        private void Class1_Run(object sender, FunctionBaseEventArgs e)
-        {
-            //引数チェック
-            if (e.Args[0].Type != Variable.VarType.STRING || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null || e.Args[2].Type != Variable.VarType.BYTES || e.Args[2].ByteArray == null)
-            {
-                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-            }
-            string password = e.Args[0].AsString();
-
-            // ソルトを取得
-            byte[] salt = e.Args[2].AsByteArray();
-
-            // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHash(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
-
-            bool i = e.Args[1].AsByteArray() == hash;
-            e.Return = new Variable(i);
-        }
-
-
-    }
-
-    internal sealed class Password_VerifyData : FunctionBase
-    {
-
-        public Password_VerifyData()
-        {
-            Name = "password_verify_data";
-            MinimumArgCounts = 3;
-            Run += Class1_Run;
-        }
-
-        private void Class1_Run(object sender, FunctionBaseEventArgs e)
-        {
-            //引数チェック
-            if (e.Args[0].Type != Variable.VarType.BYTES || e.Args[1].Type != Variable.VarType.BYTES || e.Args[1].ByteArray == null || e.Args[2].Type != Variable.VarType.BYTES || e.Args[2].ByteArray == null)
-            {
-                throw new ScriptException("引数が不正です", Exceptions.COULDNT_CONVERT_VARIABLE, e.Script);
-            }
-            byte[] password = e.Args[0].AsByteArray();
-
-            // ソルトを取得
-            byte[] salt = e.Args[2].AsByteArray();
-
-            // ハッシュ値を取得
-            byte[] hash = PasswordSaltHashManerger.GetHashData(password, salt, Utils.GetSafeInt(e.Args, 2, PSS.HASH_SIZE), Utils.GetSafeInt(e.Args, 3, PSS.STRETCH_COUNT));
-
-            bool i = e.Args[1].AsByteArray() == hash;
-            e.Return = new Variable(i);
-        }
-
-
-    }
-    internal sealed class PasswordSaltHashManerger
+    internal sealed class PasswordSaltHashManager
     {
         internal static byte[] GetHash(string password, byte[] salt, int size, int cnt)
         {

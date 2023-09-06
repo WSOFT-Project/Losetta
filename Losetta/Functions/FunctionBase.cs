@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.Functions
 {
     public class FunctionBase : ParserFunction
     {
@@ -59,6 +62,10 @@
             ex.Script = script;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
+            if (ex.Return == null)
+            {
+                ex.Return = Variable.EmptyInstance;
+            }
             return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
         protected override Variable Evaluate(ParsingScript script)
@@ -193,10 +200,10 @@
         /// <summary>
         /// オーバーライド可能です。CanOverrideプロパティもしくはこの属性が定義のいずれかが定義されている場合、オーバーライド可能です。
         /// </summary>
-        VIRTUAL = 5
+        VIRTUAL = 5,
     }
 
-    public static class FunctionBaseManerger
+    public static class FunctionBaseManager
     {
         /// <summary>
         /// 関数をインタプリタに登録し、必要に応じて属性を設定します

@@ -1,4 +1,9 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Functions;
+using AliceScript.Interop;
+using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Packaging;
+using AliceScript.Parsing;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
@@ -127,16 +132,14 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
-            NameSpaceManerger.Add(new NameSpace(Constants.TOP_NAMESPACE));
+            NameSpaceManager.Add(new NameSpace(Constants.TOP_NAMESPACE));
 
-            FunctionBaseManerger.Add(new ClassCreator());
-            FunctionBaseManerger.Add(new FunctionCreator());
-            FunctionBaseManerger.Add(new EnumFunction());
-            FunctionBaseManerger.Add(new ArrayTypeFunction());
+            FunctionBaseManager.Add(new ClassCreator());
+            FunctionBaseManager.Add(new FunctionCreator());
+            FunctionBaseManager.Add(new EnumFunction());
+            FunctionBaseManager.Add(new ArrayTypeFunction());
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
-            ParserFunction.AddAction(Constants.POINTER, new PointerFunction());
-            ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
         }
 
 
@@ -293,11 +296,6 @@ namespace AliceScript
 
             return result;
         }
-
-        //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
-
-
-
     }
 }
 

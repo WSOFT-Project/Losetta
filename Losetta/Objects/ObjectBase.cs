@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using AliceScript.Functions;
+using AliceScript.Parsing;
+
+namespace AliceScript.Objects
 {
     public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
@@ -42,14 +45,9 @@
         public override string ToString()
         {
             var tsf = Functions.Keys.Where(x => x.ToLower() == "tostring").FirstOrDefault();
-            if (tsf != null)
-            {
-                return Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString();
-            }
-            else
-            {
-                return string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
-            }
+            return tsf != null
+                ? Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString()
+                : string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
         }
 
         public virtual Variable GetImplementation(List<Variable> args, ParsingScript script)
@@ -86,7 +84,7 @@
             //継承先によって定義されます
             throw new NotImplementedException();
         }
-        public virtual int CompareTo(object? other)
+        public virtual int CompareTo(object other)
         {
             return 0;
         }
@@ -178,7 +176,7 @@
     }
 
 
-    public class ObjectBaseManerger
+    public class ObjectBaseManager
     {
         public static void AddObject(ObjectBase obj)
         {

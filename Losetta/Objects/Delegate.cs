@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using AliceScript.Functions;
+using AliceScript.Parsing;
+
+namespace AliceScript.Objects
 {
     public class DelegateObject
     {

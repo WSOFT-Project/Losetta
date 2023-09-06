@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
 
 namespace AliceScript.NameSpaces
 {
@@ -30,7 +33,7 @@ namespace AliceScript.NameSpaces
 
                 space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }

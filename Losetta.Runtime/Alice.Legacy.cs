@@ -1,4 +1,6 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Legacy
     {
@@ -15,7 +17,7 @@
             space.Add(new GetAllKeysFunction()); ;
             space.Add(new CancelFunction());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
         }
     }
     internal sealed class AddVariablesToHashFunction : FunctionBase

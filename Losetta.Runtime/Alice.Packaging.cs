@@ -1,4 +1,8 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Packaging;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Packaging
     {
@@ -11,7 +15,7 @@
 
             space.Add(new PackageManifestObject());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
         }
     }
     internal sealed class AlicePackageObject : ObjectBase

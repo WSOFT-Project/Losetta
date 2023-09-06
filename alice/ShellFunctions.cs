@@ -1,4 +1,8 @@
-﻿namespace AliceScript.CLI
+﻿using AliceScript.Functions;
+using AliceScript.NameSpaces;
+using AliceScript.Packaging;
+
+namespace AliceScript.CLI
 {
     internal class ShellFunctions
     {
@@ -11,7 +15,7 @@
             space.Add(new testpkgFunc());
             space.Add(new shell_reinitFunc());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
         }
     }
     internal class shell_dumpFunc : FunctionBase

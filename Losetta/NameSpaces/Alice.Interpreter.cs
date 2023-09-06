@@ -1,4 +1,10 @@
-﻿namespace AliceScript
+﻿using AliceScript.Functions;
+using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Packaging;
+using AliceScript.Parsing;
+
+namespace AliceScript
 {
     internal static class Alice_Interpreter_Initer
     {
@@ -26,14 +32,33 @@
                 space.Add(new Interpreter_GetScriptFunc());
                 space.Add(new gc_collectFunc());
                 space.Add(new gc_gettotalmemoryFunc());
+                space.Add(new Bind_RegisterFunc());
                 space.Add(new TypeObject());
 
-                NameSpaceManerger.Add(space);
+                NameSpaceManager.Add(space);
             }
             catch { }
         }
     }
+    internal class Bind_RegisterFunc : FunctionBase
+    {
+        public Bind_RegisterFunc()
+        {
+            Name = "Bind_Register";
+            MinimumArgCounts = 1;
+            Run += Bind_Register_Run;
+        }
 
+        private void Bind_Register_Run(object sender, FunctionBaseEventArgs e)
+        {
+            Type t = Type.GetType(e.Args[0].ToString());
+            if (t == null)
+            {
+                throw new ScriptException($"{e.Args[0]}という名前の型を検索できませんでした。アセンブリ名の指定を忘れていませんか？", Exceptions.OBJECT_DOESNT_EXIST);
+            }
+            NameSpaceManager.Add(t);
+        }
+    }
     internal class Interpreter_GetParentFunc : FunctionBase
     {
         public Interpreter_GetParentFunc()
@@ -178,7 +203,7 @@
             if (e.Args.Count == 0)
             {
                 Variable v = new Variable(Variable.VarType.ARRAY);
-                foreach (string s in FunctionBaseManerger.Functions)
+                foreach (string s in FunctionBaseManager.Functions)
                 {
                     v.Tuple.Add(new Variable(s));
                 }
@@ -187,10 +212,10 @@
             else
             {
                 string str = Utils.GetSafeString(e.Args, 0);
-                if (NameSpaceManerger.Contains(str))
+                if (NameSpaceManager.Contains(str))
                 {
                     Variable v = new Variable(Variable.VarType.ARRAY);
-                    foreach (FunctionBase fb in NameSpaceManerger.NameSpaces[str].Functions)
+                    foreach (FunctionBase fb in NameSpaceManager.NameSpaces[str].Functions)
                     {
                         v.Tuple.Add(new Variable(fb.Name));
                     }
@@ -215,7 +240,7 @@
         private void NamespacesFunc_Run(object sender, FunctionBaseEventArgs e)
         {
             Variable v = new Variable(Variable.VarType.ARRAY);
-            foreach (string s in NameSpaceManerger.NameSpaces.Keys)
+            foreach (string s in NameSpaceManager.NameSpaces.Keys)
             {
                 v.Tuple.Add(new Variable(s));
             }
@@ -462,7 +487,6 @@
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.PWD, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalScript, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FunctionName, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.InTryBlock, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StillValid, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Size, this));
             AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLineNumber, this));
@@ -663,7 +687,7 @@
             private Interpreter_ScriptObject Host;
             internal enum Interpreter_ScriptObject_Property_Mode
             {
-                IsMainFile, FileName, PWD, OriginalScript, FunctionName, InTryBlock, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
+                IsMainFile, FileName, PWD, OriginalScript, FunctionName, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
             }
             private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyBaseEventArgs e)
             {
@@ -694,11 +718,6 @@
                     case Interpreter_ScriptObject_Property_Mode.FunctionName:
                         {
                             e.Value = new Variable(Host.Script.FunctionName);
-                            break;
-                        }
-                    case Interpreter_ScriptObject_Property_Mode.InTryBlock:
-                        {
-                            e.Value = new Variable(Host.Script.InTryBlock);
                             break;
                         }
                     case Interpreter_ScriptObject_Property_Mode.StillValid:
@@ -796,177 +815,6 @@
                             break;
                         }
                 }
-            }
-        }
-    }
-
-    public class TypeObject : ObjectBase
-    {
-        public TypeObject()
-        {
-            Init();
-            Type = Variable.VarType.NONE;
-        }
-        public TypeObject(Variable.VarType type)
-        {
-            Init();
-            Type = type;
-        }
-        public TypeObject(AliceScriptClass type)
-        {
-            Init();
-            ClassType = type;
-            foreach (var kvs in type.StaticFunctions)
-            {
-                Functions.Add(kvs.Key, kvs.Value);
-            }
-        }
-        private void Init()
-        {
-            Name = "Type";
-            Functions.Add("Activate", new ActivateFunction(this));
-            Functions.Add("ToString", new ToStringFunction(this));
-            Functions.Add("ToNativeProperty", new ToNativeProperty(this));
-            Properties.Add("IsObject", new IsObjectProperty(this));
-            Properties.Add("Namespace", new NamespaceProperty(this));
-            Properties.Add("Base", new BaseProperty(this));
-        }
-        public Variable.VarType Type { get; set; }
-        public TypeObject ArrayType { get; set; }
-        public AliceScriptClass ClassType { get; set; }
-        internal class NamespaceProperty : PropertyBase
-        {
-            public NamespaceProperty(TypeObject type)
-            {
-                Name = "Namespace";
-                HandleEvents = true;
-                CanSet = false;
-                Getting += delegate (object sender, PropertyBaseEventArgs e)
-                {
-                    e.Value = type.ClassType != null ? new Variable(type.ClassType.Namespace) : Variable.EmptyInstance;
-                };
-            }
-        }
-        internal class BaseProperty : PropertyBase
-        {
-            public BaseProperty(TypeObject type)
-            {
-                Name = "Base";
-                HandleEvents = true;
-                CanSet = false;
-                Getting += delegate (object sender, PropertyBaseEventArgs e)
-                {
-                    e.Value = type.ClassType != null ? new Variable(type.ClassType.BaseClasses) : Variable.EmptyInstance;
-                };
-            }
-        }
-        internal class IsObjectProperty : PropertyBase
-        {
-            public IsObjectProperty(TypeObject type)
-            {
-                Name = "IsObject";
-                HandleEvents = true;
-                CanSet = false;
-                Getting += delegate (object sender, PropertyBaseEventArgs e)
-                {
-                    e.Value = new Variable(type.ClassType != null);
-                };
-            }
-        }
-        internal class ToNativeProperty : FunctionBase
-        {
-            public ToNativeProperty(TypeObject type)
-            {
-                Name = "ToNativeProperty";
-                Run += delegate (object sender, FunctionBaseEventArgs e)
-                {
-                    e.Return = type.ClassType != null ? new Variable(Variable.VarType.OBJECT) : new Variable(new TypeObject(type.Type));
-                };
-            }
-        }
-        /// <summary>
-        /// このオブジェクトの表す型がもう一方の型と等しいかどうかを表す値を取得します
-        /// </summary>
-        /// <param name="other">比較する型</param>
-        /// <returns>もう一方の型と等しければTrue、それ以外の場合はFalse</returns>
-        public bool Equals(TypeObject other)
-        {
-            return ClassType != null && other.ClassType != null
-                ? ClassType.ToString() == other.ClassType.ToString()
-                : ClassType != null || other.ClassType != null ? false : Type == other.Type;
-        }
-
-        public Variable Activate(List<Variable> args, ParsingScript script)
-        {
-            if (ClassType != null)
-            {
-                //TODO:非ObjectBaseのクラスのアクティベート
-                ObjectBase csClass = ClassType as ObjectBase;
-                if (csClass != null)
-                {
-                    return csClass.GetImplementation(args, script);
-                }
-            }
-            else if (Type == Variable.VarType.ARRAY)
-            {
-                Variable v = new Variable(Variable.VarType.ARRAY);
-                v.Tuple.Type = ArrayType;
-                return v;
-            }
-            else
-            {
-                return new Variable(Type);
-            }
-            return Variable.EmptyInstance;
-        }
-
-        public bool Match(Variable item)
-        {
-            if (Type.HasFlag(item.Type))
-            {
-                if (Type == Variable.VarType.OBJECT && item.Object is AliceScriptClass c && ClassType != c)
-                {
-                    return false;
-                }
-                else if (Type == Variable.VarType.ARRAY && item.Tuple.Type != ArrayType)
-                {
-                    return false;
-                }
-                return true;
-            }
-            else { return false; }
-        }
-        internal class ActivateFunction : FunctionBase
-        {
-            public ActivateFunction(TypeObject type)
-            {
-                Name = "Activate";
-                Run += Type_ActivateFunc_Run;
-                Type = type;
-            }
-            public TypeObject Type { get; set; }
-            private void Type_ActivateFunc_Run(object sender, FunctionBaseEventArgs e)
-            {
-                e.Return = Type.Activate(e.Args, e.Script);
-            }
-        }
-        internal class ToStringFunction : FunctionBase
-        {
-            public ToStringFunction(TypeObject type)
-            {
-                Name = "ToString";
-                Run += ToStringFunction_Run;
-                Type = type;
-            }
-            public TypeObject Type { get; set; }
-            private void ToStringFunction_Run(object sender, FunctionBaseEventArgs e)
-            {
-                if (Type.ClassType != null && Type.ClassType is TypeObject to)
-                {
-                    e.Return = new Variable("Alice.Interpreter.Type");
-                    return;
-                }
-                e.Return = Type.ClassType != null ? new Variable(Type.ClassType.ToString()) : new Variable(Constants.TypeToString(Type.Type));
             }
         }
     }
