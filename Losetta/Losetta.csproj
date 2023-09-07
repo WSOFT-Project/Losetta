@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Company>WSOFT</Company>
     <Authors>WSOFT</Authors>
     <Product>Losetta</Product>
@@ -17,14 +18,23 @@
     <PackageIcon>alice_logo.png</PackageIcon>
     <Title>Losetta</Title>
     <PackageTags>scripting;scripting-language;scripting-engine</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64;Debug_Throw;Release_OSX_ARM64</Configurations>
     <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>AliceScript</RootNamespace>
     <RepositoryType>git</RepositoryType>
-    <PackageOutputPath>\bin\package\alice</PackageOutputPath>
+    <PackageOutputPath>bin\packages</PackageOutputPath>
+	  <!-- ネイティブAOT向けの項目 -->
+	  <PublishAot>true</PublishAot>
+	  <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+	  <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
+	  <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
+	  <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+	  <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+	  <IlcDisableUnhandledExceptionExperience>false</IlcDisableUnhandledExceptionExperience>
+	  <!-- ネイティブAOT向けの項目(終わり) -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">
