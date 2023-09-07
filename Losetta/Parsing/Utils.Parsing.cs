@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
-    public partial class Utils
+    public static partial class Utils
     {
         public static Variable GetItem(ParsingScript script, bool eatLast = true)
         {

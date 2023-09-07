@@ -1,6 +1,6 @@
 ﻿namespace AliceScript
 {
-    public partial class Utils
+    public static partial class Utils
     {
         public static string GetFileEntry(string dir, int i, string startsWith)
         {

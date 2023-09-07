@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace AliceScript.Binding
 {
+    /// <summary>
+    /// .NETのメソッドと対応するAliceScriptの関数
+    /// </summary>
     public class BindFunction : FunctionBase
     {
         public BindFunction()
@@ -32,6 +35,11 @@ namespace AliceScript.Binding
             throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
         }
 
+        /// <summary>
+        /// 指定された型で公開されている静的メソッドをバインドし、名前空間を返します。
+        /// </summary>
+        /// <param name="type">バインドの対象となる型</param>
+        /// <returns>バインド済み関数が所属する名前空間</returns>
         public static NameSpace BindToNameSpace(Type type)
         {
             var space = new NameSpace(type.Name);
@@ -67,6 +75,12 @@ namespace AliceScript.Binding
             }
             return space;
         }
+        /// <summary>
+        /// メソッドからBindFunctionを生成
+        /// </summary>
+        /// <param name="methodInfos">同じメソッド名のオーバーロード</param>
+        /// <param name="needBind">このメソッドをバインドするには属性が必要</param>
+        /// <returns>生成されたFunctionBase</returns>
         private static FunctionBase CreateBindFunction(MethodInfo[] methodInfos, bool needBind)
         {
             var func = new BindFunction();
@@ -130,6 +144,9 @@ namespace AliceScript.Binding
             }
             return false;
         }
+        /// <summary>
+        /// 任意の静的メソッドを表すオブジェクト
+        /// </summary>
         private sealed class BindingOverloadFunction : FunctionBase
         {
             public ParameterInfo[] TrueParameters { get; set; }

@@ -4,6 +4,9 @@ using AliceScript.Parsing;
 
 namespace AliceScript.Functions
 {
+    /// <summary>
+    /// AliceScriptの関数
+    /// </summary>
     public class ParserFunction
     {
         public static Action<string, Variable, bool> OnVariableChange;
@@ -110,39 +113,39 @@ namespace AliceScript.Functions
         }
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
-            StringOrNumberFunction stringOrNumberFunction = new StringOrNumberFunction();
+            LiteralFunction literalFunction = new LiteralFunction();
 
             if (item.Length > 0 && char.IsDigit(item[0]))
             {
-                stringOrNumberFunction.Item = item;
-                stringOrNumberFunction.StringMode = false;
-                return stringOrNumberFunction;
+                literalFunction.Item = item;
+                literalFunction.StringMode = false;
+                return literalFunction;
             }
 
             if (item.Length > 3 && item.StartsWith(Constants.UTF8_LITERAL_PREFIX, StringComparison.Ordinal))
             {
                 item = item.Substring(Constants.UTF8_LITERAL_PREFIX.Length);
-                stringOrNumberFunction.DetectionUTF8_Literal = true;
+                literalFunction.DetectionUTF8_Literal = true;
             }
 
             if (item.Length > 2 && item.StartsWith(Constants.DOLLER))
             {
                 item = item.Substring(1);
-                stringOrNumberFunction.DetectionStringFormat = true;
+                literalFunction.DetectionStringFormat = true;
             }
 
             if (IsQuotedString(item))
             {
-                stringOrNumberFunction.Item = item;
-                stringOrNumberFunction.StringMode = true;
-                return stringOrNumberFunction;
+                literalFunction.Item = item;
+                literalFunction.StringMode = true;
+                return literalFunction;
             }
 
             if (script.ProcessingList && ch == ':')
             {
-                stringOrNumberFunction.Item = '"' + item + '"';
-                stringOrNumberFunction.StringMode = true;
-                return stringOrNumberFunction;
+                literalFunction.Item = '"' + item + '"';
+                literalFunction.StringMode = true;
+                return literalFunction;
             }
 
             return null;

@@ -6,7 +6,9 @@ using System.Text;
 
 namespace AliceScript
 {
-
+    /// <summary>
+    /// AliceScriptの変数を表すクラス
+    /// </summary>
     public class Variable : ScriptObject, IComparable<Variable>
     {
         [Flags]
@@ -111,9 +113,7 @@ namespace AliceScript
         }
         public static Variable AsType(VarType type)
         {
-            var r = new Variable(new TypeObject(type));
-            r.VariableType = type;
-            return r;
+            return  new Variable(new TypeObject(type));
         }
         public Variable()
         {
@@ -661,6 +661,14 @@ namespace AliceScript
             }
             return (int)Value;
         }
+        public virtual nint AsNInt(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this,true,0);
+            }
+            return (nint)Value;
+        }
         public virtual float AsFloat(bool check = true)
         {
             if (check)
@@ -835,6 +843,11 @@ namespace AliceScript
                 ? ByteArray == data
                 : obj is ObjectBase ob && Object is ObjectBase ob2 ? ob.Equals(ob2) : obj.Equals(Object);
         }
+        /// <summary>
+        /// この変数と指定された変数を並べ替えるとき、どちらが前に来るかを比較します
+        /// </summary>
+        /// <param name="other">比較する変数</param>
+        /// <returns>より前にくる場合は負の値、後にくる場合は正の値、一致する場合は0</returns>
         public int CompareTo(Variable? other)
         {
             return other == null
@@ -849,130 +862,146 @@ namespace AliceScript
                 ? Bool.CompareTo(other.Bool)
                 : other.Type == VarType.OBJECT && Object is ObjectBase ob ? ob.CompareTo(other.Object) : 0;
         }
-
+        /// <summary>
+        /// この変数を指定した型に変換します
+        /// </summary>
+        /// <typeparam name="T">変換先の型</typeparam>
+        /// <returns>変換されたオブジェクト</returns>
         public T ConvertTo<T>()
         {
             return (T)ConvertTo(typeof(T));
         }
+        /// <summary>
+        /// この変数を指定した型に変換します
+        /// </summary>
+        /// <param name="type">変換先の型</param>
+        /// <returns>変換されたオブジェクト</returns>
+        /// <exception cref="ScriptException">型の不一致により変換できない場合にスローされる例外</exception>
         public object ConvertTo(Type type)
         {
-            if (type == typeof(Variable))
-            {
-                return this;
-            }
-            if (type == typeof(string))
-            {
-                return AsString();
-            }
-            if (type == typeof(bool))
-            {
-                return AsBool();
-            }
-            if (type == typeof(byte[]))
-            {
-                return AsByteArray();
-            }
-            if (type == typeof(double))
-            {
-                return AsDouble();
-            }
-            if (type == typeof(float))
-            {
-                return AsFloat();
-            }
-            if (type == typeof(int))
-            {
-                return AsInt();
-            }
-            if (type == typeof(long))
-            {
-                return AsLong();
-            }
-            return type == typeof(bool?)
-                ? Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_bool
-                : type == typeof(double?)
-                ? Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value
-                : type == typeof(float?)
-                ? (float?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
-                : type == typeof(int?)
-                ? (int?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
-                : type == typeof(long?)
-                ? (long?)(Type != VarType.NUMBER ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : m_value)
-                : type == typeof(TypeObject)
-                ? AsType()
-                : type == typeof(VariableCollection)
-                ? Tuple
-                : type == typeof(Variable[])
-                ? Tuple.ToArray()
-                : type == typeof(List<Variable>) ? Tuple.ToList() : type == typeof(DelegateObject) ? AsDelegate() : AsObject();
+            return TryConvertTo(type, out object o) ? o : throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE);
         }
+        /// <summary>
+        /// この変数を指定した型に変換できるか試みます
+        /// </summary>
+        /// <typeparam name="T">変換先の型</typeparam>
+        /// <param name="result">変換されたオブジェクト</param>
+        /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
         public bool TryConvertTo<T>(out T result)
         {
             bool r = TryConvertTo(typeof(T), out object obj);
             result = (T)obj;
             return r;
         }
+        /// <summary>
+        /// この変数を指定した型に変換できるか試みます
+        /// </summary>
+        /// <param name="type">変換先の型</param>
+        /// <param name="result">変換されたオブジェクト</param>
+        /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
         public bool TryConvertTo(Type type, out object result)
         {
-            if (type == typeof(string) && Type == VarType.STRING)
+            switch (Type)
             {
-                result = AsString();
-                return true;
-            }
-            if (type == typeof(bool) && Type == VarType.BOOLEAN)
-            {
-                result = AsBool();
-                return true;
-            }
-            if (type == typeof(byte[]) && Type == VarType.BYTES)
-            {
-                result = AsByteArray();
-                return true;
-            }
-            if (type == typeof(double) && Type == VarType.NUMBER)
-            {
-                result = AsDouble();
-                return true;
-            }
-            if (type == typeof(float) && Type == VarType.NUMBER)
-            {
-                result = AsFloat();
-                return true;
-            }
-            if (type == typeof(int) && Type == VarType.NUMBER)
-            {
-                result = AsInt();
-                return true;
-            }
-            if (type == typeof(long) && Type == VarType.NUMBER)
-            {
-                result = AsLong();
-                return true;
-            }
-            if (type == typeof(TypeObject) && Object is TypeObject to)
-            {
-                result = to;
-                return true;
-            }
-            if (type == typeof(VariableCollection) && Type == VarType.ARRAY)
-            {
-                result = Tuple;
-                return true;
-            }
-            if (type == typeof(Variable[]) && Type == VarType.ARRAY)
-            {
-                result = Tuple.ToArray();
-                return true;
-            }
-            if (type == typeof(List<Variable>) && Type == VarType.ARRAY)
-            {
-                result = Tuple.ToList();
-                return true;
-            }
-            if (type == typeof(DelegateObject) && Type == VarType.DELEGATE)
-            {
-                result = AsDelegate();
-                return true;
+                case VarType.STRING:
+                    {
+                        if(type == typeof(string))
+                        {
+                            result = String;
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.BOOLEAN:
+                    {
+                        if(type == typeof(bool))
+                        {
+                            result = Bool;
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.BYTES:
+                    {
+                        if(type == typeof(byte[]))
+                        {
+                            result = ByteArray;
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.NUMBER:
+                    {
+                        if(type == typeof(int))
+                        {
+                            result = AsInt();
+                            return true;
+                        }
+                        if (type == typeof(nint))
+                        {
+                            result = AsNInt();
+                            return true;
+                        }
+                        if (type == typeof(float))
+                        {
+                            result = AsFloat();
+                            return true;
+                        }
+                        if(type == typeof(long))
+                        {
+                            result = AsLong();
+                            return true;
+                        }
+                        if (type == typeof(double))
+                        {
+                            result = AsDouble();
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.ARRAY:
+                    {
+                        if(Tuple.Type.Type == VarType.STRING && type == typeof(string[]))
+                        {
+                            var ary = new List<string>();
+                            foreach(var v in Tuple)
+                            {
+                                ary.Add(v.String);
+                            }
+                            result = ary.ToArray();
+                            return true;
+                        }
+                        if(type == typeof(VariableCollection))
+                        {
+                            result = Tuple;
+                            return true;
+                        }
+                        if(type == typeof(Variable[]))
+                        {
+                            result = Tuple.ToArray();
+                            return true;
+                        }
+                        if(type == typeof(List<Variable>))
+                        {
+                            result = Tuple.ToList();
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.DELEGATE:
+                    {
+                        if(type == typeof(DelegateObject))
+                        {
+                            result = AsDelegate();
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.OBJECT:
+                    {
+                        result = System.Convert.ChangeType(Object,type);
+                        return true;
+                    }
             }
             result = null;
             return false;
@@ -1636,19 +1665,17 @@ namespace AliceScript
         }
 
         public string Action { get; set; }
+        /// <summary>
+        /// この変数の型
+        /// </summary>
         public VarType Type
         {
             get => m_type;
             set => m_type = value;
         }
         /// <summary>
-        /// タイプ型の表すタイプです。変数の型ではないことに注意してください
+        /// これが関数の戻り値などである場合はTrue
         /// </summary>
-        public VarType VariableType
-        {
-            get;
-            set;
-        }
         public bool IsReturn { get; set; }
         public string ParsingToken { get; set; }
         public int Index { get; set; }
@@ -1692,25 +1719,18 @@ namespace AliceScript
             get
             {
                 var v = new Variable();
-                v.AssignNull();
+                v.AssignNull();//念のためnullにする
                 return v;
             }
         }
         public static Variable Undefined = new Variable(VarType.UNDEFINED);
 
-        public virtual Variable Default()
-        {
-            return EmptyInstance;
-        }
-
-
-
-        protected double? m_value = default;
-        protected string m_string = default;
-        protected object m_object = null;
-        protected bool? m_bool = default;
-        protected DelegateObject m_delegate = null;
-        protected VarType m_type;
+        internal double? m_value = default;
+        internal string m_string = default;
+        internal object m_object = null;
+        internal bool? m_bool = default;
+        internal DelegateObject m_delegate = null;
+        internal VarType m_type;
         private CustomFunction m_customFunctionGet;
         private CustomFunction m_customFunctionSet;
         protected VariableCollection m_tuple = null;
@@ -1723,7 +1743,7 @@ namespace AliceScript
         private Dictionary<int, string> m_enumMap;
     }
 
-    // A Variable supporting "dot-notation" must have an object implementing this interface.
+    // ピリオドを使ってプロパティを参照できるオブジェクト
     public interface ScriptObject
     {
         // SetProperty is triggered by the following scripting call: "a.name = value;"

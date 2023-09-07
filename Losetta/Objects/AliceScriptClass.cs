@@ -4,6 +4,9 @@ using AliceScript.Parsing;
 
 namespace AliceScript.Objects
 {
+    /// <summary>
+    /// ユーザー定義のクラス
+    /// </summary>
     public class AliceScriptClass : FunctionBase
     {
         public AliceScriptClass()

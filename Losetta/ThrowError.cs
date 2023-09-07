@@ -2,14 +2,38 @@
 
 namespace AliceScript
 {
+    /// <summary>
+    /// スクリプトを実行中に発生した例外
+    /// </summary>
     public class ThrowErrorEventArgs : EventArgs
     {
+        /// <summary>
+        /// 例外の状態を表すメッセージ
+        /// </summary>
         public string Message { get; set; }
+        /// <summary>
+        /// 例外について説明するサイトへのリンク
+        /// </summary>
         public string HelpLink { get; set; }
+        /// <summary>
+        /// 例外が発生した場所
+        /// </summary>
         public string Source { get; set; }
+        /// <summary>
+        /// 例外が発生したスクリプト
+        /// </summary>
         public ParsingScript Script { get; set; }
+        /// <summary>
+        /// パース中の例外のとき、パーサーからの報告内容
+        /// </summary>
         public ParsingException Exception { get; set; }
+        /// <summary>
+        /// 例外を表すエラーコード
+        /// </summary>
         public Exceptions ErrorCode { get; set; }
+        /// <summary>
+        /// 例外が処理され場合はtrue
+        /// </summary>
         public bool Handled { get; set; }
     }
     public delegate void ThrowErrorEventhandler(object sender, ThrowErrorEventArgs e);

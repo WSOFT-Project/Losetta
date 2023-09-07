@@ -2,8 +2,18 @@
 
 namespace AliceScript.Extra
 {
+    /// <summary>
+    /// ReadJEncを使用することで安全なファイルの読み取りを提供するクラス
+    /// </summary>
     public static class SafeReader
     {
+        /// <summary>
+        /// ReadJEncを使用して、ファイルから文字列を取得します。
+        /// </summary>
+        /// <param name="filename">取得するファイル名</param>
+        /// <param name="charcode">判定された文字コード</param>
+        /// <returns>ファイル内の文字列</returns>
+        /// <exception cref="FileNotFoundException">指定されたファイルが存在しません</exception>
         public static string ReadAllText(string filename, out string charcode)
         {
             if (string.IsNullOrEmpty(filename)) { charcode = ""; return string.Empty; }
@@ -20,6 +30,12 @@ namespace AliceScript.Extra
                 return reader.Text;
             }
         }
+        /// <summary>
+        /// ReadJEncを使用して、バイト配列から文字列を取得します
+        /// </summary>
+        /// <param name="data">取得するデータ</param>
+        /// <param name="charcode">判定された文字コード</param>
+        /// <returns>データ内の文字列</returns>
         public static string ReadAllText(byte[] data, out string charcode)
         {
             using (FileReader reader = new FileReader(data))
@@ -877,7 +893,7 @@ namespace AliceScript.Extra
                             if (b2 == (b2 = bytes[cp1252Pos - 2])) { cp1252Score += 5; } // 同一文字重ねはかなり特徴的(SJISカナより可能性高)
                             else if (b2 >= 0xC0)
                             {   // 続きor直前のASCII文字がアルファベットっぽければ、SJISカナより可能性が高くなるよう補正                               
-                                if (b1 > 0x40 || notAsciiStart > 0 && bytes[notAsciiStart - 1] > 0x40) { cp1252Score += 5; }
+                                if (b1 > 0x40 || (notAsciiStart > 0 && bytes[notAsciiStart - 1] > 0x40)) { cp1252Score += 5; }
                                 else { cp1252Score += 3; } // どちらでもなければ、EUCよりは可能性高とする
                             }
                             else { cp1252Score++; } // 否ならば低めの加算とする
@@ -1268,7 +1284,7 @@ namespace AliceScript.Extra
                     {
                         if (b1 < 0x81 || b1 > 0xF9 || b1 == 0xC7 || b1 == 0xC8
                             || ++pos >= len
-                            || (b2 = bytes[pos]) < 0x40 || b2 < 0xA1 && b2 > 0x7E || b2 > 0xFE)
+                            || (b2 = bytes[pos]) < 0x40 || (b2 < 0xA1 && b2 > 0x7E) || b2 > 0xFE)
                         {   // １バイト目がBig5定義外 or ２バイト目把握不能 or ２バイト目がBig5定義外
                             return int.MinValue; // 可能性消滅
                         }
@@ -1361,7 +1377,7 @@ namespace AliceScript.Extra
                     {
                         if (b1 < 0x81 || b1 > 0xFE
                             || ++pos >= len
-                            || (b2 = bytes[pos]) < 0x41 || b2 < 0x61 && b2 > 0x5A || b2 < 0x81 && b2 > 0x7A || b2 > 0xFE)
+                            || (b2 = bytes[pos]) < 0x41 || (b2 < 0x61 && b2 > 0x5A) || (b2 < 0x81 && b2 > 0x7A) || b2 > 0xFE)
                         {   // １バイト目がおかしい(UHC定義外) or ２バイト目把握不能 or ２バイト目がUHC定義外
                             return int.MinValue; // 可能性消滅
                         }
