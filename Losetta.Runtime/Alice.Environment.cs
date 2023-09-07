@@ -150,7 +150,7 @@ namespace AliceScript.NameSpaces
         {
 
 #if RELEASE_WIN_X64 || RELEASE_LINUX_X64 || RELEASE_OSX_X64
-            return "x64";
+            return "x64-native";
 #elif RELEASE_WIN_X86
             return "x86";
 #elif RELEASE_WIN_ARM || RELEASE_LINUX_ARM
