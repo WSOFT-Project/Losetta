@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using AliceScript.Functions;
+using AliceScript.Parsing;
+using System.Text;
 
 namespace AliceScript.CLI
 {
@@ -28,8 +30,6 @@ namespace AliceScript.CLI
             Interpreter.Instance.OnOutput += Print;
             //デバッグ出力
             Interpreter.Instance.OnDebug += Debug_Print;
-            //例外出力
-            ThrowErrorManager.ThrowError += ThrowErrorManager_ThrowError;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
             //REPLはデバッグモードに
@@ -483,7 +483,7 @@ namespace AliceScript.CLI
         private static string GetPrompt()
         {
             string path = Directory.GetCurrentDirectory();
-            return string.Format("{0}>>", path);
+            return $"Alice {path}>>";
         }
 
         internal static void PrintColor(string output, ConsoleColor fgcolor, ConsoleColor? bgcolor = null)

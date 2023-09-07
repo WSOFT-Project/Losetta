@@ -1,5 +1,10 @@
-﻿namespace AliceScript
+﻿using AliceScript.Parsing;
+
+namespace AliceScript
 {
+    /// <summary>
+    /// AliceScript
+    /// </summary>
     public static class Alice
     {
         /// <summary>
@@ -97,6 +102,15 @@
         public static ParsingScript GetScript(string code, string filename = "", bool mainFile = false)
         {
             return Interpreter.Instance.GetScript(code, filename, mainFile);
+        }
+        /// <summary>
+        /// クラス内の静的メソッドをAliceScriptで使用できるよう登録します
+        /// </summary>
+        /// <typeparam name="T">登録するクラス</typeparam>
+        /// <param name="name">登録する名前空間の名前。nullにすると自動選択されます。</param>
+        public static void RegisterFunctions<T>(string name=null)
+        {
+           NameSpaces.NameSpaceManager.Add(typeof(T),name);
         }
         /// <summary>
         /// プログラムが終了を求めているときに発生するイベントです

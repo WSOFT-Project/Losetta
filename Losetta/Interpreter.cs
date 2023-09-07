@@ -1,4 +1,9 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Functions;
+using AliceScript.Interop;
+using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Packaging;
+using AliceScript.Parsing;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
@@ -291,11 +296,6 @@ namespace AliceScript
 
             return result;
         }
-
-        //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
-
-
-
     }
 }
 

@@ -1,4 +1,7 @@
-﻿namespace AliceScript
+﻿using AliceScript.Objects;
+using AliceScript.Parsing;
+
+namespace AliceScript.Functions
 {
     public class FunctionBase : ParserFunction
     {
@@ -31,6 +34,13 @@
         /// この関数が所属する名前空間の名前を取得または設定します。
         /// </summary>
         public string RelatedNameSpace { get; set; }
+        /// <summary>
+        /// この関数を呼び出します
+        /// </summary>
+        /// <param name="args">呼び出しに使用する引数</param>
+        /// <param name="script">呼び出し元のスクリプト</param>
+        /// <param name="instance">呼び出し元のクラスインスタンス</param>
+        /// <returns>この関数の戻り値</returns>
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
@@ -65,6 +75,12 @@
             }
             return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
+        /// <summary>
+        /// この関数を呼び出します
+        /// </summary>
+        /// <param name="script">呼び出し元のスクリプト</param>
+        /// <returns>この関数の戻り値</returns>
+        /// <exception cref="ScriptException">受け入れ範囲外の引数を受取ることはできません</exception>
         protected override Variable Evaluate(ParsingScript script)
         {
             List<Variable> args = null;
@@ -83,6 +99,13 @@
             }
             return Evaluate(args, script);
         }
+        /// <summary>
+        /// この拡張メソッドを呼び出します
+        /// </summary>
+        /// <param name="script">呼び出し元のスクリプト</param>
+        /// <param name="currentVariable">呼び出し元の変数</param>
+        /// <returns>この拡張メソッドの戻り値</returns>
+        /// <exception cref="ScriptException">この拡張メソッドが使用できない場合はエラー</exception>
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
             if (currentVariable == null)
@@ -163,10 +186,6 @@
 
             return ex.Return;
         }
-        public void OnRun(List<Variable> args)
-        {
-            GetVaruableFromArgs(args);
-        }
 
     }
     /// <summary>
@@ -199,7 +218,9 @@
         /// </summary>
         VIRTUAL = 5,
     }
-
+    /// <summary>
+    /// 関数を登録または登録解除する操作を提供します
+    /// </summary>
     public static class FunctionBaseManager
     {
         /// <summary>
@@ -278,7 +299,7 @@
         /// <summary>
         /// 現在インタプリタに登録されている関数の名前の一覧を取得します
         /// </summary>
-        public static IEnumerable<string> Functions => ParserFunction.s_functions.Keys;
+        public static List<string> Functions => new List<string>(ParserFunction.s_functions.Keys);
     }
     public delegate void FunctionBaseEventHandler(object sender, FunctionBaseEventArgs e);
     public class FunctionBaseEventArgs : EventArgs

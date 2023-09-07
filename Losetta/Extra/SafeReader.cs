@@ -1,9 +1,19 @@
 ﻿using System.Text;
 
-namespace AliceScript
+namespace AliceScript.Extra
 {
+    /// <summary>
+    /// ReadJEncを使用することで安全なファイルの読み取りを提供するクラス
+    /// </summary>
     public static class SafeReader
     {
+        /// <summary>
+        /// ReadJEncを使用して、ファイルから文字列を取得します。
+        /// </summary>
+        /// <param name="filename">取得するファイル名</param>
+        /// <param name="charcode">判定された文字コード</param>
+        /// <returns>ファイル内の文字列</returns>
+        /// <exception cref="FileNotFoundException">指定されたファイルが存在しません</exception>
         public static string ReadAllText(string filename, out string charcode)
         {
             if (string.IsNullOrEmpty(filename)) { charcode = ""; return string.Empty; }
@@ -20,6 +30,12 @@ namespace AliceScript
                 return reader.Text;
             }
         }
+        /// <summary>
+        /// ReadJEncを使用して、バイト配列から文字列を取得します
+        /// </summary>
+        /// <param name="data">取得するデータ</param>
+        /// <param name="charcode">判定された文字コード</param>
+        /// <returns>データ内の文字列</returns>
         public static string ReadAllText(byte[] data, out string charcode)
         {
             using (FileReader reader = new FileReader(data))
@@ -186,8 +202,8 @@ namespace AliceScript
             if (Encoding == null)
             {   // Encodingオブジェクトがまだ用意されていなければ初期化する
                 Encoding =
-                    CodePage > 0 ? System.Text.Encoding.GetEncoding(CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback)
-                    : CodePage < 0 ? System.Text.Encoding.GetEncoding(-CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ReplacementFallback)
+                    CodePage > 0 ? Encoding.GetEncoding(CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback)
+                    : CodePage < 0 ? Encoding.GetEncoding(-CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ReplacementFallback)
                     : null;
             }
             return Encoding;
@@ -442,8 +458,8 @@ namespace AliceScript
                 // ここまでで文字コードが決まらなかったらバイナリファイル扱い
                 return c ?? FileType.GetBinaryType(Bytes, Length);
             }
-            catch (System.IO.IOException) { return FileType.READERROR; } // ■読み取りエラー
-            catch (System.UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
+            catch (IOException) { return FileType.READERROR; } // ■読み取りエラー
+            catch (UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
         }
 
         internal virtual CharCode Read(byte[] data)
@@ -487,8 +503,8 @@ namespace AliceScript
                 // ここまでで文字コードが決まらなかったらバイナリファイル扱い
                 return c ?? FileType.GetBinaryType(Bytes, Length);
             }
-            catch (System.IO.IOException) { return FileType.READERROR; } // ■読み取りエラー
-            catch (System.UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
+            catch (IOException) { return FileType.READERROR; } // ■読み取りエラー
+            catch (UnauthorizedAccessException) { return FileType.READERROR; } // ■読み取りエラー
         }
         /// <summary>Readメソッド呼び出し時にファイルから読み出したテキスト文字列内容を取得します。</summary>
         /// <remarks>ファイルからテキストが取り出せなかった場合はnullとなります。</remarks>
@@ -805,7 +821,7 @@ namespace AliceScript
                     asciiEndPos += escapeSequenceChecker.GetEncoding(asciiEndPos);
                 }
                 // 次の文字へ
-                if ((++asciiEndPos) >= len)
+                if (++asciiEndPos >= len)
                 {   // 全文字チェック完了：非ASCII文字未検出、JISもしくはASCII
                     if (escapeSequenceChecker != null)
                     {   // エスケープシーケンスに基づく文字コードが取得できるか確認
@@ -823,7 +839,7 @@ namespace AliceScript
                         }
                     }
                     // ■ASCII確定（ただしデコード失敗時はバイナリ）
-                    return ((text = CharCode.ASCII.GetString(bytes, len)) != null) ? CharCode.ASCII : null;
+                    return (text = CharCode.ASCII.GetString(bytes, len)) != null ? CharCode.ASCII : null;
                 }
                 b1 = bytes[asciiEndPos];
             }
@@ -856,7 +872,7 @@ namespace AliceScript
                 switch (cp1252Score)
                 {
                     case int.MinValue: // CP1252系の可能性否定済み、非ASCII文字のスキップのみ実施
-                        while (b1 > DEL && (++cp1252Pos) < len) { b1 = bytes[cp1252Pos]; }
+                        while (b1 > DEL && ++cp1252Pos < len) { b1 = bytes[cp1252Pos]; }
                         break;
                     default: // CP1252系可能性あり、定義外文字混入チェック＆ポイント加算
                         while (b1 > DEL)
@@ -866,7 +882,7 @@ namespace AliceScript
                                 cp1252Score = int.MinValue;
                                 goto case int.MinValue; // 非ASCII文字スキップへ
                             }
-                            if ((++cp1252Pos) >= len) { break; }
+                            if (++cp1252Pos >= len) { break; }
                             b1 = bytes[cp1252Pos];
                         }
                         // 非ASCII文字範囲終了、評価ポイント加算
@@ -893,19 +909,19 @@ namespace AliceScript
                     {
                         b1 = bytes[utfPos]; // ※1バイト目は厳密にチェック、2バイト目以降は（デコード時にチェックアウトできる前提で）冗長なエンコードやサロゲート等を許容している
                         // 1バイト目・２バイト目(ともに0x80以上であることは確認済み)をチェック
-                        if (b1 < 0xC2 || (++utfPos) >= cp1252Pos || bytes[utfPos] > 0xBF) { utfScore = int.MinValue; break; } // UTF8可能性消滅
+                        if (b1 < 0xC2 || ++utfPos >= cp1252Pos || bytes[utfPos] > 0xBF) { utfScore = int.MinValue; break; } // UTF8可能性消滅
                         else if (b1 < 0xE0)
                         {   // ２バイト文字OK（半角文字とみなして評価）
                             if (prevIsKanji == false) { utfScore += 6; } else { utfScore += 2; prevIsKanji = false; }
                         }
                         // 3バイト目(0x80以上であることは確認済み)をチェック
-                        else if ((++utfPos) >= cp1252Pos || bytes[utfPos] > 0xBF) { utfScore = int.MinValue; break; } // UTF8可能性消滅
+                        else if (++utfPos >= cp1252Pos || bytes[utfPos] > 0xBF) { utfScore = int.MinValue; break; } // UTF8可能性消滅
                         else if (b1 < 0xF0)
                         {   // ３バイト文字OK（全角文字とみなして評価）
                             if (prevIsKanji == true) { utfScore += 8; } else { utfScore += 4; prevIsKanji = true; }
                         }
                         // 4バイト目(0x80以上であることは確認済み)をチェック
-                        else if ((++utfPos) >= cp1252Pos || bytes[utfPos] > 0xBF) { utfScore = int.MinValue; break; } // UTF8可能性消滅
+                        else if (++utfPos >= cp1252Pos || bytes[utfPos] > 0xBF) { utfScore = int.MinValue; break; } // UTF8可能性消滅
                         else if (b1 < 0xF5)
                         {   // ４バイト文字OK（全角文字とみなして評価）
                             if (prevIsKanji == true) { utfScore += 12; } else { utfScore += 6; prevIsKanji = true; }
@@ -922,7 +938,7 @@ namespace AliceScript
                     for (int eucPos = notAsciiStart; eucPos < cp1252Pos; eucPos++)
                     {   // １バイト目(0xA1-0xFE,0x8E,0x8F)・２バイト目(１バイト目に応じ範囲が異なる)のチェック
                         b1 = bytes[eucPos];
-                        if (b1 == 0xFF || (++eucPos) >= cp1252Pos) { eucScore = int.MinValue; break; } // EUC可能性消滅
+                        if (b1 == 0xFF || ++eucPos >= cp1252Pos) { eucScore = int.MinValue; break; } // EUC可能性消滅
                         b2 = bytes[eucPos];
                         if (b1 >= 0xA1)
                         {   // １バイト目＝全角文字指定、２バイト全角文字チェック
@@ -943,7 +959,7 @@ namespace AliceScript
                         }
                         else if (b1 == 0x8F
                             && b2 >= 0xA1 && b2 < 0xFF
-                            && (++eucPos) < cp1252Pos
+                            && ++eucPos < cp1252Pos
                             && (b2 = bytes[eucPos]) >= 0xA1 && b2 < 0xFF)
                         {   // 残る可能性は３バイト文字：検出OKならEUC文字数を加算（全角文字、補助漢字）
                             if (prevChar == PREV_ZENKAKU) { eucScore += 8; } else { eucScore += 3; prevChar = PREV_ZENKAKU; }
@@ -1219,7 +1235,7 @@ namespace AliceScript
                         // (0x9#) 0000 0000 0000 0000  (0x8#) 0000 0000 0110 0001 - 80(A0判定でも流用):定義外、85,86:未使用(shift_jis2004などでは使用ありだがCP932ではデコード不能)
                         // (0xF#) 1110 0000 0000 0000  (0xE#) 1001 1000 0000 0000 - FD,FE,FF:定義外、EB,EC,EF:未使用 (F0-F9:外字は許容。HNXgrepなど外字不許容とする場合はビットを立てること)
                         else if (((b1 < 0xE0 ? 0x00000061 : 0xE0009800) & (1u << (b1 % 32))) != 0
-                            || (++pos) >= len
+                            || ++pos >= len
                             || (b2 = bytes[pos]) < 0x40 || b2 > 0xFC)
                         {   // １バイト目がおかしい(SJIS定義外/未使用) or ２バイト目把握不能 or ２バイト目SJIS定義外
                             return int.MinValue; // 可能性消滅
@@ -1234,11 +1250,11 @@ namespace AliceScript
                             }
                         }
                         // 各国語全コード共通：さらに次の文字へ
-                        if ((++pos) >= len) { break; }
+                        if (++pos >= len) { break; }
                         b1 = bytes[pos];
                     }
                     // 各国語全コード共通：半角文字の範囲を読み飛ばし
-                    while (b1 <= DEL && (++pos) < len) { b1 = bytes[pos]; }
+                    while (b1 <= DEL && ++pos < len) { b1 = bytes[pos]; }
                 }
                 return score;
             }
@@ -1267,7 +1283,7 @@ namespace AliceScript
                     while (b1 > DEL)
                     {
                         if (b1 < 0x81 || b1 > 0xF9 || b1 == 0xC7 || b1 == 0xC8
-                            || (++pos) >= len
+                            || ++pos >= len
                             || (b2 = bytes[pos]) < 0x40 || (b2 < 0xA1 && b2 > 0x7E) || b2 > 0xFE)
                         {   // １バイト目がBig5定義外 or ２バイト目把握不能 or ２バイト目がBig5定義外
                             return int.MinValue; // 可能性消滅
@@ -1282,11 +1298,11 @@ namespace AliceScript
                             }
                         }
                         // 各国語全コード共通：さらに次の文字へ
-                        if ((++pos) >= len) { break; }
+                        if (++pos >= len) { break; }
                         b1 = bytes[pos];
                     }
                     // 各国語全コード共通：半角文字の範囲を読み飛ばし
-                    while (b1 <= DEL && (++pos) < len) { b1 = bytes[pos]; }
+                    while (b1 <= DEL && ++pos < len) { b1 = bytes[pos]; }
                 }
                 return score;
             }
@@ -1310,7 +1326,7 @@ namespace AliceScript
                     int prevChar = 0; // 前の文字はKANAでもZENKAKUでもない
                     while (b1 > DEL)
                     {
-                        if (b1 < 0x81 || b1 > 0xFE || (++pos) >= len)
+                        if (b1 < 0x81 || b1 > 0xFE || ++pos >= len)
                         {   // １バイト目がおかしい(GB定義外) or ２バイト目把握不能
                             return int.MinValue; // 可能性消滅
                         }
@@ -1319,9 +1335,9 @@ namespace AliceScript
                             if (prevChar == PREV_ZENKAKU) { score += 4; } else { score += 2; prevChar = PREV_ZENKAKU; }
                         }
                         else if (b2 >= 0x30 && b2 <= 0x39
-                            && (++pos) < len
+                            && ++pos < len
                             && (b2 = bytes[pos]) >= 0x81 && b2 <= 0xFE
-                            && (++pos) < len
+                            && ++pos < len
                             && (b2 = bytes[pos]) >= 0x30 && b2 <= 0x39)
                         {   // ４バイト全角文字：全角文字数を加算（かなりGB18030の決め手になる特徴なので、ポイントを高めに）
                             if (prevChar == PREV_ZENKAKU) { score += 16; } else { score += 8; prevChar = PREV_ZENKAKU; }
@@ -1331,11 +1347,11 @@ namespace AliceScript
                             return int.MinValue; // 可能性消滅
                         }
                         // 各国語全コード共通：さらに次の文字へ
-                        if ((++pos) >= len) { break; }
+                        if (++pos >= len) { break; }
                         b1 = bytes[pos];
                     }
                     // 各国語全コード共通：半角文字の範囲を読み飛ばし
-                    while (b1 <= DEL && (++pos) < len) { b1 = bytes[pos]; }
+                    while (b1 <= DEL && ++pos < len) { b1 = bytes[pos]; }
                 }
                 return score;
             }
@@ -1360,7 +1376,7 @@ namespace AliceScript
                     while (b1 > DEL)
                     {
                         if (b1 < 0x81 || b1 > 0xFE
-                            || (++pos) >= len
+                            || ++pos >= len
                             || (b2 = bytes[pos]) < 0x41 || (b2 < 0x61 && b2 > 0x5A) || (b2 < 0x81 && b2 > 0x7A) || b2 > 0xFE)
                         {   // １バイト目がおかしい(UHC定義外) or ２バイト目把握不能 or ２バイト目がUHC定義外
                             return int.MinValue; // 可能性消滅
@@ -1370,11 +1386,11 @@ namespace AliceScript
                             if (prevChar == PREV_ZENKAKU) { score += 4; } else { score += 2; prevChar = PREV_ZENKAKU; }
                         }
                         // 各国語全コード共通：さらに次の文字へ
-                        if ((++pos) >= len) { break; }
+                        if (++pos >= len) { break; }
                         b1 = bytes[pos];
                     }
                     // 各国語全コード共通：半角文字の範囲を読み飛ばし
-                    while (b1 <= DEL && (++pos) < len) { b1 = bytes[pos]; }
+                    while (b1 <= DEL && ++pos < len) { b1 = bytes[pos]; }
                 }
                 return score;
             }
@@ -1426,9 +1442,9 @@ namespace AliceScript
                     bool prevOwnChar = false; // 直前文字がその文字コード体系固有のものであればtrue、連続していれば配点高めとする
                     while (b1 > DEL)
                     {   // 未定義文字チェック
-                        uint undefinedCheck = (b1 < 0xC0)
-                            ? (b1 < 0xA0) ? undefined_0x80_0x9F : undefined_0xA0_0xBF
-                            : (b1 < 0xE0) ? undefined_0xC0_0xDF : undefined_0xE0_0xFF;
+                        uint undefinedCheck = b1 < 0xC0
+                            ? b1 < 0xA0 ? undefined_0x80_0x9F : undefined_0xA0_0xBF
+                            : b1 < 0xE0 ? undefined_0xC0_0xDF : undefined_0xE0_0xFF;
                         // そのバイト値が未定義コードかどうかチェック（bit表現値とかみあうようビットシフトして照合）
                         if ((undefinedCheck & (1u << (b1 % 32))) != 0)
                         {   // ビットが立ってる＝未定義コード、可能性消滅
@@ -1443,11 +1459,11 @@ namespace AliceScript
                             if (prevOwnChar) { score += 1; prevOwnChar = false; } else { score += 2; }
                         }
                         // 各国語全コード共通：さらに次の文字へ
-                        if ((++pos) >= len) { break; }
+                        if (++pos >= len) { break; }
                         b1 = bytes[pos];
                     }
                     // 各国語全コード共通：半角文字の範囲を読み飛ばし
-                    while (b1 <= DEL && (++pos) < len) { b1 = bytes[pos]; }
+                    while (b1 <= DEL && ++pos < len) { b1 = bytes[pos]; }
                 }
                 return score;
             }

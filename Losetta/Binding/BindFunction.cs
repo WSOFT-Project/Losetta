@@ -1,28 +1,13 @@
-﻿using System.Linq.Expressions;
+﻿using AliceScript.Functions;
+using AliceScript.NameSpaces;
+using System.Linq.Expressions;
 using System.Reflection;
 
-namespace AliceScript.Interop
+namespace AliceScript.Binding
 {
     /// <summary>
-    /// AliceScriptで使用できる関数として公開するメソッド
+    /// .NETのメソッドと対応するAliceScriptの関数
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class AliceFunctionAttribute : Attribute
-    {
-        public string Name { get; set; }
-        public FunctionAttribute Attribute { get; set; }
-    }
-
-    /// <summary>
-    /// AliceScriptの名前空間として公開するクラス
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
-    public class AliceNameSpaceAttribute : Attribute
-    {
-        public string Name { get; set; }
-        public bool NeedBindAttribute { get; set; }
-
-    }
     public class BindFunction : FunctionBase
     {
         public BindFunction()
@@ -50,6 +35,11 @@ namespace AliceScript.Interop
             throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
         }
 
+        /// <summary>
+        /// 指定された型で公開されている静的メソッドをバインドし、名前空間を返します。
+        /// </summary>
+        /// <param name="type">バインドの対象となる型</param>
+        /// <returns>バインド済み関数が所属する名前空間</returns>
         public static NameSpace BindToNameSpace(Type type)
         {
             var space = new NameSpace(type.Name);
@@ -85,6 +75,12 @@ namespace AliceScript.Interop
             }
             return space;
         }
+        /// <summary>
+        /// メソッドからBindFunctionを生成
+        /// </summary>
+        /// <param name="methodInfos">同じメソッド名のオーバーロード</param>
+        /// <param name="needBind">このメソッドをバインドするには属性が必要</param>
+        /// <returns>生成されたFunctionBase</returns>
         private static FunctionBase CreateBindFunction(MethodInfo[] methodInfos, bool needBind)
         {
             var func = new BindFunction();
@@ -148,6 +144,9 @@ namespace AliceScript.Interop
             }
             return false;
         }
+        /// <summary>
+        /// 任意の静的メソッドを表すオブジェクト
+        /// </summary>
         private sealed class BindingOverloadFunction : FunctionBase
         {
             public ParameterInfo[] TrueParameters { get; set; }
@@ -194,77 +193,6 @@ namespace AliceScript.Interop
             }
         }
         private HashSet<BindingOverloadFunction> Overloads = new HashSet<BindingOverloadFunction>();
-
-    }
-    public class NetLibraryLoader
-    {
-        public static void LoadLibrary(string path)
-        {
-            try
-            {
-                byte[] raw = File.ReadAllBytes(path);
-                LoadLibrary(raw);
-            }
-            catch (Exception ex) { throw new ScriptException(ex.Message, Exceptions.FILE_NOT_FOUND); }
-
-        }
-        public static void LoadLibrary(byte[] rawAssembly)
-        {
-            try
-            {
-                string iPluginName = typeof(ILibrary).FullName;
-
-                // アセンブリとして読み込む
-                System.Reflection.Assembly asm = System.Reflection.Assembly.Load(rawAssembly);
-
-                foreach (Type type in asm.GetTypes())
-                {
-                    try
-                    {
-                        // アセンブリ内のすべての型について、プラグインとして有効か調べる
-                        if (type.IsClass && type.IsPublic && !type.IsAbstract)
-                        {
-                            if (type.GetInterface(iPluginName) != null)
-                            {
-                                if (!Loadeds.Contains(asm.GetHashCode()))
-                                {
-                                    Loadeds.Add(asm.GetHashCode());
-                                    ILibrary libraryInstance = (ILibrary)asm.CreateInstance(type.FullName);
-                                    libraryInstance.Main();
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new ScriptException(ex.Message, Exceptions.LIBRARY_EXCEPTION);
-            }
-        }
-
-        private static List<int> Loadeds = new List<int>();
-    }
-    public interface ILibrary
-    {
-        string Name { get; }
-        void Main();
-    }
-
-    /// <summary>
-    /// ネイティブプラグインの基礎です。このクラスを継承してネイティブプラグインを作成します。
-    /// </summary>
-    public class LibraryBase : ILibrary
-    {
-        public virtual void Main()
-        {
-        }
-
-        public string Name { get; set; }
 
     }
 }

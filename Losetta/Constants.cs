@@ -2,7 +2,10 @@
 
 namespace AliceScript
 {
-    public partial class Constants
+    /// <summary>
+    /// AliceScriptで使用される定数。この定義を変更することでカスタマイズ可能です。
+    /// </summary>
+    public static partial class Constants
     {
         public const char ATMARK = '@';
         public const char START_ARG = '(';
@@ -47,6 +50,7 @@ namespace AliceScript
         public const string DECREMENT = "--";
         public const string EQUAL = "==";
         public const string NOT_EQUAL = "!=";
+        public const string NULL_OP = "??";
         public const string LESS = "<";
         public const string LESS_EQ = "<=";
         public const string GREATER = ">";
@@ -182,20 +186,28 @@ namespace AliceScript
 
         public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", ":", "??=", "=>" };
         public static string[] MATH_ACTIONS = { "===", "!==",
-                                                "&&", "||", "==", "!=", "<=", ">=", "++", "--", "**",
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=","??",AS,IS_NOT,IS};
+                                                "&&", "||", EQUAL,NOT_EQUAL, "<=", ">=", "++", "--", "**",
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",NULL_OP,AS,IS_NOT,IS};
 
         public static string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
         public static string[] CORE_OPERATORS = { TRY, FOR, WHILE };
 
-        // ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
+        /// <summary>
+        /// ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
+        /// </summary>
         public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
-        // DLLファイルのマーク(ASCIIでM,Z)
+        /// <summary>
+        /// DLLファイルのマーク(ASCIIでM,Z)
+        /// </summary>
         public static byte[] DLL_MAGIC_NUMBER = { 0x4d, 0x5a };
-        // ZIPファイルのマーク(ASCIIでP,K)
+        /// <summary>
+        /// ZIPファイルのマーク(ASCIIでP,K)
+        /// </summary>
         public static byte[] ZIP_MAGIC_NUMBER = { 0x50, 0x4b };
-        // パッケージマニフェストファイルの名前
+        /// <summary>
+        /// パッケージマニフェストファイルの名前
+        /// </summary>
         public const string PACKAGE_MANIFEST_FILENAME = "manifest.xml";
 
         public static char[] TERNARY_SEPARATOR = { ':' };
@@ -219,7 +231,7 @@ namespace AliceScript
         public static string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
         /// <summary>
-        /// パース中の言語構造が所属する名前空間です
+        /// パース中の言語構造が所属する名前空間
         /// </summary>
         public static string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
 
@@ -231,12 +243,24 @@ namespace AliceScript
         /// </summary>
         public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
 
+        /// <summary>
+        /// UTF16表現がとるパターン
+        /// </summary>
         public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
+        /// <summary>
+        /// 可変長UTF16表現がとるパターン
+        /// </summary>
         public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
 
+        /// <summary>
+        /// UTF32表現がとるパターン
+        /// </summary>
         public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
 
+        /// <summary>
+        /// インデックスの逆引きがとるパターン
+        /// </summary>
         public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
 
         // キーワード
@@ -253,7 +277,7 @@ namespace AliceScript
         /// 型指定修飾子
         /// </summary>
         public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","delegate","bool","variable",
+             "string","number","array","bytes","object","enum","delegate","bool","variable","void",
               "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?"
         };
         /// <summary>
@@ -277,6 +301,9 @@ namespace AliceScript
         //最上位のスクリプトへのアクセスを拒否
         public const string DENY_TO_TOPLEVEL_SCRIPT = "deny_to_toplevel_script";
 
+        /// <summary>
+        /// 他にUrlがなかった場合のヘルプUrl
+        /// </summary>
         public const string HELP_LINK = "https://a.wsoft.ws/alice/exceptions/0x";
 
 

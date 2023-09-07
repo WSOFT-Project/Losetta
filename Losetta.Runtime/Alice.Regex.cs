@@ -1,4 +1,6 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Objects;
 using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces

@@ -1,4 +1,8 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Packaging;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Packaging
     {

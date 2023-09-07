@@ -1,6 +1,8 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Objects;
 
-namespace AliceScript
+namespace AliceScript.NameSpaces
 {
 
     public static class NameSpaceManager
@@ -44,8 +46,8 @@ namespace AliceScript
             Name = name;
         }
         public string Name { get; set; }
-        public HashSet<FunctionBase> Functions = new HashSet<FunctionBase>();
-        public HashSet<ObjectBase> Classes = new HashSet<ObjectBase>();
+        public List<FunctionBase> Functions = new List<FunctionBase>();
+        public List<ObjectBase> Classes = new List<ObjectBase>();
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
         public void Add(FunctionBase func)
         {
@@ -69,14 +71,8 @@ namespace AliceScript
         /// <param name="other">マージする名前空間</param>
         public void Merge(NameSpace other)
         {
-            foreach(FunctionBase f in other.Functions)
-            {
-                this.Functions.Add(f);
-            }
-            foreach(ObjectBase obj in other.Classes)
-            {
-                this.Classes.Add(obj);
-            }
+            Functions = Functions.Union(other.Functions).ToList();
+            Classes = Classes.Union(other.Classes).ToList();
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace AliceScript
+namespace AliceScript.Objects
 {
     public class VariableCollection : IEnumerable<Variable>, IList<Variable>
     {

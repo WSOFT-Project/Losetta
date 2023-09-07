@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
 
 namespace AliceScript.NameSpaces
 {

@@ -1,5 +1,11 @@
-﻿namespace AliceScript
+﻿using AliceScript.Functions;
+using AliceScript.Parsing;
+
+namespace AliceScript.Objects
 {
+    /// <summary>
+    /// AliceScript内で発生した例外を表すオブジェクト
+    /// </summary>
     public class ExceptionObject : ObjectBase
     {
         public string Message { get; set; }

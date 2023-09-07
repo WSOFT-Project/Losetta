@@ -1,10 +1,14 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using AliceScript.Extra;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
 
 namespace AliceScript
 {
-    public partial class Utils
+    public static partial class Utils
     {
         public static void CheckArgs(int args, int expected, string msg, bool exactMatch = false)
         {
@@ -19,8 +23,8 @@ namespace AliceScript
         /// 指定した変数が数値を表し、かつ特定範囲内にあるかどうかを確認し、条件を満たさない場合に例外を発生します。
         /// </summary>
         /// <param name="variable">確認する変数</param>
-        /// <param name="min">特定範囲の最小値</param>
-        /// <param name="max">特定範囲の最大値</param>
+        /// <param name="min">特定範囲より小さな値</param>
+        /// <param name="max">特定範囲より大きな値</param>
         /// <param name="needInteger">整数かつInt32の範囲内である必要がある場合はtrue。この値は省略できます。</param>
         /// <param name="script">確認元のスクリプト</param>
         public static void CheckNumInRange(Variable variable, bool needInteger = false, double? min = null, double? max = null, ParsingScript script = null)
@@ -133,7 +137,6 @@ namespace AliceScript
                 tempScript.OriginalScript = parentScript.OriginalScript;
             }
             tempScript.ParentScript = script;
-            tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
             if (script != null)
@@ -308,28 +311,6 @@ namespace AliceScript
 
         }
 
-        public static string ConvertUnicodeLiteral(string input)
-        {
-            if (input.Contains("\\"))
-            {
-                //UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
-                }
-                //可変長UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_VARIABLE_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
-                }
-                //UTF-32文字コードの置き換え
-                foreach (Match match in Constants.UTF32_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
-                }
-            }
-            return input;
-        }
         private static string ConvertUnicodeToChar(string charCode, bool mode = true)
         {
             if (mode)

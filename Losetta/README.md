@@ -80,7 +80,7 @@ public static class MyFunctions
 In order to actually call the defined namespace and functions from AliceScript, a bind registration is required. The following example registers ``MyFunctions`` defined earlier.
 
 ```cs
-NameSpaceManerger.Add(typeof(MyFunctions));.
+Alice.RegisterFunctions<MyFunctions>();
 ```
 
 Another way to define custom functions in AliceScript is to define a class that extends the `FunctionBase` class.
