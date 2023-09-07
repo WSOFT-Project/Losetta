@@ -22,7 +22,7 @@ namespace AliceScript.CLI
             foreach (string arg in args)
             {
                 var argl = arg.ToLower();
-                if(argl=="-h" || argl=="-help" || argl == "?")
+                if (argl == "-h" || argl == "-help" || argl == "?")
                 {
                     NeedHelp = true;
                 }

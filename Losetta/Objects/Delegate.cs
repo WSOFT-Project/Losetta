@@ -3,6 +3,9 @@ using AliceScript.Parsing;
 
 namespace AliceScript.Objects
 {
+    /// <summary>
+    /// デリゲート（匿名関数）
+    /// </summary>
     public class DelegateObject
     {
         private List<CustomFunction> m_fucntions = new List<CustomFunction>();

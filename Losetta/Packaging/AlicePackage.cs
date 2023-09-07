@@ -5,6 +5,9 @@ using System.Text;
 
 namespace AliceScript.Packaging
 {
+    /// <summary>
+    /// パッケージング済みのAliceScriptとリソース
+    /// </summary>
     public class AlicePackage
     {
         public ZipArchive Archive

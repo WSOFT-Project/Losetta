@@ -80,7 +80,7 @@ public static class MyFunctions
 定義した名前空間と関数を実際にAliceScriptから呼び出すためには、バインド登録が必要です。次の例では、先ほど定義した`MyFunctions`を登録します。
 
 ```cs
-NameSpaceManager.Add(typeof(MyFunctions));
+Alice.RegisterFunctions<MyFunctions>();
 ```
 
 AliceScriptにカスタム関数を定義するもうひとつの方法は、`FunctionBase`クラスを継承したクラスを定義することです。

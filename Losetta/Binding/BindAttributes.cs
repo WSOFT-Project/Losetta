@@ -9,7 +9,13 @@ namespace AliceScript.Binding
     [AttributeUsage(AttributeTargets.Method)]
     public class AliceFunctionAttribute : Attribute
     {
+        /// <summary>
+        /// この関数の名前
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// この関数に付与する属性
+        /// </summary>
         public FunctionAttribute Attribute { get; set; }
     }
 
@@ -19,7 +25,13 @@ namespace AliceScript.Binding
     [AttributeUsage(AttributeTargets.Class)]
     public class AliceNameSpaceAttribute : Attribute
     {
+        /// <summary>
+        /// この名前空間の名前
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// このクラスの公開するメソッドにはすべてAliceFunction属性を付けることを求める場合はTrue
+        /// </summary>
         public bool NeedBindAttribute { get; set; }
 
     }

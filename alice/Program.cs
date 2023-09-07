@@ -1,6 +1,6 @@
-﻿using System.IO.Compression;
+﻿using AliceScript.Packaging;
+using System.IO.Compression;
 using System.Text;
-using AliceScript.Packaging;
 
 namespace AliceScript.CLI
 {

@@ -7,6 +7,9 @@ using System.Text;
 
 namespace AliceScript.Parsing
 {
+    /// <summary>
+    /// パース中のスクリプトを表します
+    /// </summary>
     public class ParsingScript
     {
         private string m_data;          // スクリプト全体が含まれます
@@ -75,9 +78,21 @@ namespace AliceScript.Parsing
         /// </summary>
         public class StackInfo
         {
+            /// <summary>
+            /// 現在実行中の関数
+            /// </summary>
             public FunctionBase Function { get; set; }
+            /// <summary>
+            /// 現在の行の文字列
+            /// </summary>
             public string Line { get; set; }
+            /// <summary>
+            /// 現在の行番号
+            /// </summary>
             public int LineNumber { get; set; }
+            /// <summary>
+            /// ファイル名
+            /// </summary>
             public string FileName { get; set; }
 
             public StackInfo()
@@ -236,12 +251,29 @@ namespace AliceScript.Parsing
         /// </summary>
         public event ThrowErrorEventhandler ThrowError;
 
-
+        /// <summary>
+        /// これから実行されるコード
+        /// </summary>
         public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
+        /// <summary>
+        /// 現在解析中の文字
+        /// </summary>
         public char Current => m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
+        /// <summary>
+        /// ひとつ前に解析された文字
+        /// </summary>
         public char Prev => m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
+        /// <summary>
+        /// ふたつ前に解析された文字
+        /// </summary>
         public char PrevPrev => m_from >= 2 ? m_data[m_from - 2] : Constants.EMPTY;
+        /// <summary>
+        /// ひとつ後に解析される文字
+        /// </summary>
         public char Next => m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
+        /// <summary>
+        /// 二つ後に解析される文字
+        /// </summary>
         public char NextNext => m_from + 2 < m_data.Length ? m_data[m_from + 2] : Constants.EMPTY;
         public Dictionary<int, int> Char2Line
         {
@@ -274,6 +306,9 @@ namespace AliceScript.Parsing
 
         public Dictionary<string, Dictionary<string, int>> AllLabels { get; set; }
         public Dictionary<string, string> LabelToFile { get; set; }
+        /// <summary>
+        /// このスクリプトの設定
+        /// </summary>
         public ScriptSettings Settings
         {
             get => m_settings;
@@ -284,15 +319,41 @@ namespace AliceScript.Parsing
         /// </summary>
         public class ScriptSettings
         {
+            /// <summary>
+            /// このスクリプトでは変数が暗黙的に定義される
+            /// </summary>
             public bool? UnneedVarKeyword { get; set; }
+            /// <summary>
+            /// このスクリプトでは型推論が有効
+            /// </summary>
             public bool? TypeInference { get; set; }
+            /// <summary>
+            /// このスクリプトではswitch文のフォールスルーが有効
+            /// </summary>
             public bool? FallThrough { get; set; }
+            /// <summary>
+            /// このスクリプトではbreakのないcaseをエラーとして扱う
+            /// </summary>
             public bool? CheckBreakWhenEndCaseBlock { get; set; }
+            /// <summary>
+            /// このスクリプトは名前空間の参照を追加できる
+            /// </summary>
             public bool? EnableUsing { get; set; }
+            /// <summary>
+            /// このスクリプトでは、パッケージやライブラリを読み込める
+            /// </summary>
             public bool? EnableImport { get; set; }
+            /// <summary>
+            /// このスクリプトではスクリプトを読み込める
+            /// </summary>
             public bool? EnableInclude { get; set; }
+            /// <summary>
+            /// このスクリプトはグローバルにアクセスできない
+            /// </summary>
             public bool? DenyAccessToTopLevelScript { get; set; }
-
+            /// <summary>
+            /// このスクリプトで定義された変数はnullを許容する
+            /// </summary>
             public bool? Nullable { get; set; }
 
             /// <summary>
@@ -522,6 +583,9 @@ namespace AliceScript.Parsing
         public bool DisableBreakpoints;
         public string MainFilename;
 
+        /// <summary>
+        /// このスクリプトの親
+        /// </summary>
         public ParsingScript ParentScript
         {
             get => m_parentScript;
@@ -617,7 +681,12 @@ namespace AliceScript.Parsing
             }
             return path;
         }
-
+        /// <summary>
+        /// このスクリプトから変数を取得します。取得できない場合は親スクリプトも試みます。
+        /// </summary>
+        /// <param name="name">変数名</param>
+        /// <param name="function">取得した変数</param>
+        /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
         public bool TryGetVariable(string name, out ParserFunction function)
         {
             if (Variables.TryGetValue(name, out function))
@@ -633,6 +702,12 @@ namespace AliceScript.Parsing
             }
             return false;
         }
+        /// <summary>
+        /// このスクリプトから定数を取得します。取得できない場合は親スクリプトも試みます。
+        /// </summary>
+        /// <param name="name">変数名</param>
+        /// <param name="function">取得した定数</param>
+        /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
         public bool TryGetConst(string name, out ParserFunction function)
         {
             if (Consts.TryGetValue(name, out function))
@@ -648,6 +723,12 @@ namespace AliceScript.Parsing
             }
             return false;
         }
+        /// <summary>
+        /// このスクリプトから関数を取得します。取得できない場合は親スクリプトも試みます。
+        /// </summary>
+        /// <param name="name">関数名</param>
+        /// <param name="function">取得した関数</param>
+        /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
         public bool TryGetFunction(string name, out ParserFunction function)
         {
             if (Functions.TryGetValue(name, out function))
@@ -663,6 +744,12 @@ namespace AliceScript.Parsing
             }
             return false;
         }
+        /// <summary>
+        /// このスクリプトから任意の識別子をもつ関数を取得します。取得できない場合は親スクリプトも試みます。
+        /// </summary>
+        /// <param name="name">識別子</param>
+        /// <param name="function">取得した関数</param>
+        /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
         public bool TryGetLocal(string name, out ParserFunction function)
         {
             return TryGetVariable(name, out function) || TryGetConst(name, out function) || TryGetFunction(name, out function);
@@ -1203,10 +1290,6 @@ namespace AliceScript.Parsing
             if (callFrom != null)
             {
                 tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
-            }
-            else
-            {
-                //      tempScript.m_stacktrace.Add(new StackInfo(ProcessingFunction, this.OriginalLine, this.OriginalLineNumber, this.Filename));
             }
 
             return tempScript;

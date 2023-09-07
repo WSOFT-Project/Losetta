@@ -3,6 +3,9 @@ using AliceScript.Parsing;
 
 namespace AliceScript.Functions
 {
+    /// <summary>
+    /// ユーザー定義の関数またはデリゲートを表します
+    /// </summary>
     public class CustomFunction : FunctionBase
     {
         public CustomFunction(string funcName,
@@ -169,7 +172,7 @@ namespace AliceScript.Functions
         }
 
         private int parmsindex = -1;
-        public void RegisterArguments(List<Variable> args,
+        private void RegisterArguments(List<Variable> args,
                                       List<KeyValuePair<string, Variable>> args2 = null, Variable current = null, ParsingScript script = null)
         {
             if (args == null)
@@ -440,14 +443,22 @@ namespace AliceScript.Functions
             var newInstance = (CustomFunction)MemberwiseClone();
             return newInstance;
         }
-
+        /// <summary>
+        /// この関数の定義元のスクリプト
+        /// </summary>
         public ParsingScript ParentScript { set => m_parentScript = value; }
-
+        /// <summary>
+        /// この関数が定義されたときのオフセット
+        /// </summary>
         public int ParentOffset { set => m_parentOffset = value; }
+        /// <summary>
+        /// この関数の実行内容を表す本文
+        /// </summary>
         public string Body => m_body;
-
+        /// <summary>
+        /// この関数のとる引数の個数
+        /// </summary>
         public int ArgumentCount => m_args.Length;
-        public string Argument(int nIndex) { return m_args[nIndex]; }
 
         public StackLevel NamespaceData { get; set; }
         public bool IsMethod => m_this != -1;
@@ -455,9 +466,6 @@ namespace AliceScript.Functions
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
-        public string Header => Constants.FUNCTION + " " + Constants.GetRealName(Name) + " " +
-                       Constants.START_ARG + string.Join(", ", m_args) +
-                       Constants.END_ARG + " " + Constants.START_GROUP;
 
         protected int m_this = -1;
         protected string m_body;
@@ -470,11 +478,10 @@ namespace AliceScript.Functions
         protected int m_parentOffset = 0;
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
-        //private Dictionary<string, ParserFunction> m_VarMap = new Dictionary<string, ParserFunction>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
         private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
 
-        public Dictionary<string, int> ArgMap { get; private set; } = new Dictionary<string, int>();
+        private Dictionary<string, int> ArgMap { get; set; } = new Dictionary<string, int>();
     }
 
     internal sealed class FunctionCreator : FunctionBase

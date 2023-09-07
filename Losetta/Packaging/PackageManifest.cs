@@ -1,5 +1,8 @@
 ﻿namespace AliceScript.Packaging
 {
+    /// <summary>
+    /// AlicePackageの設定
+    /// </summary>
     public class PackageManifest
     {
         /// <summary>

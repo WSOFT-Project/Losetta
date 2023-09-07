@@ -4,20 +4,21 @@ using System.Text;
 
 namespace AliceScript.Parsing
 {
+    /// <summary>
+    /// スクリプトを解析します
+    /// </summary>
     public class Parser
     {
-        public static Variable AliceScript(ParsingScript script)
-        {
-            return AliceScript(script, Constants.END_PARSE_ARRAY);
-        }
-        public static async Task<Variable> AliceScriptAsync(ParsingScript script)
-        {
-            return await AliceScriptAsync(script, Constants.END_PARSE_ARRAY);
-        }
-
+        /// <summary>
+        /// スクリプトを解析・実行し、実行結果を返します
+        /// </summary>
+        /// <param name="script">解析・実行するスクリプト</param>
+        /// <param name="to">式を終了させる文字</param>
+        /// <returns>スクリプトの実行結果</returns>
+        /// <exception cref="ScriptException">スクリプトを解析できない場合に発生する例外</exception>
         public static Variable AliceScript(ParsingScript script, char[] to)
         {
-            // First step: process passed expression by splitting it into a list of cells.
+            // まず、式をトークンごとに分割してVariableにする
             List<Variable> listToMerge = Split(script, to);
 
             if (listToMerge.Count == 0)
@@ -25,14 +26,21 @@ namespace AliceScript.Parsing
                 throw new ScriptException(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
             }
 
-            // Second step: merge list of cells to get the result of an expression.
+            // 得られたVariable同士を演算する
             Variable result = MergeList(listToMerge, script);
             return result;
         }
 
+        /// <summary>
+        /// 非同期的にスクリプトを解析・実行し、実行結果を返します
+        /// </summary>
+        /// <param name="script">解析・実行するスクリプト</param>
+        /// <param name="to">式を終了させる文字</param>
+        /// <returns>スクリプトの実行結果</returns>
+        /// <exception cref="ScriptException">スクリプトを解析できない場合に発生する例外</exception>
         public static async Task<Variable> AliceScriptAsync(ParsingScript script, char[] to)
         {
-            // First step: process passed expression by splitting it into a list of cells.
+            // まず、式をトークンごとに分割してVariableにする
             List<Variable> listToMerge = await SplitAsync(script, to);
 
             if (listToMerge.Count == 0)
@@ -40,7 +48,7 @@ namespace AliceScript.Parsing
                 throw new ScriptException(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
             }
 
-            // Second step: merge list of cells to get the result of an expression.
+            // 得られたVariable同士を演算する
             Variable result = MergeList(listToMerge, script);
             return result;
         }
@@ -63,13 +71,14 @@ namespace AliceScript.Parsing
             string action;
 
             do
-            { // Main processing cycle of the first part.
+            { 
                 HashSet<string> keywords = new HashSet<string>();
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
 
                 if (string.IsNullOrEmpty(token) && script.Prev != Constants.START_ARG && script.Prev != Constants.START_GROUP && script.StillValid())
                 {
+                    //トークンが空で、無意味だった場合
                     goto ExtractNextToken;
                 }
                 if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
@@ -81,7 +90,7 @@ namespace AliceScript.Parsing
                         //本来の位置に進めておく
                         script.Forward();
                     }
-                    keywords.Add(token.ToLower());
+                    keywords.Add(token.ToLower());//キーワード一覧に格納
                     goto ExtractNextToken;
                 }
 
@@ -91,17 +100,15 @@ namespace AliceScript.Parsing
                     return listToMerge;
                 }
 
-                PreOperetors negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);
+                PreOperetors negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子を取得
 
-                // We are done getting the next token. The GetValue() call below may
-                // recursively call AliceScript(). This will happen if extracted
-                // item is a function or if the next item is starting with a START_ARG '('.
+                // このトークンに対応する関数を取得する
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is StringOrNumberFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is LiteralFunction)))
                 {
-                    script.ProcessingFunction = fb;
+                    script.ProcessingFunction = fb;//現在処理中としてマーク
                 }
-                Variable current = func.GetValue(script);
+                Variable current = func.GetValue(script);//関数を呼び出し
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {
                     return listToMerge;
@@ -109,7 +116,6 @@ namespace AliceScript.Parsing
             } while (script.StillValid() &&
                     (inQuotes || arrayIndexDepth > 0 || !to.Contains(script.Current)));
 
-            // This happens when called recursively inside of the math expression:
             script.MoveForwardIf(Constants.END_ARG);
 
             return listToMerge;
@@ -160,7 +166,7 @@ namespace AliceScript.Parsing
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is StringOrNumberFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is LiteralFunction)))
                 {
                     script.ProcessingFunction = fb;
                 }
@@ -201,7 +207,7 @@ namespace AliceScript.Parsing
                      StillCollecting(item.ToString(), to, script, ref action);
                 if (keepCollecting)
                 {
-                    // The char still belongs to the previous operand.
+                    // 文字をオペランドに追加
                     item.Append(ch);
 
                     bool goForMore = script.StillValid() &&
@@ -362,7 +368,18 @@ namespace AliceScript.Parsing
 
         private enum PreOperetors
         {
-            Increment, Decrement, Minus, None
+            /// <summary>
+            /// 前置インクリメント
+            /// </summary>
+            Increment, 
+            /// <summary>
+            /// 前置デクリメント
+            /// </summary>
+            Decrement, 
+            /// <summary>
+            /// 単項マイナス
+            /// </summary>
+            Minus, None
         }
         private static void CheckQuotesIndices(ParsingScript script,
                             char ch, ref bool inQuotes, ref int arrayIndexDepth)
@@ -470,6 +487,7 @@ namespace AliceScript.Parsing
 
         private static bool UpdateIfTernary(ParsingScript script, string token, char ch, List<Variable> listInput, Action<List<Variable>> listToMerge)
         {
+            //TODO:3項条件演算の実装
             /*
             if (listInput.Count < 1 || ch != Constants.TERNARY_OPERATOR || token.Length > 0)
             {
@@ -533,8 +551,7 @@ namespace AliceScript.Parsing
 
         private static string UpdateAction(ParsingScript script, char[] to)
         {
-            // We search a valid action till we get to the End of Argument ')'
-            // or pass the end of string.
+            // かっこが閉じられるまで検索
             if (!script.StillValid() || script.Current == Constants.END_ARG ||
                 to.Contains(script.Current))
             {
@@ -543,8 +560,7 @@ namespace AliceScript.Parsing
 
             string action = Utils.ValidAction(script.Rest);
 
-            // We need to advance forward not only the action length but also all
-            // the characters we skipped before getting the action.
+            // ポインタを合わせる
             int advance = action == null ? 0 : action.Length;
             script.Forward(advance);
             return action ?? Constants.NULL_ACTION;
@@ -556,8 +572,7 @@ namespace AliceScript.Parsing
             {
                 return Variable.EmptyInstance;
             }
-            // If there is just one resulting cell there is no need
-            // to perform the second step to merge tokens.
+            // セルが1つだけなら早期リターン
             if (listToMerge.Count == 1)
             {
                 return listToMerge[0];
@@ -566,14 +581,12 @@ namespace AliceScript.Parsing
             Variable baseCell = listToMerge[0];
             int index = 1;
 
-            // Second step: merge list of cells to get the result of an expression.
+            // 変数同士の演算
             Variable result = Merge(baseCell, ref index, listToMerge, script);
             return result;
         }
 
-        // From outside this function is called with mergeOneOnly = false.
-        // It also calls itself recursively with mergeOneOnly = true, meaning
-        // that it will return after only one merge.
+        
         private static Variable Merge(Variable current, ref int index, List<Variable> listToMerge,
                                       ParsingScript script, bool mergeOneOnly = false)
         {
@@ -584,9 +597,7 @@ namespace AliceScript.Parsing
 
                 while (!CanMergeCells(current, next))
                 {
-                    // If we cannot merge cells yet, go to the next cell and merge
-                    // next cells first. E.g. if we have 1+2*3, we first merge next
-                    // cells, i.e. 2*3, getting 6, and then we can merge 1+6.
+                    // 優先順位が前後する場合、先に高いほうを演算する
                     Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
                 }
 
@@ -621,7 +632,7 @@ namespace AliceScript.Parsing
             {
                 leftCell = leftCell.Convert(type.Type);
             }
-            else if (leftCell.Action == "??")
+            else if (leftCell.Action == Constants.NULL_OP)
             {
                 if (leftCell.IsNull())
                 {
@@ -630,9 +641,9 @@ namespace AliceScript.Parsing
             }
             else
             {
-                leftCell = leftCell.Action == "==" || leftCell.Action == "==="
+                leftCell = leftCell.Action == Constants.EQUAL || leftCell.Action == "==="
                     ? new Variable(leftCell.Equals(rightCell))
-                    : leftCell.Action == "!=" || leftCell.Action == "!=="
+                    : leftCell.Action == Constants.NOT_EQUAL || leftCell.Action == "!=="
                                     ? new Variable(!leftCell.Equals(rightCell))
                                     : leftCell.Type == Variable.VarType.NUMBER && rightCell.Type == Variable.VarType.NUMBER
                                                     ? MergeNumbers(leftCell, rightCell, script)
@@ -652,6 +663,7 @@ namespace AliceScript.Parsing
             leftCell.Action = rightCell.Action;
             return leftCell;
         }
+        //Bool同士の演算
         private static Variable MergeBooleans(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             if (rightCell.Type != Variable.VarType.BOOLEAN)
@@ -679,6 +691,7 @@ namespace AliceScript.Parsing
                     return leftCell;
             }
         }
+        //数値同士の演算
         private static Variable MergeNumbers(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             if (rightCell.Type != Variable.VarType.NUMBER)
@@ -725,7 +738,7 @@ namespace AliceScript.Parsing
                     return leftCell;
             }
         }
-
+        //文字列演算
         private static Variable MergeStrings(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             switch (leftCell.Action)
@@ -759,6 +772,7 @@ namespace AliceScript.Parsing
             }
             return leftCell;
         }
+        //配列演算
         private static Variable MergeArray(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             switch (leftCell.Action)
@@ -823,6 +837,7 @@ namespace AliceScript.Parsing
             }
 
         }
+        //デリゲート演算
         private static Variable MergeDelegate(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             switch (leftCell.Action)
@@ -871,7 +886,7 @@ namespace AliceScript.Parsing
             }
 
         }
-
+        //オブジェクトか、それ以外の演算
         private static Variable MergeObjects(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             switch (leftCell.Action)
