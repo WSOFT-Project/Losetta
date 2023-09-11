@@ -95,10 +95,6 @@ namespace AliceScript.Parsing
             /// </summary>
             public string FileName { get; set; }
 
-            public StackInfo()
-            {
-
-            }
             public StackInfo(FunctionBase function, string line, int lineNumber, string fileName)
             {
                 Function = function;
@@ -1026,7 +1022,7 @@ namespace AliceScript.Parsing
 #if !DEBUG_THROW
             catch (ScriptException scriptExc)
             {
-                OnThrowError(scriptExc, scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script, scriptExc.Exception);
+                OnThrowError(scriptExc, scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script ?? this, scriptExc.Exception);
             }
             catch (ParsingException parseExc)
             {
