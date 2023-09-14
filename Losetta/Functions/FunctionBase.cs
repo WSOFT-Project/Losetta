@@ -47,7 +47,7 @@ namespace AliceScript.Functions
             ex.Args = new List<Variable>();
             if (args != null)
             {
-                foreach (var a in args)
+                foreach (var a in Utils.GetSpan(args))
                 {
                     if (a == null)
                     {

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using AliceScript.Extra;
@@ -267,7 +268,7 @@ namespace AliceScript
             {
                 if (str.StartsWith("0x", StringComparison.Ordinal))
                 {
-                    num = Convert.ToInt32(str.Substring(2), 16);
+                    num = int.Parse(str.AsSpan(2),NumberStyles.HexNumber);
                     return true;
                 }
                 else if (str.StartsWith("0o", StringComparison.Ordinal))
@@ -347,6 +348,12 @@ namespace AliceScript
             int index = data.IndexOf(".", StringComparison.Ordinal);
             return index < 0 || index >= data.Length - 1 ? 0 : data.Length - index - 1;
         }
+
+        public static Span<T> GetSpan<T>(List<T> list)
+        {
+            return CollectionsMarshal.AsSpan(list);
+        }
+
         public static string GetFileContents(byte[] data)
         {
             return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());

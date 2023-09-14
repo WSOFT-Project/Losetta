@@ -223,7 +223,7 @@ namespace AliceScript.Packaging
                             scripts.Add(fn, script_data);
                         }
                     }
-                    foreach (var e in deletes)
+                    foreach (var e in Utils.GetSpan(deletes))
                     {
                         e.Delete();
                     }

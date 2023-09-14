@@ -1,5 +1,6 @@
 ﻿using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Runtime.InteropServices;
 
 namespace AliceScript.Functions
 {
@@ -259,7 +260,7 @@ namespace AliceScript.Functions
 
             if (args2 != null)
             {
-                foreach (var entry in args2)
+                foreach (var entry in Utils.GetSpan(args2))
                 {
                     var val = new Variable();
                     val.Assign(entry.Value);
@@ -276,7 +277,7 @@ namespace AliceScript.Functions
                 if (parmsindex == i)
                 {
                     Variable parmsarg = new Variable(Variable.VarType.ARRAY);
-                    foreach (Variable argx in args.GetRange(i, args.Count - i))
+                    foreach (Variable argx in Utils.GetSpan(args).Slice(i, args.Count - i))
                     {
                         var val = new Variable();
                         val.Assign(argx);

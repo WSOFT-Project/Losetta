@@ -28,7 +28,7 @@ namespace AliceScript.Parsing
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
-        private List<NameSpace> m_namespace = new List<NameSpace>();
+        private HashSet<NameSpace> m_namespace = new HashSet<NameSpace>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
 
@@ -173,7 +173,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// このスクリプトでusingされた名前空間の一覧
         /// </summary>
-        public List<NameSpace> UsingNamespaces
+        public HashSet<NameSpace> UsingNamespaces
         {
             get => m_namespace;
             set => m_namespace = value;
@@ -659,7 +659,7 @@ namespace AliceScript.Parsing
         {
             var trace = new Variable(Variable.VarType.ARRAY);
             trace.Tuple.Type = new TypeObject(Variable.VarType.STRING);
-            foreach (var s in StackTrace)
+            foreach (var s in Utils.GetSpan(StackTrace))
             {
                 trace.Tuple.Add(new Variable(s.ToString()));
             }

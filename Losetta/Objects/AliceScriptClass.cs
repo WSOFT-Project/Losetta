@@ -151,9 +151,9 @@ namespace AliceScript.Objects
         }
         private static AliceScriptClass GetFromNS(string name, ParsingScript script)
         {
-            for (int i = 0; i < script.UsingNamespaces.Count; i++)
+            foreach(NameSpace ns in script.UsingNamespaces)
             {
-                var fc = script.UsingNamespaces[i].Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                var fc=ns.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
