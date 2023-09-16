@@ -7,12 +7,12 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(MathFunctions));
+            Alice.RegisterFunctions<MathFunctions>();
         }
     }
 
     [AliceNameSpace(Name = "Alice.Math")]
-    internal static class MathFunctions
+    internal sealed class MathFunctions
     {
         public static bool Math_IsPrime(long x)
         {

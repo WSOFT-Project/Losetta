@@ -8,11 +8,11 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(EnvironmentFunctions));
+            Alice.RegisterFunctions<EnvironmentFunctions>();
         }
     }
     [AliceNameSpace(Name = "Alice.Environment")]
-    internal static class EnvironmentFunctions
+    internal sealed class EnvironmentFunctions
     {
         #region システムの情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]

@@ -11,11 +11,11 @@ namespace AliceScript.NameSpaces
         {
             Variable.AddFunc(new str_IsMatchFunc());
             Variable.AddFunc(new str_MatchesFunc());
-            NameSpaceManager.Add(typeof(RegexFunctions));
+            Alice.RegisterFunctions<RegexFunctions>();
         }
     }
     [AliceNameSpace(Name = "Alice.Regex")]
-    internal static class RegexFunctions
+    internal sealed class RegexFunctions
     {
         public static string Regex_Escape(string text)
         {

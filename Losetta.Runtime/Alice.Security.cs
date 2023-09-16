@@ -7,11 +7,11 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(SecurityFunctions));
+            Alice.RegisterFunctions<SecurityFunctions>();
         }
     }
     [AliceNameSpace(Name = "Alice.Security")]
-    internal static class SecurityFunctions
+    internal sealed class SecurityFunctions
     {
         #region バイト配列暗号化
         public static byte[] Data_Encrypt(byte[] data, string password)

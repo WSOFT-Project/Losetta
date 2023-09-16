@@ -7,12 +7,12 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(WebFunctions));
+            Alice.RegisterFunctions<WebFunctions>();
         }
         internal static WebClient wc = new WebClient();
     }
     [AliceNameSpace(Name = "Alice.Net")]
-    internal static class WebFunctions
+    internal sealed class WebFunctions
     {
         #region Webアップロード
         public static byte[] Web_Upload_Data(string uri, byte[] data)

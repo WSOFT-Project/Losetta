@@ -1,5 +1,6 @@
 ﻿using AliceScript.Functions;
 using AliceScript.NameSpaces;
+using AliceScript.Parsing;
 using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,7 +21,7 @@ namespace AliceScript.Binding
         {
             foreach (var load in Overloads)
             {
-                if (load.TryConvertParameters(e.Args, out var args))
+                if (load.TryConvertParameters(e.Args, e.Script, out var args))
                 {
                     if (load.IsVoidFunc)
                     {
@@ -189,7 +190,7 @@ namespace AliceScript.Binding
                 return result;
             }
 
-            public bool TryConvertParameters(List<Variable> args, out object[] converted)
+            public bool TryConvertParameters(List<Variable> args, ParsingScript script, out object[] converted)
             {
                 converted = null;
 
@@ -204,11 +205,19 @@ namespace AliceScript.Binding
                     return false;
                 }
                 int i;
+                int diff = 0;//TrueParametersとargsのインデックスのずれ
                 for (i = 0; i < TrueParameters.Length; i++)
                 {
-                    if (i > args.Count - 1)
+                    if (TrueParameters[i].ParameterType == typeof(ParsingScript))
                     {
-                        //マッチしたい引数の数の方が多い場合
+                        diff++;
+                        parametors.Add(script);
+                        continue;
+                    }
+
+                    if (i > args.Count + diff - 1)
+                    {
+                        //引数が足りない場合
                         if (TrueParameters[i].IsOptional)
                         {
                             parametors.Add(TrueParameters[i].DefaultValue);
@@ -230,7 +239,7 @@ namespace AliceScript.Binding
                         inParams = true;
                     }
 
-                    if (args[i].TryConvertTo(paramType, out var result))
+                    if (args[i - diff].TryConvertTo(paramType, out var result))
                     {
                         if (inParams)
                         {

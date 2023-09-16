@@ -7,11 +7,11 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(RandomFunctions));
+            Alice.RegisterFunctions<RandomFunctions>();
         }
     }
     [AliceNameSpace(Name = "Alice.Random")]
-    internal static class RandomFunctions
+    internal sealed class RandomFunctions
     {
         #region 乱数生成
         private static Random random = new Random();

@@ -1,4 +1,5 @@
-﻿using AliceScript.Functions;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 
@@ -8,14 +9,23 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
+            Alice.RegisterFunctions<PackagingFunctions>();
+
             NameSpace space = new NameSpace("Alice.Packaging");
-
-            space.Add(new Package_CreateFromZipFileFunc());
-            space.Add(new Package_GetManifestFromXmlFunc());
-
             space.Add(new PackageManifestObject());
-
             NameSpaceManager.Add(space);
+        }
+    }
+    [AliceNameSpace(Name = "Alice.Packaging")]
+    internal sealed class PackagingFunctions
+    {
+        public static void Package_CreateFromZipFile(string filepath, string outFilepath, byte[] controlCode = null, bool minify = false)
+        {
+            AlicePackage.CreateEncodingPackage(filepath, outFilepath, controlCode, minify);
+        }
+        public static PackageManifestObject Package_GetManifestFromXml(string xml)
+        {
+            return new PackageManifestObject(AlicePackage.GetManifest(xml));
         }
     }
     internal sealed class AlicePackageObject : ObjectBase
@@ -169,39 +179,6 @@ namespace AliceScript.NameSpaces
             }
             public AlicePackageObjectPropertyMode Mode { get; set; }
             public PackageManifestObject Host { get; set; }
-        }
-    }
-    internal sealed class Package_GetManifestFromXmlFunc : FunctionBase
-    {
-        public Package_GetManifestFromXmlFunc()
-        {
-            Name = "Package_GetManifestFromXml";
-            MinimumArgCounts = 1;
-            Run += Interpreter_GetManifestFromXmlFunc_Run;
-        }
-
-        private void Interpreter_GetManifestFromXmlFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(new PackageManifestObject(AlicePackage.GetManifest(e.Args[0].AsString())));
-        }
-    }
-    internal sealed class Package_CreateFromZipFileFunc : FunctionBase
-    {
-        public Package_CreateFromZipFileFunc()
-        {
-            Name = "Package_CreateFromZipFile";
-            MinimumArgCounts = 2;
-            Run += Package_CreateFromZipFileFunc_Run;
-        }
-
-        private void Package_CreateFromZipFileFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            byte[] controlCode = null;
-            if (e.Args.Count > 2 && e.Args[2].Type == Variable.VarType.BYTES)
-            {
-                controlCode = e.Args[2].ByteArray;
-            }
-            AlicePackage.CreateEncodingPackage(e.Args[0].AsString(), e.Args[1].AsString(), controlCode);
         }
     }
 }

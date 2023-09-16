@@ -903,6 +903,11 @@ namespace AliceScript
         /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
         public bool TryConvertTo(Type type, out object result)
         {
+            if(type == typeof(Variable))
+            {
+                result = this;
+                return true;
+            }
             switch (Type)
             {
                 case VarType.STRING:
@@ -967,11 +972,6 @@ namespace AliceScript
                         if(type == typeof(VariableCollection))
                         {
                             result = Tuple;
-                            return true;
-                        }
-                        if(type == typeof(Variable[]))
-                        {
-                            result = Tuple.ToArray();
                             return true;
                         }
                         if(type == typeof(List<Variable>))

@@ -1,6 +1,7 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Extra;
 using AliceScript.Functions;
+using AliceScript.Parsing;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,19 +12,11 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(FileFunctions));
-            NameSpace space = new NameSpace("Alice.IO");
-
-            space.Add(new file_read_dataFunc());
-            space.Add(new file_read_textFunc());
-            space.Add(new file_read_charcodeFunc());
-
-            space.Add(new directory_currentdirectoryFunc());
-            NameSpaceManager.Add(space);
+            Alice.RegisterFunctions<FileFunctions>();
         }
     }
     [AliceNameSpace(Name = "Alice.IO")]
-    internal static class FileFunctions
+    internal sealed class FileFunctions
     {
         #region ファイル操作
         public static bool File_Exists(string path)
@@ -57,6 +50,53 @@ namespace AliceScript.NameSpaces
         public static void File_Delete(string path)
         {
             File.Delete(path);
+        }
+        public static string File_Read_Text(ParsingScript script, string path, bool fromPackage = false)
+        {
+            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
+            return SafeReader.ReadAllText(data, out _);
+        }
+        public static string File_Read_Text(ParsingScript script, string path, string charcode, bool fromPackage = false)
+        {
+            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
+            Encoding encode = Encoding.GetEncoding(charcode);
+            return encode.GetString(data);
+        }
+        public static string File_Read_Text(ParsingScript script, string path, int charcode, bool fromPackage = false)
+        {
+            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
+            Encoding encode = Encoding.GetEncoding(charcode);
+            return encode.GetString(data);
+        }
+        public static string File_Read_CharCode(ParsingScript script, string path, bool fromPackage = false)
+        {
+            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
+            SafeReader.ReadAllText(data, out string charcode);
+            return charcode;
+        }
+        public static byte[] File_Read_Data(ParsingScript script, string path, bool fromPackage = false)
+        {
+            return Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
+        }
+        public static void File_Write_Data(string path, byte[] data)
+        {
+            File.WriteAllBytes(path, data);
+        }
+        public static void File_Write_Text(string path, string? text)
+        {
+            File.WriteAllText(path, text);
+        }
+        public static void File_Write_Text(string path, string? text, string charCode)
+        {
+            File.WriteAllText(path, text, Encoding.GetEncoding(charCode));
+        }
+        public static void File_Append_Text(string path, string? text)
+        {
+            File.AppendAllText(path, text);
+        }
+        public static void File_Append_Text(string path, string? text, string charCode)
+        {
+            File.AppendAllText(path, text, Encoding.GetEncoding(charCode));
         }
         public static void File_Encrypt(string path, string outpath, string password)
         {
@@ -154,26 +194,6 @@ namespace AliceScript.NameSpaces
                 }
             }
             return;
-        }
-        public static void File_Write_Data(string path, byte[] data)
-        {
-            File.WriteAllBytes(path, data);
-        }
-        public static void File_Write_Text(string path, string? text)
-        {
-            File.WriteAllText(path, text);
-        }
-        public static void File_Write_Text(string path, string? text, string charCode)
-        {
-            File.WriteAllText(path, text, Encoding.GetEncoding(charCode));
-        }
-        public static void File_Append_Text(string path, string? text)
-        {
-            File.AppendAllText(path, text);
-        }
-        public static void File_Append_Text(string path, string? text, string charCode)
-        {
-            File.AppendAllText(path, text, Encoding.GetEncoding(charCode));
         }
         #endregion
         #region ディレクトリ操作
@@ -359,76 +379,6 @@ namespace AliceScript.NameSpaces
             }
         }
         #endregion
-    }
-
-
-    internal sealed class file_read_textFunc : FunctionBase
-    {
-        public file_read_textFunc()
-        {
-            Name = "file_read_text";
-            MinimumArgCounts = 1;
-            Run += File_read_textFunc_Run;
-        }
-
-        private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            var data = Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script);
-            Encoding encode = null;
-            if (e.Args.Count > 3)
-            {
-                if (e.Args[2].Type == Variable.VarType.NUMBER)
-                {
-                    encode = Encoding.GetEncoding(e.Args[2].AsInt());
-                }
-                else if (e.Args[2].Type == Variable.VarType.STRING)
-                {
-                    encode = Encoding.GetEncoding(e.Args[2].AsString());
-                }
-            }
-            if (encode != null)
-            {
-                e.Return = new Variable(encode.GetString(data));
-                return;
-            }
-            else
-            {
-                e.Return = new Variable(SafeReader.ReadAllText(data, out _));
-                return;
-            }
-        }
-    }
-
-    internal sealed class file_read_charcodeFunc : FunctionBase
-    {
-        public file_read_charcodeFunc()
-        {
-            Name = "file_read_charcode";
-            MinimumArgCounts = 1;
-            Run += File_read_textFunc_Run;
-        }
-
-        private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            var data = Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script);
-            SafeReader.ReadAllText(data, out string charcode);
-            e.Return = new Variable(charcode);
-        }
-    }
-
-    internal sealed class file_read_dataFunc : FunctionBase
-    {
-        public file_read_dataFunc()
-        {
-            Name = "file_read_data";
-            MinimumArgCounts = 1;
-            Run += File_read_textFunc_Run;
-        }
-
-        private void File_read_textFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(Utils.GetFileFromPackageOrLocal(e.Args[0].AsString(), Utils.GetSafeBool(e.Args, 1), e.Script));
-        }
     }
 
     internal sealed class FileEncrypter
