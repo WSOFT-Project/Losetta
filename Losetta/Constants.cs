@@ -143,7 +143,7 @@ namespace AliceScript
         public const string ENDS_WITH = "EndsWith";
         public const string EQUALS = "Equals";
         public const string FIRST = "First";
-        public const string FOREACH = "ForEach";
+        public const string FOREACH = "foreach";
         public const string INDEX_OF = "IndexOf";
         public const string JOIN = "Join";
         public const string KEYS = "Keys";

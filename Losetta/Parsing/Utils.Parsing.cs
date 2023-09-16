@@ -837,7 +837,7 @@ namespace AliceScript
                             bool keepSpace = KeepSpace(sb, next);
                             bool usedSpace = spaceOK;
                             spaceOK = keepSpace ||
-                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK);
+                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK) || (prevprev == Constants.FOR_IN[0] && prev == Constants.FOR_IN[1]);
                             if (spaceOK || KeepSpaceOnce(sb, next))
                             {
                                 sb.Append(ch);

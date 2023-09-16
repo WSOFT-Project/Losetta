@@ -227,6 +227,11 @@ namespace AliceScript.NameSpaces
 
             Variable arrayValue = Utils.GetItem(forScript);
 
+            if (arrayValue == null)
+            {
+                return;
+            }
+
             if (arrayValue.Type == Variable.VarType.STRING)
             {
                 arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
