@@ -575,7 +575,7 @@ namespace AliceScript.Functions
 
                 foreach (var ns in NameSpaceManager.NameSpaces)
                 {
-                    var nsn = ns.Key.ToLower();
+                    var nsn = ns.Key.ToLowerInvariant();
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
                     if (name.StartsWith(nsn + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
                     {
@@ -584,14 +584,14 @@ namespace AliceScript.Functions
                 }
 
                 //完全修飾名で関数を検索
-                if (namespacename != string.Empty)
+                if (namespacename.Length > 0)
                 {
-                    fc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    fc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
                     if (fc != null)
                     {
                         return fc;
                     }
-                    var cc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    var cc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cc != null)
                     {
                         return new GetVarFunction(new Variable(new TypeObject(cc)));
@@ -607,12 +607,12 @@ namespace AliceScript.Functions
         {
             foreach (var nm in script.UsingNamespaces)
             {
-                var fc = nm.Functions.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                var fc = nm.Functions.Where((x) => x.Name.Equals(name,StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
                 }
-                var cc = nm.Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                var cc = nm.Classes.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 if (cc != null)
                 {
                     return new GetVarFunction(new Variable(new TypeObject(cc)));

@@ -125,7 +125,7 @@ namespace AliceScript.Functions
                     }
                     else
                     {
-                        string argName = arg;// RealArgs[i].ToLower();
+                        string argName = arg;// RealArgs[i].ToLowerInvariant();
                         if (parms)
                         {
                             parmsindex = i;

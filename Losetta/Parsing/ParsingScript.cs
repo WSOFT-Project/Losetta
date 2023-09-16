@@ -570,7 +570,7 @@ namespace AliceScript.Parsing
         public string FunctionName
         {
             get => m_functionName;
-            set => m_functionName = value.ToLower();
+            set => m_functionName = value.ToLowerInvariant();
         }
 
         public ParserFunction.StackLevel StackLevel { get; set; }
@@ -635,7 +635,7 @@ namespace AliceScript.Parsing
         /// <param name="whenPossible">名前空間が存在しない場合に例外を発生させない場合にtrue</param>
         public void Using(string name, bool whenPossible = false)
         {
-            name = name.ToLower();
+            name = name.ToLowerInvariant();
             if (NameSpaceManager.Contains(name))
             {
                 UsingNamespaces.Add(NameSpaceManager.NameSpaces[name]);

@@ -90,7 +90,7 @@ namespace AliceScript.Parsing
                         //本来の位置に進めておく
                         script.Forward();
                     }
-                    keywords.Add(token.ToLower());//キーワード一覧に格納
+                    keywords.Add(token.ToLowerInvariant());//キーワード一覧に格納
                     goto ExtractNextToken;
                 }
 
@@ -459,7 +459,7 @@ namespace AliceScript.Parsing
             }
 
             // eを用いた数値記法の場合
-            if (char.ToUpper(prev) == 'E' &&
+            if (char.ToUpperInvariant(prev) == 'E' &&
                (ch == '-' || ch == '+' || char.IsDigit(ch)) &&
                item.Length > 1 && char.IsDigit(item[item.Length - 2]))
             {

@@ -202,7 +202,7 @@ namespace AliceScript.NameSpaces
             var tokens = forString.Split(' ');
 
             bool registVar = false;
-            if (tokens[0].ToLower() == Constants.VAR)
+            if (tokens[0].Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
             {
                 tokens = tokens.Skip(1).ToArray();
                 forString = forString.Substring(3);

@@ -224,6 +224,8 @@ namespace AliceScript
         public static char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
         public static char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
 
+        public static string TOKEN_START = "(\"\'[{";
+        public static string TOKEN_END = ")\"\']}";
         public static string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
         public static char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
         public static string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
@@ -392,7 +394,7 @@ namespace AliceScript
                 return name;
             }
 
-            string lower = name.ToLower(System.Globalization.CultureInfo.CurrentCulture);
+            string lower = name.ToLowerInvariant();
             if (name == lower || CONTROL_FLOW.Contains(lower))
             { // Do not permit using key words with no case, like IF, For
                 return name;
@@ -436,7 +438,7 @@ namespace AliceScript
         }
         public static bool TryParseType(string text, out Variable.VarType type)
         {
-            text = text.ToUpper();
+            text = text.ToUpperInvariant();
             switch (text)
             {
                 case "INT":

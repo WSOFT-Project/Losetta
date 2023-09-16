@@ -44,7 +44,7 @@ namespace AliceScript.Objects
 
         public override string ToString()
         {
-            var tsf = Functions.Keys.Where(x => x.ToLower() == "tostring").FirstOrDefault();
+            var tsf = Functions.Keys.Where(x => x.ToLowerInvariant() == "tostring").FirstOrDefault();
             return tsf != null
                 ? Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString()
                 : string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;

@@ -241,7 +241,7 @@ namespace AliceScript
         }
         public static double ConvertToDouble(object obj, ParsingScript script = null, bool throwError = true)
         {
-            string str = obj.ToString().ToLower();
+            string str = obj.ToString().ToLowerInvariant();
             if (!CanConvertToDouble(str, out double num) &&
                 script != null && str != Constants.END_ARRAY.ToString() && throwError)
             {
@@ -253,7 +253,7 @@ namespace AliceScript
         public static bool CanConvertToDouble(string str, out double num)
         {
             //文字列を小文字に置き換え
-            str = str.ToLower();
+            str = str.ToLowerInvariant();
             if (str.StartsWith("_", StringComparison.Ordinal) || str.EndsWith("_", StringComparison.Ordinal) || str.Contains("_.") || str.Contains("._"))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません", Exceptions.INVALID_NUMERIC_REPRESENTATION);

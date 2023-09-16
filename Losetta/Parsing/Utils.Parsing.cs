@@ -230,7 +230,7 @@ namespace AliceScript
             {
                 result.String = token.Substring(1, token.Length - 2);
             }
-            else if (CanConvertToDouble(token.ToLower(), out double num))
+            else if (CanConvertToDouble(token.ToLowerInvariant(), out double num))
             {
                 result.Value = num;
             }
@@ -266,7 +266,7 @@ namespace AliceScript
 
                 CustomFunction customFunc = GetFunction(script, funcName, token);
                 script.MoveForwardIf(',');
-                string lower = funcName.ToLower();
+                string lower = funcName.ToLowerInvariant();
                 switch (lower)
                 {
                     case "value":
@@ -294,13 +294,13 @@ namespace AliceScript
                         SetPropertyFromStr(token, result, script, lower, customFunc);
                         break;
                     case "readonly":
-                        _readonly = ConvertToDouble(token.ToLower(), script) < 1;
+                        _readonly = ConvertToDouble(token.ToLowerInvariant(), script) < 1;
                         break;
                     case "enumerable":
-                        enumerable = ConvertToDouble(token.ToLower(), script) > 0;
+                        enumerable = ConvertToDouble(token.ToLowerInvariant(), script) > 0;
                         break;
                     case "configurable":
-                        configurable = ConvertToDouble(token.ToLower(), script) > 0;
+                        configurable = ConvertToDouble(token.ToLowerInvariant(), script) > 0;
                         break;
                 }
             }
@@ -577,7 +577,7 @@ namespace AliceScript
 
             string str = sb.ToString();
             char last = str.Length < 1 ? Constants.EMPTY : str.Last();
-            return char.IsLetterOrDigit(last) && char.IsLetterOrDigit(next) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
+            return (char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next)) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
         public static List<string> GetCompiledArgs(string source)
@@ -837,7 +837,7 @@ namespace AliceScript
                             bool keepSpace = KeepSpace(sb, next);
                             bool usedSpace = spaceOK;
                             spaceOK = keepSpace ||
-                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK) || (prevprev == Constants.FOR_IN[0] && prev == Constants.FOR_IN[1]);
+                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK) ;
                             if (spaceOK || KeepSpaceOnce(sb, next))
                             {
                                 sb.Append(ch);
@@ -946,8 +946,8 @@ namespace AliceScript
                 {
                     inPragma = false;
 
-                    string command = pragmaCommand.ToString().ToLower();
-                    string arg = pragmaArgs.ToString().ToLower();
+                    string command = pragmaCommand.ToString().ToLowerInvariant();
+                    string arg = pragmaArgs.ToString().ToLowerInvariant();
 
 
                     switch (command)
@@ -1115,7 +1115,7 @@ namespace AliceScript
         }
         private static bool? ConvertBool(string str)
         {
-            str = str.ToLower().Trim();
+            str = str.ToLowerInvariant().Trim();
             switch (str)
             {
                 case Constants.TRUE:

@@ -3,6 +3,7 @@ using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Text;
+using System.Xml.Linq;
 
 namespace AliceScript
 {
@@ -45,7 +46,7 @@ namespace AliceScript
             {
                 name = fb.Name;
             }
-            name = name.ToLower();
+            name = name.ToLowerInvariant();
             Functions.Add(name, fb);
         }
         public static void AddProp(PropertyBase pb, string name = null)
@@ -54,7 +55,7 @@ namespace AliceScript
             {
                 name = pb.Name;
             }
-            name = name.ToLower();
+            name = name.ToLowerInvariant();
             Properties.Add(name, pb);
         }
         public static void RemoveFunc(FunctionBase fb, string name = "")
@@ -64,7 +65,7 @@ namespace AliceScript
             {
                 name = fb.Name;
             }
-            name = name.ToLower();
+            name = name.ToLowerInvariant();
             if (Functions.ContainsKey(name))
             {
                 Functions.Remove(name);
@@ -411,7 +412,7 @@ namespace AliceScript
                                 }
                             case Variable.VarType.STRING:
                                 {
-                                    return new Variable(String.ToLower() == Constants.TRUE);
+                                    return new Variable(String.Equals(Constants.TRUE, StringComparison.OrdinalIgnoreCase));
                                 }
                         }
                         break;
@@ -515,7 +516,7 @@ namespace AliceScript
         public void AddVariableToHash(string hash, Variable newVar)
         {
             Variable listVar = null;
-            string lower = hash.ToLower();
+            string lower = hash.ToLowerInvariant();
             if (m_dictionary.TryGetValue(lower, out int retValue))
             {
                 // already exists, change the value:
@@ -564,7 +565,7 @@ namespace AliceScript
         public int SetHashVariable(string hash, Variable var)
         {
             SetAsArray();
-            string lower = hash.ToLower();
+            string lower = hash.ToLowerInvariant();
             if (m_dictionary.TryGetValue(lower, out int retValue))
             {
                 // already exists, change the value:
@@ -620,7 +621,7 @@ namespace AliceScript
             }
 
             string hash = indexVar.AsString();
-            string lower = hash.ToLower();
+            string lower = hash.ToLowerInvariant();
             int ptr = m_tuple.Count;
             if (m_dictionary.TryGetValue(lower, out ptr) &&
                 ptr < m_tuple.Count)
@@ -1401,7 +1402,7 @@ namespace AliceScript
         private Variable GetCoreProperty(string propName, ParsingScript script = null)
         {
             Variable result = Variable.EmptyInstance;
-            propName = propName.ToLower();
+            propName = propName.ToLowerInvariant();
 
             if (m_propertyMap.TryGetValue(propName, out result) ||
                 m_propertyMap.TryGetValue(GetRealName(propName), out result))
@@ -1442,7 +1443,7 @@ namespace AliceScript
 
             foreach (string key in m_propertyMap.Keys)
             {
-                allSet.Add(key.ToLower());
+                allSet.Add(key.ToLowerInvariant());
                 all.Add(key);
             }
             foreach (var fn in Functions)
@@ -1460,7 +1461,7 @@ namespace AliceScript
                 List<string> objProps = obj.GetProperties();
                 foreach (string key in objProps)
                 {
-                    if (allSet.Add(key.ToLower()))
+                    if (allSet.Add(key.ToLowerInvariant()))
                     {
                         all.Add(key);
                     }
@@ -1469,7 +1470,7 @@ namespace AliceScript
 
             all.Sort();
 
-            if (!allSet.Contains(Constants.OBJECT_TYPE.ToLower()))
+            if (!allSet.Contains(Constants.OBJECT_TYPE.ToLowerInvariant()))
             {
                 all.Add(Constants.OBJECT_TYPE);
             }

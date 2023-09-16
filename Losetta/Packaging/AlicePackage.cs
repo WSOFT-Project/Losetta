@@ -2,6 +2,7 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using System.Xml.Linq;
 
 namespace AliceScript.Packaging
 {
@@ -61,9 +62,9 @@ namespace AliceScript.Packaging
                 manifest.Description = config.Read("description");
                 manifest.Publisher = config.Read("publisher");
                 string sip = config.Read("target");
-                manifest.Target = !string.IsNullOrEmpty(sip) && sip.ToLower() != "any" ? new List<string>(sip.Split(',')) : null;
+                manifest.Target = !string.IsNullOrEmpty(sip) && sip.Equals("any", StringComparison.OrdinalIgnoreCase) ? new List<string>(sip.Split(',')) : null;
                 sip = config.Read("targetapp");
-                if (!string.IsNullOrEmpty(sip) && sip.ToLower() != "any")
+                if (!string.IsNullOrEmpty(sip) && sip.Equals("any", StringComparison.OrdinalIgnoreCase))
                 {
                     manifest.TargetApp = new List<string>(sip.Split(','));
                 }

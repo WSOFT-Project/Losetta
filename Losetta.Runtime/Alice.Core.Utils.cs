@@ -268,7 +268,7 @@ namespace AliceScript.NameSpaces
                             {
                                 case Variable.VarType.NUMBER:
                                     {
-                                        switch (subFormat.ToLower())
+                                        switch (subFormat.ToLowerInvariant())
                                         {
                                             case "c":
                                                 {
