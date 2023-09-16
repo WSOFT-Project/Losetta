@@ -1,5 +1,6 @@
 ﻿using AliceScript.Functions;
 using AliceScript.NameSpaces;
+using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -66,8 +67,7 @@ namespace AliceScript.Binding
             }
             foreach (HashSet<MethodInfo> mi in methods.Values)
             {
-                var method = mi.OrderByDescending(x => x.GetParameters().Length);
-                var func = CreateBindFunction(method.ToArray(), needbind);
+                var func = CreateBindFunction(mi, needbind);
                 if (func != null)
                 {
                     space.Add(func);
@@ -81,7 +81,7 @@ namespace AliceScript.Binding
         /// <param name="methodInfos">同じメソッド名のオーバーロード</param>
         /// <param name="needBind">このメソッドをバインドするには属性が必要</param>
         /// <returns>生成されたFunctionBase</returns>
-        private static FunctionBase CreateBindFunction(MethodInfo[] methodInfos, bool needBind)
+        private static FunctionBase CreateBindFunction(HashSet<MethodInfo> methodInfos, bool needBind)
         {
             var func = new BindFunction();
             foreach (var methodInfo in methodInfos)
@@ -106,6 +106,20 @@ namespace AliceScript.Binding
                 load.Attribute = funcAttribute;
                 load.TrueParameters = methodInfo.GetParameters();
 
+                if (load.TrueParameters.Length > 0)
+                {
+                    load.HasParams = load.TrueParameters[^1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
+                }
+                int i = 0;
+                for (; i < load.TrueParameters.Length; i++)
+                {
+                    if (load.TrueParameters[i].HasDefaultValue)
+                    {
+                        break;
+                    }
+                }
+                load.MinimumArgCounts = i;
+
                 var args = Expression.Parameter(typeof(object[]), "args");
                 var parameters = load.TrueParameters.Select((x, index) =>
                 Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), x.ParameterType)).ToArray();
@@ -129,7 +143,6 @@ namespace AliceScript.Binding
                 func.Overloads.Add(load);
             }
 
-
             return func;
         }
 
@@ -147,23 +160,51 @@ namespace AliceScript.Binding
         /// <summary>
         /// 任意の静的メソッドを表すオブジェクト
         /// </summary>
-        private sealed class BindingOverloadFunction : FunctionBase
+        private sealed class BindingOverloadFunction : IComparable<BindingOverloadFunction>
         {
+            public FunctionAttribute Attribute { get; set; }
+            /// <summary>
+            /// パラメーターの最期がparamsの場合にtrue
+            /// </summary>
+            public bool HasParams { get; set; }
+
+            /// <summary>
+            /// この関数に必要な引数の最小個数
+            /// </summary>
+            public int MinimumArgCounts { get; set; }
             public ParameterInfo[] TrueParameters { get; set; }
             public Action<object[]> VoidFunc { get; set; }
             public Func<object[], object> ObjFunc { get; set; }
             public bool IsVoidFunc { get; set; }
+
+            public int CompareTo(BindingOverloadFunction other)
+            {
+                int result = MinimumArgCounts.CompareTo(other.MinimumArgCounts);
+
+                if (other.HasParams || result == 0)
+                {
+                    result = -1;
+                }
+
+                return result;
+            }
+
             public bool TryConvertParameters(List<Variable> args, out object[] converted)
             {
                 converted = null;
 
                 var parametors = new List<object>(args.Count);
-                if (args.Count > TrueParameters.Length)
+                ArrayList paramsList = null;
+                bool inParams = false;
+                Type paramType = null;
+
+                if (!HasParams && args.Count > TrueParameters.Length)
                 {
-                    //入力の引数の方が多い場合
+                    //入力の引数の方が多い場合かつparamsではない場合
                     return false;
                 }
-                for (int i = 0; i < TrueParameters.Length; i++)
+                int i;
+                for (i = 0; i < TrueParameters.Length; i++)
                 {
                     if (i > args.Count - 1)
                     {
@@ -175,24 +216,61 @@ namespace AliceScript.Binding
                         }
                         else
                         {
+                            //規定値がないためマッチしない
                             return false;
                         }
                     }
 
-                    if (args[i].TryConvertTo(TrueParameters[i].ParameterType, out var result))
+                    paramType = TrueParameters[i].ParameterType;
+                    if (HasParams && i == TrueParameters.Length - 1 && paramType.IsArray)
                     {
-                        parametors.Add(result);
+                        //この引数が最後の場合で、それがparamsの場合
+                        paramType = paramType.GetElementType();
+                        paramsList = new ArrayList();
+                        inParams = true;
+                    }
+
+                    if (args[i].TryConvertTo(paramType, out var result))
+                    {
+                        if (inParams)
+                        {
+                            paramsList.Add(result);
+                        }
+                        else
+                        {
+                            parametors.Add(result);
+                        }
                     }
                     else
                     {
                         return false;
                     }
                 }
+
+                for (; i < args.Count; i++)
+                {
+                    //paramsでまだ指定したい変数がある場合
+                    if (inParams)
+                    {
+                        if (args[i].TryConvertTo(paramType, out var result))
+                        {
+                            paramsList.Add(result);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                if (inParams)
+                {
+                    parametors.Add(paramsList.ToArray(paramType));
+                }
                 converted = parametors.ToArray();
                 return true;
             }
         }
-        private HashSet<BindingOverloadFunction> Overloads = new HashSet<BindingOverloadFunction>();
+        private SortedSet<BindingOverloadFunction> Overloads = new SortedSet<BindingOverloadFunction>();
 
     }
 }

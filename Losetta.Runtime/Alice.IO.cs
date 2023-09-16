@@ -1,7 +1,6 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Extra;
 using AliceScript.Functions;
-using AliceScript.Interop;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -20,10 +19,6 @@ namespace AliceScript.NameSpaces
             space.Add(new file_read_charcodeFunc());
 
             space.Add(new directory_currentdirectoryFunc());
-
-            space.Add(new path_CombineFunc());
-            space.Add(new path_JoinFunc());
-
             NameSpaceManager.Add(space);
         }
     }
@@ -338,6 +333,14 @@ namespace AliceScript.NameSpaces
         {
             return Path.TrimEndingDirectorySeparator(path);
         }
+        public static string Path_Combine(params string[] paths)
+        {
+            return Path.Combine(paths);
+        }
+        public static string Path_Join(params string[] paths)
+        {
+            return Path.Join(paths);
+        }
         #endregion
         #region ZIPファイル操作
         public static void Zip_CreateFromDirectory(string path, string to)
@@ -357,45 +360,7 @@ namespace AliceScript.NameSpaces
         }
         #endregion
     }
-    internal sealed class path_CombineFunc : FunctionBase
-    {
-        public path_CombineFunc()
-        {
-            Name = "path_Combine";
-            MinimumArgCounts = 2;
-            Run += Path_CombineFunc_Run;
-        }
 
-        private void Path_CombineFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            List<string> vs = new List<string>();
-            foreach (Variable v in e.Args)
-            {
-                vs.Add(v.AsString());
-            }
-            e.Return = new Variable(Path.Combine(vs.ToArray()));
-        }
-    }
-
-    internal sealed class path_JoinFunc : FunctionBase
-    {
-        public path_JoinFunc()
-        {
-            Name = "path_Join";
-            MinimumArgCounts = 2;
-            Run += Path_JoinFunc_Run;
-        }
-
-        private void Path_JoinFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            List<string> vs = new List<string>();
-            foreach (Variable v in e.Args)
-            {
-                vs.Add(v.AsString());
-            }
-            e.Return = new Variable(Path.Join(vs.ToArray()));
-        }
-    }
 
     internal sealed class file_read_textFunc : FunctionBase
     {

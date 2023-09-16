@@ -1,6 +1,7 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
 using AliceScript.Interop;
+using System.Transactions;
 
 namespace AliceScript.NameSpaces
 {
@@ -9,60 +10,12 @@ namespace AliceScript.NameSpaces
         public static void Init()
         {
             NameSpaceManager.Add(typeof(MathFunctions));
-
-            NameSpace space = new NameSpace("Alice.Math");
-            space.Add(new math_MinMaxFunc(true));
-            space.Add(new math_MinMaxFunc(false));
-            NameSpaceManager.Add(space);
         }
-    }
-    internal sealed class math_MinMaxFunc : FunctionBase
-    {
-        public math_MinMaxFunc(bool max)
-        {
-            Mode = max;
-            Name = Mode ? "math_max" : "math_min";
-            MinimumArgCounts = 2;
-            Run += Math_MinMaxFunc_Run;
-        }
-
-        private void Math_MinMaxFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            double returnValue = 0;
-            foreach (Variable v in e.Args)
-            {
-                if (Mode)
-                {
-                    if (v.Value > returnValue)
-                    {
-                        returnValue = v.Value;
-                    }
-                }
-                else
-                {
-                    if (v.Value < returnValue)
-                    {
-                        returnValue = v.Value;
-                    }
-                }
-            }
-            e.Return = new Variable(returnValue);
-        }
-
-        private bool Mode { get; set; }
     }
 
     [AliceNameSpace(Name = "Alice.Math")]
     internal static class MathFunctions
     {
-        public static double Math_Round(double x)
-        {
-            return Math.Round(x);
-        }
-        public static double Math_Round(double x, int digits)
-        {
-            return Math.Round(x, digits);
-        }
         public static bool Math_IsPrime(long x)
         {
             if (x < 2)
@@ -115,10 +68,6 @@ namespace AliceScript.NameSpaces
         {
             return Math.Exp(x);
         }
-        public static double Math_Floor(double x)
-        {
-            return Math.Floor(x);
-        }
         public static double Math_FusedMultiplyAdd(double x, double y, double z)
         {
             return Math.FusedMultiplyAdd(x, y, z);
@@ -131,9 +80,23 @@ namespace AliceScript.NameSpaces
         {
             return Math.Cbrt(x);
         }
-        public static double Math_Truncate(double x)
+        public static double Math_Max(params double[] nums)
         {
-            return Math.Truncate(x);
+            double max = double.MinValue;
+            foreach(double d in nums)
+            {
+                max = Math.Max(max, d);
+            }
+            return max;
+        }
+        public static double Math_Min(params double[] nums)
+        {
+            double min = double.MaxValue;
+            foreach (double d in nums)
+            {
+                min = Math.Min(min, d);
+            }
+            return min;
         }
         #region 数学定数
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
@@ -165,6 +128,24 @@ namespace AliceScript.NameSpaces
         public static double Math_Epsilon()
         {
             return double.Epsilon;
+        }
+        #endregion
+        #region 端数処理
+        public static double Math_Round(double x)
+        {
+            return Math.Round(x);
+        }
+        public static double Math_Round(double x, int digits)
+        {
+            return Math.Round(x, digits);
+        }
+        public static double Math_Truncate(double x)
+        {
+            return Math.Truncate(x);
+        }
+        public static double Math_Floor(double x)
+        {
+            return Math.Floor(x);
         }
         #endregion
         #region ビット加減算
