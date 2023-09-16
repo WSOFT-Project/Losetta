@@ -222,9 +222,9 @@ namespace AliceScript.Binding
                     }
 
                     paramType = TrueParameters[i].ParameterType;
-                    if (HasParams && i == TrueParameters.Length - 1 && paramType.IsArray)
+                    if (HasParams && i == TrueParameters.Length - 1 && paramType.IsArray && args[i].Type != Variable.VarType.ARRAY)
                     {
-                        //この引数が最後の場合で、それがparamsの場合
+                        //この引数が最後の場合で、それがparamsの場合かつ、配列として渡されていない場合
                         paramType = paramType.GetElementType();
                         paramsList = new ArrayList();
                         inParams = true;
@@ -260,6 +260,10 @@ namespace AliceScript.Binding
                         {
                             return false;
                         }
+                    }
+                    else
+                    {
+                        return false;
                     }
                 }
                 if (inParams)

@@ -2,6 +2,7 @@
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Collections;
 using System.Text;
 using System.Xml.Linq;
 
@@ -962,16 +963,7 @@ namespace AliceScript
                     }
                 case VarType.ARRAY:
                     {
-                        if(Tuple.Type.Type == VarType.STRING && type == typeof(string[]))
-                        {
-                            var ary = new List<string>();
-                            foreach(var v in Tuple)
-                            {
-                                ary.Add(v.String);
-                            }
-                            result = ary.ToArray();
-                            return true;
-                        }
+                        
                         if(type == typeof(VariableCollection))
                         {
                             result = Tuple;
@@ -985,6 +977,25 @@ namespace AliceScript
                         if(type == typeof(List<Variable>))
                         {
                             result = Tuple.ToList();
+                            return true;
+                        }
+                        if (type.IsArray)
+                        {
+                            var target = type.GetElementType();
+                            ArrayList ary = new ArrayList();
+                            foreach (var v in Tuple)
+                            {
+                                if (v.TryConvertTo(target, out var r))
+                                {
+                                    ary.Add(r);
+                                }
+                                else
+                                {
+                                    result = null;
+                                    return false;
+                                }
+                            }
+                            result = ary.ToArray(target);
                             return true;
                         }
                         break;

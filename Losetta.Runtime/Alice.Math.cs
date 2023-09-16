@@ -1,7 +1,5 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
-using AliceScript.Interop;
-using System.Transactions;
 
 namespace AliceScript.NameSpaces
 {
@@ -83,7 +81,7 @@ namespace AliceScript.NameSpaces
         public static double Math_Max(params double[] nums)
         {
             double max = double.MinValue;
-            foreach(double d in nums)
+            foreach (double d in nums)
             {
                 max = Math.Max(max, d);
             }
