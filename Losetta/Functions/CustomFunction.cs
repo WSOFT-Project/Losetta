@@ -88,12 +88,12 @@ namespace AliceScript.Functions
                 {
                     parms = options.Contains(Constants.PARAMS);
                     refs = options.Contains(Constants.REF);
-                    if (options.Contains("this"))
+                    if (options.Contains(Constants.THIS))
                     {
                         m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
 
                     }
-                    else if (!refs && options.Count > 1)
+                    if (!refs && options.Count > 1)
                     {
                         Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
                         if (v != null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
@@ -147,6 +147,10 @@ namespace AliceScript.Functions
                     }
                     ArgMap[trueArgs[i]] = i;
                 }
+                if (m_this != -1)
+                {
+                    RequestType = reqType;
+                }
                 m_args = RealArgs = trueArgs.ToArray();
             }
 
@@ -160,11 +164,11 @@ namespace AliceScript.Functions
             {
                 m_args = new string[0];
             }
-            if (e.Args.Count + m_defaultArgs.Count < m_args.Length)
+            if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable != null ? 1 : 0) < m_args.Length)
             {
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
-            Variable result = ARun(e.Args, e.Script);
+            Variable result = ARun(e.Args, e.Script,e.ClassInstance,e.CurentVariable);
             if ((m_returnType != Variable.VarType.VARIABLE && m_returnType != result.Type) || (!m_nullable && result.IsNull()))
             {
                 throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.IsNull() ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
@@ -180,7 +184,7 @@ namespace AliceScript.Functions
             {
                 args = new List<Variable>();
             }
-            if (m_this != -1)
+            if (m_this != -1 && current!= null)
             {
                 args.Insert(m_this, current);
             }
@@ -201,7 +205,7 @@ namespace AliceScript.Functions
                 else
                 {
 
-                    if (ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
+                    if (arg!=null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
                     {
                         namedParameters = true;
                         if (i != argIndex)
@@ -462,7 +466,6 @@ namespace AliceScript.Functions
         public int ArgumentCount => m_args.Length;
 
         public StackLevel NamespaceData { get; set; }
-        public bool IsMethod => m_this != -1;
         public TypeObject MethodRequestType => IsMethod && m_typArgMap.ContainsKey(m_this) ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;
@@ -555,25 +558,6 @@ namespace AliceScript.Functions
             {
                 customFunc.IsVirtual = true;
             }
-            if (customFunc.IsMethod)
-            {
-                if (isGlobal)
-                {
-                    if (!Variable.Functions.TryGetValue(funcName, out FunctionBase fb) || !fb.IsVirtual)
-                    {
-                        Variable.AddFunc(new CustomMethodFunction(customFunc, funcName));
-                    }
-                    else
-                    {
-                        throw new ScriptException("指定されたメソッドはすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
-                    }
-                }
-                else
-                {
-                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL, e.Script);
-                }
-            }
-            else
             if (e.Script.CurrentClass != null)
             {
                 e.Script.CurrentClass.AddMethod(funcName, args, customFunc);

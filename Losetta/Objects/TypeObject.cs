@@ -8,7 +8,7 @@ namespace AliceScript.Objects
         public TypeObject()
         {
             Init();
-            Type = Variable.VarType.NONE;
+            Type = Variable.VarType.VARIABLE;
         }
         public TypeObject(Variable.VarType type)
         {
@@ -125,13 +125,17 @@ namespace AliceScript.Objects
 
         public bool Match(Variable item)
         {
-            if (Type.HasFlag(item.Type))
+            if(Type == Variable.VarType.VARIABLE)
+            {
+                return true;
+            }
+            if (item.Type.HasFlag(Type))
             {
                 if (Type == Variable.VarType.OBJECT && item.Object is AliceScriptClass c && ClassType != c)
                 {
                     return false;
                 }
-                else if (Type == Variable.VarType.ARRAY && item.Tuple.Type != ArrayType)
+                else if (item.Type != Variable.VarType.STRING  && (Type == Variable.VarType.ARRAY && item.Tuple.Type != ArrayType))
                 {
                     return false;
                 }

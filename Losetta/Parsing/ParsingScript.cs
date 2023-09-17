@@ -731,12 +731,9 @@ namespace AliceScript.Parsing
             {
                 return true;
             }
-            else
+            else if (ParentScript != null && ParentScript.TryGetFunction(name, out function))
             {
-                if (ParentScript != null && ParentScript.TryGetFunction(name, out function))
-                {
-                    return true;
-                }
+                return true;
             }
             return false;
         }

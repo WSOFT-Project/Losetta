@@ -216,7 +216,7 @@ namespace AliceScript.Functions
                 }
                 //ここまでくる=その関数は存在しない=存在チェックは不要
                 FunctionBaseManager.Add(customFunc, name, script, isGlobal);
-                return new StatementFunction(string.Empty, script);
+                return new GetVarFunction(Variable.EmptyInstance);
             }
             return null;
         }
@@ -535,7 +535,7 @@ namespace AliceScript.Functions
             return pfx;
         }
 
-        public static ParserFunction GetFunction(string name, ParsingScript script, bool toDelegate = false)
+        public static ParserFunction GetFunction(string name, ParsingScript script, bool toDelegate = false,bool wantMethod =false)
         {
             //TODO:関数の取得部分
             name = Constants.ConvertName(name);
@@ -548,6 +548,13 @@ namespace AliceScript.Functions
                     f.Readonly = f.TypeChecked = true;
                     return new GetVarFunction(f);
                 }
+                else if(wantMethod)
+                {
+                    if(impl is FunctionBase fb && fb.IsMethod)
+                    {
+                        return impl.NewInstance();
+                    }
+                }
                 else
                 {
                     return impl.NewInstance();
@@ -556,16 +563,26 @@ namespace AliceScript.Functions
             if (script.TryGetVariable(name, out impl) || s_variables.TryGetValue(name, out impl))
             {
                 //それがデリゲート型の変数である場合
-                if (impl is GetVarFunction gv && gv.Value.Type == Variable.VarType.DELEGATE && !gv.Value.IsNull())
+                if (!wantMethod&&impl is GetVarFunction gv && gv.Value.Type == Variable.VarType.DELEGATE && !gv.Value.IsNull())
                 {
                     return gv.Value.Delegate.Function;
                 }
             }
 
             var fc = GetFromNS(name, script);
-            if (fc != null)
+            if(fc != null)
             {
-                return fc;
+                if (wantMethod)
+                {
+                    if (fc is FunctionBase fb && fb.IsMethod)
+                    {
+                        return fc.NewInstance();
+                    }
+                }
+                else
+                {
+                    return fc.NewInstance();
+                }
             }
 
             //ちょっとでも高速化（ここのロジックは時間がかかる）
@@ -589,7 +606,20 @@ namespace AliceScript.Functions
                     fc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
                     if (fc != null)
                     {
-                        return fc;
+                        if (fc != null)
+                        {
+                            if (wantMethod)
+                            {
+                                if (fc is FunctionBase fb && fb.IsMethod)
+                                {
+                                    return fc.NewInstance();
+                                }
+                            }
+                            else
+                            {
+                                return fc.NewInstance();
+                            }
+                        }
                     }
                     var cc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cc != null)

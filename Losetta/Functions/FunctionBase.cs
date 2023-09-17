@@ -34,6 +34,11 @@ namespace AliceScript.Functions
         /// この関数が所属する名前空間の名前を取得または設定します。
         /// </summary>
         public string RelatedNameSpace { get; set; }
+
+        /// <summary>
+        /// この関数を拡張メソッドとして呼び出し可能な場合はTrue、それ以外の場合はfalse。このプロパティは読み取り専用です。
+        /// </summary>
+        public bool IsMethod { get => RequestType != null; }
         /// <summary>
         /// この関数を呼び出します
         /// </summary>

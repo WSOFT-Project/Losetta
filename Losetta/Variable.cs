@@ -16,24 +16,26 @@ namespace AliceScript
         [Flags]
         public enum VarType
         {
-            NONE = 0b0,
-            UNDEFINED = 0b1,
-            NUMBER = 0b10,
-            STRING = 0b100,
-            ARRAY = 0b1000,
-            ARRAY_NUM = 0b100000,
-            ARRAY_STR = 0b1000000,
-            MAP_NUM = 0b10000000,
-            MAP_STR = 0b100000000,
-            BYTES = 0b1000000000,
-            BREAK = 0b10000000000,
-            CONTINUE = 0b100000000000,
-            OBJECT = 0b1000000000000,
-            ENUM = 0b10000000000000,
-            VARIABLE = 0b100000000000000,
-            CUSTOM = 0b1000000000000000,
-            DELEGATE = 0b100000000000000000,
-            BOOLEAN = 0b1000000000000000000
+            VARIABLE = 0,
+            NONE = 1,
+            UNDEFINED = 2,
+            NUMBER = 4,
+            CHAR = 8,
+            ARRAY = 16,
+            ARRAY_NUM = 32,
+            ARRAY_STR = 64,
+            MAP_NUM = 128,
+            MAP_STR = 256,
+            BREAK = 1024,
+            CONTINUE = 2048,
+            OBJECT = 4096,
+            ENUM = 8192,
+            CUSTOM = 16384,
+            BOOLEAN = 65536,
+
+            BYTES = ARRAY | 512,
+            DELEGATE = ARRAY | 32768,
+            STRING = ARRAY | CHAR
         };
         public static Variable True => new Variable(true);
         public static Variable False => new Variable(false);
@@ -898,7 +900,7 @@ namespace AliceScript
         /// <summary>
         /// この変数を指定した型に変換できるか試みます
         /// </summary>
-        /// <param name="type">変換先の型</param>
+        /// <param name="type">変換先の型。nullを代入すると自動的に最適な型になります。</param>
         /// <param name="result">変換されたオブジェクト</param>
         /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
         public bool TryConvertTo(Type type, out object result)
@@ -912,7 +914,7 @@ namespace AliceScript
             {
                 case VarType.STRING:
                     {
-                        if(type == typeof(string))
+                        if(type is null || type == typeof(string))
                         {
                             result = String;
                             return true;
@@ -921,7 +923,7 @@ namespace AliceScript
                     }
                 case VarType.BOOLEAN:
                     {
-                        if(type == typeof(bool))
+                        if(type is null || type == typeof(bool))
                         {
                             result = Bool;
                             return true;
@@ -930,7 +932,7 @@ namespace AliceScript
                     }
                 case VarType.BYTES:
                     {
-                        if(type == typeof(byte[]))
+                        if(type is null || type == typeof(byte[]))
                         {
                             result = ByteArray;
                             return true;
@@ -959,7 +961,7 @@ namespace AliceScript
                             result = AsLong();
                             return true;
                         }
-                        if (type == typeof(double))
+                        if (type is null || type == typeof(double))
                         {
                             result = AsDouble();
                             return true;
@@ -969,7 +971,7 @@ namespace AliceScript
                 case VarType.ARRAY:
                     {
                         
-                        if(type == typeof(VariableCollection))
+                        if(type is null || type == typeof(VariableCollection))
                         {
                             result = Tuple;
                             return true;
@@ -1002,7 +1004,7 @@ namespace AliceScript
                     }
                 case VarType.DELEGATE:
                     {
-                        if(type == typeof(DelegateObject))
+                        if(type is null || type == typeof(DelegateObject))
                         {
                             result = AsDelegate();
                             return true;
@@ -1014,6 +1016,10 @@ namespace AliceScript
                         result = System.Convert.ChangeType(Object,type);
                         return true;
                     }
+            }
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) && TryConvertTo(null,out result))
+            {
+                return true;
             }
             result = null;
             return false;
@@ -1424,6 +1430,15 @@ namespace AliceScript
             {
                 return p.GetProperty(this);
             }
+            else if(script != null)
+            {
+                FunctionBase func = ParserFunction.GetFunction(propName,script,false,true) as FunctionBase;
+                if (func != null)
+                {
+                    return func.Evaluate(script, this);
+                }
+            }
+            //TODO: これ
             else if (script != null && Functions.TryGetValue(propName, out var f))
             {
 

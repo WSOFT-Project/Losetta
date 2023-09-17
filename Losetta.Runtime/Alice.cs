@@ -10,6 +10,7 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
+            NameSpaceManager.Add(typeof(ExFunctions));
             //総合関数(コアプロパティ)
             Variable.AddFunc(new DisposeFunc());
             Variable.AddFunc(new EqualsFunc());
@@ -25,7 +26,6 @@ namespace AliceScript.NameSpaces
             //複合関数(複数の型に対応する関数)
             Variable.AddFunc(new IndexOfFunc());
             Variable.AddFunc(new ContainsFunc());
-            Variable.AddFunc(new list_InsertFunc());
             Variable.AddFunc(new RemoveAtFunc());
             Variable.AddFunc(new RemoveFunc());
             Variable.AddProp(new LengthSizeProp(), Constants.LENGTH);
@@ -56,26 +56,6 @@ namespace AliceScript.NameSpaces
             Variable.AddFunc(new str_ToLowerUpperInvariantFunc());
             Variable.AddFunc(new str_ToLowerUpperInvariantFunc(true));
             //String関数(終わり)
-            //List関数
-            Variable.AddFunc(new list_addFunc());
-            Variable.AddFunc(new list_addRangeFunc());
-            Variable.AddFunc(new list_allFunc());
-            Variable.AddFunc(new list_anyFunc());
-            Variable.AddFunc(new list_secenceEqualFunc());
-            Variable.AddFunc(new list_ofTypeFunc());
-            Variable.AddFunc(new list_whereFunc());
-            Variable.AddFunc(new list_DistinctFunc());
-            Variable.AddFunc(new list_skipFunc());
-            Variable.AddFunc(new list_skipWhileFunc());
-            Variable.AddFunc(new list_takeFunc());
-            Variable.AddFunc(new list_takeWhileFunc());
-            Variable.AddFunc(new list_SelectFunc());
-            Variable.AddFunc(new list_OrderByFunc());
-            Variable.AddFunc(new list_OrderByDescendingFunc());
-            Variable.AddFunc(new list_UnionFunc());
-            Variable.AddFunc(new list_ExceptFunc());
-            Variable.AddFunc(new list_IntersectFunc());
-            //List関数(終わり)
             //DELEGATE系(Delegate.csに本体あり)
             Variable.AddFunc(new InvokeFunc());
             Variable.AddFunc(new BeginInvokeFunc());
