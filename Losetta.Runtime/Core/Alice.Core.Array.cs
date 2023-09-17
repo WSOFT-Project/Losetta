@@ -3,11 +3,11 @@ using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 using System;
+using System.Runtime.CompilerServices;
 
-namespace AliceScript
+namespace AliceScript.NameSpaces.Core
 {
-    [AliceNameSpace(Name ="Alice")]
-    internal static class ExFunctions
+    partial class ExFunctions
     {
         public static void Add(this VariableCollection ary,params Variable[] items)
         {
@@ -93,10 +93,82 @@ namespace AliceScript
         {
             return ary.Tuple.Intersect(items);
         }
-
-        public static string Insert(this string str , int index, Variable item)
+        public static int IndexOf(this VariableCollection ary,Variable item)
         {
-            return str.Insert(index,item.AsString());
+            return ary.Tuple.IndexOf(item);
+        }
+        public static int IndexOf(this VariableCollection ary, Variable item,int index)
+        {
+            return ary.Tuple.IndexOf(item,index);
+        }
+        public static int IndexOf(this VariableCollection ary, Variable item, int index,int count)
+        {
+            return ary.Tuple.IndexOf(item, index,count);
+        }
+        public static int LastIndexOf(this VariableCollection ary, Variable item)
+        {
+            return ary.Tuple.LastIndexOf(item);
+        }
+        public static int LastIndexOf(this VariableCollection ary, Variable item, int index)
+        {
+            return ary.Tuple.IndexOf(item, index);
+        }
+        public static int LastIndexOf(this VariableCollection ary, Variable item, int index, int count)
+        {
+            return ary.Tuple.IndexOf(item, index, count);
+        }
+        public static bool Contains(this VariableCollection ary, Variable item)
+        {
+            return ary.Tuple.Contains(item);
+        }
+        public static void Remove(this VariableCollection ary,params Variable[] items)
+        {
+            foreach(Variable item in items)
+            {
+                ary.Tuple.Remove(item);
+            }
+        }
+        public static void RemoveRange(this VariableCollection ary,int index,int count)
+        {
+            ary.Tuple.RemoveRange(index,count);
+        }
+        public static void RemoveAt(this VariableCollection ary,int index)
+        {
+            ary.Tuple.RemoveAt(index);
+        }
+        public static void Sort(this VariableCollection ary)
+        {
+            ary.Tuple.Sort();
+        }
+        public static void Reverse(this VariableCollection ary)
+        {
+            ary.Tuple.Reverse();
+        }
+        public static void Reverse(this VariableCollection ary,int index,int count)
+        {
+            ary.Tuple.Reverse(index,count);
+        }
+        public static void Flatten(this VariableCollection ary)
+        {
+            Variable v = new Variable();
+            for(int i = 0; i < ary.Count; i++)
+            {
+                var item = ary[i];
+                if(item.Type == Variable.VarType.ARRAY)
+                {
+                    foreach(var item2 in item.Tuple)
+                    {
+                        ary.Insert(i++,item2);
+                    }
+                }
+            }
+        }
+        public static void Foreach(this VariableCollection ary,ParsingScript script,DelegateObject func)
+        {
+            foreach(Variable item in ary.Tuple)
+            {
+                func.Invoke(new List<Variable> { item }, script);
+            }
         }
     }
 }

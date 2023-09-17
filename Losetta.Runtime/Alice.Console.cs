@@ -481,7 +481,7 @@ namespace AliceScript.NameSpaces
             {
                 string text = e.Args[0].AsString();
                 e.Args.RemoveAt(0);
-                text = StringFormatFunction.Format(text, e.Args);
+                text = StringFormatFunction.Format(text, e.Args.ToArray());
                 if (m_WLine)
                 {
                     Console.WriteLine(text);

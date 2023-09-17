@@ -102,7 +102,7 @@ namespace AliceScript.NameSpaces
         }
         public static void Debug_Print(string format, Variable[] items)
         {
-            AddDebugOutput(StringFormatFunction.Format(format, items.ToList()), true);
+            AddDebugOutput(StringFormatFunction.Format(format, items), true);
         }
         public static void Debug_PrintIf(bool condition)
         {
@@ -122,7 +122,7 @@ namespace AliceScript.NameSpaces
         {
             if (condition)
             {
-                AddDebugOutput(StringFormatFunction.Format(format, items.ToList()), true);
+                AddDebugOutput(StringFormatFunction.Format(format, items), true);
             }
         }
         public static void Debug_Write()
@@ -135,7 +135,7 @@ namespace AliceScript.NameSpaces
         }
         public static void Debug_Write(string format, Variable[] items)
         {
-            AddDebugOutput(StringFormatFunction.Format(format, items.ToList()), false);
+            AddDebugOutput(StringFormatFunction.Format(format, items), false);
         }
         public static void Debug_WriteIf(bool condition)
         {
@@ -155,7 +155,7 @@ namespace AliceScript.NameSpaces
         {
             if (condition)
             {
-                AddDebugOutput(StringFormatFunction.Format(format, items.ToList()), false);
+                AddDebugOutput(StringFormatFunction.Format(format, items), false);
             }
         }
         public static void AddDebugOutput(string text,

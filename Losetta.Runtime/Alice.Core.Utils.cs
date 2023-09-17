@@ -196,7 +196,7 @@ namespace AliceScript.NameSpaces
             {
                 string format = e.Args[0].AsString();
                 e.Args.RemoveAt(0);
-                AddOutput(StringFormatFunction.Format(format, e.Args), e.Script, !m_write);
+                AddOutput(StringFormatFunction.Format(format, e.Args.ToArray()), e.Script, !m_write);
             }
         }
 
@@ -235,10 +235,10 @@ namespace AliceScript.NameSpaces
         {
             string format = e.Args[0].AsString();
             e.Args.RemoveAt(0);
-            e.Return = new Variable(Format(format, e.Args));
+            e.Return = new Variable(Format(format, e.Args.ToArray()));
         }
 
-        public static string Format(string format, List<Variable> args)
+        public static string Format(string format, Variable[] args)
         {
             string text = format;
             MatchCollection mc = Regex.Matches(format, @"{[0-9]+:?[a-z,A-Z]*}");
@@ -260,7 +260,7 @@ namespace AliceScript.NameSpaces
                 }
                 if (int.TryParse(indstr, out mn))
                 {
-                    if (args.Count > mn)
+                    if (args.Length > mn)
                     {
                         if (selectSubFormat)
                         {
