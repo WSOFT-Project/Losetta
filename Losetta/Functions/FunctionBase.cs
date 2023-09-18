@@ -39,6 +39,11 @@ namespace AliceScript.Functions
         /// この関数を拡張メソッドとして呼び出し可能な場合はTrue、それ以外の場合はfalse。このプロパティは読み取り専用です。
         /// </summary>
         public bool IsMethod { get => RequestType != null; }
+
+        /// <summary>
+        /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができる
+        /// </summary>
+        public bool MethodOnly { get; set; } = true;
         /// <summary>
         /// この関数を呼び出します
         /// </summary>
@@ -49,21 +54,7 @@ namespace AliceScript.Functions
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = new List<Variable>();
-            if (args != null)
-            {
-                foreach (var a in Utils.GetSpan(args))
-                {
-                    if (a == null)
-                    {
-                        ex.Args.Add(Variable.EmptyInstance);
-                    }
-                    else
-                    {
-                        ex.Args.Add(a);
-                    }
-                }
-            }
+            ex.Args = args ?? new List<Variable>();
             ex.UseObjectResult = false;
             ex.ObjectResult = null;
             if (script != null)
@@ -72,6 +63,7 @@ namespace AliceScript.Functions
             }
             ex.Return = Variable.EmptyInstance;
             ex.Script = script;
+            ex.Keywords = Keywords;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
             if (ex.Return == null)
@@ -354,6 +346,11 @@ namespace AliceScript.Functions
         /// (Variableオブジェクト内のみ)呼び出し元のオブジェクトを表します
         /// </summary>
         public Variable CurentVariable { get; set; }
+
+        /// <summary>
+        /// この関数の呼び出し時に同時に指定されたキーワードを表します
+        /// </summary>
+        public HashSet<string> Keywords { get; set; }
 
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
     }

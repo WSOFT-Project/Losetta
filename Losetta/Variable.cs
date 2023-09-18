@@ -43,15 +43,6 @@ namespace AliceScript
         {
             return new Variable(text);
         }
-        public static void AddFunc(FunctionBase fb, string name = null)
-        {
-            if (name == null)
-            {
-                name = fb.Name;
-            }
-            name = name.ToLowerInvariant();
-            Functions.Add(name, fb);
-        }
         public static void AddProp(PropertyBase pb, string name = null)
         {
             if (name == null)
@@ -61,26 +52,12 @@ namespace AliceScript
             name = name.ToLowerInvariant();
             Properties.Add(name, pb);
         }
-        public static void RemoveFunc(FunctionBase fb, string name = "")
-        {
 
-            if (name == "")
-            {
-                name = fb.Name;
-            }
-            name = name.ToLowerInvariant();
-            if (Functions.ContainsKey(name))
-            {
-                Functions.Remove(name);
-            }
-        }
-
-        public static Dictionary<string, FunctionBase> Functions = new Dictionary<string, FunctionBase>();
         public static Dictionary<string, PropertyBase> Properties = new Dictionary<string, PropertyBase>();
 
         List<string> ScriptObject.GetProperties()
         {
-            List<string> v = Functions.Keys.ToList();
+            List<string> v = Properties.Keys.ToList();
             return v;
         }
         public static bool GETTING = false;
@@ -93,11 +70,11 @@ namespace AliceScript
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
 
 
-            if (Functions.ContainsKey(sPropertyName))
+            if (Properties.ContainsKey(sPropertyName))
             {
                 GETTING = true;
 
-                Task<Variable> va = Task.FromResult(Functions[sPropertyName].GetValue(script));
+                Task<Variable> va = Task.FromResult(Properties[sPropertyName].Value);
                 GETTING = false;
                 return va;
             }
@@ -192,6 +169,15 @@ namespace AliceScript
         }
         public Variable(object? o)
         {
+            if(o is Variable v)
+            {
+                Assign(v);
+                IsReturn = v.IsReturn;
+                Type = v.Type;
+                TypeChecked = v.TypeChecked;
+                Readonly = v.Readonly;
+                return;
+            }
             if (o is string s)
             {
                 String = s;
@@ -230,18 +216,18 @@ namespace AliceScript
             if (o is IEnumerable<Variable> tuple)
             {
                 Tuple = new VariableCollection();
-                foreach (var v in tuple)
+                foreach (var item in tuple)
                 {
-                    Tuple.Add(v);
+                    Tuple.Add(item);
                 }
                 return;
             }
             if (o is IEnumerable<object> ary)
             {
                 Tuple = new VariableCollection();
-                foreach (var v in ary)
+                foreach (var item in ary)
                 {
-                    Tuple.Add(new Variable(v));
+                    Tuple.Add(new Variable(item));
                 }
                 return;
             }
@@ -1439,7 +1425,7 @@ namespace AliceScript
             {
                 return result;
             }
-            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type == Variable.VarType.NONE))
+            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type == Variable.VarType.VARIABLE))
             {
                 return p.GetProperty(this);
             }
@@ -1451,13 +1437,6 @@ namespace AliceScript
                     return func.Evaluate(script, this);
                 }
             }
-            //TODO: これ
-            else if (script != null && Functions.TryGetValue(propName, out var f))
-            {
-
-                return f.Evaluate(script, this);
-            }
-
             return result;
         }
 
@@ -1484,14 +1463,6 @@ namespace AliceScript
             {
                 allSet.Add(key.ToLowerInvariant());
                 all.Add(key);
-            }
-            foreach (var fn in Functions)
-            {
-                FunctionBase fb = fn.Value;
-                if (fb.RequestType.Match(this))
-                {
-                    all.Add(fn.Key);
-                }
             }
 
             if (Object is ScriptObject)

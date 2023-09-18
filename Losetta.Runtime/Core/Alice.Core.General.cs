@@ -3,7 +3,7 @@ using AliceScript.Objects;
 
 namespace AliceScript.NameSpaces.Core
 {
-    [AliceNameSpace(Name = "Alice")]
+    [AliceNameSpace(Name = Constants.TOP_NAMESPACE)]
     internal static partial class CoreFunctions
     {
         public static void Dispose(this Variable v)
@@ -38,7 +38,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return v.Convert(t.Type, throwError);
         }
-        public static int CompareTo(this Variable v,Variable other)
+        public static int CompareTo(this Variable v, Variable other)
         {
             return v.CompareTo(other);
         }

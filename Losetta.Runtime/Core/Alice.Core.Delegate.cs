@@ -5,17 +5,17 @@ namespace AliceScript.NameSpaces.Core
 {
     internal partial class CoreFunctions
     {
-        public static bool Contains(DelegateObject func,DelegateObject d)
+        public static bool Contains(DelegateObject func, DelegateObject d)
         {
             return func.Contains(d);
         }
         public static Variable Invoke(DelegateObject func, ParsingScript script)
         {
-            return func.Invoke(null, script);
+            return func.Invoke(Variable.EmptyInstance, script);
         }
-        public static Variable Invoke(DelegateObject func,ParsingScript script,params Variable[] args)
+        public static Variable Invoke(DelegateObject func, ParsingScript script, params Variable[] args)
         {
-            return func.Invoke(args.ToList(),script);
+            return func.Invoke(args.ToList(), script);
         }
         public static void BeginInvoke(DelegateObject func, ParsingScript script)
         {

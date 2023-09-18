@@ -106,6 +106,15 @@ namespace AliceScript.Objects
             }
             return last_result;
         }
+        public Variable Invoke(Variable arg = null, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
+        {
+            var args = new List<Variable>();
+            if (arg != null)
+            {
+                args.Add(arg);
+            }
+            return Invoke(args,script,instance);
+        }
         public void BeginInvoke(List<Variable> args = null, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
         {
             m_BeginInvokeMessanger mb = new m_BeginInvokeMessanger();

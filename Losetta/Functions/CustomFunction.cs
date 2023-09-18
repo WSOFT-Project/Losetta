@@ -1,6 +1,5 @@
 ﻿using AliceScript.Objects;
 using AliceScript.Parsing;
-using System.Runtime.InteropServices;
 
 namespace AliceScript.Functions
 {
@@ -168,7 +167,7 @@ namespace AliceScript.Functions
             {
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
-            Variable result = ARun(e.Args, e.Script,e.ClassInstance,e.CurentVariable);
+            Variable result = ARun(e.Args, e.Script, e.ClassInstance, e.CurentVariable);
             if ((m_returnType != Variable.VarType.VARIABLE && m_returnType != result.Type) || (!m_nullable && result.IsNull()))
             {
                 throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.IsNull() ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
@@ -184,7 +183,7 @@ namespace AliceScript.Functions
             {
                 args = new List<Variable>();
             }
-            if (m_this != -1 && current!= null)
+            if (m_this != -1 && current != null)
             {
                 args.Insert(m_this, current);
             }
@@ -205,7 +204,7 @@ namespace AliceScript.Functions
                 else
                 {
 
-                    if (arg!=null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
+                    if (arg != null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
                     {
                         namedParameters = true;
                         if (i != argIndex)
@@ -414,7 +413,6 @@ namespace AliceScript.Functions
 
             // さて実行
 
-
             while (tempScript.Pointer < m_body.Length &&
                   (result == null || !result.IsReturn))
             {
@@ -496,25 +494,24 @@ namespace AliceScript.Functions
             Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             Run += FunctionCreator_Run;
         }
-
-        private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
+        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords)
         {
-            string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             bool? mode = null;
-            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
-            bool isCommand = Keywords.Contains(Constants.COMMAND);
-            if (Keywords.Contains(Constants.OVERRIDE))
+            bool isGlobal = keywords.Contains(Constants.PUBLIC);
+            bool isCommand = keywords.Contains(Constants.COMMAND);
+            bool isExtension = keywords.Contains(Constants.EXTENSION);
+            if (keywords.Contains(Constants.OVERRIDE))
             {
                 mode = true;
             }
-            else if (Keywords.Contains(Constants.VIRTUAL))
+            else if (keywords.Contains(Constants.VIRTUAL))
             {
                 mode = false;
             }
 
             Variable.VarType type_modifer = Variable.VarType.VARIABLE;
             bool nullable = false;
-            foreach (string str in Keywords)
+            foreach (string str in keywords)
             {
                 string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
                 nullable = type_str.Length != str.Length;
@@ -527,29 +524,34 @@ namespace AliceScript.Functions
 
             funcName = Constants.ConvertName(funcName);
 
-            string[] args = Utils.GetFunctionSignature(e.Script);
+            string[] args = Utils.GetFunctionSignature(script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = new string[0];
             }
-
-            e.Script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
-            /*string line = */
-            e.Script.GetOriginalLine(out _);
-
-            int parentOffset = e.Script.Pointer;
-
-            if (e.Script.CurrentClass != null)
+            if (script.Current != Constants.START_GROUP)
             {
-                parentOffset += e.Script.CurrentClass.ParentOffset;
+                return false;
             }
 
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
-            e.Script.MoveForwardIf(Constants.END_GROUP);
+            script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
+            /*string line = */
+            script.GetOriginalLine(out _);
 
-            CustomFunction customFunc = new CustomFunction(funcName, body, args, e.Script, false, type_modifer, nullable);
-            customFunc.ParentScript = e.Script;
+            int parentOffset = script.Pointer;
+
+            if (script.CurrentClass != null)
+            {
+                parentOffset += script.CurrentClass.ParentOffset;
+            }
+
+            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+            script.MoveForwardIf(Constants.END_GROUP);
+
+            CustomFunction customFunc = new CustomFunction(funcName, body, args, script, false, type_modifer, nullable);
+            customFunc.ParentScript = script;
             customFunc.ParentOffset = parentOffset;
+            customFunc.MethodOnly = !isExtension;
             if (isCommand)
             {
                 customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
@@ -558,25 +560,31 @@ namespace AliceScript.Functions
             {
                 customFunc.IsVirtual = true;
             }
-            if (e.Script.CurrentClass != null)
+            if (script.CurrentClass != null)
             {
-                e.Script.CurrentClass.AddMethod(funcName, args, customFunc);
+                script.CurrentClass.AddMethod(funcName, args, customFunc);
             }
             else
             {
-                if (!FunctionExists(funcName, e.Script, out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
+                if (!FunctionExists(funcName, script, out _) || (mode == true && FunctionIsVirtual(funcName, script)))
                 {
-                    FunctionBaseManager.Add(customFunc, funcName, e.Script, isGlobal);
+                    FunctionBaseManager.Add(customFunc, funcName, script, isGlobal);
                 }
                 else
                 {
-                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, e.Script);
+                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, script);
                 }
             }
-
+            return true;
         }
 
-        private bool FunctionIsVirtual(string name, ParsingScript script)
+        private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
+            DefineFunction(funcName, e.Script, Keywords);
+        }
+
+        private static bool FunctionIsVirtual(string name, ParsingScript script)
         {
             if (script != null && script.TryGetFunction(name, out ParserFunction impl))
             {

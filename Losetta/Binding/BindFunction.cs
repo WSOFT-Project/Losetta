@@ -90,14 +90,17 @@ namespace AliceScript.Binding
             foreach (var methodInfo in methodInfos)
             {
                 string name = methodInfo.Name;
-                FunctionAttribute funcAttribute = FunctionAttribute.GENERAL;
                 if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {
                     if (attribute.Name != null)
                     {
                         name = attribute.Name;
                     }
-                    funcAttribute = attribute.Attribute;
+                    if (attribute.MethodOnly)
+                    {
+                        func.MethodOnly = true;
+                    }
+                    func.Attribute = attribute.Attribute;
                 }
                 else if (needBind)
                 {
@@ -106,7 +109,6 @@ namespace AliceScript.Binding
 
                 func.Name = name;
                 var load = new BindingOverloadFunction();
-                load.Attribute = funcAttribute;
                 load.TrueParameters = methodInfo.GetParameters();
 
                 if (load.TrueParameters.Length > 0)
@@ -166,7 +168,6 @@ namespace AliceScript.Binding
         /// </summary>
         private sealed class BindingOverloadFunction : IComparable<BindingOverloadFunction>
         {
-            public FunctionAttribute Attribute { get; set; }
             /// <summary>
             /// パラメーターの最期がparamsの場合にtrue
             /// </summary>
@@ -185,6 +186,18 @@ namespace AliceScript.Binding
             {
                 int result = MinimumArgCounts.CompareTo(other.MinimumArgCounts);
 
+                if (result == 0)
+                {
+                    // 比較に困る場合、引数のVariableCollection(なんでも配列型)の数で比べる
+                    int? r = TrueParameters.Where(item => item.ParameterType == typeof(VariableCollection))?.Count().CompareTo(other.TrueParameters.Where(item => item.ParameterType == typeof(VariableCollection))?.Count());
+                    result = r.HasValue ? r.Value : result;
+                }
+                if (result == 0)
+                {
+                    // それでも比較に困る場合、引数のVariable(なんでも型)の数で比べる
+                    int? r = TrueParameters.Where(item => item.ParameterType == typeof(Variable))?.Count().CompareTo(other.TrueParameters.Where(item => item.ParameterType == typeof(Variable))?.Count());
+                    result = r.HasValue ? r.Value : result;
+                }
                 if (other.HasParams || result == 0)
                 {
                     result = -1;

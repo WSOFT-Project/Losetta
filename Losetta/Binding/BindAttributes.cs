@@ -17,6 +17,11 @@ namespace AliceScript.Binding
         /// この関数に付与する属性
         /// </summary>
         public FunctionAttribute Attribute { get; set; }
+
+        /// <summary>
+        /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができる
+        /// </summary>
+        public bool MethodOnly { get; set; } = true;
     }
 
     /// <summary>

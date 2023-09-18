@@ -164,8 +164,14 @@ namespace AliceScript
             return var;
         }
 
-        public static string GetNextToken(ParsingScript script, bool eatLast = false)
+        public static string GetNextToken(ParsingScript script, bool eatLast = false ,bool ignoreWhileSpace=false)
         {
+            if(ignoreWhileSpace)
+            {
+                // 空白文字でなくなるまで前に進む
+                script.MoveForwardWhile(Constants.EMPTY_AND_WHITE);
+            }
+
             if (!script.StillValid())
             {
                 return "";
@@ -179,6 +185,7 @@ namespace AliceScript
 
             string var = script.Substr(script.Pointer, end - script.Pointer);
             script.Pointer = end;
+
             if (eatLast)
             {
                 script.Forward(1);

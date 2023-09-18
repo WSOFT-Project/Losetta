@@ -120,6 +120,18 @@ namespace AliceScript.Parsing
                 {
                     sb.Append(".bind ");
                 }
+                if(Function is FunctionBase fb)
+                {
+                    if (fb.IsMethod)
+                    {
+                        sb.Append(".method ");
+                    }
+                    if (fb.IsMethod && !fb.MethodOnly)
+                    {
+                        sb.Append(Constants.EXTENSION);
+                        sb.Append(" ");
+                    }
+                }
                 if (Function is CustomFunction)
                 {
                     sb.Append(".custom ");
@@ -945,6 +957,13 @@ namespace AliceScript.Parsing
                 Forward();
             }
         }
+        public void MoveForwardWhile(char[] ch)
+        {
+            while (StillValid() && ch.Contains(Current))
+            {
+                Forward();
+            }
+        }
         public void SkipAllIfNotIn(char toSkip, char[] to)
         {
             if (to.Contains(toSkip))
@@ -1188,8 +1207,9 @@ namespace AliceScript.Parsing
             {
                 if (!StillValid())
                 {
-                    throw new ScriptException("次のブロックを実行できませんでした [" +
-                    Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, this);
+                    return;
+                    // throw new ScriptException("次のブロックを実行できませんでした [" +
+                    // Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, this);
                 }
                 char currentChar = CurrentAndForward();
                 switch (currentChar)

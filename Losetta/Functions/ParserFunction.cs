@@ -154,69 +154,8 @@ namespace AliceScript.Functions
         {
             if (script != null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
             {
-                bool? mode = null;
-                bool isGlobal = keywords.Contains(Constants.PUBLIC);
-                bool isCommand = keywords.Contains(Constants.COMMAND);
-                if (keywords.Contains(Constants.OVERRIDE))
-                {
-                    mode = true;
-                }
-                else if (keywords.Contains(Constants.VIRTUAL))
-                {
-                    mode = false;
-                }
-
-                Variable.VarType type_modifer = Variable.VarType.VARIABLE;
-                bool nullable = false;
-                foreach (string str in keywords)
-                {
-                    string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
-                    nullable = type_str.Length != str.Length;
-                    if (Constants.TYPE_MODIFER.Contains(type_str))
-                    {
-                        type_modifer = Constants.StringToType(str);
-                        break;
-                    }
-                }
-
-                string[] args = Utils.GetFunctionSignature(script);
-                if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
-                {
-                    args = new string[0];
-                }
-                if (script.Current != Constants.START_GROUP)
-                {
-                    return null;
-                }
-
-                script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
-                /*string line = */
-                script.GetOriginalLine(out _);
-
-                int parentOffset = script.Pointer;
-
-                if (script.CurrentClass != null)
-                {
-                    parentOffset += script.CurrentClass.ParentOffset;
-                }
-
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
-                script.MoveForwardIf(Constants.END_GROUP);
-
-                CustomFunction customFunc = new CustomFunction(name, body, args, script, false, type_modifer, nullable);
-                customFunc.ParentScript = script;
-                customFunc.ParentOffset = parentOffset;
-                if (isCommand)
-                {
-                    customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-                }
-                if (mode != null)
-                {
-                    customFunc.IsVirtual = true;
-                }
                 //ここまでくる=その関数は存在しない=存在チェックは不要
-                FunctionBaseManager.Add(customFunc, name, script, isGlobal);
-                return new GetVarFunction(Variable.EmptyInstance);
+                return FunctionCreator.DefineFunction(name,script,keywords) ? new GetVarFunction(Variable.EmptyInstance) : null;
             }
             return null;
         }
@@ -548,11 +487,15 @@ namespace AliceScript.Functions
                     f.Readonly = f.TypeChecked = true;
                     return new GetVarFunction(f);
                 }
-                else if(wantMethod)
+                else if (impl is FunctionBase fb)
                 {
-                    if(impl is FunctionBase fb && fb.IsMethod)
+                    if (wantMethod && fb.IsMethod)
                     {
                         return impl.NewInstance();
+                    }
+                    else if (!fb.IsMethod || !fb.MethodOnly)
+                    {
+                        return fb.NewInstance();
                     }
                 }
                 else
@@ -570,13 +513,17 @@ namespace AliceScript.Functions
             }
 
             var fc = GetFromNS(name, script);
-            if(fc != null)
+            if (fc != null)
             {
-                if (wantMethod)
+                if (fc is FunctionBase fb)
                 {
-                    if (fc is FunctionBase fb && fb.IsMethod)
+                    if (wantMethod && fb.IsMethod)
                     {
                         return fc.NewInstance();
+                    }
+                    else if (!fb.IsMethod || !fb.MethodOnly)
+                    {
+                        return fb.NewInstance();
                     }
                 }
                 else
@@ -606,19 +553,20 @@ namespace AliceScript.Functions
                     fc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
                     if (fc != null)
                     {
-                        if (fc != null)
+                        if (fc is FunctionBase fb)
                         {
-                            if (wantMethod)
-                            {
-                                if (fc is FunctionBase fb && fb.IsMethod)
-                                {
-                                    return fc.NewInstance();
-                                }
-                            }
-                            else
+                            if (wantMethod && fb.IsMethod)
                             {
                                 return fc.NewInstance();
                             }
+                            else if (!fb.IsMethod || !fb.MethodOnly)
+                            {
+                                return fb.NewInstance();
+                            }
+                        }
+                        else
+                        {
+                            return fc.NewInstance();
                         }
                     }
                     var cc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();

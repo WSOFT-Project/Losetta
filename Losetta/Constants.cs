@@ -181,6 +181,8 @@ namespace AliceScript
 
         public const string PROP_TO_STRING = "ToString";
 
+        public static char[] EMPTY_AND_WHITE = new char[]{ ' ','\0' };
+
         public static string END_ARG_STR = END_ARG.ToString();
         public static string NULL_ACTION = END_ARG.ToString();
 
@@ -273,6 +275,7 @@ namespace AliceScript
         public const string OVERRIDE = "override";
         public const string COMMAND = "command";
         public const string READONLY = "readonly";
+        public const string EXTENSION = "extension";
 
 
         /// <summary>
@@ -285,7 +288,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY }).ToHashSet();
+        public static HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY,EXTENSION }).ToHashSet();
 
         // シンボル
         public const string UNNEED_VAR = "unneed_var";

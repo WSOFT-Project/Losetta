@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace AliceScript.NameSpaces.Core
+﻿namespace AliceScript.NameSpaces.Core
 {
     internal partial class CoreFunctions
     {
@@ -34,7 +32,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string Remove(this string str, string item)
         {
-            return str.Replace(item,null);
+            return str.Replace(item, null);
         }
         public static string Remove(this string str, int startIndex)
         {
@@ -71,6 +69,10 @@ namespace AliceScript.NameSpaces.Core
         public static string TrimEnd(this string str, string chars)
         {
             return str.TrimEnd(chars.ToArray());
+        }
+        public static bool IsNormalized(this string str)
+        {
+            return str.IsNormalized();
         }
         public static bool StartsWith(this string str, string value)
         {
@@ -144,6 +146,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return StringFormatFunction.Format(str, args);
         }
+        public static string String_Format(string str, params Variable[] args)
+        {
+            return StringFormatFunction.Format(str, args);
+        }
         public static string Join(this string str, params Variable[] args)
         {
             return string.Join(str, args.ToList());
@@ -160,17 +166,17 @@ namespace AliceScript.NameSpaces.Core
         {
             return string.IsNullOrWhiteSpace(str);
         }
-        public static string Replace(this string str,string oldValue,string newValue)
+        public static string Replace(this string str, string oldValue, string newValue)
         {
-            return str.Replace(oldValue,newValue);
+            return str.Replace(oldValue, newValue);
         }
-        public static string Replace(this string str, string oldvalue , string newValue , bool ignoreCase)
+        public static string Replace(this string str, string oldvalue, string newValue, bool ignoreCase)
         {
-            return str.Replace(oldvalue,newValue, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
+            return str.Replace(oldvalue, newValue, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
         }
-        public static string Replace(this string str, string oldvalue , string newValue, bool ignoreCase, bool considerCulture)
+        public static string Replace(this string str, string oldvalue, string newValue, bool ignoreCase, bool considerCulture)
         {
-            return str.Replace(oldvalue,newValue, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+            return str.Replace(oldvalue, newValue, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
         public static string ReplaceLineEndings(this string str)
         {
@@ -184,14 +190,14 @@ namespace AliceScript.NameSpaces.Core
         {
             var result = new List<string>();
 
-            foreach(char c in str)
+            foreach (char c in str)
             {
                 result.Add(c.ToString());
             }
 
             return result.ToArray();
         }
-        public static string[] Split(this string str,string separator)
+        public static string[] Split(this string str, string separator)
         {
             return str.Split(separator);
         }
@@ -199,9 +205,17 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.Substring(startIndex);
         }
-        public static string Substring(this string str, int startIndex,int length)
+        public static string Substring(this string str, int startIndex, int length)
         {
-            return str.Substring(startIndex,length);
+            return str.Substring(startIndex, length);
+        }
+        public static bool Equals(this string str, string value, bool ignoreCase)
+        {
+            return str.Equals(value, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
+        }
+        public static bool Equals(this string str, string value, bool ignoreCase, bool considerCulture)
+        {
+            return str.Equals(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
     }
 }

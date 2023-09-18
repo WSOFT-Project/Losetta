@@ -7,12 +7,12 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            Alice.RegisterFunctions<MathFunctions>();
+            NameSpaceManager.Add(typeof(MathFunctions));
         }
     }
 
     [AliceNameSpace(Name = "Alice.Math")]
-    internal sealed class MathFunctions
+    internal static class MathFunctions
     {
         public static bool Math_IsPrime(long x)
         {
@@ -41,6 +41,34 @@ namespace AliceScript.NameSpaces
 
             // 素数である
             return true;
+        }
+        public static bool Math_IsNaN(double x)
+        {
+            return double.IsNaN(x);
+        }
+        public static bool Math_IsInfinity(double x)
+        {
+            return double.IsInfinity(x);
+        }
+        public static bool Math_IsPositiveInfinity(double x)
+        {
+            return double.IsPositiveInfinity(x);
+        }
+        public static bool Math_IsNegativeInfinity(double x)
+        {
+            return double.IsNegativeInfinity(x);
+        }
+        public static bool Math_IsFinite(double x)
+        {
+            return double.IsFinite(x);
+        }
+        public static bool Math_IsNormal(double x)
+        {
+            return double.IsNormal(x);
+        }
+        public static bool Math_IsSubnormal(double x)
+        {
+            return double.IsSubnormal(x);
         }
         public static double Math_Pow(double x, double y)
         {
