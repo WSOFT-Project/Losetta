@@ -181,7 +181,7 @@ namespace AliceScript
 
         public const string PROP_TO_STRING = "ToString";
 
-        public static char[] EMPTY_AND_WHITE = new char[]{ ' ','\0' };
+        public static char[] EMPTY_AND_WHITE = new char[]{ ' ','\0','\n','\r','\t' };
 
         public static string END_ARG_STR = END_ARG.ToString();
         public static string NULL_ACTION = END_ARG.ToString();

@@ -164,9 +164,9 @@ namespace AliceScript
             return var;
         }
 
-        public static string GetNextToken(ParsingScript script, bool eatLast = false ,bool ignoreWhileSpace=false)
+        public static string GetNextToken(ParsingScript script, bool eatLast = false, bool ignoreWhileSpace = false)
         {
-            if(ignoreWhileSpace)
+            if (ignoreWhileSpace)
             {
                 // 空白文字でなくなるまで前に進む
                 script.MoveForwardWhile(Constants.EMPTY_AND_WHITE);
@@ -844,7 +844,7 @@ namespace AliceScript
                             bool keepSpace = KeepSpace(sb, next);
                             bool usedSpace = spaceOK;
                             spaceOK = keepSpace ||
-                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK) ;
+                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK);
                             if (spaceOK || KeepSpaceOnce(sb, next))
                             {
                                 sb.Append(ch);

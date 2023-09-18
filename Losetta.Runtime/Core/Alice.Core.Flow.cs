@@ -94,8 +94,9 @@ namespace AliceScript.NameSpaces.Core
         public static Variable If(ParsingScript script, BindFunction func, bool? condition)
         {
             Variable result = Variable.EmptyInstance;
+            bool cond = condition == true;
 
-            if (condition == true)
+            if (cond)
             {
                 result = script.ProcessBlock();
 
@@ -106,13 +107,15 @@ namespace AliceScript.NameSpaces.Core
                     // if文中で早期リターンしたからブロックごと飛ばす
                     script.SkipBlock();
                 }
-                script.SkipRestBlocks();
+                //script.SkipRestBlocks();
 
-                return result;
+                //return result;
             }
-
-            // elseブロックがあったら飛ばす
-            script.SkipBlock();
+            else
+            {
+                // elseブロックのためifを飛ばす
+                script.SkipBlock();
+            }
 
             ParsingScript nextData = new ParsingScript(script);
             nextData.ParentScript = script;
@@ -122,7 +125,15 @@ namespace AliceScript.NameSpaces.Core
             if (Constants.ELSE_IF == nextToken)
             {
                 script.Pointer = nextData.Pointer + 1;
-                result = func.Execute(script);
+
+                if (cond)
+                {
+                    script.SkipBlock();
+                }
+                else
+                {
+                    result = func.Execute(script);
+                }
             }
             else if (Constants.ELSE == nextToken)
             {
@@ -133,13 +144,27 @@ namespace AliceScript.NameSpaces.Core
 
                 if (Constants.IF == nextToken)
                 {
-                    // もしelseの次がifなら、else ifのため続きで実行
-                    script.Pointer = nextData.Pointer + 1;
-                    result = func.Execute(script);// この関数を再帰的に呼び出す
+                    if (cond)
+                    {
+                        script.SkipBlock();
+                    }
+                    else
+                    {
+                        // もしelseの次がifなら、else ifのため続きで実行
+                        script.Pointer = nextData.Pointer + 1;
+                        result = func.Execute(script);// この関数を再帰的に呼び出す
+                    }
                 }
                 else
                 {
-                    result = script.ProcessBlock();
+                    if (cond)
+                    {
+                        script.SkipBlock();
+                    }
+                    else
+                    {
+                        result = script.ProcessBlock();
+                    }
                 }
 
             }
