@@ -119,7 +119,6 @@ namespace AliceScript.NameSpaces.Core
 
             string nextToken = Utils.GetNextToken(nextData, false, true);
 
-            Console.WriteLine(nextToken);
             if (Constants.ELSE_IF == nextToken)
             {
                 script.Pointer = nextData.Pointer + 1;
