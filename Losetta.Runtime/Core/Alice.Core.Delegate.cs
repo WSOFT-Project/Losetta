@@ -3,7 +3,7 @@ using AliceScript.Parsing;
 
 namespace AliceScript.NameSpaces.Core
 {
-    internal partial class ExFunctions
+    internal partial class CoreFunctions
     {
         public static bool Contains(DelegateObject func,DelegateObject d)
         {

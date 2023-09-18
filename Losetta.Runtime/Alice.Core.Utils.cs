@@ -101,49 +101,6 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    internal sealed class DelayFunc : FunctionBase
-    {
-        public DelayFunc()
-        {
-            Name = "delay";
-            MinimumArgCounts = 0;
-            Run += DelayFunc_Run;
-        }
-
-        private void DelayFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.NUMBER)
-            {
-                Thread.Sleep((int)e.Args[0].Value);
-            }
-            else
-            {
-                Thread.Sleep(-1);
-            }
-        }
-    }
-
-    internal sealed class ExitFunction : FunctionBase
-    {
-        public ExitFunction()
-        {
-            Name = Constants.EXIT;
-            MinimumArgCounts = 0;
-            Run += ExitFunction_Run;
-        }
-
-        private void ExitFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count == 0)
-            {
-                Alice.OnExiting(0);
-            }
-            else
-            {
-                Alice.OnExiting(Utils.GetSafeInt(e.Args, 0, 0));
-            }
-        }
-    }
     internal sealed class LockFunction : FunctionBase
     {
         public LockFunction()

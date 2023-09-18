@@ -4,7 +4,7 @@ using AliceScript.Objects;
 namespace AliceScript.NameSpaces.Core
 {
     [AliceNameSpace(Name = "Alice")]
-    internal static partial class ExFunctions
+    internal static partial class CoreFunctions
     {
         public static void Dispose(this Variable v)
         {

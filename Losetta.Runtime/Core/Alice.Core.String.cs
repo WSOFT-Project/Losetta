@@ -2,7 +2,7 @@
 
 namespace AliceScript.NameSpaces.Core
 {
-    internal partial class ExFunctions
+    internal partial class CoreFunctions
     {
         public static int IndexOf(this string str, string item)
         {

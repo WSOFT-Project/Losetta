@@ -10,7 +10,7 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(Core.ExFunctions));
+            NameSpaceManager.Add(typeof(Core.CoreFunctions));
             //総合関数(コアプロパティ)
             Variable.AddProp(new PropertiesProp());
             Variable.AddProp(new TypProp());
@@ -31,9 +31,7 @@ namespace AliceScript.NameSpaces
 
 
             NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
-            space.Add(new DelayFunc());
             space.Add(new SingletonFunction());
-            space.Add(new ExitFunction());
             space.Add(new IsNaNFunction());
             space.Add(new PrintFunction());
             space.Add(new PrintFunction(true));

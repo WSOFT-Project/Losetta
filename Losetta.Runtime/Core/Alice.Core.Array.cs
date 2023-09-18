@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace AliceScript.NameSpaces.Core
 {
-    partial class ExFunctions
+    partial class CoreFunctions
     {
         public static void Add(this VariableCollection ary,params Variable[] items)
         {
