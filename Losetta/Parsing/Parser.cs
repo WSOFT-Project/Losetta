@@ -71,7 +71,7 @@ namespace AliceScript.Parsing
             string action;
 
             do
-            { 
+            {
                 HashSet<string> keywords = new HashSet<string>();
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
@@ -371,11 +371,11 @@ namespace AliceScript.Parsing
             /// <summary>
             /// 前置インクリメント
             /// </summary>
-            Increment, 
+            Increment,
             /// <summary>
             /// 前置デクリメント
             /// </summary>
-            Decrement, 
+            Decrement,
             /// <summary>
             /// 単項マイナス
             /// </summary>
@@ -586,7 +586,7 @@ namespace AliceScript.Parsing
             return result;
         }
 
-        
+
         private static Variable Merge(Variable current, ref int index, List<Variable> listToMerge,
                                       ParsingScript script, bool mergeOneOnly = false)
         {
@@ -631,6 +631,7 @@ namespace AliceScript.Parsing
             else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
+                leftCell.Nullable = true;
             }
             else if (leftCell.Action == Constants.NULL_OP)
             {

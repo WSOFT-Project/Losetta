@@ -173,6 +173,7 @@ namespace AliceScript
             {
                 Assign(v);
                 IsReturn = v.IsReturn;
+                Nullable = v.Nullable;
                 Type = v.Type;
                 TypeChecked = v.TypeChecked;
                 Readonly = v.Readonly;

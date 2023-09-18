@@ -107,7 +107,7 @@ namespace AliceScript.NameSpaces.Core
                     // if文中で早期リターンしたからブロックごと飛ばす
                     script.SkipBlock();
                 }
-                //script.SkipRestBlocks();
+                script.SkipRestBlocks();
 
                 //return result;
             }
@@ -144,14 +144,14 @@ namespace AliceScript.NameSpaces.Core
 
                 if (Constants.IF == nextToken)
                 {
+                    // もしelseの次がifなら、else ifのため続きで実行
+                    script.Pointer = nextData.Pointer + 1;
                     if (cond)
                     {
                         script.SkipBlock();
                     }
                     else
                     {
-                        // もしelseの次がifなら、else ifのため続きで実行
-                        script.Pointer = nextData.Pointer + 1;
                         result = func.Execute(script);// この関数を再帰的に呼び出す
                     }
                 }
