@@ -40,7 +40,6 @@ namespace AliceScript.NameSpaces
 
             NameSpaceManager.Add(space);
 
-            FunctionBaseManager.Add(new IfStatement());
             FunctionBaseManager.Add(new DoWhileStatement());
             FunctionBaseManager.Add(new WhileStatement());
             FunctionBaseManager.Add(new SwitchStatement());

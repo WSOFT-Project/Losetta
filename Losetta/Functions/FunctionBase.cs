@@ -80,6 +80,17 @@ namespace AliceScript.Functions
             }
             return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
+
+        /// <summary>
+        /// この関数を呼び出し、結果を取得します
+        /// </summary>
+        /// <param name="script">呼び出し元のスクリプト</param>
+        /// <returns>この関数の戻り値</returns>
+        /// <exception cref="ScriptException">受け入れ範囲外の引数を受取ることはできません</exception>
+        public Variable Execute(ParsingScript script)
+        {
+            return Evaluate(script);
+        }
         /// <summary>
         /// この関数を呼び出します
         /// </summary>

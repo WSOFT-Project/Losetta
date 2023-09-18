@@ -366,6 +366,7 @@ namespace AliceScript
             {
                 throw new ScriptException($"この変数はnullをとりえません", Exceptions.VARIABLE_IS_NULL);
             }
+            m_type = VarType.NONE;
             m_value = null;
             m_bool = null;
             m_string = null;
