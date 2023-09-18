@@ -1,7 +1,6 @@
 ﻿using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
-using System.Text;
 
 namespace AliceScript.NameSpaces
 {
@@ -62,7 +61,6 @@ namespace AliceScript.NameSpaces
             FunctionBaseManager.Add(new UsingStatement());
             FunctionBaseManager.Add(new ImportFunc());
             FunctionBaseManager.Add(new DelegateCreator());
-            FunctionBaseManager.Add(new LockFunction());
 
         }
     }

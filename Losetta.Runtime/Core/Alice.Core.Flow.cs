@@ -1,4 +1,5 @@
-﻿using AliceScript.Parsing;
+﻿using AliceScript.Binding;
+using AliceScript.Parsing;
 
 namespace AliceScript.NameSpaces.Core
 {

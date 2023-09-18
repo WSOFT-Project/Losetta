@@ -101,24 +101,6 @@ namespace AliceScript.NameSpaces
             }
         }
     }
-    internal sealed class LockFunction : FunctionBase
-    {
-        public LockFunction()
-        {
-            Name = Constants.LOCK;
-            MinimumArgCounts = 1;
-            Run += LockFunction_Run;
-        }
-        private void LockFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-            ParsingScript parsingScript = e.Script.GetTempScript(body);
-            lock (e.Args[0])
-            {
-                parsingScript.ExecuteAll();
-            }
-        }
-    }
     internal sealed class PrintFunction : FunctionBase
     {
         public PrintFunction(bool isWrite = false)

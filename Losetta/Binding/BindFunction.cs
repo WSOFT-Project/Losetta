@@ -23,7 +23,7 @@ namespace AliceScript.Binding
         {
             foreach (var load in Overloads)
             {
-                if (load.TryConvertParameters(e.Args, e.Script, e.CurentVariable, IsMethod, out var args))
+                if (load.TryConvertParameters(e, IsMethod, out var args))
                 {
                     if (load.IsVoidFunc)
                     {
@@ -193,16 +193,16 @@ namespace AliceScript.Binding
                 return result;
             }
 
-            public bool TryConvertParameters(List<Variable> args, ParsingScript script, Variable current, bool isMethod, out object[] converted)
+            public bool TryConvertParameters(FunctionBaseEventArgs e, bool isMethod, out object[] converted)
             {
                 converted = null;
 
-                var parametors = new List<object>(args.Count);
+                var parametors = new List<object>(e.Args.Count);
                 ArrayList paramsList = null;
                 bool inParams = false;
                 Type paramType = null;
 
-                if (!HasParams && args.Count + (isMethod && current!=null ? 1 : 0) > TrueParameters.Length)
+                if (!HasParams && e.Args.Count + (isMethod && e.CurentVariable!=null ? 1 : 0) > TrueParameters.Length)
                 {
                     //入力の引数の方が多い場合かつparamsではない場合
                     return false;
@@ -211,17 +211,30 @@ namespace AliceScript.Binding
                 int diff = 0;//TrueParametersとargsのインデックスのずれ
                 for (i = 0; i < TrueParameters.Length; i++)
                 {
+                    if (TrueParameters[i].ParameterType == typeof(FunctionBaseEventArgs))
+                    {
+                        diff++;
+                        parametors.Add(e);
+                        continue;
+                    }
                     if (TrueParameters[i].ParameterType == typeof(ParsingScript))
                     {
                         diff++;
-                        parametors.Add(script);
+                        parametors.Add(e.Script);
                         continue;
                     }
-                    paramType = TrueParameters[i].ParameterType;
-                    if (i == 0 && isMethod && current!=null)
+                    if (TrueParameters[i].ParameterType == typeof(BindFunction))
                     {
                         diff++;
-                        if (current.TryConvertTo(paramType, out var r))
+                        parametors.Add(this);
+                        continue;
+                    }
+
+                    paramType = TrueParameters[i].ParameterType;
+                    if (i == 0 && isMethod && e.CurentVariable !=null)
+                    {
+                        diff++;
+                        if (e.CurentVariable.TryConvertTo(paramType, out var r))
                         {
                             parametors.Add(r);
                         }
@@ -232,7 +245,7 @@ namespace AliceScript.Binding
                         continue;
                     }
 
-                    if (i > args.Count + diff - 1)
+                    if (i > e.Args.Count + diff - 1)
                     {
                         //引数が足りない場合
                         if (TrueParameters[i].IsOptional)
@@ -247,7 +260,7 @@ namespace AliceScript.Binding
                         }
                     }
 
-                    if (HasParams && i == TrueParameters.Length - 1 && paramType.IsArray && args[i - diff].Type != Variable.VarType.ARRAY)
+                    if (HasParams && i == TrueParameters.Length - 1 && paramType.IsArray && e.Args[i - diff].Type != Variable.VarType.ARRAY)
                     {
                         //この引数が最後の場合で、それがparamsの場合かつ、配列として渡されていない場合
                         paramType = paramType.GetElementType();
@@ -255,7 +268,7 @@ namespace AliceScript.Binding
                         inParams = true;
                     }
 
-                    if (args[i - diff].TryConvertTo(paramType, out var result))
+                    if (e.Args[i - diff].TryConvertTo(paramType, out var result))
                     {
                         if (inParams)
                         {
@@ -272,12 +285,12 @@ namespace AliceScript.Binding
                     }
                 }
 
-                for (; i - diff < args.Count; i++)
+                for (; i - diff < e.Args.Count; i++)
                 {
                     //paramsでまだ指定したい変数がある場合
                     if (inParams)
                     {
-                        if (args[i - diff].TryConvertTo(paramType, out var result))
+                        if (e.Args[i - diff].TryConvertTo(paramType, out var result))
                         {
                             paramsList.Add(result);
                         }

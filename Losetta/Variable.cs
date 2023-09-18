@@ -337,6 +337,7 @@ namespace AliceScript
         {
             switch (Type)
             {
+                case VarType.VARIABLE:
                 case VarType.NONE: return true;
                 default: return false;
                 case VarType.ARRAY:
@@ -909,6 +910,17 @@ namespace AliceScript
             {
                 result = this;
                 return true;
+            }
+            if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(System.Nullable<>))
+            {
+                if (IsNull())
+                {
+                    //null許容値型かつnullなら、nullを返す
+                    result = null;
+                    return true;
+                }
+                //null許容値型かつnullでない場合、その型パラメーターについてチェックする
+                type = type.GetGenericArguments()[0];
             }
             switch (Type)
             {
