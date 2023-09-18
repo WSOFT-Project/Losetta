@@ -18,7 +18,7 @@ namespace AliceScript.NameSpaces.Core
 
             BitArray beforeStates = new BitArray(items.Length);
 
-            for(int i = 0;i < items.Length; i++)//もともとの状態を覚えておく
+            for (int i = 0; i < items.Length; i++)//もともとの状態を覚えておく
             {
                 beforeStates[i] = items[i].Readonly;
                 items[i].Readonly = true;
