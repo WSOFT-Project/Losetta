@@ -899,9 +899,10 @@ namespace AliceScript
                 result = this;
                 return true;
             }
-            if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(System.Nullable<>))
+            bool isNull = IsNull();
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(System.Nullable<>))
             {
-                if (IsNull())
+                if (isNull)
                 {
                     //null許容値型かつnullなら、nullを返す
                     result = null;
@@ -1013,6 +1014,12 @@ namespace AliceScript
                     }
                 case VarType.OBJECT:
                     {
+                        if (!type.IsValueType && isNull)
+                        {
+                            // nullを返してもよい型で、この値がnullの場合、nullを返す
+                            result = null;
+                            return true;
+                        }
                         result = System.Convert.ChangeType(Object,type);
                         return true;
                     }
@@ -1338,6 +1345,7 @@ namespace AliceScript
             { //x=a.b.cの場合はここで再帰的に処理
                 string varName = propName.Substring(0, ind);
                 string actualPropName = propName.Substring(ind + 1);
+
                 Variable property = GetProperty(varName, script);
                 result = string.IsNullOrEmpty(actualPropName) ? property :
                                property.GetProperty(actualPropName, script);

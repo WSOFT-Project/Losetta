@@ -16,6 +16,18 @@ namespace AliceScript.Functions
 
         private void GetVarFunction_Run(object sender, FunctionBaseEventArgs e)
         {
+            if(e.Script.Current == Constants.TERNARY_OPERATOR)
+            {
+                if (m_value.IsNull())
+                {
+                    e.Script.MoveForwardNotWhile(Constants.TOKENS_SEPARATION);
+                    e.Return = Variable.EmptyInstance;
+                }
+                else
+                {
+                    e.Script.Forward();
+                }
+            }
             // 要素が配列の一部かを確認
             if (e.Script.TryPrev() == Constants.START_ARRAY)
             {

@@ -964,6 +964,13 @@ namespace AliceScript.Parsing
                 Forward();
             }
         }
+        public void MoveForwardNotWhile(char[] ch)
+        {
+            while (StillValid() && !ch.Contains(Current))
+            {
+                Forward();
+            }
+        }
         public void SkipAllIfNotIn(char toSkip, char[] to)
         {
             if (to.Contains(toSkip))
