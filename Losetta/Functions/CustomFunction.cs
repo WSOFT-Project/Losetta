@@ -168,7 +168,7 @@ namespace AliceScript.Functions
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(e.Args, e.Script, e.ClassInstance, e.CurentVariable);
-            if ((m_returnType != Variable.VarType.VARIABLE && m_returnType != result.Type) || (!m_nullable && result.IsNull()))
+            if (result.Type.HasFlag(m_returnType)|| (!m_nullable && result.IsNull()))
             {
                 throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.IsNull() ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
@@ -551,7 +551,7 @@ namespace AliceScript.Functions
             CustomFunction customFunc = new CustomFunction(funcName, body, args, script, false, type_modifer, nullable);
             customFunc.ParentScript = script;
             customFunc.ParentOffset = parentOffset;
-            customFunc.MethodOnly = !isExtension;
+            customFunc.MethodOnly = isExtension;
             if (isCommand)
             {
                 customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;

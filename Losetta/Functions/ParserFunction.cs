@@ -43,6 +43,13 @@ namespace AliceScript.Functions
                 return;
             }
 
+            m_impl = CheckDefineFunction(script, item, keywords);
+            if (m_impl != null)
+            {
+                m_impl.Keywords = keywords;
+                return;
+            }
+
             m_impl = CheckString(script, item, ch);
             if (m_impl != null)
             {
@@ -87,7 +94,7 @@ namespace AliceScript.Functions
                 return;
             }
 
-            m_impl = TryCustomFunction(item, script, false, keywords);
+            m_impl = TryCustomFunction(item, script, keywords);
             if (m_impl != null)
             {
                 m_impl.Keywords = keywords;
@@ -110,6 +117,12 @@ namespace AliceScript.Functions
                 return new StatementFunction(body, script);
             }
             return null;
+        }
+        public static ParserFunction CheckDefineFunction(ParsingScript script, string item, HashSet<string> keywords)
+        {
+            return keywords.Count > 0 && (keywords.Contains(Constants.OVERRIDE) || keywords.Contains(Constants.VIRTUAL))
+                ? TryCustomFunction(item, script, keywords)
+                : null;
         }
         public static ParserFunction CheckString(ParsingScript script, string item, char ch)
         {
@@ -150,32 +163,14 @@ namespace AliceScript.Functions
 
             return null;
         }
-        public static ParserFunction TryCustomFunction(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
+        public static ParserFunction TryCustomFunction(string name, ParsingScript script = null, HashSet<string> keywords = null)
         {
             if (script != null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
             {
                 //ここまでくる=その関数は存在しない=存在チェックは不要
-                return FunctionCreator.DefineFunction(name,script,keywords) ? new GetVarFunction(Variable.EmptyInstance) : null;
+                return FunctionCreator.DefineFunction(name, script, keywords) ? new GetVarFunction(Variable.EmptyInstance) : null;
             }
             return null;
-        }
-        private static bool FunctionIsVirtual(string name, ParsingScript script)
-        {
-            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
-            {
-                if (impl.IsVirtual)
-                {
-                    return true;
-                }
-            }
-            if (s_functions.TryGetValue(name, out impl))
-            {
-                if (impl.IsVirtual)
-                {
-                    return true;
-                }
-            }
-            return false;
         }
         private static bool IsQuotedString(string item)
         {
@@ -474,7 +469,7 @@ namespace AliceScript.Functions
             return pfx;
         }
 
-        public static ParserFunction GetFunction(string name, ParsingScript script, bool toDelegate = false,bool wantMethod =false)
+        public static ParserFunction GetFunction(string name, ParsingScript script, bool toDelegate = false, bool wantMethod = false)
         {
             //TODO:関数の取得部分
             name = Constants.ConvertName(name);
@@ -506,7 +501,7 @@ namespace AliceScript.Functions
             if (script.TryGetVariable(name, out impl) || s_variables.TryGetValue(name, out impl))
             {
                 //それがデリゲート型の変数である場合
-                if (!wantMethod&&impl is GetVarFunction gv && gv.Value.Type == Variable.VarType.DELEGATE && !gv.Value.IsNull())
+                if (!wantMethod && impl is GetVarFunction gv && gv.Value.Type == Variable.VarType.DELEGATE && !gv.Value.IsNull())
                 {
                     return gv.Value.Delegate.Function;
                 }
@@ -585,7 +580,7 @@ namespace AliceScript.Functions
         {
             foreach (var nm in script.UsingNamespaces)
             {
-                var fc = nm.Functions.Where((x) => x.Name.Equals(name,StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                var fc = nm.Functions.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
