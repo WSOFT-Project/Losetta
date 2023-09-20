@@ -16,9 +16,6 @@ namespace AliceScript.NameSpaces.Core
         /// <returns>本文の実行結果</returns>
         public static Variable Readonly(ParsingScript script, params Variable[] items)
         {
-            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-            ParsingScript parsingScript = script.GetTempScript(body);
-
             BitArray beforeStates = new BitArray(items.Length);
 
             for (int i = 0; i < items.Length; i++)//もともとの状態を覚えておく
@@ -27,7 +24,7 @@ namespace AliceScript.NameSpaces.Core
                 items[i].Readonly = true;
             }
 
-            Variable result = parsingScript.ExecuteAll();
+            Variable result = script.ProcessBlock();
 
             for (int i = 0; i < items.Length; i++)//実行後に元に戻す
             {
@@ -44,14 +41,11 @@ namespace AliceScript.NameSpaces.Core
         /// <returns>本文の実行結果</returns>
         public static Variable Lock(ParsingScript script, Variable item)
         {
-            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-            ParsingScript parsingScript = script.GetTempScript(body);
-
             Variable result;
 
             lock (item)
             {
-                result = parsingScript.ExecuteAll();
+                result = script.ProcessBlock();
             }
 
             return result;
@@ -613,7 +607,7 @@ namespace AliceScript.NameSpaces.Core
             bool handled = catches.Count > 0 || final_body != null;
             if (!handled)
             {
-                throw new ScriptException("tryブロックには1つ以上catchまたはfinallyが必要です。", Exceptions.TRY_BLOCK_MISSING_HANDLERS, script);
+                throw new ScriptException("tryブロックには1つ以上catchまたはfinallyブロックが必要です。", Exceptions.TRY_BLOCK_MISSING_HANDLERS, script);
             }
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)

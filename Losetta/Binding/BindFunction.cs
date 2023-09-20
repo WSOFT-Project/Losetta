@@ -287,7 +287,19 @@ namespace AliceScript.Binding
                         inParams = true;
                     }
 
-                    if (e.Args[i - diff].TryConvertTo(paramType, out var result))
+                    var item = e.Args[i - diff];
+                    if (item == null)
+                    {
+                        if (inParams)
+                        {
+                            paramsList.Add(item);
+                        }
+                        else
+                        {
+                            parametors.Add(item);
+                        }
+                    }
+                    else if (item.TryConvertTo(paramType, out var result))
                     {
                         if (inParams)
                         {
@@ -309,9 +321,28 @@ namespace AliceScript.Binding
                     //paramsでまだ指定したい変数がある場合
                     if (inParams)
                     {
-                        if (e.Args[i - diff].TryConvertTo(paramType, out var result))
+                        var item = e.Args[i - diff];
+                        if (item == null)
                         {
-                            paramsList.Add(result);
+                            if (inParams)
+                            {
+                                paramsList.Add(item);
+                            }
+                            else
+                            {
+                                parametors.Add(item);
+                            }
+                        }
+                        else if (item.TryConvertTo(paramType, out var result))
+                        {
+                            if (inParams)
+                            {
+                                paramsList.Add(result);
+                            }
+                            else
+                            {
+                                parametors.Add(result);
+                            }
                         }
                         else
                         {
