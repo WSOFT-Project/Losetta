@@ -168,9 +168,13 @@ namespace AliceScript.Functions
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(e.Args, e.Script, e.ClassInstance, e.CurentVariable);
-            if (!result.Type.HasFlag(m_returnType) || (!m_nullable && result.IsNull()))
+            if (m_nullable)
             {
-                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.IsNull() ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
+                result.Nullable = true;
+            }
+            if (!result.Type.HasFlag(m_returnType) || (!m_nullable && result.Nullable))
+            {
+                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.Nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
             e.Return = result;
         }
@@ -513,11 +517,15 @@ namespace AliceScript.Functions
             bool nullable = false;
             foreach (string str in keywords)
             {
-                string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
-                nullable = type_str.Length != str.Length;
+                string type_str = str;
+                if (type_str.EndsWith("?", StringComparison.Ordinal))
+                {
+                    nullable = true;
+                    type_str = type_str.Substring(0, type_str.Length - 1);
+                }
                 if (Constants.TYPE_MODIFER.Contains(type_str))
                 {
-                    type_modifer = Constants.StringToType(str);
+                    type_modifer = Constants.StringToType(type_str);
                     break;
                 }
             }

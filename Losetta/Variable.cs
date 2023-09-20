@@ -291,7 +291,7 @@ namespace AliceScript
                 AssignNull();
                 return;
             }
-            else if (TypeChecked && m_type != v.Type)
+            else if (TypeChecked && (m_type != v.Type || !Nullable && v.Nullable))
             {
                 throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
             }
@@ -349,11 +349,10 @@ namespace AliceScript
         /// </summary>
         public void AssignNull()
         {
-            if (TypeChecked && !Nullable && IsNull())
+            if (TypeChecked && !Nullable)
             {
                 throw new ScriptException($"この変数はnullをとりえません", Exceptions.VARIABLE_IS_NULL);
             }
-            m_type = VarType.NONE;
             m_value = null;
             m_bool = null;
             m_string = null;
