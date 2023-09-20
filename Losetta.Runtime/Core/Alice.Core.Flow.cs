@@ -91,12 +91,11 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="func">この関数がバインドされるFunctionBase</param>
         /// <param name="condition">本文を実行するかどうかを決める条件</param>
         /// <returns>本文の実行結果</returns>
-        public static Variable If(ParsingScript script, BindFunction func, bool? condition)
+        public static Variable If(ParsingScript script, BindFunction func, bool condition)
         {
             Variable result = Variable.EmptyInstance;
-            bool cond = condition == true;
 
-            if (cond)
+            if (condition)
             {
                 result = script.ProcessBlock();
 
@@ -126,7 +125,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 script.Pointer = nextData.Pointer + 1;
 
-                if (cond)
+                if (condition)
                 {
                     script.SkipBlock();
                 }
@@ -146,7 +145,7 @@ namespace AliceScript.NameSpaces.Core
                 {
                     // もしelseの次がifなら、else ifのため続きで実行
                     script.Pointer = nextData.Pointer + 1;
-                    if (cond)
+                    if (condition)
                     {
                         script.SkipBlock();
                     }
@@ -157,7 +156,7 @@ namespace AliceScript.NameSpaces.Core
                 }
                 else
                 {
-                    if (cond)
+                    if (condition)
                     {
                         script.SkipBlock();
                     }
