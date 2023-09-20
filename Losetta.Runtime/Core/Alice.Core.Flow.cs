@@ -259,7 +259,7 @@ namespace AliceScript.NameSpaces.Core
                 {
                     break;
                 }
-                result = script.ProcessBlock(true);
+                result = script.ProcessBlock();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     script.Pointer = startWhileCondition;
@@ -282,7 +282,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 script.Pointer = startDoCondition;
 
-                result = script.ProcessBlock(true);
+                result = script.ProcessBlock();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     script.Pointer = startDoCondition;

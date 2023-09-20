@@ -120,7 +120,7 @@ namespace AliceScript.Parsing
                 {
                     sb.Append(".bind ");
                 }
-                if(Function is FunctionBase fb)
+                if (Function is FunctionBase fb)
                 {
                     if (fb.IsMethod)
                     {
@@ -1163,7 +1163,7 @@ namespace AliceScript.Parsing
             }
             return result;
         }
-        public Variable Process(bool checkBreak = false)
+        public Variable Process(bool checkBreak = true)
         {
             Variable result = null;
             while (Pointer < m_data.Length)
@@ -1175,6 +1175,7 @@ namespace AliceScript.Parsing
                 }
                 if (checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
                 {
+                    SkipBlock();
                     return result;
                 }
                 GoToNextStatement();
@@ -1279,13 +1280,12 @@ namespace AliceScript.Parsing
         /// <summary>
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
         /// </summary>
-        /// <param name="inForOrWhile">forブロックやwhileブロックなど、breakなどで抜けるブロック</param>
         /// <returns>ブロックの値</returns>
-        public Variable ProcessBlock(bool inForOrWhile = false)
+        public Variable ProcessBlock()
         {
             string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = GetTempScript(body);
-            return mainScript.Process(inForOrWhile);
+            return mainScript.Process();
         }
 
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
