@@ -23,7 +23,7 @@ namespace AliceScript.Binding
         {
             foreach (var load in Overloads)
             {
-                if (load.TryConvertParameters(e,this, out var args))
+                if (load.TryConvertParameters(e, this, out var args))
                 {
                     if (load.IsVoidFunc)
                     {
@@ -215,7 +215,7 @@ namespace AliceScript.Binding
                 bool inParams = false;
                 Type paramType = null;
 
-                if (!HasParams && e.Args.Count + (parent.IsMethod && e.CurentVariable!=null ? 1 : 0) > TrueParameters.Length)
+                if (!HasParams && e.Args.Count + (parent.IsMethod && e.CurentVariable != null ? 1 : 0) > TrueParameters.Length)
                 {
                     //入力の引数の方が多い場合かつparamsではない場合
                     return false;
@@ -250,7 +250,7 @@ namespace AliceScript.Binding
                     }
 
                     paramType = TrueParameters[i].ParameterType;
-                    if (i == 0 && parent.IsMethod && e.CurentVariable !=null)
+                    if (i == 0 && parent.IsMethod && e.CurentVariable != null)
                     {
                         diff++;
                         if (e.CurentVariable.TryConvertTo(paramType, out var r))

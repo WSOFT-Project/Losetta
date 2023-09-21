@@ -51,11 +51,21 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
 
+        /// <summary>
+        /// ブロックの中の子スクリプトを実行します
+        /// </summary>
+        /// <param name="script">このブロックがあるスクリプト</param>
+        /// <returns>本文の実行結果</returns>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Block(ParsingScript script)
         {
             return script.ProcessBlock();
         }
+        /// <summary>
+        /// 指定した名前空間への参照を現在のスクリプトに追加します
+        /// </summary>
+        /// <param name="e">この関数の実行時情報</param>
+        /// <exception cref="ScriptException">usingを許可しない設定である場合にスローされる例外</exception>
 
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static void Using(FunctionBaseEventArgs e)
@@ -168,6 +178,13 @@ namespace AliceScript.NameSpaces.Core
 
             return result;
         }
+        /// <summary>
+        /// 指定した値に一致する文を実行します
+        /// </summary>
+        /// <param name="script">このブロックがあるスクリプト</param>
+        /// <param name="item">比較する値</param>
+        /// <returns>本文の実行結果</returns>
+        /// <exception cref="ScriptException">内包する文がbreakまたはreturnで抜けることができない場合に発生する例外</exception>
         public static Variable Switch(ParsingScript script, Variable item)
         {
 
@@ -377,7 +394,7 @@ namespace AliceScript.NameSpaces.Core
                 if (index <= 0 || index == forString.Length - 1)
                 {
                     Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
-                                     , script, Constants.FOREACH);
+                                     , script, "foreach");
                 }
                 varName = forString.Substring(0, index);
             }
@@ -545,7 +562,13 @@ namespace AliceScript.NameSpaces.Core
             /// </summary>
             public string Body { get; set; }
         }
-
+        /// <summary>
+        /// 例外が発生する可能性があるコードを検証するためのブロック
+        /// </summary>
+        /// <param name="script">このブロックがあるスクリプト</param>
+        /// <param name="func">呼び出し時の関数インスタンス</param>
+        /// <returns>本文の実行結果</returns>
+        /// <exception cref="ScriptException">catchブロックおよびfinallyブロックがありません</exception>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Try(ParsingScript script, BindFunction func)
         {
@@ -658,14 +681,18 @@ namespace AliceScript.NameSpaces.Core
             script.SkipRestBlocks();
             return result;
         }
-
+        /// <summary>
+        /// 本文と引数の内容からデリゲートを生成します
+        /// </summary>
+        /// <param name="script">本文の実行結果</param>
+        /// <returns>生成されたデリゲート</returns>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static DelegateObject Delegate(ParsingScript script)
         {
             string[] args = Utils.GetFunctionSignature(script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
-                args = new string[0];
+                args = Array.Empty<string>();
             }
 
             script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);

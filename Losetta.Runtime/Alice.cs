@@ -19,6 +19,7 @@ namespace AliceScript.NameSpaces
             Variable.AddProp(new PropertiesProp());
             Variable.AddProp(new TypProp());
             Variable.AddProp(new ValueProp());
+            Variable.AddProp(new HasValueProp());
             //統合関数(終わり)
             //複合関数(複数の型に対応する関数)
             Variable.AddProp(new LengthSizeProp(), Constants.LENGTH);
@@ -102,6 +103,22 @@ namespace AliceScript.NameSpaces
                 e.Value = e.Parent.Clone();
                 e.Value.Nullable = false;
             }
+        }
+
+    }
+    internal sealed class HasValueProp : PropertyBase
+    {
+        public HasValueProp()
+        {
+            Name = "HasValue";
+            CanSet = false;
+            HandleEvents = true;
+            Getting += TypProp_Getting;
+        }
+
+        private void TypProp_Getting(object sender, PropertyBaseEventArgs e)
+        {
+            e.Value = new Variable(!e.Parent.IsNull());
         }
 
     }

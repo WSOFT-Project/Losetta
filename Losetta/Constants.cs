@@ -138,13 +138,6 @@ namespace AliceScript
         public const string GET_DATA = "GetCollectedData";
 
         // プロパティ
-        public const string EMPTY_NULL = "IsEmptyOrNull";
-        public const string EMPTY_WHITE = "IsEmptyOrWhite";
-        public const string ENDS_WITH = "EndsWith";
-        public const string EQUALS = "Equals";
-        public const string FIRST = "First";
-        public const string FOREACH = "foreach";
-        public const string INDEX_OF = "IndexOf";
         public const string JOIN = "Join";
         public const string KEYS = "Keys";
         public const string LAST = "Last";
@@ -183,61 +176,61 @@ namespace AliceScript
 
         public static char[] EMPTY_AND_WHITE = new char[]{ ' ','\0','\n','\r','\t' };
 
-        public static string END_ARG_STR = END_ARG.ToString();
-        public static string NULL_ACTION = END_ARG.ToString();
+        public static readonly string END_ARG_STR = END_ARG.ToString();
+        public static readonly string NULL_ACTION = END_ARG.ToString();
 
-        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", ":", "??=", "=>" };
-        public static string[] MATH_ACTIONS = { "===", "!==",
+        public static readonly string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", ":", "??=", "=>" };
+        public static readonly string[] MATH_ACTIONS = { "===", "!==",
                                                 "&&", "||", EQUAL,NOT_EQUAL, "<=", ">=", "++", "--", "**",
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",NULL_OP,AS,IS_NOT,IS};
 
-        public static string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
+        public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
-        public static string[] CORE_OPERATORS = { TRY, FOR, WHILE };
+        public static readonly string[] CORE_OPERATORS = { TRY, FOR, WHILE };
 
         /// <summary>
         /// ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
         /// </summary>
-        public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
+        public static readonly byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
         /// <summary>
         /// DLLファイルのマーク(ASCIIでM,Z)
         /// </summary>
-        public static byte[] DLL_MAGIC_NUMBER = { 0x4d, 0x5a };
+        public static readonly byte[] DLL_MAGIC_NUMBER = { 0x4d, 0x5a };
         /// <summary>
         /// ZIPファイルのマーク(ASCIIでP,K)
         /// </summary>
-        public static byte[] ZIP_MAGIC_NUMBER = { 0x50, 0x4b };
+        public static readonly byte[] ZIP_MAGIC_NUMBER = { 0x50, 0x4b };
         /// <summary>
         /// パッケージマニフェストファイルの名前
         /// </summary>
         public const string PACKAGE_MANIFEST_FILENAME = "manifest.xml";
 
-        public static char[] TERNARY_SEPARATOR = { ':' };
-        public static char[] NEXT_ARG_ARRAY = NEXT_ARG.ToString().ToCharArray();
-        public static char[] END_ARG_ARRAY = END_ARG.ToString().ToCharArray();
-        public static char[] END_ARRAY_ARRAY = END_ARRAY.ToString().ToCharArray();
-        public static char[] END_LINE_ARRAY = END_LINE.ToString().ToCharArray();
-        public static char[] FOR_ARRAY = (END_ARG_STR + FOR_EACH).ToCharArray();
-        public static char[] QUOTE_ARRAY = QUOTE.ToString().ToCharArray();
+        public static readonly char[] TERNARY_SEPARATOR = { ':' };
+        public static readonly char[] NEXT_ARG_ARRAY = NEXT_ARG.ToString().ToCharArray();
+        public static readonly char[] END_ARG_ARRAY = END_ARG.ToString().ToCharArray();
+        public static readonly char[] END_ARRAY_ARRAY = END_ARRAY.ToString().ToCharArray();
+        public static readonly char[] END_LINE_ARRAY = END_LINE.ToString().ToCharArray();
+        public static readonly char[] FOR_ARRAY = (END_ARG_STR + FOR_EACH).ToCharArray();
+        public static readonly char[] QUOTE_ARRAY = QUOTE.ToString().ToCharArray();
 
-        public static char[] COMPARE_ARRAY = "<>=)".ToCharArray();
-        public static char[] IF_ARG_ARRAY = "&|)".ToCharArray();
-        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n', '?' };
-        public static char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
-        public static char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
+        public static readonly char[] COMPARE_ARRAY = "<>=)".ToCharArray();
+        public static readonly char[] IF_ARG_ARRAY = "&|)".ToCharArray();
+        public static readonly char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n', '?' };
+        public static readonly char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
+        public static readonly char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
 
-        public static string TOKEN_START = "(\"\'[{";
-        public static string TOKEN_END = ")\"\']}";
-        public static string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
-        public static char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
-        public static string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
-        public static char[] TOKENS_SEPARATION = ",;)".ToCharArray();
-        public static string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
+        public static readonly string TOKEN_START = "(\"\'[{";
+        public static readonly string TOKEN_END = ")\"\']}";
+        public static readonly string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
+        public static readonly char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
+        public static readonly string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
+        public static readonly char[] TOKENS_SEPARATION = ",;)".ToCharArray();
+        public static readonly string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
         /// <summary>
         /// パース中の言語構造が所属する名前空間
         /// </summary>
-        public static string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
+        public static readonly string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
 
         //最上位の名前空間
         public const string TOP_NAMESPACE = "Alice";
@@ -245,27 +238,27 @@ namespace AliceScript
         /// <summary>
         /// 変数・定数・関数名などの識別子がとるパターン
         /// </summary>
-        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
+        public static readonly Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
 
         /// <summary>
         /// UTF16表現がとるパターン
         /// </summary>
-        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
+        public static readonly Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
         /// <summary>
         /// 可変長UTF16表現がとるパターン
         /// </summary>
-        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
+        public static readonly Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
 
         /// <summary>
         /// UTF32表現がとるパターン
         /// </summary>
-        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
+        public static readonly Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
 
         /// <summary>
         /// インデックスの逆引きがとるパターン
         /// </summary>
-        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
+        public static readonly Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";
@@ -281,14 +274,14 @@ namespace AliceScript
         /// <summary>
         /// 型指定修飾子
         /// </summary>
-        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
+        public static readonly HashSet<string> TYPE_MODIFER = new HashSet<string>{
              "string","number","array","bytes","object","enum","delegate","bool","variable","void",
               "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?"
         };
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY,EXTENSION }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY,EXTENSION }).ToHashSet();
 
         // シンボル
         public const string UNNEED_VAR = "unneed_var";
@@ -315,7 +308,7 @@ namespace AliceScript
         /// <summary>
         /// 関数呼び出し時に丸括弧が不要な関数の名前
         /// </summary>
-        public static HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
+        public static  readonly HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
             FUNCTION, NAMESPACE, NEW, PRINT
@@ -323,7 +316,7 @@ namespace AliceScript
         /// <summary>
         /// 関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
         /// </summary>
-        public static HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
+        public static readonly HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
         {
             CASE, RETURN, THROW, TYPE_OF
         };
@@ -331,23 +324,23 @@ namespace AliceScript
         /// <summary>
         /// 言語構造の関数名
         /// </summary>
-        public static HashSet<string> CONTROL_FLOW = new HashSet<string>
+        public static readonly HashSet<string> CONTROL_FLOW = new HashSet<string>
         {
-            BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,FOREACH, FUNCTION, IF, INCLUDE, NEW,IMPORT,
+            BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,"foreach", FUNCTION, IF, INCLUDE, NEW,IMPORT,
             RETURN, THROW, TRY, WHILE
         };
 
         /// <summary>
         /// 配列添え字演算子を使用できる変数の型
         /// </summary>
-        public static HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
+        public static readonly HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.ARRAY,Variable.VarType.DELEGATE,Variable.VarType.STRING
         };
         /// <summary>
         /// AliceScriptから参照できる定数
         /// </summary>
-        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable>
+        public static readonly Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable>
         {
             //Trueを表します
             { TRUE,Variable.True},
@@ -379,7 +372,7 @@ namespace AliceScript
         /// <summary>
         /// 算術演算子
         /// </summary>
-        public static HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
+        public static readonly HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
         {
             "*", "*=" , "+", "+=" , "-", "-=", "/", "/=", "%", "%=", ">", "<", ">=", "<="
         };
@@ -387,7 +380,7 @@ namespace AliceScript
         public const int INDENT = 2;
         public const int DEFAULT_FILE_LINES = 20;
         public const int MAX_CHARS_TO_SHOW = 45;
-        private static Dictionary<string, string> s_realNames = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> s_realNames = new Dictionary<string, string>();
 
         public static string ConvertName(string name)
         {

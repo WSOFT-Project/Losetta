@@ -16,7 +16,7 @@ namespace AliceScript.Functions
 
         private void GetVarFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            if(e.Script.Current == Constants.TERNARY_OPERATOR)
+            if (e.Script.Current == Constants.TERNARY_OPERATOR)
             {
                 if (m_value.IsNull())
                 {

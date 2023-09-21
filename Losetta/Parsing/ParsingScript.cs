@@ -21,7 +21,7 @@ namespace AliceScript.Parsing
         private object m_tag;           // 現在のスクリプトに関連付けられたオブジェクト。これは多用途で使用されます
         private AlicePackage m_package = null;//現在のスクリプトが実行されているパッケージ
         private HashSet<string> m_defines = new HashSet<string>();// 現在のスクリプトで宣言されたシンボル
-        private static ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
+        private static readonly ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
         private ParsingScript m_parentScript = m_toplevel_script;// このスクリプトの親
         private ScriptSettings m_settings = new ScriptSettings();//このスクリプトの設定
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
@@ -129,7 +129,7 @@ namespace AliceScript.Parsing
                     if (fb.IsMethod && !fb.MethodOnly)
                     {
                         sb.Append(Constants.EXTENSION);
-                        sb.Append(" ");
+                        sb.Append(Constants.SPACE);
                     }
                 }
                 if (Function is CustomFunction)
@@ -145,7 +145,7 @@ namespace AliceScript.Parsing
                 if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
                 {
                     sb.Append(Function.RelatedNameSpace);
-                    sb.Append(".");
+                    sb.Append('.');
                 }
                 sb.Append(string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name);
                 sb.Append(Constants.START_ARG);
@@ -832,7 +832,7 @@ namespace AliceScript.Parsing
         }
 
         public int OriginalLineNumber => GetOriginalLineNumber();
-        public string OriginalLine => GetOriginalLine(out int lineNumber);
+        public string OriginalLine => GetOriginalLine(out _);
 
         public int GetOriginalLineNumber()
         {
@@ -1202,7 +1202,6 @@ namespace AliceScript.Parsing
         }
         public void SkipBlock()
         {
-            int blockStart = Pointer;
             int startCount = 0;
             int endCount = 0;
             bool inQuotes = false;
@@ -1319,7 +1318,7 @@ namespace AliceScript.Parsing
             if (EnableInclude)
             {
                 string includeFile = GetIncludeFileLine(filename, out string pathname, out bool isPackageFile);
-                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out var def, out var setting, pathname);
+                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out _, out var setting, pathname);
                 ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
                 tempScript.TopInFile = true;
                 tempScript.Settings = setting;

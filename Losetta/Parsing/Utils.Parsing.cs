@@ -192,8 +192,6 @@ namespace AliceScript
             }
             return var;
         }
-
-
         public static CustomFunction GetFunction(ParsingScript script, string funcName, string token)
         {
             CustomFunction customFunc = null;

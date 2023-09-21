@@ -43,7 +43,7 @@ namespace AliceScript
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
         {
-            if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || variable.Value != double.NaN))
+            if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || !double.IsNaN(variable.Value)))
             {
                 ThrowErrorMsg("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE, script);
             }
@@ -81,7 +81,7 @@ namespace AliceScript
             throw new ScriptException(msg, errorcode, script);
         }
 
-        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "", int minLines = 1)
+        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "")
         {
             string[] lines = script.Split('\n');
             lineNumber = lines.Length <= lineNumber ? -1 : lineNumber;
@@ -125,7 +125,7 @@ namespace AliceScript
             }
         }
 
-        public static ParsingScript GetTempScript(string str, ParserFunction.StackLevel stackLevel, string name = "",
+        public static ParsingScript GetTempScript(string str, 
             ParsingScript script = null, ParsingScript parentScript = null,
             int parentOffset = 0, AliceScriptClass.ClassInstance instance = null)
         {
@@ -187,7 +187,7 @@ namespace AliceScript
         }
         public static string GetFileLines(string filename)
         {
-            string lines = SafeReader.ReadAllText(filename, out var v);
+            string lines = SafeReader.ReadAllText(filename, out _);
             if (lines == null)
             {
                 lines = string.Empty;

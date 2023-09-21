@@ -39,7 +39,7 @@ namespace AliceScript.Functions
                 {
                     throw new ScriptException("parmsキーワードより後にパラメータを追加することはできません", Exceptions.COULDNT_ADD_PARAMETERS_AFTER_PARMS_KEYWORD, script);
                 }
-                if (arg.Contains(" "))
+                if (arg.Contains(Constants.SPACE))
                 {
                     //属性等の指定がある場合
                     var stb = new HashSet<string>(arg.Split(' '));
@@ -99,7 +99,7 @@ namespace AliceScript.Functions
                         {
                             reqType = to;
                         }
-                        m_typArgMap.Add(i, reqType);
+                        m_typArgMap[i] = reqType;
                     }
 
                     int ind = arg.IndexOf('=', StringComparison.Ordinal);
@@ -161,7 +161,7 @@ namespace AliceScript.Functions
 
             if (m_args == null)
             {
-                m_args = new string[0];
+                m_args = Array.Empty<string>();
             }
             if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable != null ? 1 : 0) < m_args.Length)
             {
@@ -172,9 +172,10 @@ namespace AliceScript.Functions
             {
                 result.Nullable = true;
             }
-            if (!result.Type.HasFlag(m_returnType) || (!m_nullable && result.Nullable))
+            if(!(result.Type == Variable.VarType.VARIABLE && result.IsNull()) && (m_nullable || !m_nullable && result.Nullable) && !result.Type.HasFlag(m_returnType))
+               // if ((!m_nullable && result.Nullable) && !result.Type.HasFlag(m_returnType))
             {
-                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.Nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
+                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(m_nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
             e.Return = result;
         }
@@ -201,7 +202,7 @@ namespace AliceScript.Functions
             {
                 var arg = args[i];
                 int argIndex = -1;
-                if (m_typArgMap.ContainsKey(i) && !m_typArgMap[i].Match(arg))
+                if (m_typArgMap.Count >= i && !m_typArgMap[i].Match(arg))
                 {
                     throw new ScriptException("この引数にその型を使用することはできません", Exceptions.WRONG_TYPE_VARIABLE);
                 }
@@ -401,7 +402,7 @@ namespace AliceScript.Functions
         {
 
             Variable result = null;
-            ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
+            ParsingScript tempScript = Utils.GetTempScript(m_body, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
             tempScript.Filename = m_parentScript.Filename;
             if (script != null)
@@ -468,7 +469,7 @@ namespace AliceScript.Functions
         public int ArgumentCount => m_args.Length;
 
         public StackLevel NamespaceData { get; set; }
-        public TypeObject MethodRequestType => IsMethod && m_typArgMap.ContainsKey(m_this) ? m_typArgMap[m_this] : new TypeObject();
+        public TypeObject MethodRequestType => IsMethod && m_typArgMap.Count>=m_this ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
@@ -482,10 +483,10 @@ namespace AliceScript.Functions
         protected Variable.VarType m_returnType;
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;
+        private List<TypeObject> m_typArgMap = new List<TypeObject>();
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
-        private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
 
         private Dictionary<string, int> ArgMap { get; set; } = new Dictionary<string, int>();
     }
@@ -535,7 +536,7 @@ namespace AliceScript.Functions
             string[] args = Utils.GetFunctionSignature(script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
-                args = new string[0];
+                args = Array.Empty<string>();
             }
             if (script.Current != Constants.START_GROUP)
             {

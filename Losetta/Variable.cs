@@ -4,7 +4,6 @@ using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Collections;
 using System.Text;
-using System.Xml.Linq;
 
 namespace AliceScript
 {
@@ -94,7 +93,7 @@ namespace AliceScript
         }
         public static Variable AsType(VarType type)
         {
-            return  new Variable(new TypeObject(type));
+            return new Variable(new TypeObject(type));
         }
         public Variable()
         {
@@ -167,9 +166,9 @@ namespace AliceScript
                 Tuple.Add(new Variable(i));
             }
         }
-        public Variable(object? o)
+        public Variable(object o)
         {
-            if(o is Variable v)
+            if (o is Variable v)
             {
                 Assign(v);
                 IsReturn = v.IsReturn;
@@ -291,7 +290,7 @@ namespace AliceScript
                 AssignNull();
                 return;
             }
-            else if (TypeChecked && (m_type != v.Type || !Nullable && v.Nullable))
+            else if (TypeChecked && (m_type != v.Type || (!Nullable && v.Nullable)))
             {
                 throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
             }
@@ -657,7 +656,7 @@ namespace AliceScript
         {
             if (check)
             {
-                Utils.CheckNumInRange(this,true,0);
+                Utils.CheckNumInRange(this, true, 0);
             }
             return (nint)Value;
         }
@@ -893,7 +892,7 @@ namespace AliceScript
         /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
         public bool TryConvertTo(Type type, out object result)
         {
-            if(type == typeof(Variable))
+            if (type == typeof(Variable))
             {
                 result = this;
                 return true;
@@ -914,7 +913,7 @@ namespace AliceScript
             {
                 case VarType.STRING:
                     {
-                        if(type is null || type == typeof(string))
+                        if (type is null || type == typeof(string))
                         {
                             result = String;
                             return true;
@@ -923,7 +922,7 @@ namespace AliceScript
                     }
                 case VarType.BOOLEAN:
                     {
-                        if(type is null || type == typeof(bool))
+                        if (type is null || type == typeof(bool))
                         {
                             result = Bool;
                             return true;
@@ -932,7 +931,7 @@ namespace AliceScript
                     }
                 case VarType.BYTES:
                     {
-                        if(type is null || type == typeof(byte[]))
+                        if (type is null || type == typeof(byte[]))
                         {
                             result = ByteArray;
                             return true;
@@ -941,7 +940,7 @@ namespace AliceScript
                     }
                 case VarType.NUMBER:
                     {
-                        if(type == typeof(int))
+                        if (type == typeof(int))
                         {
                             result = AsInt();
                             return true;
@@ -956,7 +955,7 @@ namespace AliceScript
                             result = AsFloat();
                             return true;
                         }
-                        if(type == typeof(long))
+                        if (type == typeof(long))
                         {
                             result = AsLong();
                             return true;
@@ -970,13 +969,13 @@ namespace AliceScript
                     }
                 case VarType.ARRAY:
                     {
-                        
-                        if(type is null || type == typeof(VariableCollection))
+
+                        if (type is null || type == typeof(VariableCollection))
                         {
                             result = Tuple;
                             return true;
                         }
-                        if(type == typeof(List<Variable>))
+                        if (type == typeof(List<Variable>))
                         {
                             result = Tuple.ToList();
                             return true;
@@ -1004,7 +1003,7 @@ namespace AliceScript
                     }
                 case VarType.DELEGATE:
                     {
-                        if(type is null || type == typeof(DelegateObject))
+                        if (type is null || type == typeof(DelegateObject))
                         {
                             result = AsDelegate();
                             return true;
@@ -1019,11 +1018,11 @@ namespace AliceScript
                             result = null;
                             return true;
                         }
-                        result = System.Convert.ChangeType(Object,type);
+                        result = System.Convert.ChangeType(Object, type);
                         return true;
                     }
             }
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) && TryConvertTo(null,out result))
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) && TryConvertTo(null, out result))
             {
                 return true;
             }
@@ -1437,9 +1436,9 @@ namespace AliceScript
             {
                 return p.GetProperty(this);
             }
-            else if(script != null)
+            else if (script != null)
             {
-                FunctionBase func = ParserFunction.GetFunction(propName,script,false,true) as FunctionBase;
+                FunctionBase func = ParserFunction.GetFunction(propName, script, false, true) as FunctionBase;
                 if (func != null)
                 {
                     return func.Evaluate(script, this);

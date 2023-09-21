@@ -38,7 +38,7 @@ namespace AliceScript.Functions
         /// <summary>
         /// この関数を拡張メソッドとして呼び出し可能な場合はTrue、それ以外の場合はfalse。このプロパティは読み取り専用です。
         /// </summary>
-        public bool IsMethod { get => RequestType != null; }
+        public bool IsMethod => RequestType != null;
 
         /// <summary>
         /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができる

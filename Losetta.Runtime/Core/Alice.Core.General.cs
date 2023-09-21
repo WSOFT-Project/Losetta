@@ -38,6 +38,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return v.Convert(t.Type, throwError);
         }
+        public static void Assign(this Variable v, Variable other)
+        {
+            v.Assign(other);
+        }
         public static int CompareTo(this Variable v, Variable other)
         {
             return v.CompareTo(other);

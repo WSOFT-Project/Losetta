@@ -28,6 +28,7 @@
 	  <RepositoryType>git</RepositoryType>
 	  <PackageTags>scripting;scripting-language;scripting-engine;cli;repl;</PackageTags>
 	  <PackageOutputPath>bin\packages</PackageOutputPath>
+	  <AnalysisLevel>latest-recommended</AnalysisLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

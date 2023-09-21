@@ -30,8 +30,7 @@ namespace AliceScript.NameSpaces.Core
             return Interpreter.Instance.ReadInput();
         }
 
-        private static void AddOutput(string text, ParsingScript script = null,
-                                    bool addLine = true, bool addSpace = true, string start = "")
+        private static void AddOutput(string text,  bool addLine = true)
         {
 
             string output = text + (addLine ? Environment.NewLine : string.Empty);
@@ -40,44 +39,44 @@ namespace AliceScript.NameSpaces.Core
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Print(ParsingScript script)
+        public static void Print()
         {
-            AddOutput(string.Empty, script);
+            AddOutput(string.Empty);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Print(ParsingScript script, string text)
+        public static void Print(string text)
         {
-            AddOutput(text, script);
+            AddOutput(text);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Print(ParsingScript script, Variable item)
+        public static void Print(Variable item)
         {
-            AddOutput(item.AsString(), script);
+            AddOutput(item.AsString());
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Print(ParsingScript script, string format, params Variable[] args)
+        public static void Print(string format, params Variable[] args)
         {
-            AddOutput(StringFormatFunction.Format(format, args), script);
+            AddOutput(StringFormatFunction.Format(format, args));
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Write(ParsingScript script)
+        public static void Write()
         {
-            AddOutput(string.Empty, script, false);
+            AddOutput(string.Empty, false);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Write(ParsingScript script, string text)
+        public static void Write(string text)
         {
-            AddOutput(text, script, false);
+            AddOutput(text, false);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Write(ParsingScript script, Variable item)
+        public static void Write(Variable item)
         {
-            AddOutput(item.AsString(), script, false);
+            AddOutput(item.AsString(), false);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Write(ParsingScript script, string format, params Variable[] args)
+        public static void Write(string format, params Variable[] args)
         {
-            AddOutput(StringFormatFunction.Format(format, args), script, false);
+            AddOutput(StringFormatFunction.Format(format, args),false);
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
@@ -102,7 +101,7 @@ namespace AliceScript.NameSpaces.Core
             throw new ScriptException(message, (Exceptions)errorCode, script);
         }
 
-        private static Dictionary<string, Variable> m_singletons =
+        private readonly static Dictionary<string, Variable> m_singletons =
            new Dictionary<string, Variable>();
 
         public static Variable Singleton(ParsingScript script)
@@ -168,7 +167,7 @@ namespace AliceScript.NameSpaces.Core
             if (result == null) { result = Variable.EmptyInstance; }
             return result;
         }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
         public static Variable Return(ParsingScript script, Variable result = null)
         {
             // Returnに到達したら終了
