@@ -30,7 +30,7 @@ namespace AliceScript.NameSpaces.Core
             return Interpreter.Instance.ReadInput();
         }
 
-        private static void AddOutput(string text,  bool addLine = true)
+        private static void AddOutput(string text, bool addLine = true)
         {
 
             string output = text + (addLine ? Environment.NewLine : string.Empty);
@@ -76,7 +76,7 @@ namespace AliceScript.NameSpaces.Core
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
         public static void Write(string format, params Variable[] args)
         {
-            AddOutput(StringFormatFunction.Format(format, args),false);
+            AddOutput(StringFormatFunction.Format(format, args), false);
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
@@ -101,7 +101,7 @@ namespace AliceScript.NameSpaces.Core
             throw new ScriptException(message, (Exceptions)errorCode, script);
         }
 
-        private readonly static Dictionary<string, Variable> m_singletons =
+        private static readonly Dictionary<string, Variable> m_singletons =
            new Dictionary<string, Variable>();
 
         public static Variable Singleton(ParsingScript script)

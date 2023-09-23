@@ -59,5 +59,14 @@ namespace AliceScript.NameSpaces
             }
             return result.ToArray();
         }
+        public static string ReplaceAll(this string input,string pattern,string replacement)
+        {
+            return Regex.Replace(input,pattern,replacement);
+        }
+        public static string ReplaceFirst(this string input, string pattern, string replacement)
+        {
+            var reg = new Regex(pattern);
+            return reg.Replace(input, replacement,1);
+        }
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace AliceScript.NameSpaces.Core
+﻿using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace AliceScript.NameSpaces.Core
 {
     internal partial class CoreFunctions
     {
@@ -201,6 +204,15 @@
         {
             return str.Split(separator);
         }
+        public static string[] SplitLines(this string str)
+        {
+            Span<string> result = str.Split('\n').AsSpan();
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = result[i].Trim('\r');
+            }
+            return result.ToArray();
+        }
         public static string Substring(this string str, int startIndex)
         {
             return str.Substring(startIndex);
@@ -216,6 +228,33 @@
         public static bool Equals(this string str, string value, bool ignoreCase, bool considerCulture)
         {
             return str.Equals(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
+        public static string Repeat(this string str,int repeatCount)
+        {
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < repeatCount; i++)
+            {
+                sb.Append(str);
+            }
+
+            return sb.ToString();
+        }
+        public static string Indent(this string str, int indentLevel,string indentChar = " ")
+        {
+            return Repeat(indentChar, indentLevel) + str;
+        }
+        public static byte[] GetBytes(this string str)
+        {
+            return Encoding.UTF8.GetBytes(str);
+        }
+        public static byte[] GetBytes(this string str,string charCode)
+        {
+            return Encoding.GetEncoding(charCode).GetBytes(str);
+        }
+        public static byte[] GetBytes(this string str, int codepage)
+        {
+            return Encoding.GetEncoding(codepage).GetBytes(str);
         }
     }
 }
