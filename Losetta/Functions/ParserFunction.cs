@@ -682,13 +682,17 @@ namespace AliceScript.Functions
                     }
                     else
                     {
-                        //型指定がない場合はnullを許容する
+                        //型指定がない場合は一時的にnullを許容する
                         newVar.Nullable = true;
                     }
                     newVar.Assign(v2.Value);
                     if (type_inference && type_modifer == Constants.VAR)
                     {
                         newVar.TypeChecked = true;
+                    }
+                    if(type_modifer == null && !newVar.IsNull())
+                    {
+                        newVar.Nullable = false;
                     }
                     newVar.Readonly = isReadOnly;
                     function = new GetVarFunction(newVar);

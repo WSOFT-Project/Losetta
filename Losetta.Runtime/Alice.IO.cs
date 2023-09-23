@@ -39,11 +39,11 @@ namespace AliceScript.NameSpaces
         {
             File.Copy(from, to, overwrite);
         }
-        public static void File_Replace(string from, string to, string? backupPath)
+        public static void File_Replace(string from, string to, string backupPath)
         {
             File.Replace(from, to, backupPath);
         }
-        public static void File_Replace(string from, string to, string? backupPath, bool ignoreMetadataErrors)
+        public static void File_Replace(string from, string to, string backupPath, bool ignoreMetadataErrors)
         {
             File.Replace(from, to, backupPath, ignoreMetadataErrors);
         }
@@ -82,19 +82,19 @@ namespace AliceScript.NameSpaces
         {
             File.WriteAllBytes(path, data);
         }
-        public static void File_Write_Text(string path, string? text)
+        public static void File_Write_Text(string path, string text)
         {
             File.WriteAllText(path, text);
         }
-        public static void File_Write_Text(string path, string? text, string charCode)
+        public static void File_Write_Text(string path, string text, string charCode)
         {
             File.WriteAllText(path, text, Encoding.GetEncoding(charCode));
         }
-        public static void File_Append_Text(string path, string? text)
+        public static void File_Append_Text(string path, string text)
         {
             File.AppendAllText(path, text);
         }
-        public static void File_Append_Text(string path, string? text, string charCode)
+        public static void File_Append_Text(string path, string text, string charCode)
         {
             File.AppendAllText(path, text, Encoding.GetEncoding(charCode));
         }
@@ -261,7 +261,7 @@ namespace AliceScript.NameSpaces
             {
                 throw new DirectoryNotFoundException(sourceDirName);
             }
-            if (sourceDirName.Equals(destDirName, StringComparison.InvariantCultureIgnoreCase))
+            if (sourceDirName.Equals(destDirName, StringComparison.OrdinalIgnoreCase))
             {
                 string addPath = Path.GetFileName(sourceDirName);
                 destDirName = Path.Combine(destDirName, addPath);
@@ -297,19 +297,19 @@ namespace AliceScript.NameSpaces
         {
             return Path.EndsInDirectorySeparator(path);
         }
-        public static string Path_Get_DirectoryName(string? path)
+        public static string Path_Get_DirectoryName(string path)
         {
             return Path.GetDirectoryName(path);
         }
-        public static string Path_Get_Extension(string? path)
+        public static string Path_Get_Extension(string path)
         {
             return Path.GetExtension(path);
         }
-        public static string Path_Get_FileName(string? path)
+        public static string Path_Get_FileName(string path)
         {
             return Path.GetFileName(path);
         }
-        public static string Path_Get_FileNameWithoutExtension(string? path)
+        public static string Path_Get_FileNameWithoutExtension(string path)
         {
             return Path.GetFileNameWithoutExtension(path);
         }
@@ -321,7 +321,7 @@ namespace AliceScript.NameSpaces
         {
             return Path.GetRelativePath(to, path);
         }
-        public static string? Path_Get_PathRoot(string? path)
+        public static string Path_Get_PathRoot(string path)
         {
             return Path.GetPathRoot(path);
         }
@@ -337,7 +337,7 @@ namespace AliceScript.NameSpaces
         {
             return Path.GetTempPath();
         }
-        public static bool Path_Has_Extension(string? path)
+        public static bool Path_Has_Extension(string path)
         {
             return Path.HasExtension(path);
         }

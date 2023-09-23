@@ -158,7 +158,7 @@
         {
             return str.Normalize();
         }
-        public static bool IsEmpty(this string str)
+        public static bool IsNullOrEmpty(this string str)
         {
             return string.IsNullOrEmpty(str);
         }

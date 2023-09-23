@@ -336,6 +336,10 @@ namespace AliceScript.NameSpaces.Core
 
             condScript.Variables = loopScript.Variables = initScript.Variables;
 
+
+            script.Pointer = startForCondition;
+            string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+
             initScript.Execute(null, 0);
             bool stillValid = true;
 
@@ -351,12 +355,8 @@ namespace AliceScript.NameSpaces.Core
                 {
                     break;
                 }
-
-                script.Pointer = startForCondition;
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 ParsingScript mainScript = initScript.GetTempScript(body);
-                //mainScript.Variables = initScript.Variables;
-                Variable result = mainScript.Process(true);
+                Variable result = mainScript.Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     return result;

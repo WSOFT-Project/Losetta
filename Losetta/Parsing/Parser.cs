@@ -55,7 +55,7 @@ namespace AliceScript.Parsing
 
         private static List<Variable> Split(ParsingScript script, char[] to)
         {
-            List<Variable> listToMerge = new List<Variable>(16);
+            List<Variable> listToMerge = new List<Variable>();
 
             if (!script.StillValid() || to.Contains(script.Current))
             {
@@ -254,24 +254,27 @@ namespace AliceScript.Parsing
             }
             current.ParsingToken = token;
 
-            switch (preop)
+            if(current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
             {
-                case PreOperetors.Minus:
-                    {
-                        // -マークがついている場合は数値がマイナス
-                        current = new Variable(-1 * current.Value);
-                        break;
-                    }
-                case PreOperetors.Increment:
-                    {
-                        current.Value++;
-                        break;
-                    }
-                case PreOperetors.Decrement:
-                    {
-                        current.Value--;
-                        break;
-                    }
+                switch (preop)
+                {
+                    case PreOperetors.Minus:
+                        {
+                            // -マークがついている場合は数値がマイナス
+                            current.Value = current.Value * -1;
+                            break;
+                        }
+                    case PreOperetors.Increment:
+                        {
+                            current.Value++;
+                            break;
+                        }
+                    case PreOperetors.Decrement:
+                        {
+                            current.Value--;
+                            break;
+                        }
+                }
             }
 
             if (negated > 0 && current.Type == Variable.VarType.BOOLEAN)

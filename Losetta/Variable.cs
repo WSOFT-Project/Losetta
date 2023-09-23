@@ -717,7 +717,7 @@ namespace AliceScript
         /// </summary>
         /// <param name="obj">評価する対象のオブジェクト</param>
         /// <returns>二つのオブジェクトが等しければTrue、それ以外の場合はFalse</returns>
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj == null)
             {
@@ -839,7 +839,7 @@ namespace AliceScript
         /// </summary>
         /// <param name="other">比較する変数</param>
         /// <returns>より前にくる場合は負の値、後にくる場合は正の値、一致する場合は0</returns>
-        public int CompareTo(Variable? other)
+        public int CompareTo(Variable other)
         {
             return other == null
                 ? 0

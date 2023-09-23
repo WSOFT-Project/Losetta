@@ -83,7 +83,7 @@ namespace AliceScript.Objects
         public bool Contains(DelegateObject d)
         {
             bool r = false;
-            foreach (CustomFunction cf in Utils.GetSpan(d.Functions))
+            foreach (CustomFunction cf in d.Functions)
             {
                 if (!m_fucntions.Contains(cf))
                 {
@@ -100,7 +100,7 @@ namespace AliceScript.Objects
         public Variable Invoke(List<Variable> args = null, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
         {
             Variable last_result = Variable.EmptyInstance;
-            foreach (CustomFunction func in Utils.GetSpan(m_fucntions))
+            foreach (CustomFunction func in m_fucntions)
             {
                 last_result = func.ARun(args, script, instance);
             }

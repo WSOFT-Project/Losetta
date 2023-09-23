@@ -268,7 +268,7 @@ namespace AliceScript.Functions
 
             if (args2 != null)
             {
-                foreach (var entry in Utils.GetSpan(args2))
+                foreach (var entry in args2)
                 {
                     var val = new Variable();
                     val.Assign(entry.Value);
@@ -483,7 +483,7 @@ namespace AliceScript.Functions
         protected Variable.VarType m_returnType;
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;
-        private List<TypeObject> m_typArgMap = new List<TypeObject>();
+        private Dictionary<int,TypeObject> m_typArgMap = new Dictionary<int,TypeObject>();
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();

@@ -671,7 +671,7 @@ namespace AliceScript.Parsing
         {
             var trace = new Variable(Variable.VarType.ARRAY);
             trace.Tuple.Type = new TypeObject(Variable.VarType.STRING);
-            foreach (var s in Utils.GetSpan(StackTrace))
+            foreach (var s in StackTrace)
             {
                 trace.Tuple.Add(new Variable(s.ToString()));
             }

@@ -105,7 +105,7 @@ namespace AliceScript.Objects
             string currNamespace = GetCurrentNamespace;
             if (!string.IsNullOrWhiteSpace(currNamespace))
             {
-                bool namespacePresent = name.Contains(".");
+                bool namespacePresent = name.Contains('.',StringComparison.Ordinal);
                 if (!namespacePresent)
                 {
                     name = currNamespace + "." + name;
@@ -123,7 +123,7 @@ namespace AliceScript.Objects
             }
 
             //ちょっとでも高速化（ここのロジックは時間がかかる）
-            if (name.Contains("."))
+            if (name.Contains('.', StringComparison.Ordinal))
             {
                 string namespacename = string.Empty;
 
@@ -137,7 +137,7 @@ namespace AliceScript.Objects
                 }
                     
                 //完全修飾名で関数を検索
-                if (namespacename != string.Empty)
+                if (!string.IsNullOrEmpty(namespacename))
                 {
                     var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cfc != null)

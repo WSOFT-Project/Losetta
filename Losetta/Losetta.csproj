@@ -24,7 +24,7 @@
 
 		<RepositoryType>git</RepositoryType>
 		<PackageOutputPath>bin\packages</PackageOutputPath>
-		<AnalysisLevel>latest-recommended</AnalysisLevel>
+		<AnalysisLevel>latest</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">

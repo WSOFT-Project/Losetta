@@ -16,8 +16,6 @@ namespace AliceScript
             {
                 Alice.RegisterFunctions<InterpreterFunctions>();
                 NameSpace space = new NameSpace("Alice.Interpreter");
-
-                space.Add(new Interpreter_FunctionsFunc());
                 space.Add(new Interpreter_ScriptObject(null));
                 space.Add(new TypeObject());
 
@@ -276,44 +274,6 @@ namespace AliceScript
 
 
 
-    internal sealed class Interpreter_FunctionsFunc : FunctionBase
-    {
-        public Interpreter_FunctionsFunc()
-        {
-            Name = "Interpreter_Functions";
-            Run += FunctionsFunc_Run;
-        }
-
-        private void FunctionsFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count == 0)
-            {
-                Variable v = new Variable(Variable.VarType.ARRAY);
-                foreach (string s in FunctionBaseManager.Functions)
-                {
-                    v.Tuple.Add(new Variable(s));
-                }
-                e.Return = v;
-            }
-            else
-            {
-                string str = Utils.GetSafeString(e.Args, 0);
-                if (NameSpaceManager.Contains(str))
-                {
-                    Variable v = new Variable(Variable.VarType.ARRAY);
-                    foreach (FunctionBase fb in NameSpaceManager.NameSpaces[str].Functions)
-                    {
-                        v.Tuple.Add(new Variable(fb.Name));
-                    }
-                    e.Return = v;
-                }
-                else
-                {
-                    throw new ScriptException("指定された名前空間が見つかりませんでした", Exceptions.NAMESPACE_NOT_FOUND);
-                }
-            }
-        }
-    }
     internal sealed class Interpreter_ScriptObject : ObjectBase
     {
         public Interpreter_ScriptObject(ParsingScript script)
@@ -351,7 +311,7 @@ namespace AliceScript
         internal ParsingScript Script;
         public override bool Equals(ObjectBase other)
         {
-            return other is Interpreter_ScriptObject iso ? iso.Script.Equals(Script) : false;
+            return other is Interpreter_ScriptObject iso && iso.Script.Equals(Script);
         }
 
         private sealed class Interpreter_ScriptObject_Constructor : FunctionBase
