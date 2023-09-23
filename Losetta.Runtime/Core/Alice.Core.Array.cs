@@ -269,11 +269,6 @@ namespace AliceScript.NameSpaces.Core
                 }
             }
         }
-        public static bool TrueForAll(this VariableCollection ary, ParsingScript script, DelegateObject func)
-        {
-            return ary.Tuple.TrueForAll(x => func.Invoke(x, script).AsBool());
-        }
-
         #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
         public static int Length(this VariableCollection ary)

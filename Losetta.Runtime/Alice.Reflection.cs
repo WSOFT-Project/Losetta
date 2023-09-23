@@ -1,12 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Parsing;
 
-namespace Losetta.NameSpaces
+namespace AliceScript.NameSpaces
 {
-    internal class Reflection
+    public sealed class Alice_Reflection
     {
+        public static void Init()
+        {
+            NameSpaceManager.Add(typeof(ReflectionFunctions));
+        }
+    }
+    [AliceNameSpace(Name = "Alice.Reflection")]
+    internal static class ReflectionFunctions
+    {
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static IEnumerable<Variable> Properties(this Variable v)
+        {
+            return v.GetProperties();
+        }
+        public static Variable Reflect_GetVariable(ParsingScript script, string varName)
+        {
+            varName = Constants.ConvertName(varName);
+            return ParserFunction.GetVariable(varName, script) is GetVarFunction getVar ? getVar.Value : Variable.EmptyInstance;
+        }
     }
 }

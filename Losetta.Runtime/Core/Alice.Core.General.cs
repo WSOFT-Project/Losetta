@@ -72,11 +72,6 @@ namespace AliceScript.NameSpaces.Core
         {
             return !v.IsNull();
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static IEnumerable<Variable> Properties(this Variable v)
-        {
-            return v.GetProperties();
-        }
         #endregion
     }
 }

@@ -1,11 +1,10 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
-using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
 
-namespace AliceScript
+namespace AliceScript.NameSpaces
 {
     internal static class Alice_Interpreter_Initer
     {
@@ -93,14 +92,6 @@ namespace AliceScript
         {
             return new Interpreter_ScriptObject(script);
         }
-
-        #region リフレクション
-        public static Variable Reflect_GetVariable(ParsingScript script, string varName)
-        {
-            varName = Constants.ConvertName(varName);
-            return ParserFunction.GetVariable(varName, script) is GetVarFunction getVar ? getVar.Value : Variable.EmptyInstance;
-        }
-        #endregion
 
         #region ガページコレクション
         public static void GC_Collect()
