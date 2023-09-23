@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -229,7 +228,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.Equals(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
-        public static string Repeat(this string str,int repeatCount)
+        public static string Repeat(this string str, int repeatCount)
         {
             var sb = new StringBuilder();
 
@@ -240,7 +239,7 @@ namespace AliceScript.NameSpaces.Core
 
             return sb.ToString();
         }
-        public static string Indent(this string str, int indentLevel,string indentChar = " ")
+        public static string Indent(this string str, int indentLevel, string indentChar = " ")
         {
             return Repeat(indentChar, indentLevel) + str;
         }
@@ -248,7 +247,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return Encoding.UTF8.GetBytes(str);
         }
-        public static byte[] GetBytes(this string str,string charCode)
+        public static byte[] GetBytes(this string str, string charCode)
         {
             return Encoding.GetEncoding(charCode).GetBytes(str);
         }

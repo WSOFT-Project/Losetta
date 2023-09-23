@@ -21,9 +21,10 @@ namespace AliceScript.Binding
 
         private void BindFunction_Run(object sender, FunctionBaseEventArgs e)
         {
+            bool wantMethod = e.CurentVariable != null;
             foreach (var load in Overloads)
             {
-                if (load.TryConvertParameters(e, this, out var args))
+                if ((!wantMethod || load.IsMethod) && load.TryConvertParameters(e, this, out var args))
                 {
                     if (load.IsVoidFunc)
                     {
@@ -114,7 +115,8 @@ namespace AliceScript.Binding
                 if (load.TrueParameters.Length > 0)
                 {
                     load.HasParams = load.TrueParameters[^1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
-                    func.RequestType = methodInfo.IsDefined(typeof(ExtensionAttribute), true) ? new TypeObject() : null;
+                    load.IsMethod = methodInfo.IsDefined(typeof(ExtensionAttribute), true);
+                    func.RequestType = load.IsMethod ? new TypeObject() : null;
                 }
                 int i = 0;
                 for (; i < load.TrueParameters.Length; i++)
@@ -181,6 +183,7 @@ namespace AliceScript.Binding
             public Action<object[]> VoidFunc { get; set; }
             public Func<object[], object> ObjFunc { get; set; }
             public bool IsVoidFunc { get; set; }
+            public bool IsMethod { get; set; }
 
             public int CompareTo(BindingOverloadFunction other)
             {
@@ -250,7 +253,7 @@ namespace AliceScript.Binding
                     }
 
                     paramType = TrueParameters[i].ParameterType;
-                    if (i == 0 && parent.IsMethod && e.CurentVariable != null)
+                    if (i == 0 && IsMethod && e.CurentVariable != null)
                     {
                         diff++;
                         if (e.CurentVariable.TryConvertTo(paramType, out var r))

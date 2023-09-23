@@ -1,7 +1,4 @@
 ﻿using AliceScript.Binding;
-using AliceScript.Functions;
-using AliceScript.Objects;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
@@ -45,28 +42,28 @@ namespace AliceScript.NameSpaces
         {
             return Regex.Split(input, pattern);
         }
-        public static bool IsMatch(this string input , string pattern)
+        public static bool IsMatch(this string input, string pattern)
         {
-            return Regex.IsMatch(input,pattern);
+            return Regex.IsMatch(input, pattern);
         }
         public static string[] Matches(this string input, string pattern)
         {
             var mc = Regex.Matches(input, pattern);
-            List<string> result =new List<string>();
+            List<string> result = new List<string>();
             foreach (Match m in mc)
             {
                 result.Add(m.Value);
             }
             return result.ToArray();
         }
-        public static string ReplaceAll(this string input,string pattern,string replacement)
+        public static string ReplaceAll(this string input, string pattern, string replacement)
         {
-            return Regex.Replace(input,pattern,replacement);
+            return Regex.Replace(input, pattern, replacement);
         }
         public static string ReplaceFirst(this string input, string pattern, string replacement)
         {
             var reg = new Regex(pattern);
-            return reg.Replace(input, replacement,1);
+            return reg.Replace(input, replacement, 1);
         }
     }
 }

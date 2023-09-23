@@ -1,4 +1,5 @@
-﻿using AliceScript.Objects;
+﻿using AliceScript.Binding;
+using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Runtime.CompilerServices;
 
@@ -252,11 +253,16 @@ namespace AliceScript.NameSpaces.Core
                 }
             }
         }
-        public static void Foreach(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        public static void Foreach(this VariableCollection ary, ParsingScript script,BindFunction func)
         {
-            foreach (Variable item in ary.Tuple)
+            List<Variable> args = script.GetFunctionArgs(func, Constants.START_ARG, Constants.END_ARG);
+            if(args.Count>0 && args[0].Type == Variable.VarType.DELEGATE)
             {
-                func.Invoke(new List<Variable> { item }, script);
+                var d = args[0].AsDelegate();
+                foreach (Variable item in ary.Tuple)
+                {
+                    d.Invoke(new List<Variable> { item }, script);
+                }
             }
         }
         public static bool TrueForAll(this VariableCollection ary, ParsingScript script, DelegateObject func)

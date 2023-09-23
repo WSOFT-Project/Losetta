@@ -1,4 +1,5 @@
-﻿using AliceScript.NameSpaces;
+﻿using AliceScript.Binding;
+using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 

@@ -202,7 +202,7 @@ namespace AliceScript.Functions
             {
                 var arg = args[i];
                 int argIndex = -1;
-                if (m_typArgMap.Count >= i && !m_typArgMap[i].Match(arg))
+                if (m_typArgMap.Count > i && !m_typArgMap[i].Match(arg))
                 {
                     throw new ScriptException("この引数にその型を使用することはできません", Exceptions.WRONG_TYPE_VARIABLE);
                 }
