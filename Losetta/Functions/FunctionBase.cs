@@ -137,7 +137,7 @@ namespace AliceScript.Functions
 
         private List<Variable> GetFunctionArguments(ParsingScript script)
         {
-            if (Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+            if (Attribute == FunctionAttribute.LANGUAGE_STRUCTURE || Attribute == FunctionAttribute.PROPERTY)
             {
                 return null;
             }
@@ -225,6 +225,10 @@ namespace AliceScript.Functions
         /// オーバーライド可能です。CanOverrideプロパティもしくはこの属性が定義のいずれかが定義されている場合、オーバーライド可能です。
         /// </summary>
         VIRTUAL = 5,
+        /// <summary>
+        /// この関数は読み取り専用のプロパティです
+        /// </summary>
+        PROPERTY = 6
     }
     /// <summary>
     /// 関数を登録または登録解除する操作を提供します

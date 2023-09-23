@@ -32,6 +32,7 @@ namespace AliceScript
             Alice_Security.Init();
             Alice_Packaging.Init();
             Alice_Environment.Init();
+            Alice_Reflection.Init();
             Alice_Legacy.Init();
         }
         /// <summary>

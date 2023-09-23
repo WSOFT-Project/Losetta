@@ -4,7 +4,6 @@ using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
-using System.Reflection.Emit;
 
 namespace AliceScript
 {
@@ -24,16 +23,16 @@ namespace AliceScript
             catch { }
         }
     }
-    [AliceNameSpace(Name ="Alice.Interpreter")]
+    [AliceNameSpace(Name = "Alice.Interpreter")]
     internal sealed class InterpreterFunctions
     {
         public static void Interpreter_Reset_Variables()
         {
             ParserFunction.CleanUpVariables();
         }
-        public static void Interpreter_Append_Data(string text,bool newLine=false)
+        public static void Interpreter_Append_Data(string text, bool newLine = false)
         {
-            Interpreter.Instance.AppendDebug(text,newLine);
+            Interpreter.Instance.AppendDebug(text, newLine);
         }
         public static void Interpreter_Append_Output(string text, bool newLine = false)
         {
@@ -43,26 +42,26 @@ namespace AliceScript
         {
             return new Interpreter_ScriptObject(script.ParentScript);
         }
-        [AliceFunction(Attribute =FunctionAttribute.LANGUAGE_STRUCTURE)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static bool Interpreter_NameExists(ParsingScript script)
         {
             string varName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             varName = Constants.ConvertName(varName);
-            return ParserFunction.GetVariable(varName,script) != null;
+            return ParserFunction.GetVariable(varName, script) != null;
         }
         public static string Interpreter_Name()
         {
             return Interpreter.Instance.Name;
         }
-        public static Variable Interpreter_ProcessFile(string fileName,bool mainFile=false)
+        public static Variable Interpreter_ProcessFile(string fileName, bool mainFile = false)
         {
-            return Interpreter.Instance.ProcessFile(fileName,mainFile);
+            return Interpreter.Instance.ProcessFile(fileName, mainFile);
         }
-        public static Variable Interpreter_Process(string script,string filename="",bool mainFile=false)
+        public static Variable Interpreter_Process(string script, string filename = "", bool mainFile = false)
         {
-            return Interpreter.Instance.Process(script,filename,mainFile);
+            return Interpreter.Instance.Process(script, filename, mainFile);
         }
-        public static Variable Interpreter_GetVariable(ParsingScript script,string name)
+        public static Variable Interpreter_GetVariable(ParsingScript script, string name)
         {
             return (script.TryGetVariable(name, out ParserFunction impl) || ParserFunction.s_functions.TryGetValue(name, out impl)) && impl is GetVarFunction vf
                 ? vf.Value
@@ -86,11 +85,9 @@ namespace AliceScript
         }
         public static IEnumerable<string> Interpreter_Functions(string nameSpace)
         {
-            if (NameSpaceManager.Contains(nameSpace))
-            {
-                return NameSpaceManager.NameSpaces[nameSpace].Functions.Select(item=>item.Name);
-            }
-            return Array.Empty<string>();
+            return NameSpaceManager.Contains(nameSpace)
+                ? NameSpaceManager.NameSpaces[nameSpace].Functions.Select(item => item.Name)
+                : Array.Empty<string>();
         }
         public static Interpreter_ScriptObject Interpreter_GetScript(ParsingScript script)
         {
@@ -98,14 +95,10 @@ namespace AliceScript
         }
 
         #region リフレクション
-        public static Variable Reflect_GetVariable(ParsingScript script,string varName)
+        public static Variable Reflect_GetVariable(ParsingScript script, string varName)
         {
             varName = Constants.ConvertName(varName);
-            if(ParserFunction.GetVariable(varName, script) is GetVarFunction getVar)
-            {
-                return getVar.Value;
-            }
-            return Variable.EmptyInstance;
+            return ParserFunction.GetVariable(varName, script) is GetVarFunction getVar ? getVar.Value : Variable.EmptyInstance;
         }
         #endregion
 

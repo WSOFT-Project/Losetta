@@ -14,8 +14,7 @@ namespace AliceScript.NameSpaces
             space.Add(new SetPropertyFunction());
             space.Add(new GetPropertyFunction());
             space.Add(new GetPropertiesFunction());
-            space.Add(new GetAllKeysFunction()); ;
-            space.Add(new CancelFunction());
+            space.Add(new GetAllKeysFunction());
 
             NameSpaceManager.Add(space);
         }
@@ -24,7 +23,7 @@ namespace AliceScript.NameSpaces
     {
         public AddVariablesToHashFunction()
         {
-            Name = Constants.ADD_ALL_TO_HASH;
+            Name = "AddAllToHash";
             MinimumArgCounts = 3;
             Run += AddVariablesToHashFunction_Run;
         }
@@ -106,7 +105,7 @@ namespace AliceScript.NameSpaces
     {
         public GetPropertiesFunction()
         {
-            Name = Constants.GET_PROPERTIES;
+            Name = "GetProperties";
             MinimumArgCounts = 1;
             Run += GetPropertiesFunction_Run;
         }
@@ -164,33 +163,11 @@ namespace AliceScript.NameSpaces
         }
     }
 
-    internal sealed class CancelFunction : FunctionBase
-    {
-        public static bool Canceled { get; set; }
-
-        public CancelFunction()
-        {
-            Name = Constants.CANCEL;
-            Run += CancelFunction_Run;
-        }
-
-        private void CancelFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            Utils.CheckArgs(e.Args.Count, 0, m_name, true);
-
-            bool mode = Utils.GetSafeInt(e.Args, 0, 1) == 1;
-            Canceled = mode;
-            e.Return = new Variable(Canceled);
-        }
-
-    }
-
-
     internal sealed class GetColumnFunction : FunctionBase, IArrayFunction
     {
         public GetColumnFunction()
         {
-            Name = Constants.GET_COLUMN;
+            Name = "GetColumn";
             MinimumArgCounts = 2;
             Run += GetColumnFunction_Run;
         }
@@ -224,7 +201,7 @@ namespace AliceScript.NameSpaces
     {
         public GetAllKeysFunction()
         {
-            Name = Constants.KEYS;
+            Name = "GetAllKeys";
             MinimumArgCounts = 1;
             Run += GetAllKeysFunction_Run;
         }

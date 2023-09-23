@@ -32,7 +32,6 @@ namespace AliceScript
         public const string IS_NOT = "is not ";
         public const string FOR_EACH = ":";
         public const string FOR_IN = "in";
-        public const string FOR_OF = "of";
         public const string INFINITY = "Infinity";
         public const string NEG_INFINITY = "-Infinity";
         public const string ISFINITE = "IsFinite";
@@ -63,7 +62,6 @@ namespace AliceScript
         public const string BREAK = "break";
         public const string CASE = "case";
         public const string CATCH = "catch";
-        public const string CANCEL = "cancel_operation";
         public const string COMMENT = "//";
         public const string CONTINUE = "continue";
         public const string DEFAULT = "default";
@@ -76,8 +74,8 @@ namespace AliceScript
         public const string CLASS = "class";
         public const string ENUM = "enum";
         public const string IF = "if";
-        public const string INCLUDE = "include";
         public const string IMPORT = "import";
+        public const string INCLUDE = "include";
         public const string NEW = "new";
         public const string RETURN = "return";
         public const string SWITCH = "switch";
@@ -85,7 +83,6 @@ namespace AliceScript
         public const string THROW = "throw";
         public const string TRY = "try";
         public const string TYPE = "type";
-        public const string TYPE_OF = "typeOf";
         public const string WHILE = "while";
         public const string WHEN = "when";
 
@@ -96,70 +93,14 @@ namespace AliceScript
         public const string PARAMS = "params";
 
         public const string ADD = "add";
-        public const string ADD_RANGE = "AddRange";
-        public const string ADD_UNIQUE = "addunique";
         public const string ADD_TO_HASH = "AddToHash";
-        public const string ADD_ALL_TO_HASH = "AddAllToHash";
-        public const string CANCEL_RUN = "CancelRun";
-        public const string CHECK_LOADER_MAIN = "LoaderMain";
-        public const string CONTAINS = "contains";
-        public const string CURRENT_PATH = "CurrentPath";
-        public const string CLONE = "Clone";
-        public const string DEEP_CLONE = "DeepClone";
         public const string DEFINE_LOCAL = "DefineLocal";
-        public const string EXIT = "exit";
-        public const string FLOOR = "floor";
-        public const string GET_COLUMN = "GetColumn";
-        public const string GET_PROPERTIES = "GetPropertyStrings";
         public const string GET_PROPERTY = "GetProperty";
         public const string GET_KEYS = "GetKeys";
-        public const string LOCK = "lock";
         public const string NAMESPACE = "Namespace";
-        public const string ON_EXCEPTION = "OnException";
         public const string OBJECT_PROPERTIES = "Properties";
         public const string OBJECT_TYPE = "Type";
-        public const string PRINT = "print";
-        public const string REGEX = "Regex";
-        public const string REMOVE = "RemoveItem";
-        public const string REMOVE_AT = "RemoveAt";
-        public const string REMOVE_RANGE = "RemoveRange";
-        public const string SET_PROPERTY = "SetProperty";
-        public const string SIGNAL = "signal";
-        public const string SINGLETON = "singleton";
-        public const string SIZE = "Size";
-        public const string THREAD_ID = "threadid";
-        public const string TOKENIZE_LINES = "TokenizeLines";
-        public const string TOKEN_COUNTER = "CountTokens";
         public const string TO_STRING = "string";
-        public const string WAIT = "wait";
-
-        public const string ADD_DATA = "AddDataToCollection";
-        public const string COLLECT_DATA = "StartCollectingData";
-        public const string GET_DATA = "GetCollectedData";
-
-        // プロパティ
-        public const string JOIN = "Join";
-        public const string KEYS = "Keys";
-        public const string LAST = "Last";
-        public const string LENGTH = "Length";
-        public const string LOWER = "ToLower";
-        public const string REMOVE_ITEM = "Remove";
-        public const string REPLACE = "Replace";
-        public const string REPLACE_TRIM = "ReplaceAndTrim";
-        public const string REVERSE = "Reverse";
-        public const string SORT = "Sort";
-        public const string SPLIT = "Split";
-        public const string STRING = "String";
-        public const string STARTS_WITH = "StartsWith";
-        public const string SUBSTRING = "Substring";
-        public const string TOKENIZE = "Tokenize";
-        public const string TRIM = "Trim";
-        public const string TRIM_START = "TrimStart";
-        public const string TRIM_END = "TrimEnd";
-        public const string UPPER = "ToUpper";
-        public const string INSERT = "Insert";
-        public const string INSERT_RANGE = "InsertRange";
-
 
         public const string LABEL_OPERATOR = ":";
         public const string GOTO = "goto";
@@ -311,14 +252,14 @@ namespace AliceScript
         public static  readonly HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
-            FUNCTION, NAMESPACE, NEW, PRINT
+            FUNCTION, NAMESPACE, NEW
         };
         /// <summary>
         /// 関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
         /// </summary>
         public static readonly HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
         {
-            CASE, RETURN, THROW, TYPE_OF
+            CASE, RETURN, THROW
         };
 
         /// <summary>

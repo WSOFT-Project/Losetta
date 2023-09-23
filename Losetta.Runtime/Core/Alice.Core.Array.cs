@@ -1,7 +1,7 @@
 ﻿using AliceScript.Binding;
+using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
-using System.Runtime.CompilerServices;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -88,7 +88,7 @@ namespace AliceScript.NameSpaces.Core
             return ary.Tuple.Any(item => func.Invoke(item, script).AsBool());
         }
         #region 配列集計
-        public static double Average(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        public static double Avg(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
             return ary.Tuple.Average(item => func.Invoke(item, script).AsDouble());
         }
@@ -124,6 +124,10 @@ namespace AliceScript.NameSpaces.Core
         public static IEnumerable<Variable> Skip(this VariableCollection ary, int count)
         {
             return ary.Tuple.Skip(count);
+        }
+        public static IEnumerable<Variable> SkipLast(this VariableCollection ary, int count)
+        {
+            return ary.Tuple.SkipLast(count);
         }
         public static IEnumerable<Variable> SkipWhile(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
@@ -269,5 +273,18 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.TrueForAll(x => func.Invoke(x, script).AsBool());
         }
+
+        #region プロパティ
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static int Length(this VariableCollection ary)
+        {
+            return ary.Count;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static int Size(this VariableCollection ary)
+        {
+            return ary.Count;
+        }
+        #endregion
     }
 }

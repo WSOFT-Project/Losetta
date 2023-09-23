@@ -1,4 +1,6 @@
-﻿using AliceScript.Objects;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Objects;
 using AliceScript.Parsing;
 
 namespace AliceScript.NameSpaces.Core
@@ -25,5 +27,23 @@ namespace AliceScript.NameSpaces.Core
         {
             func.BeginInvoke(args.ToList(), script);
         }
+
+        #region プロパティ
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static int Length(this DelegateObject func)
+        {
+            return func.Length;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static int Size(this DelegateObject func)
+        {
+            return func.Length;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static string Name(this DelegateObject func)
+        {
+            return func.Name;
+        }
+        #endregion
     }
 }

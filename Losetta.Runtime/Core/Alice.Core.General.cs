@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using AliceScript.Functions;
 using AliceScript.Objects;
 
 namespace AliceScript.NameSpaces.Core
@@ -46,5 +47,36 @@ namespace AliceScript.NameSpaces.Core
         {
             return v.CompareTo(other);
         }
+        #region プロパティ
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static TypeObject Type(this Variable v)
+        {
+            return v.AsType();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static Variable Value(this Variable v)
+        {
+            if (v.IsNull())
+            {
+                throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL);
+            }
+            else
+            {
+                var result = v.Clone();
+                result.Nullable = false;
+                return result;
+            }
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static bool HasValue(this Variable v)
+        {
+            return !v.IsNull();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static IEnumerable<Variable> Properties(this Variable v)
+        {
+            return v.GetProperties();
+        }
+        #endregion
     }
 }

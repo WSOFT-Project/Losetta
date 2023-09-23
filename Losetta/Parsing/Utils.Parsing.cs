@@ -68,35 +68,6 @@ namespace AliceScript
             return value;
         }
 
-        public static List<string> GetTokens(ParsingScript script, char[] separators = null)
-        {
-            List<string> result = null;
-            if (separators != null)
-            {
-                result = new List<string>();
-                while (script.StillValid())
-                {
-                    bool isString = script.StartsWith("\"");
-                    var token = Utils.GetToken(script, separators);
-                    if (string.IsNullOrEmpty(token) || token == Constants.END_STATEMENT.ToString())
-                    {
-                        break;
-                    }
-                    if (isString)
-                    {
-                        token = "\"" + token + "\"";
-                    }
-                    result.Add(token);
-                }
-            }
-            else
-            {
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.END_STATEMENT.ToString());
-                result = GetCompiledArgs(body);
-            }
-            return result;
-        }
-
         public static string GetToken(ParsingScript script, char[] to, bool eatLast = false)
         {
             char curr = script.TryCurrent();
@@ -585,96 +556,7 @@ namespace AliceScript
             return (char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next)) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
-        public static List<string> GetCompiledArgs(string source)
-        {
-            StringBuilder sb = new StringBuilder(source.Length);
-            List<string> args = new List<string>();
-
-            bool inQuotes = false;
-            char prev = Constants.EMPTY;
-            char prevprev = Constants.EMPTY;
-            int angleBrackets = 0;
-            int curlyBrackets = 0;
-            int squareBrackets = 0;
-
-            for (int i = 0; i < source.Length; i++)
-            {
-                char ch = source[i];
-                switch (ch)
-                {
-                    case '“':
-                    case '”':
-                    case '„':
-                    case '"':
-                        ch = '"';
-                        if (prev != '\\' || prevprev == '\\')
-                        {
-                            inQuotes = !inQuotes;
-                        }
-                        break;
-                    case '<':
-                        if (!inQuotes)
-                        {
-                            angleBrackets++;
-                        }
-
-                        break;
-                    case '>':
-                        if (!inQuotes)
-                        {
-                            angleBrackets--;
-                        }
-
-                        break;
-                    case '{':
-                        if (!inQuotes)
-                        {
-                            curlyBrackets++;
-                        }
-
-                        break;
-                    case '}':
-                        if (!inQuotes)
-                        {
-                            curlyBrackets--;
-                        }
-
-                        break;
-                    case '[':
-                        if (!inQuotes)
-                        {
-                            squareBrackets++;
-                        }
-
-                        break;
-                    case ']':
-                        if (!inQuotes)
-                        {
-                            squareBrackets--;
-                        }
-
-                        break;
-                    case ',':
-                        if (inQuotes || angleBrackets > 0 || curlyBrackets > 0 || squareBrackets > 0)
-                        {
-                            break;
-                        }
-                        args.Add(sb.ToString());
-                        sb.Clear();
-                        prevprev = prev;
-                        prev = ch;
-                        continue;
-                }
-                sb.Append(ch);
-                prevprev = prev;
-                prev = ch;
-            }
-            if (sb.Length > 0)
-            {
-                args.Add(sb.ToString());
-            }
-            return args;
-        }
+      
         public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, out ParsingScript.ScriptSettings settings, string filename = "")
         {
             const string curlyErrorMsg = "波括弧が不均等です";
@@ -770,7 +652,6 @@ namespace AliceScript
                 {
                     continue;
                 }
-
 
                 switch (ch)
                 {

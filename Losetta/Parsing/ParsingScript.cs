@@ -893,9 +893,9 @@ namespace AliceScript.Parsing
         {
             return m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
         }
-        public char TryNext()
+        public char TryNext(int count = 1)
         {
-            return m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
+            return m_from + count < m_data.Length ? m_data[m_from + count] : Constants.EMPTY;
         }
         public char TryPrev(int count = 1)
         {

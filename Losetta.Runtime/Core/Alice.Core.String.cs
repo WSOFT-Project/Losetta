@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using System.Text;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -255,5 +257,18 @@ namespace AliceScript.NameSpaces.Core
         {
             return Encoding.GetEncoding(codepage).GetBytes(str);
         }
+
+        #region プロパティ
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static int Length(this string str)
+        {
+            return str.Length;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static int Size(this string str)
+        {
+            return str.Length;
+        }
+        #endregion
     }
 }
