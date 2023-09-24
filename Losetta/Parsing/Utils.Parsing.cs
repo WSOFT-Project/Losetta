@@ -946,6 +946,16 @@ namespace AliceScript
                                 sb.Append(Constants.END_STATEMENT);
                                 break;
                             }
+                        case Constants.DLL_IMPORT:
+                            {
+                                sb.Append('.');
+                                sb.Append(Constants.DLL_IMPORT);
+                                sb.Append(Constants.START_ARG);
+                                sb.Append(pragmaArgs);
+                                sb.Append(Constants.END_ARG);
+                                sb.Append(Constants.END_STATEMENT);
+                                break;
+                            }
                     }
 
                     pragmaCommand.Clear();

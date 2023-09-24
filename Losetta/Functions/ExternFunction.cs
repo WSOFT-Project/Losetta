@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using System.Reflection;
 
 namespace AliceScript.Functions
 {
@@ -50,12 +51,30 @@ namespace AliceScript.Functions
             }
 
             var prevfunc = e.Script.AttributeFunction;
-            if (prevfunc is not PInvokeFlagFunction info)
-            {
-                throw new ScriptException("外部定義関数は、#libimportと併用することでのみ使用できます", Exceptions.NONE);
-            }
 
-            BindFunction func = BindFunction.CreateExternBindFunction(funcName, info.LibraryName, returnType, args.ToArray(), info.EntryPoint, info.UseUnicode);
+            FunctionBase func;
+
+            if(prevfunc is DllImportFunction info)
+            {
+                func = BindFunction.CreateExternBindFunction(funcName, info.LibraryName, returnType, args.ToArray(), info.EntryPoint, info.UseUnicode);
+            }
+            else if(prevfunc is LibImportFunction libInfo)
+            {
+                if (libInfo.Class == null)
+                {
+                    throw new ScriptException("メソッドが存在する適切なクラスが見つかりませんでした", Exceptions.OBJECT_DOESNT_EXIST);
+                }
+                MethodInfo method = libInfo.Class.GetMethod(funcName , Constants.InvokeStringToType(args.ToArray()));
+                if (libInfo.Class == null)
+                {
+                    throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.COULDNT_FIND_VARIABLE);
+                }
+                func = BindFunction.CreateBindFunction(method);
+            }
+            else
+            {
+                throw new ScriptException("外部定義関数は、#libimportか#libimportと併用することでのみ使用できます", Exceptions.NONE);
+            }
 
             funcName = Constants.ConvertName(funcName);
 
@@ -73,11 +92,27 @@ namespace AliceScript.Functions
             }
         }
     }
-    internal class PInvokeFlagFunction : AttributeFunction
+    internal class LibImportFunction : AttributeFunction
     {
-        public PInvokeFlagFunction()
+        public LibImportFunction()
         {
             Name = "." + Constants.LIBRARY_IMPORT;
+            Run += PInvokeFlagFunction_Run;
+        }
+
+        private void PInvokeFlagFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            string locate = Utils.GetSafeString(e.Args, 1, null);
+            string typeName = (Utils.GetSafeString(e.Args, 0)) + (locate == null ? string.Empty : "," +locate);
+            Class = Type.GetType(typeName,false,true);
+        }
+        public Type Class { get; set; }
+    }
+    internal class DllImportFunction : AttributeFunction
+    {
+        public DllImportFunction()
+        {
+            Name = "." + Constants.DLL_IMPORT;
             Run += PInvokeFlagFunction_Run;
         }
 

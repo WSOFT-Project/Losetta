@@ -106,11 +106,26 @@ namespace AliceScript.Binding
 
             MethodInfo method = typBld.CreateType().GetMethod(procName);
 
+            try
+            {
+                // 一度正しく呼び出せるか試してみる
+                method.Invoke(null, null);
+            }
+            catch (TargetInvocationException)
+            {
+                throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.COULDNT_FIND_VARIABLE);
+            }
+            catch
+            {
+                // 他の例外の場合は呼び出せた
+            }
+
+
             return BindFunction.CreateBindFunction(method);
         }
-        public static BindFunction CreateBindFunction(MethodInfo methodInfo,bool needBind = false)
+        public static BindFunction CreateBindFunction(MethodInfo methodInfo, bool needBind = false)
         {
-            return CreateBindFunction(new HashSet<MethodInfo> { methodInfo},needBind);
+            return CreateBindFunction(new HashSet<MethodInfo> { methodInfo }, needBind);
         }
         /// <summary>
         /// メソッドからBindFunctionを生成
@@ -188,9 +203,7 @@ namespace AliceScript.Binding
         }
         private static Type GetTrueParametor(Type t)
         {
-            if (t.IsByRef)
-                return t.GetElementType();
-            return t;
+            return t.IsByRef ? t.GetElementType() : t;
         }
         private static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
         {

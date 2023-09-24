@@ -140,7 +140,8 @@ namespace AliceScript
             FunctionBaseManager.Add(new EnumFunction());
             FunctionBaseManager.Add(new ArrayTypeFunction());
             FunctionBaseManager.Add(new ExternFunction());
-            FunctionBaseManager.Add(new PInvokeFlagFunction(),"",null,true,true);
+            FunctionBaseManager.Add(new LibImportFunction(), "", null, true, true);
+            FunctionBaseManager.Add(new DllImportFunction(),"",null,true,true);
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }

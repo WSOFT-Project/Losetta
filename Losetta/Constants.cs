@@ -228,6 +228,7 @@ namespace AliceScript
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";
+        public const string DLL_IMPORT = "dllimport";
         public const string UNNEED_VAR = "unneed_var";
         public const string RESET_DEFINES = "reset_defines";
         //includeしたファイルにもシンボルを引き継ぐ
@@ -417,6 +418,8 @@ namespace AliceScript
         {
             switch (typeStr.ToUpperInvariant())
             {
+                case "VOID":
+                    return typeof(void);
                 case "HDC":
                 case "HWND":
                 case "HANDLE":
@@ -473,7 +476,11 @@ namespace AliceScript
                 case "DOUBLE":
                     return typeof(double);
                 default:
-                    return null;
+                    {
+                        // 関数のカンマと被るため[System.Console+System.Console]のようにする
+                        typeStr = typeStr.Replace('+',',');
+                        return Type.GetType(typeStr,false,true);
+                    }
             }
         }
         public static Type[] InvokeStringToType(string[] typeStrs)
