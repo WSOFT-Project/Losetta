@@ -593,24 +593,7 @@ namespace AliceScript.Functions
             DefineFunction(funcName, e.Script, Keywords);
         }
 
-        private static bool FunctionIsVirtual(string name, ParsingScript script)
-        {
-            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
-            {
-                if (impl.IsVirtual)
-                {
-                    return true;
-                }
-            }
-            if (s_functions.TryGetValue(name, out impl))
-            {
-                if (impl.IsVirtual)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        
     }
 
 }

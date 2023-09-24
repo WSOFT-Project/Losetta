@@ -95,6 +95,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Where(item => item.AsType().Equals(t));
         }
+        public static IEnumerable<Variable> Convert(this VariableCollection ary,TypeObject t)
+        {
+            return ary.Tuple.Select(item => item.Convert(t.Type));
+        }
         public static IEnumerable<Variable> Where(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
             return ary.Tuple.Where((item) => func.Invoke(item, script).AsBool());

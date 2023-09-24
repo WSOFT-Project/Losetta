@@ -174,6 +174,10 @@ namespace AliceScript.Parsing
         /// 現在実行中あるいは最後に実行された関数
         /// </summary>
         public FunctionBase ProcessingFunction { get; set; }
+        /// <summary>
+        /// ひとつ前に実行した関数
+        /// </summary>
+        public FunctionBase PrevProcessingFunction { get; set; }
 
         /// <summary>
         /// このスクリプトの現在の名前空間

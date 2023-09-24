@@ -643,7 +643,38 @@ namespace AliceScript
         {
             return Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : Bool;
         }
-
+        public virtual byte AsByte(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, byte.MinValue, byte.MaxValue);
+            }
+            return (byte)Value;
+        }
+        public virtual sbyte AsSByte(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, sbyte.MinValue, sbyte.MaxValue);
+            }
+            return (sbyte)Value;
+        }
+        public virtual short AsShort(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true,short.MinValue,short.MaxValue);
+            }
+            return (short)Value;
+        }
+        public virtual ushort AsUShort(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, ushort.MinValue, ushort.MaxValue);
+            }
+            return (ushort)Value;
+        }
         public virtual int AsInt(bool check = true)
         {
             if (check)
@@ -652,21 +683,25 @@ namespace AliceScript
             }
             return (int)Value;
         }
+        public virtual uint AsUInt(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true,uint.MinValue, uint.MaxValue);
+            }
+            return (uint)Value;
+        }
         public virtual nint AsNInt(bool check = true)
         {
             if (check)
             {
-                Utils.CheckNumInRange(this, true, 0);
+                Utils.CheckNumInRange(this, true, nint.MinValue, nint.MaxValue);
             }
             return (nint)Value;
         }
-        public virtual float AsFloat(bool check = true)
+        public virtual UIntPtr AsUNInt(bool check = true)
         {
-            if (check)
-            {
-                Utils.CheckNumber(this, null);
-            }
-            return (float)Value;
+            return new UIntPtr(AsUInt(check));
         }
         public virtual long AsLong(bool check = true)
         {
@@ -675,6 +710,22 @@ namespace AliceScript
                 Utils.CheckNumber(this, null);
             }
             return (long)Value;
+        }
+        public virtual ulong AsULong(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, ulong.MinValue, ulong.MaxValue);
+            }
+            return (ulong)Value;
+        }
+        public virtual float AsFloat(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumber(this, null);
+            }
+            return (float)Value;
         }
         public virtual double AsDouble(bool check = true)
         {
@@ -909,10 +960,20 @@ namespace AliceScript
                 //null許容値型かつnullでない場合、その型パラメーターについてチェックする
                 type = type.GetGenericArguments()[0];
             }
+            if(!type.IsValueType && isNull)
+            {
+                result = null;
+                return true;
+            }
             switch (Type)
             {
                 case VarType.STRING:
                     {
+                        if(type == typeof(StringBuilder))
+                        {
+                            result = new StringBuilder(String);
+                            return true;
+                        }
                         if (type is null || type == typeof(string))
                         {
                             result = String;
@@ -940,9 +1001,24 @@ namespace AliceScript
                     }
                 case VarType.NUMBER:
                     {
+                        if (type == typeof(byte))
+                        {
+                            result = AsByte();
+                            return true;
+                        }
                         if (type == typeof(int))
                         {
                             result = AsInt();
+                            return true;
+                        }
+                        if (type == typeof(uint))
+                        {
+                            result = AsUInt();
+                            return true;
+                        }
+                        if (type == typeof(UIntPtr))
+                        {
+                            result = AsUNInt();
                             return true;
                         }
                         if (type == typeof(nint))
@@ -958,6 +1034,11 @@ namespace AliceScript
                         if (type == typeof(long))
                         {
                             result = AsLong();
+                            return true;
+                        }
+                        if (type == typeof(ulong))
+                        {
+                            result = AsUInt();
                             return true;
                         }
                         if (type is null || type == typeof(double))

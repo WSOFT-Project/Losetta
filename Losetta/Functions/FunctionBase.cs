@@ -242,7 +242,8 @@ namespace AliceScript.Functions
         /// <param name="name">登録される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
         /// <param name="isGlobal">常にグローバルに登録する場合はtrue、それ以外の場合はfalse</param>
-        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false)
+        /// <param name="byPassCheck">識別子のチェックをバイパスする場合はtrue、それ以外の場合はfalse</param>
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false,bool byPassCheck =false)
         {
 
             string fname = func.Name;
@@ -250,7 +251,10 @@ namespace AliceScript.Functions
             {
                 fname = name;
             }
-            Utils.CheckLegalName(fname);
+            if (!byPassCheck)
+            {
+                Utils.CheckLegalName(fname);
+            }
             if (script == null || isGlobal)
             {
                 script = ParsingScript.GetTopLevelScript(script);

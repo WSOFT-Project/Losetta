@@ -936,6 +936,16 @@ namespace AliceScript
                                 Interpreter.Instance.AppendOutput(arg, true);
                                 break;
                             }
+                        case Constants.LIBRARY_IMPORT:
+                            {
+                                sb.Append('.');
+                                sb.Append(Constants.EXTERNAL);
+                                sb.Append(Constants.START_ARG);
+                                sb.Append(pragmaArgs);
+                                sb.Append(Constants.END_ARG);
+                                sb.Append(Constants.END_STATEMENT);
+                                break;
+                            }
                     }
 
                     pragmaCommand.Clear();

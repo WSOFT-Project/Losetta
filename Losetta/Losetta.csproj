@@ -25,6 +25,7 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageOutputPath>bin\packages</PackageOutputPath>
 		<AnalysisLevel>latest</AnalysisLevel>
+		<RootNamespace>AliceScript</RootNamespace>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">

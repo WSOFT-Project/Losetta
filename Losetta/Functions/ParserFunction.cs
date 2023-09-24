@@ -634,6 +634,24 @@ namespace AliceScript.Functions
             // If it is not defined locally, then check globally:
             return (script != null && script.TryGetLocal(item, out func)) || TryGetGlobal(item, out func, continueConst);
         }
+        public static bool FunctionIsVirtual(string name, ParsingScript script)
+        {
+            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            if (s_functions.TryGetValue(name, out impl))
+            {
+                if (impl.IsVirtual)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public static void AddGlobalOrLocalVariable(string name, GetVarFunction function,
             ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null, bool isReadOnly = false, bool fromAssign = false)

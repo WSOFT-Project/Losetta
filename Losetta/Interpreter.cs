@@ -6,6 +6,7 @@ using AliceScript.Packaging;
 using AliceScript.Parsing;
 using System.IO.Compression;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace AliceScript
@@ -138,6 +139,8 @@ namespace AliceScript
             FunctionBaseManager.Add(new FunctionCreator());
             FunctionBaseManager.Add(new EnumFunction());
             FunctionBaseManager.Add(new ArrayTypeFunction());
+            FunctionBaseManager.Add(new ExternFunction());
+            FunctionBaseManager.Add(new PInvokeFlagFunction(),"",null,true,true);
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }

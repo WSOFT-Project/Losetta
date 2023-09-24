@@ -8,27 +8,33 @@ namespace AliceScript.Objects
     /// </summary>
     public class DelegateObject
     {
-        public List<CustomFunction> m_fucntions = new List<CustomFunction>();
-        public List<CustomFunction> Functions
+        public List<FunctionBase> m_fucntions = new List<FunctionBase>();
+        public List<FunctionBase> Functions
         {
             get => m_fucntions;
             set => m_fucntions = value;
         }
-        public CustomFunction Function
+        public FunctionBase Function
         {
             get
             {
-                CustomFunction r = null;
+                FunctionBase r = null;
                 for (int i = 0; i < m_fucntions.Count; i++)
                 {
                     if (i == 0)
                     {
                         r = m_fucntions[i];
-                        r.Children = new HashSet<CustomFunction>();
+                        if(r is CustomFunction cf)
+                        {
+                            cf.Children = new HashSet<CustomFunction>();
+                        }
                     }
                     else
                     {
-                        r.Children.Add(m_fucntions[i]);
+                        if (r is CustomFunction cf && m_fucntions[i] is CustomFunction cf2)
+                        {
+                            cf.Children.Add(cf2);
+                        }
                     }
                 }
                 return r;
@@ -45,7 +51,7 @@ namespace AliceScript.Objects
         {
 
         }
-        public DelegateObject(CustomFunction func)
+        public DelegateObject(FunctionBase func)
         {
             m_fucntions.Add(func);
         }
@@ -53,7 +59,7 @@ namespace AliceScript.Objects
         {
             m_fucntions.AddRange(d.Functions);
         }
-        public void Add(CustomFunction func)
+        public void Add(FunctionBase func)
         {
             m_fucntions.Add(func);
         }
@@ -61,7 +67,7 @@ namespace AliceScript.Objects
         {
             m_fucntions.AddRange(d.Functions);
         }
-        public bool Remove(CustomFunction func)
+        public bool Remove(FunctionBase func)
         {
             return m_fucntions.Remove(func);
         }
@@ -76,7 +82,7 @@ namespace AliceScript.Objects
             }
             return true;
         }
-        public bool Contains(CustomFunction func)
+        public bool Contains(FunctionBase func)
         {
             return m_fucntions.Contains(func);
         }

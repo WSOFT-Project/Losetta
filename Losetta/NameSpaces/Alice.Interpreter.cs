@@ -1,8 +1,12 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
+using AliceScript.Interop;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 
 namespace AliceScript.NameSpaces
 {

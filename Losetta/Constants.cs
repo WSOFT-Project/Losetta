@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -66,6 +67,7 @@ namespace AliceScript
         public const string CONTINUE = "continue";
         public const string DEFAULT = "default";
         public const string DO = "do";
+        public const string EXTERNAL = "extern";
         public const string ELSE = "else";
         public const string ELSE_IF = "elif";
         public const string FOR = "for";
@@ -115,7 +117,7 @@ namespace AliceScript
 
         public const string PROP_TO_STRING = "ToString";
 
-        public static char[] EMPTY_AND_WHITE = new char[]{ ' ','\0','\n','\r','\t' };
+        public static char[] EMPTY_AND_WHITE = new char[] { ' ', '\0', '\n', '\r', '\t' };
 
         public static readonly string END_ARG_STR = END_ARG.ToString();
         public static readonly string NULL_ACTION = END_ARG.ToString();
@@ -222,9 +224,10 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY,EXTENSION }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION }).ToHashSet();
 
         // シンボル
+        public const string LIBRARY_IMPORT = "libimport";
         public const string UNNEED_VAR = "unneed_var";
         public const string RESET_DEFINES = "reset_defines";
         //includeしたファイルにもシンボルを引き継ぐ
@@ -249,7 +252,7 @@ namespace AliceScript
         /// <summary>
         /// 関数呼び出し時に丸括弧が不要な関数の名前
         /// </summary>
-        public static  readonly HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
+        public static readonly HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
             FUNCTION, NAMESPACE, NEW
@@ -409,6 +412,79 @@ namespace AliceScript
         {
             TryParseType(type, out Variable.VarType ptype);
             return ptype;
+        }
+        public static Type InvokeStringToType(string typeStr)
+        {
+            switch (typeStr.ToUpperInvariant())
+            {
+                case "HWND":
+                case "HANDLE":
+                case "INTPTR":
+                    return typeof(nint);
+                case "UINTPTR":
+                    return typeof(UIntPtr);
+                case "INT8":
+                case "SCHAR":
+                    return typeof(sbyte);
+                case "UINT":
+                case "UCHAR":
+                case "CHAR":
+                case "BYTE":
+                case "BOOLEAN":
+                    return typeof(byte);
+                case "INT16":
+                case "SHORT":
+                    return typeof(short);
+                case "UINT16":
+                case "USHORT":
+                case "WORD":
+                    return typeof(ushort);
+                case "INT32":
+                case "INT":
+                case "LONG32":
+                case "LONG":
+                    return typeof(int);
+                case "UINT32":
+                case "ULONG32":
+                case "ULONG":
+                case "DWORD":
+                    return typeof(uint);
+                case "INT64":
+                case "LONG64":
+                case "LONGLONG":
+                    return typeof(long);
+                case "UINT64":
+                case "ULONG64":
+                case "ULONGLONG":
+                    return typeof(ulong);
+                case "BOOL":
+                    return typeof(bool);
+                case "LPSTR":
+                case "LPTSTR":
+                    return typeof(StringBuilder);
+                case "LPCSTR":
+                case "LPCTSTR":
+                case "LPWSTR":
+                    return typeof(string);
+                case "FLOAT":
+                case "SINGLE":
+                    return typeof(float);
+                case "DOUBLE":
+                    return typeof(double);
+                default:
+                    return null;
+            }
+        }
+        public static Type[] InvokeStringToType(string[] typeStrs)
+        {
+            var types = new List<Type>();
+
+            foreach (string typeStr in typeStrs)
+            {
+                types.Add(InvokeStringToType(typeStr));
+            }
+
+            return types.ToArray();
         }
     }
 }

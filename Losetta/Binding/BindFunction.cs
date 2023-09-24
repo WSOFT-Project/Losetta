@@ -5,7 +5,9 @@ using AliceScript.Parsing;
 using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace AliceScript.Binding
 {
@@ -79,13 +81,44 @@ namespace AliceScript.Binding
             }
             return space;
         }
+        public static BindFunction CreateExternBindFunction(string procName, string libraryFile, string returnType, string[] parameterTypes, string entryPoint = null, bool? useUnicode = null)
+        {
+            string moduleName = Path.GetFileNameWithoutExtension(libraryFile.ToUpper());
+            AssemblyBuilder asmBld = AssemblyBuilder.DefineDynamicAssembly(
+                new AssemblyName("Invoke_Asm" + moduleName), AssemblyBuilderAccess.Run);
+
+            ModuleBuilder modBld = asmBld.DefineDynamicModule(
+                "Invoke_Mod" + moduleName);
+
+            TypeBuilder typBld = modBld.DefineType(
+                "Invoke_Class" + moduleName,
+                TypeAttributes.Public | TypeAttributes.Class);
+
+            MethodBuilder methodBuilder = typBld.DefinePInvokeMethod(
+                procName, libraryFile, entryPoint ?? procName,
+                MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.PinvokeImpl | MethodAttributes.HideBySig, CallingConventions.Standard,
+                Constants.InvokeStringToType(returnType), Constants.InvokeStringToType(parameterTypes),
+                CallingConvention.StdCall,
+                useUnicode.HasValue ? useUnicode.Value ? CharSet.Unicode : CharSet.Ansi : CharSet.Auto);
+            methodBuilder.SetImplementationFlags(MethodImplAttributes.PreserveSig);
+
+            typBld.CreateType().GetMethod(procName);
+
+            MethodInfo method = typBld.CreateType().GetMethod(procName);
+
+            return BindFunction.CreateBindFunction(method);
+        }
+        public static BindFunction CreateBindFunction(MethodInfo methodInfo,bool needBind = false)
+        {
+            return CreateBindFunction(new HashSet<MethodInfo> { methodInfo},needBind);
+        }
         /// <summary>
         /// メソッドからBindFunctionを生成
         /// </summary>
         /// <param name="methodInfos">同じメソッド名のオーバーロード</param>
         /// <param name="needBind">このメソッドをバインドするには属性が必要</param>
         /// <returns>生成されたFunctionBase</returns>
-        private static FunctionBase CreateBindFunction(HashSet<MethodInfo> methodInfos, bool needBind)
+        private static BindFunction CreateBindFunction(HashSet<MethodInfo> methodInfos, bool needBind)
         {
             var func = new BindFunction();
             foreach (var methodInfo in methodInfos)
