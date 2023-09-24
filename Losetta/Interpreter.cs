@@ -139,9 +139,9 @@ namespace AliceScript
             FunctionBaseManager.Add(new FunctionCreator());
             FunctionBaseManager.Add(new EnumFunction());
             FunctionBaseManager.Add(new ArrayTypeFunction());
-            FunctionBaseManager.Add(new ExternFunction());
+            FunctionBaseManager.Add(new ExternFunctionCreator());
             FunctionBaseManager.Add(new LibImportFunction(), "", null, true, true);
-            FunctionBaseManager.Add(new DllImportFunction(),"",null,true,true);
+            FunctionBaseManager.Add(new NetImportFunction(),"",null,true,true);
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }
@@ -152,12 +152,6 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.ASSIGNMENT, new AssignFunction());
             ParserFunction.AddAction(Constants.INCREMENT, new IncrementDecrementFunction());
             ParserFunction.AddAction(Constants.DECREMENT, new IncrementDecrementFunction());
-
-
-            for (int i = 0; i < Constants.OPER_ACTIONS.Length; i++)
-            {
-                ParserFunction.AddAction(Constants.OPER_ACTIONS[i], new OperatorAssignFunction());
-            }
         }
 
         public Variable ProcessFile(string filename, bool mainFile = false)

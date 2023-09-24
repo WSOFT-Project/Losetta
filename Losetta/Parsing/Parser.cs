@@ -680,15 +680,16 @@ namespace AliceScript.Parsing
             }
             switch (leftCell.Action)
             {
+                case "&":
+                    return new Variable(leftCell.Bool & rightCell.Bool);
                 case "&&":
-                    return new Variable(
-                        leftCell.Bool && rightCell.Bool);
+                    return new Variable(leftCell.Bool && rightCell.Bool);
+                case "|":
+                    return new Variable(leftCell.Bool | rightCell.Bool);
                 case "||":
-                    return new Variable(
-                         leftCell.Bool || rightCell.Bool);
+                    return new Variable(leftCell.Bool || rightCell.Bool);
                 case "^":
-                    return new Variable(
-                        leftCell.Bool ^ rightCell.Bool);
+                    return new Variable(leftCell.Bool ^ rightCell.Bool);
                 case null:
                 case "\0":
                 case ")":
@@ -728,6 +729,10 @@ namespace AliceScript.Parsing
                     return new Variable(leftCell.Value <= rightCell.Value);
                 case ">=":
                     return new Variable(leftCell.Value >= rightCell.Value);
+                case Constants.LEFT_SHIFT:
+                    return new Variable(leftCell.AsInt() << rightCell.AsInt());
+                case Constants.RIGHT_SHIFT:
+                    return new Variable(leftCell.AsInt() >> rightCell.AsInt());
                 case "&":
                     return new Variable((int)leftCell.Value & (int)rightCell.Value);
                 case "^":

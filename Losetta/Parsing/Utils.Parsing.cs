@@ -566,6 +566,9 @@ namespace AliceScript
 
             settings = new ParsingScript.ScriptSettings();
 
+            // 複合代入[x op= y;]を[x = x op y]に置き換える
+            source = Constants.COMPOUND_ASSIGN_PATTERN.Replace(source, "$1=$1$2$3");
+
             StringBuilder sb = new StringBuilder(source.Length);
 
             var pragmaCommand = new StringBuilder();
@@ -946,10 +949,10 @@ namespace AliceScript
                                 sb.Append(Constants.END_STATEMENT);
                                 break;
                             }
-                        case Constants.DLL_IMPORT:
+                        case Constants.NET_IMPORT:
                             {
                                 sb.Append('.');
-                                sb.Append(Constants.DLL_IMPORT);
+                                sb.Append(Constants.NET_IMPORT);
                                 sb.Append(Constants.START_ARG);
                                 sb.Append(pragmaArgs);
                                 sb.Append(Constants.END_ARG);

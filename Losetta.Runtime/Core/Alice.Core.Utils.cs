@@ -96,7 +96,7 @@ namespace AliceScript.NameSpaces.Core
             throw new ScriptException(exception.Message, exception.ErrorCode, s);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, int errorCode, string message)
+        public static void Throw(ParsingScript script,string message, int errorCode)
         {
             throw new ScriptException(message, (Exceptions)errorCode, script);
         }

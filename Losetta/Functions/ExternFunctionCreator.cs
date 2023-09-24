@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace AliceScript.Functions
 {
-    internal class ExternFunction : FunctionBase
+    internal class ExternFunctionCreator : FunctionBase
     {
-        public ExternFunction()
+        public ExternFunctionCreator()
         {
             Name = Constants.EXTERNAL;
             Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
@@ -54,11 +54,11 @@ namespace AliceScript.Functions
 
             FunctionBase func;
 
-            if(prevfunc is DllImportFunction info)
+            if(prevfunc is LibImportFunction info)
             {
                 func = BindFunction.CreateExternBindFunction(funcName, info.LibraryName, returnType, args.ToArray(), info.EntryPoint, info.UseUnicode);
             }
-            else if(prevfunc is LibImportFunction libInfo)
+            else if(prevfunc is NetImportFunction libInfo)
             {
                 if (libInfo.Class == null)
                 {
@@ -92,11 +92,11 @@ namespace AliceScript.Functions
             }
         }
     }
-    internal class LibImportFunction : AttributeFunction
+    internal class NetImportFunction : AttributeFunction
     {
-        public LibImportFunction()
+        public NetImportFunction()
         {
-            Name = "." + Constants.LIBRARY_IMPORT;
+            Name = "." + Constants.NET_IMPORT;
             Run += PInvokeFlagFunction_Run;
         }
 
@@ -108,11 +108,11 @@ namespace AliceScript.Functions
         }
         public Type Class { get; set; }
     }
-    internal class DllImportFunction : AttributeFunction
+    internal class LibImportFunction : AttributeFunction
     {
-        public DllImportFunction()
+        public LibImportFunction()
         {
-            Name = "." + Constants.DLL_IMPORT;
+            Name = "." + Constants.LIBRARY_IMPORT;
             Run += PInvokeFlagFunction_Run;
         }
 

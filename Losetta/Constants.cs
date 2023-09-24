@@ -45,7 +45,6 @@ namespace AliceScript
         public const string ARROW = "=>";
         public const string AND = "&&";
         public const string OR = "||";
-        public const string NOT = "!";
         public const string INCREMENT = "++";
         public const string DECREMENT = "--";
         public const string EQUAL = "==";
@@ -55,10 +54,11 @@ namespace AliceScript
         public const string LESS_EQ = "<=";
         public const string GREATER = ">";
         public const string GREATER_EQ = ">=";
-        public const string ADD_ASSIGN = "+=";
-        public const string SUBT_ASSIGN = "-=";
-        public const string MULT_ASSIGN = "*=";
-        public const string DIV_ASSIGN = "/=";
+
+        public const string NOT = "!";
+        public const string EXPONENTIATION = "**";
+        public const string LEFT_SHIFT = "<<";
+        public const string RIGHT_SHIFT = ">>";
 
         public const string BREAK = "break";
         public const string CASE = "case";
@@ -122,9 +122,9 @@ namespace AliceScript
         public static readonly string END_ARG_STR = END_ARG.ToString();
         public static readonly string NULL_ACTION = END_ARG.ToString();
 
-        public static readonly string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", ":", "??=", "=>" };
+        public static readonly string[] OPER_ACTIONS = { LABEL_OPERATOR,ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
-                                                "&&", "||", EQUAL,NOT_EQUAL, "<=", ">=", "++", "--", "**",
+                                                AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",NULL_OP,AS,IS_NOT,IS};
 
         public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
@@ -184,6 +184,11 @@ namespace AliceScript
         public static readonly Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
 
         /// <summary>
+        /// 複合代入式がとるパターン
+        /// </summary>
+        public static readonly Regex COMPOUND_ASSIGN_PATTERN = new Regex(@"(.*)([+-\\\\*/%^&|?])+=(.*)",RegexOptions.Compiled);
+
+        /// <summary>
         /// UTF16表現がとるパターン
         /// </summary>
         public static readonly Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
@@ -228,7 +233,7 @@ namespace AliceScript
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";
-        public const string DLL_IMPORT = "dllimport";
+        public const string NET_IMPORT = "netimport";
         public const string UNNEED_VAR = "unneed_var";
         public const string RESET_DEFINES = "reset_defines";
         //includeしたファイルにもシンボルを引き継ぐ
