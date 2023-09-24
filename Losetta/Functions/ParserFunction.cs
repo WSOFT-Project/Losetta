@@ -2,6 +2,7 @@
 using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Data;
 
 namespace AliceScript.Functions
 {
@@ -37,7 +38,7 @@ namespace AliceScript.Functions
                 keywords = new HashSet<string>();
             }
 
-            m_impl = CheckGroup(script, item, ch, ref action);
+            m_impl = CheckGroup(script,ref item, ch, ref action);
             if (m_impl != null)
             {
                 m_impl.Keywords = keywords;
@@ -107,19 +108,19 @@ namespace AliceScript.Functions
                 Utils.ProcessErrorMsg(item, script);
             }
         }
-        public static ParserFunction CheckGroup(ParsingScript script, string item, char ch, ref string action)
+        public static ParserFunction CheckGroup(ParsingScript script,ref string item, char ch, ref string action)
         {
             if (string.IsNullOrEmpty(item))
             {
-                int prePointer = script.Pointer;
                 string body = script.Prev == Constants.START_GROUP
                     ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET)
-                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG,";\0");
 
                 if (script.TryNext() == Constants.ARROW[0] && script.TryNext(2) == Constants.ARROW[1])
                 {
                     // このかっこはラムダ式のものだった
-                    script.Pointer = prePointer;
+                    action = Constants.ARROW;
+                    item = body;
                     return null;
                 }
                 else
@@ -311,7 +312,14 @@ namespace AliceScript.Functions
                     args = new string[] { };
                 }
 
+                script.MoveForwardIf(new char[] {Constants.END_ARG});
+
                 string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+
+                if (body.StartsWith(Constants.ARROW))
+                {
+                    body = body.Substring(Constants.ARROW.Length);
+                }
 
                 int parentOffset = script.Pointer;
                 if (script.CurrentClass != null)

@@ -87,24 +87,6 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Any(item => func.Invoke(item, script).AsBool());
         }
-        #region 配列集計
-        public static double Avg(this VariableCollection ary, ParsingScript script, DelegateObject func)
-        {
-            return ary.Tuple.Average(item => func.Invoke(item, script).AsDouble());
-        }
-        public static double Max(this VariableCollection ary, ParsingScript script, DelegateObject func)
-        {
-            return ary.Tuple.Max(item => func.Invoke(item, script).AsDouble());
-        }
-        public static double Min(this VariableCollection ary, ParsingScript script, DelegateObject func)
-        {
-            return ary.Tuple.Min(item => func.Invoke(item, script).AsDouble());
-        }
-        public static double Sum(this VariableCollection ary, ParsingScript script, DelegateObject func)
-        {
-            return ary.Tuple.Sum(item => func.Invoke(item, script).AsDouble());
-        }
-        #endregion
         public static bool SequenceEqual(this VariableCollection ary, Variable[] items)
         {
             return ary.Tuple.SequenceEqual(items);
@@ -174,22 +156,6 @@ namespace AliceScript.NameSpaces.Core
             return ary.Tuple.Intersect(items);
         }
 
-        public static Variable First(this VariableCollection ary)
-        {
-            return ary.Tuple.First();
-        }
-        public static Variable FirstOrDefault(this VariableCollection ary)
-        {
-            return ary.Tuple.FirstOrDefault();
-        }
-        public static Variable Last(this VariableCollection ary)
-        {
-            return ary.Tuple.Last();
-        }
-        public static Variable LastOrDefault(this VariableCollection ary)
-        {
-            return ary.Tuple.LastOrDefault();
-        }
         
         public static int IndexOf(this VariableCollection ary, Variable item)
         {
@@ -269,6 +235,28 @@ namespace AliceScript.NameSpaces.Core
                 }
             }
         }
+        #region 配列集計
+        public static double Avg(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        {
+            return ary.Tuple.Average(item => func.Invoke(item, script).AsDouble());
+        }
+        public static double Max(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        {
+            return ary.Tuple.Max(item => func.Invoke(item, script).AsDouble());
+        }
+        public static double Min(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        {
+            return ary.Tuple.Min(item => func.Invoke(item, script).AsDouble());
+        }
+        public static double Sum(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        {
+            return ary.Tuple.Sum(item => func.Invoke(item, script).AsDouble());
+        }
+        public static Variable Aggregate(this VariableCollection ary,ParsingScript script,DelegateObject func)
+        {
+            return ary.Tuple.Aggregate((result,current) => func.Invoke(new List<Variable> { result,current }, script));
+        }
+        #endregion
         #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
         public static int Length(this VariableCollection ary)
@@ -279,6 +267,36 @@ namespace AliceScript.NameSpaces.Core
         public static int Size(this VariableCollection ary)
         {
             return ary.Count;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static Variable First(this VariableCollection ary)
+        {
+            return ary.Tuple.First();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static Variable FirstOrDefault(this VariableCollection ary)
+        {
+            return ary.Tuple.FirstOrDefault();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static Variable Last(this VariableCollection ary)
+        {
+            return ary.Tuple.Last();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static Variable LastOrDefault(this VariableCollection ary)
+        {
+            return ary.Tuple.LastOrDefault();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static Variable Signle(this VariableCollection ary)
+        {
+            return ary.Tuple.Single();
+        }
+        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static Variable SignleOrDefault(this VariableCollection ary)
+        {
+            return ary.Tuple.SingleOrDefault();
         }
         #endregion
     }
