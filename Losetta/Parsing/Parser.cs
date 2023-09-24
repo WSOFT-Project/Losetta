@@ -106,8 +106,11 @@ namespace AliceScript.Parsing
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
                 if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is LiteralFunction)))
                 {
-                    script.PrevProcessingFunction = script.ProcessingFunction;
                     script.ProcessingFunction = fb;//現在処理中としてマーク
+                    if(fb is AttributeFunction af)
+                    {
+                        script.AttributeFunction = af;
+                    }
                 }
                 Variable current = func.GetValue(script);//関数を呼び出し
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))

@@ -177,7 +177,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// ひとつ前に実行した関数
         /// </summary>
-        public FunctionBase PrevProcessingFunction { get; set; }
+        public AttributeFunction AttributeFunction { get; set; }
 
         /// <summary>
         /// このスクリプトの現在の名前空間

@@ -417,6 +417,7 @@ namespace AliceScript
         {
             switch (typeStr.ToUpperInvariant())
             {
+                case "HDC":
                 case "HWND":
                 case "HANDLE":
                 case "INTPTR":
@@ -426,7 +427,6 @@ namespace AliceScript
                 case "INT8":
                 case "SCHAR":
                     return typeof(sbyte);
-                case "UINT":
                 case "UCHAR":
                 case "CHAR":
                 case "BYTE":
@@ -461,10 +461,11 @@ namespace AliceScript
                     return typeof(bool);
                 case "LPSTR":
                 case "LPTSTR":
-                    return typeof(StringBuilder);
                 case "LPCSTR":
                 case "LPCTSTR":
+                case "LPCWSTR":
                 case "LPWSTR":
+                case "STRING":
                     return typeof(string);
                 case "FLOAT":
                 case "SINGLE":

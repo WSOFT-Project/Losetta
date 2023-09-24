@@ -939,7 +939,7 @@ namespace AliceScript
                         case Constants.LIBRARY_IMPORT:
                             {
                                 sb.Append('.');
-                                sb.Append(Constants.EXTERNAL);
+                                sb.Append(Constants.LIBRARY_IMPORT);
                                 sb.Append(Constants.START_ARG);
                                 sb.Append(pragmaArgs);
                                 sb.Append(Constants.END_ARG);

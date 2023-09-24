@@ -183,6 +183,11 @@ namespace AliceScript
                 String = s;
                 return;
             }
+            if(o is StringBuilder sb)
+            {
+                String = sb.ToString();
+                return;
+            }
             if (o is bool b)
             {
                 Bool = b;
@@ -191,6 +196,16 @@ namespace AliceScript
             if (o is byte[] data)
             {
                 ByteArray = data;
+                return;
+            }
+            if (o is byte bt)
+            {
+                Value = bt;
+                return;
+            }
+            if (o is short sh)
+            {
+                Value = sh;
                 return;
             }
             if (o is double d)
@@ -203,9 +218,29 @@ namespace AliceScript
                 Value = i;
                 return;
             }
+            if(o is nint ni)
+            {
+                Value = ni;
+                return;
+            }
+            if (o is UIntPtr uni)
+            {
+                Value = uni.ToUInt64();
+                return;
+            }
+            if (o is uint ui)
+            {
+                Value = ui;
+                return;
+            }
             if (o is float f)
             {
                 Value = f;
+                return;
+            }
+            if (o is ulong ul)
+            {
+                Value = ul;
                 return;
             }
             if (o is long l)
@@ -943,6 +978,10 @@ namespace AliceScript
         /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
         public bool TryConvertTo(Type type, out object result)
         {
+            if (type.IsByRef)
+            {
+                type = type.GetElementType();
+            }
             if (type == typeof(Variable))
             {
                 result = this;

@@ -16,6 +16,8 @@ namespace AliceScript.Functions
             string returnType = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
 
+            Utils.CheckLegalName(funcName);
+
             bool? mode = null;
             bool isGlobal = e.Keywords.Contains(Constants.PUBLIC);
             bool isCommand = e.Keywords.Contains(Constants.COMMAND);
@@ -41,19 +43,21 @@ namespace AliceScript.Functions
                     args[i] = target.Substring(0, index);
                 }
             }
+
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = Array.Empty<string>();
             }
 
-
-            var prevfunc = e.Script.PrevProcessingFunction;
+            var prevfunc = e.Script.AttributeFunction;
             if (prevfunc is not PInvokeFlagFunction info)
             {
                 throw new ScriptException("外部定義関数は、#libimportと併用することでのみ使用できます", Exceptions.NONE);
             }
 
             BindFunction func = BindFunction.CreateExternBindFunction(funcName, info.LibraryName, returnType, args.ToArray(), info.EntryPoint, info.UseUnicode);
+
+            funcName = Constants.ConvertName(funcName);
 
             if (mode != null)
             {
@@ -69,12 +73,11 @@ namespace AliceScript.Functions
             }
         }
     }
-    internal class PInvokeFlagFunction : FunctionBase
+    internal class PInvokeFlagFunction : AttributeFunction
     {
         public PInvokeFlagFunction()
         {
-            Name = "." + Constants.EXTERNAL;
-            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
+            Name = "." + Constants.LIBRARY_IMPORT;
             Run += PInvokeFlagFunction_Run;
         }
 

@@ -196,6 +196,10 @@ namespace AliceScript.Functions
         }
 
     }
+    public class AttributeFunction : FunctionBase
+    {
+
+    }
     /// <summary>
     /// 関数の機能の種類を表します
     /// </summary>

@@ -163,7 +163,7 @@ namespace AliceScript.Binding
 
                 var args = Expression.Parameter(typeof(object[]), "args");
                 var parameters = load.TrueParameters.Select((x, index) =>
-                Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), x.ParameterType)).ToArray();
+                Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), GetTrueParametor(x.ParameterType))).ToArray();
                 if (methodInfo.ReturnType == typeof(void))
                 {
                     load.VoidFunc = Expression.Lambda<Action<object[]>>(
@@ -186,7 +186,12 @@ namespace AliceScript.Binding
 
             return func;
         }
-
+        private static Type GetTrueParametor(Type t)
+        {
+            if (t.IsByRef)
+                return t.GetElementType();
+            return t;
+        }
         private static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
         {
             attribute = null;
@@ -260,32 +265,33 @@ namespace AliceScript.Binding
                 int diff = 0;//TrueParametersとargsのインデックスのずれ
                 for (i = 0; i < TrueParameters.Length; i++)
                 {
-                    if (TrueParameters[i].ParameterType == typeof(FunctionBaseEventArgs))
+
+                    paramType = TrueParameters[i].ParameterType;
+
+                    if (paramType == typeof(FunctionBaseEventArgs))
                     {
                         diff++;
                         parametors.Add(e);
                         continue;
                     }
-                    if (TrueParameters[i].ParameterType == typeof(ParsingScript))
+                    if (paramType == typeof(ParsingScript))
                     {
                         diff++;
                         parametors.Add(e.Script);
                         continue;
                     }
-                    if (TrueParameters[i].ParameterType == typeof(BindFunction))
+                    if (paramType == typeof(BindFunction))
                     {
                         diff++;
                         parametors.Add(parent);
                         continue;
                     }
-                    if (TrueParameters[i].ParameterType == typeof(BindingOverloadFunction))
+                    if (paramType == typeof(BindingOverloadFunction))
                     {
                         diff++;
                         parametors.Add(this);
                         continue;
                     }
-
-                    paramType = TrueParameters[i].ParameterType;
                     if (i == 0 && IsMethod && e.CurentVariable != null)
                     {
                         diff++;
