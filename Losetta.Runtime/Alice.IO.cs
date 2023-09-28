@@ -5,6 +5,7 @@ using AliceScript.Parsing;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
 {
@@ -286,6 +287,26 @@ namespace AliceScript.NameSpaces
                     Directory_Copy(subdir.FullName, tempPath, copySubDirs);
                 }
             }
+        }
+        public static string[] Directory_Grep(string path,string pattern, string filePattern,bool ignoreCase = false)
+        {
+            Regex textPattern = new Regex(pattern,ignoreCase ?  RegexOptions.IgnoreCase : RegexOptions.None);
+            List<string> result = new List<string>();
+
+            foreach(string file in Directory.GetFiles(path,filePattern))
+            {
+                try
+                {
+                    string str = File.ReadAllText(file);
+                    if (textPattern.IsMatch(str))
+                    {
+                        result.Add(str);
+                    }
+                }
+                catch { }
+            }
+
+            return result.ToArray();
         }
         #endregion
         #region パス関連

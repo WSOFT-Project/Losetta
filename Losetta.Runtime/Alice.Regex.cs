@@ -1,4 +1,6 @@
 ﻿using AliceScript.Binding;
+using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
@@ -64,6 +66,17 @@ namespace AliceScript.NameSpaces
         {
             var reg = new Regex(pattern);
             return reg.Replace(input, replacement, 1);
+        }
+        public static string Regex_FromWildCard(string wildCard)
+        {
+            wildCard = Regex.Escape(wildCard);
+            wildCard = wildCard.Replace("\\*", ".*");
+            wildCard = wildCard.Replace("\\?", ".");
+            wildCard = wildCard.Replace("\\[", "[");
+            wildCard = wildCard.Replace("[!", "[^");
+            wildCard = wildCard.Replace("#", "\\d");
+
+            return $"^({wildCard})$";
         }
     }
 }

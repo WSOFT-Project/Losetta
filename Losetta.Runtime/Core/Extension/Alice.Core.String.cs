@@ -1,6 +1,7 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -244,6 +245,10 @@ namespace AliceScript.NameSpaces.Core
         public static string Indent(this string str, int indentLevel, string indentChar = " ")
         {
             return Repeat(indentChar, indentLevel) + str;
+        }
+        public static bool Like(this string str,string pattern)
+        {
+            return new Regex(RegexFunctions.Regex_FromWildCard(pattern)).IsMatch(str);
         }
         public static byte[] GetBytes(this string str)
         {
