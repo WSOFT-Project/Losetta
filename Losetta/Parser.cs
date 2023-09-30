@@ -554,7 +554,7 @@ namespace AliceScript
                     // If we cannot merge cells yet, go to the next cell and merge
                     // next cells first. E.g. if we have 1+2*3, we first merge next
                     // cells, i.e. 2*3, getting 6, and then we can merge 1+6.
-                    Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
+                    next = Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
                 }
 
                 current = MergeCells(current, next, script);

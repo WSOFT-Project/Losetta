@@ -194,7 +194,7 @@ namespace AliceScript.NameSpaces
             }
             else if (e.Args.Count == 1)
             {
-                AddOutput(e.Args[0].AsString(), e.Script, !m_write);
+                AddOutput(e.Args[0]?.AsString(), e.Script, !m_write);
             }
             else if (e.Args.Count > 0)
             {
