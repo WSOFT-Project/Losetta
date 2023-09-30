@@ -612,8 +612,8 @@ namespace AliceScript
 
             StringBuilder lastToken = new StringBuilder();
 
-            // ノンブレークスペースを使用している場合、すべてスペースに置き換える
-            // 詳細：https://en.wikipedia.org/wiki/Non-breaking_space
+            // Remove these two lines for quality time debugging in case the user has special
+            // spaces with code 160. See https://en.wikipedia.org/wiki/Non-breaking_space
             char extraSpace = Convert.ToChar(160);
             source = source.Replace(extraSpace, ' ');
 
@@ -626,11 +626,6 @@ namespace AliceScript
                 if (ch == Constants.EMPTY)
                 {
                     lastToken.Clear();
-                }
-
-                if (char.IsWhiteSpace(ch))
-                {
-                    ch = Constants.SPACE;
                 }
 
 
@@ -748,6 +743,7 @@ namespace AliceScript
                         {
                             sb.Append(ch);
                         }
+
                         continue;
                     case Constants.START_ARG:
                         if (!inQuotes && !inComments && (!inIf || If))
@@ -1002,8 +998,6 @@ namespace AliceScript
                     ThrowErrorMsg(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
                 }
             }
-
-
             return sb.ToString().Trim();
         }
 
