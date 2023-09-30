@@ -122,7 +122,7 @@ namespace AliceScript
         public static readonly string END_ARG_STR = END_ARG.ToString();
         public static readonly string NULL_ACTION = END_ARG.ToString();
 
-        public static readonly string[] OPER_ACTIONS = { LABEL_OPERATOR,ARROW };
+        public static readonly string[] OPER_ACTIONS = { LABEL_OPERATOR, ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
                                                 AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",NULL_OP,AS,IS_NOT,IS};

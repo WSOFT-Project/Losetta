@@ -273,6 +273,10 @@
         /// <summary>
         /// caseまたはdefaultブロックにbreakがありません。
         /// </summary>
-        CASE_BLOCK_MISSING_BREAK = 0x04a
+        CASE_BLOCK_MISSING_BREAK = 0x04a,
+        /// <summary>
+        /// 不明なエスケープ文字です
+        /// </summary>
+        UNKNOWN_ESCAPE_CHAR = 0x04b
     }
 }

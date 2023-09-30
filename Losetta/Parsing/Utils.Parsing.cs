@@ -556,7 +556,7 @@ namespace AliceScript
             return (char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next)) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
-      
+
         public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, out ParsingScript.ScriptSettings settings, string filename = "")
         {
             const string curlyErrorMsg = "波括弧が不均等です";
@@ -565,6 +565,9 @@ namespace AliceScript
             const string quoteErrorMsg = "クオーテーションが不均等です";
 
             settings = new ParsingScript.ScriptSettings();
+
+            // Unicodeコード表現を文字列に置き換える
+            source = ConvertUnicodeLiteral(source);
 
             // 複合代入[x op= y;]を[x = x op y]に置き換える
             source = Constants.COMPOUND_ASSIGN_PATTERN.Replace(source, "$1=$1$2$3");
@@ -609,8 +612,8 @@ namespace AliceScript
 
             StringBuilder lastToken = new StringBuilder();
 
-            // Remove these two lines for quality time debugging in case the user has special
-            // spaces with code 160. See https://en.wikipedia.org/wiki/Non-breaking_space
+            // ノンブレークスペースを使用している場合、すべてスペースに置き換える
+            // 詳細：https://en.wikipedia.org/wiki/Non-breaking_space
             char extraSpace = Convert.ToChar(160);
             source = source.Replace(extraSpace, ' ');
 
@@ -623,6 +626,11 @@ namespace AliceScript
                 if (ch == Constants.EMPTY)
                 {
                     lastToken.Clear();
+                }
+
+                if (char.IsWhiteSpace(ch))
+                {
+                    ch = Constants.SPACE;
                 }
 
 
@@ -711,7 +719,7 @@ namespace AliceScript
                             sb.Append('\\');
                         }
                         break;
-                    case ' ':
+                    case Constants.SPACE:
                         if (inQuotes)
                         {
                             sb.Append(ch);
@@ -740,7 +748,6 @@ namespace AliceScript
                         {
                             sb.Append(ch);
                         }
-
                         continue;
                     case Constants.START_ARG:
                         if (!inQuotes && !inComments && (!inIf || If))
@@ -997,7 +1004,7 @@ namespace AliceScript
             }
 
 
-            return ConvertUnicodeLiteral(sb.ToString().Trim());
+            return sb.ToString().Trim();
         }
 
         private static string ConvertUnicodeLiteral(string input)

@@ -107,7 +107,7 @@ namespace AliceScript.Parsing
                 if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is LiteralFunction)))
                 {
                     script.ProcessingFunction = fb;//現在処理中としてマーク
-                    if(fb is AttributeFunction af)
+                    if (fb is AttributeFunction af)
                     {
                         script.AttributeFunction = af;
                     }
@@ -258,7 +258,7 @@ namespace AliceScript.Parsing
             }
             current.ParsingToken = token;
 
-            if(current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
+            if (current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
             {
                 switch (preop)
                 {
@@ -597,7 +597,6 @@ namespace AliceScript.Parsing
         private static Variable Merge(Variable current, ref int index, List<Variable> listToMerge,
                                       ParsingScript script, bool mergeOneOnly = false)
         {
-
             while (index < listToMerge.Count)
             {
                 Variable next = listToMerge[index++];
@@ -605,7 +604,7 @@ namespace AliceScript.Parsing
                 while (!CanMergeCells(current, next))
                 {
                     // 優先順位が前後する場合、先に高いほうを演算する
-                    Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
+                    next = Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
                 }
 
                 current = MergeCells(current, next, script);
