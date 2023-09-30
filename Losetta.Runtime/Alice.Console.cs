@@ -1,5 +1,4 @@
 ﻿using AliceScript.Binding;
-using AliceScript.Functions;
 using System.Runtime.Versioning;
 
 namespace AliceScript.NameSpaces
@@ -34,94 +33,87 @@ namespace AliceScript.NameSpaces
             Console.MoveBufferArea(sourceLeft, sourceTop, sourceWidth, sourceHeight, targetLeft, targetTop);
         }
         #region プロパティ
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_BufferHeight()
+        public static int Console_BufferHeight
         {
-            return Console.BufferHeight;
+            get => Console.BufferHeight;
+            set => Console.BufferHeight = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_BufferWidth()
+        public static int Console_BufferWidth
         {
-            return Console.BufferWidth;
+            get => Console.BufferWidth;
+            set => Console.BufferWidth = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_CursorLeft()
+
+        public static int Console_CursorLeft
         {
-            return Console.CursorLeft;
+            get => Console.CursorLeft;
+            set => Console.CursorLeft = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_CursorSize()
+
+        public static int Console_CursorSize
         {
-            return Console.CursorSize;
+            get => Console.CursorSize;
+            set => Console.CursorSize = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_CursorTop()
+
+        public static int Console_CursorTop
         {
-            return Console.CursorTop;
+            get => Console.CursorTop;
+            set => Console.CursorTop = value;
         }
         [SupportedOSPlatform("windows")]
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static bool Console_CursorVisible()
+        public static bool Console_CursorVisible
         {
-            return Console.CursorVisible;
+            get => Console.CursorVisible;
+            set => Console.CursorVisible = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+
         [SupportedOSPlatform("windows")]
-        public static bool Console_CapsLock()
-        {
-            return Console.CapsLock;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static bool Console_CapsLock => Console.CapsLock;
+
         [SupportedOSPlatform("windows")]
-        public static bool Console_NumberLock()
-        {
-            return Console.NumberLock;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        public static bool Console_NumberLock => Console.NumberLock;
+
         [SupportedOSPlatform("windows")]
-        public static string Console_Title()
+        public static string Console_Title
         {
-            return Console.Title;
+            get => Console.Title;
+            set => Console.Title = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_WindowHeight()
+
+        public static int Console_WindowHeight
         {
-            return Console.WindowHeight;
+            get => Console.WindowHeight;
+            set => Console.WindowHeight = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_WindowWidth()
+
+        public static int Console_WindowWidth
         {
-            return Console.WindowWidth;
+            get => Console.WindowWidth;
+            set => Console.WindowWidth = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_LargestWindowHeight()
+
+        public static int Console_LargestWindowHeight => Console.LargestWindowHeight;
+        public static int Console_LargestWindowWidth => Console.LargestWindowWidth;
+        public static int Console_WindowLeft
         {
-            return Console.LargestWindowHeight;
+            get => Console.WindowLeft;
+            set => Console.WindowLeft = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_LargestWindowWidth()
+        public static int Console_WindowTop
         {
-            return Console.LargestWindowWidth;
+            get => Console.WindowTop;
+            set => Console.WindowTop = value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_WindowLeft()
+        public static int Console_BackgroundColor
         {
-            return Console.WindowLeft;
+            get => (int)Console.BackgroundColor;
+            set => Console.BackgroundColor = (ConsoleColor)value;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_WindowTop()
+        public static int Console_ForegroundColor
         {
-            return Console.WindowTop;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_BackgroundColor()
-        {
-            return (int)Console.BackgroundColor;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
-        public static int Console_ForegroundColor()
-        {
-            return (int)Console.ForegroundColor;
+            get => (int)Console.ForegroundColor;
+            set => Console.ForegroundColor = (ConsoleColor)value;
         }
         #endregion
         #region コンソール入力

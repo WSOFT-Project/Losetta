@@ -48,12 +48,12 @@ namespace AliceScript.NameSpaces.Core
             return v.CompareTo(other);
         }
         #region プロパティ
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static TypeObject Type(this Variable v)
         {
             return v.AsType();
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Value(this Variable v)
         {
             if (v.IsNull())
@@ -67,7 +67,7 @@ namespace AliceScript.NameSpaces.Core
                 return result;
             }
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static bool HasValue(this Variable v)
         {
             return !v.IsNull();

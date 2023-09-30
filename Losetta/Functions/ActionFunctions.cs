@@ -60,7 +60,7 @@ namespace AliceScript.Functions
             }
 
             ParserFunction.AddGlobalOrLocalVariable(m_name,
-                                                    new GetVarFunction(currentValue), e.Script);
+                                                    new ValueFunction(currentValue), e.Script);
             e.Return = new Variable(newValue);
         }
 

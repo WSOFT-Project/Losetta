@@ -25,6 +25,18 @@ namespace AliceScript.Binding
     }
 
     /// <summary>
+    /// AliceScriptで使用できるプロパティとして公開するプロパティ
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class AlicePropertyAttribute : Attribute
+    {
+        /// <summary>
+        /// プロパティの名前
+        /// </summary>
+        public string Name { get; set; }
+    }
+
+    /// <summary>
     /// AliceScriptの名前空間として公開するクラス
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]

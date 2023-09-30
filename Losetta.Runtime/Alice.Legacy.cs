@@ -61,7 +61,7 @@ namespace AliceScript.NameSpaces
             }
 
             ParserFunction.AddGlobalOrLocalVariable(varName,
-                                              new GetVarFunction(mapVar), e.Script);
+                                              new ValueFunction(mapVar), e.Script);
         }
     }
 
@@ -96,7 +96,7 @@ namespace AliceScript.NameSpaces
             }
 
             ParserFunction.AddGlobalOrLocalVariable(varName,
-                                                new GetVarFunction(mapVar), e.Script);
+                                                new ValueFunction(mapVar), e.Script);
         }
     }
 
@@ -158,7 +158,7 @@ namespace AliceScript.NameSpaces
             Variable result = baseValue.SetProperty(propName, propValue, e.Script);
 
             ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
-                                                    new GetVarFunction(baseValue), e.Script);
+                                                    new ValueFunction(baseValue), e.Script);
             e.Return = result;
         }
     }

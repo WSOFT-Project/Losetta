@@ -429,7 +429,7 @@ namespace AliceScript.NameSpaces.Core
                 string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 ParsingScript mainScript = script.GetTempScript(body);
                 ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new GetVarFunction(current), mainScript, false, registVar, false);
+                               new ValueFunction(current), mainScript, false, registVar, false);
                 Variable result = mainScript.Process(true);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
@@ -637,7 +637,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 foreach (var data in catches)
                 {
-                    GetVarFunction excMsgFunc = new GetVarFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
+                    ValueFunction excMsgFunc = new ValueFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
                     if (data.Filter != null)
                     {
                         ParsingScript filterScript = script.ParentScript.GetTempScript(data.Filter, func);

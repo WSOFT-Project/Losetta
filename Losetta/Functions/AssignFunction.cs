@@ -43,7 +43,7 @@ namespace AliceScript.Functions
                 }
             }
 
-            bool registVar = type_modifer != null || Keywords.Contains(Constants.VAR);
+            bool registVar = type_modifer != null ;
             bool registConst = Keywords.Contains(Constants.CONST);
             bool isGlobal = Keywords.Contains(Constants.PUBLIC);
             bool isReadOnly = Keywords.Contains(Constants.READONLY);
@@ -70,11 +70,11 @@ namespace AliceScript.Functions
                     {
                         if (isGlobal)
                         {
-                            ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new GetVarFunction(varValue));
+                            ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new ValueFunction(varValue));
                         }
                         else
                         {
-                            baseScript.Consts.Add(m_name, new GetVarFunction(varValue));
+                            baseScript.Consts.Add(m_name, new ValueFunction(varValue));
                         }
                         Variable retVar = varValue.DeepClone();
                         retVar.CurrentAssign = m_name;
@@ -89,11 +89,11 @@ namespace AliceScript.Functions
                     ExtendArray(array, arrayIndices, 0, varValue);
                     if (isGlobal)
                     {
-                        ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new GetVarFunction(varValue));
+                        ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new ValueFunction(varValue));
                     }
                     else
                     {
-                        baseScript.Consts.Add(m_name, new GetVarFunction(varValue));
+                        baseScript.Consts.Add(m_name, new ValueFunction(varValue));
                     }
                     return array;
                 }
@@ -117,7 +117,7 @@ namespace AliceScript.Functions
 
                 if (arrayIndices.Count == 0)
                 {
-                    ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(varValue), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly, true);
+                    ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly, true);
                     Variable retVar = varValue.DeepClone();
                     retVar.CurrentAssign = m_name;
                     return retVar;
@@ -130,7 +130,7 @@ namespace AliceScript.Functions
 
                 ExtendArray(array, arrayIndices, 0, varValue);
 
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new GetVarFunction(array), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly, true);
+                ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly, true);
                 return array;
             }
         }
@@ -168,8 +168,8 @@ namespace AliceScript.Functions
             baseValue.SetProperty(prop, varValue, script, name);
 
 
-            ParserFunction.AddGlobalOrLocalVariable(name, new GetVarFunction(baseValue), script);
-            //ParserFunction.AddGlobal(name, new GetVarFunction(baseValue), false);
+            ParserFunction.AddGlobalOrLocalVariable(name, new ValueFunction(baseValue), script);
+            //ParserFunction.AddGlobal(name, new ValueFunction(baseValue), false);
 
             return varValue.DeepClone();
         }

@@ -125,36 +125,19 @@ namespace AliceScript.NameSpaces
             return min;
         }
         #region 数学定数
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_Tau()
-        {
-            return Math.Tau;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_PI()
-        {
-            return Math.PI;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_E()
-        {
-            return Math.E;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_Infinity()
-        {
-            return double.PositiveInfinity;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_NaN()
-        {
-            return double.NaN;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_Epsilon()
-        {
-            return double.Epsilon;
-        }
+        public static double Math_Tau => Math.Tau;
+        public static double Math_PI => Math.PI;
+        public static double Math_E => Math.E;
+
+        public static double Math_Infinity => double.PositiveInfinity;
+        public static double Math_NegativeInfinity => double.NegativeInfinity;
+
+        public static double Math_NaN => double.NaN;
+
+        public static double Math_Epsilon => double.Epsilon;
+
+        public static double Math_MaxValue => double.MaxValue;
+        public static double Math_MinValue => double.MinValue;
         #endregion
         #region 端数処理
         public static double Math_Round(double x)

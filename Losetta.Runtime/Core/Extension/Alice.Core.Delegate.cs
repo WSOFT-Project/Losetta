@@ -29,17 +29,17 @@ namespace AliceScript.NameSpaces.Core
         }
 
         #region プロパティ
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Length(this DelegateObject func)
         {
             return func.Length;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Size(this DelegateObject func)
         {
             return func.Length;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static string Name(this DelegateObject func)
         {
             return func.Name;

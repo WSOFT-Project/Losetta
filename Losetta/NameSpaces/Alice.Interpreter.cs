@@ -66,7 +66,7 @@ namespace AliceScript.NameSpaces
         }
         public static Variable Interpreter_GetVariable(ParsingScript script, string name)
         {
-            return (script.TryGetVariable(name, out ParserFunction impl) || ParserFunction.s_functions.TryGetValue(name, out impl)) && impl is GetVarFunction vf
+            return (script.TryGetVariable(name, out ParserFunction impl) || ParserFunction.s_functions.TryGetValue(name, out impl)) && impl is ValueFunction vf
                 ? vf.Value
                 : throw new ScriptException("指定された名前の変数は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
         }
@@ -331,7 +331,7 @@ namespace AliceScript.NameSpaces
             public Interpreter_ScriptObject Host { get; set; }
             private void Interpreter_ScriptObject_GetVariable_Run(object sender, FunctionBaseEventArgs e)
             {
-                if (Host.Script.TryGetVariable(e.Args[0].AsString(), out ParserFunction impl) && impl is GetVarFunction vf)
+                if (Host.Script.TryGetVariable(e.Args[0].AsString(), out ParserFunction impl) && impl is ValueFunction vf)
                 {
                     e.Return = vf.Value;
                 }
@@ -349,7 +349,7 @@ namespace AliceScript.NameSpaces
             public Interpreter_ScriptObject Host { get; set; }
             private void Interpreter_ScriptObject_GetVariable_Run(object sender, FunctionBaseEventArgs e)
             {
-                if (Host.Script.TryGetConst(e.Args[0].AsString(), out ParserFunction impl) && impl is GetVarFunction vf)
+                if (Host.Script.TryGetConst(e.Args[0].AsString(), out ParserFunction impl) && impl is ValueFunction vf)
                 {
                     e.Return = vf.Value;
                 }

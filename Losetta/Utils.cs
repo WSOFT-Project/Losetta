@@ -204,7 +204,7 @@ namespace AliceScript
             return lines;
         }
 
-        public static GetVarFunction ExtractArrayElement(string token, ParsingScript script)
+        public static ValueFunction ExtractArrayElement(string token, ParsingScript script)
         {
             if (!token.Contains(Constants.START_ARRAY))
             {
@@ -213,7 +213,7 @@ namespace AliceScript
 
             ParsingScript tempScript = script.GetTempScript(token);
             Variable result = tempScript.Execute();
-            return new GetVarFunction(result);
+            return new ValueFunction(result);
         }
 
 

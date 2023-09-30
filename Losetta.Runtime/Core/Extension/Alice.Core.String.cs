@@ -264,12 +264,12 @@ namespace AliceScript.NameSpaces.Core
         }
 
         #region プロパティ
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Length(this string str)
         {
             return str.Length;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Size(this string str)
         {
             return str.Length;

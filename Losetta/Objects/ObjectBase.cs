@@ -182,7 +182,7 @@ namespace AliceScript.Objects
         {
             if (obj != null)
             {
-                ParserFunction.RegisterFunction(obj.Name, new GetVarFunction(new Variable(obj)), true);
+                ParserFunction.RegisterFunction(obj.Name, new ValueFunction(new Variable(obj)), true);
             }
         }
     }

@@ -272,7 +272,7 @@ namespace AliceScript.Functions
                 {
                     var val = new Variable();
                     val.Assign(entry.Value);
-                    var arg = new GetVarFunction(val);
+                    var arg = new ValueFunction(val);
                     arg.Name = entry.Key;
                     //m_VarMap[entry.Key] = arg;
                     script.Variables[entry.Key] = arg;
@@ -291,7 +291,7 @@ namespace AliceScript.Functions
                         val.Assign(argx);
                         parmsarg.Tuple.Add(val);
                     }
-                    var arg = new GetVarFunction(parmsarg);
+                    var arg = new ValueFunction(parmsarg);
                     arg.Name = m_args[i];
                     //m_VarMap[m_args[i]] = arg;
                     script.Variables[m_args[i]] = arg;
@@ -316,7 +316,7 @@ namespace AliceScript.Functions
                         val = new Variable();
                         val.Assign(args[i]);
                     }
-                    var arg = new GetVarFunction(val);
+                    var arg = new ValueFunction(val);
                     arg.Name = m_args[i];
                     //m_VarMap[m_args[i]] = arg;
                     script.Variables[m_args[i]] = arg;
@@ -342,7 +342,7 @@ namespace AliceScript.Functions
                     val = new Variable();
                     val.Assign(args[i]);
                 }
-                var arg = new GetVarFunction(val);
+                var arg = new ValueFunction(val);
                 if (i + 1 > m_args.Length)
                 {
                     throw new ScriptException($"関数 `{m_name}`は、{m_args.Length}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);

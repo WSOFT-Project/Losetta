@@ -262,42 +262,42 @@ namespace AliceScript.NameSpaces.Core
         }
         #endregion
         #region プロパティ
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Length(this VariableCollection ary)
         {
             return ary.Count;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Size(this VariableCollection ary)
         {
             return ary.Count;
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable First(this VariableCollection ary)
         {
             return ary.Tuple.First();
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable FirstOrDefault(this VariableCollection ary)
         {
             return ary.Tuple.FirstOrDefault();
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Last(this VariableCollection ary)
         {
             return ary.Tuple.Last();
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable LastOrDefault(this VariableCollection ary)
         {
             return ary.Tuple.LastOrDefault();
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Signle(this VariableCollection ary)
         {
             return ary.Tuple.Single();
         }
-        [AliceFunction(Attribute = FunctionAttribute.PROPERTY)]
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable SignleOrDefault(this VariableCollection ary)
         {
             return ary.Tuple.SingleOrDefault();

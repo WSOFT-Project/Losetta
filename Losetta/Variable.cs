@@ -168,6 +168,11 @@ namespace AliceScript
         }
         public Variable(object o)
         {
+            if(o == null)
+            {
+                AssignNull();
+                return;
+            }
             if (o is Variable v)
             {
                 Assign(v);
