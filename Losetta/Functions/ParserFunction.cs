@@ -587,11 +587,6 @@ namespace AliceScript.Functions
                             return fc.NewInstance();
                         }
                     }
-                    var cc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
-                    if (cc != null)
-                    {
-                        return new ValueFunction(new Variable(new TypeObject(cc)));
-                    }
                 }
             }
             string className = Constants.ConvertName(name);
@@ -599,7 +594,7 @@ namespace AliceScript.Functions
             var csClass = AliceScriptClass.GetClass(className, script);
             return csClass != null ? new ValueFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
         }
-        private static ParserFunction GetFromNS(string name, ParsingScript script)
+        internal static ParserFunction GetFromNS(string name, ParsingScript script)
         {
             foreach (var nm in script.UsingNamespaces)
             {
@@ -607,11 +602,6 @@ namespace AliceScript.Functions
                 if (fc != null)
                 {
                     return fc;
-                }
-                var cc = nm.Classes.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                if (cc != null)
-                {
-                    return new ValueFunction(new Variable(new TypeObject(cc)));
                 }
             }
             return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;

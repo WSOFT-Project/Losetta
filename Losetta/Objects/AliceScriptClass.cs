@@ -116,11 +116,6 @@ namespace AliceScript.Objects
             {
                 return theClass;
             }
-            var cls = GetFromNS(name, script);
-            if (cls != null)
-            {
-                return cls;
-            }
 
             //ちょっとでも高速化（ここのロジックは時間がかかる）
             if (name.Contains('.', StringComparison.Ordinal))
@@ -139,29 +134,16 @@ namespace AliceScript.Objects
                 //完全修飾名で関数を検索
                 if (!string.IsNullOrEmpty(namespacename))
                 {
-                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
+                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.EndsWith(x.Name.ToLowerInvariant(), StringComparison.Ordinal) && x is ValueFunction v && v.Value.Object is ObjectBase).FirstOrDefault();
                     if (cfc != null)
                     {
-                        return cfc;
+                        return (cfc as ValueFunction).Value.Object as ObjectBase;
                     }
                 }
             }
 
             return null;
         }
-        private static AliceScriptClass GetFromNS(string name, ParsingScript script)
-        {
-            foreach (NameSpace ns in script.UsingNamespaces)
-            {
-                var fc = ns.Classes.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                if (fc != null)
-                {
-                    return fc;
-                }
-            }
-            return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;
-        }
-
         private static Dictionary<string, AliceScriptClass> s_allClasses =
             new Dictionary<string, AliceScriptClass>();
         private Dictionary<int, CustomFunction> m_constructors =

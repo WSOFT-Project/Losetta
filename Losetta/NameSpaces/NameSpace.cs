@@ -1,6 +1,7 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
 using AliceScript.Objects;
+using System.Xml.Linq;
 
 namespace AliceScript.NameSpaces
 {
@@ -58,7 +59,6 @@ namespace AliceScript.NameSpaces
         }
         public string Name { get; set; }
         public List<FunctionBase> Functions = new List<FunctionBase>();
-        public List<ObjectBase> Classes = new List<ObjectBase>();
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
         public void Add(FunctionBase func)
         {
@@ -68,19 +68,18 @@ namespace AliceScript.NameSpaces
         public void Add(ObjectBase obj)
         {
             obj.Namespace = Name;
-            Classes.Add(obj);
             Functions.Add(new ValueFunction(new Variable(new TypeObject(obj))));
         }
         public void Add<T>()
         {
-            NameSpaces.NameSpaceManager.Add(typeof(T));
+            Add(Utils.CreateBindObject(typeof(T)));
         }
         public void Add(string name, string val)
         {
             Enums.Add(name, val);
         }
 
-        public int Count => Functions.Count + Classes.Count;
+        public int Count => Functions.Count;
         /// <summary>
         /// 現在の名前空間にもう一方の名前空間をマージします。ただし、列挙体はマージされません。
         /// </summary>
@@ -88,7 +87,6 @@ namespace AliceScript.NameSpaces
         public void Merge(NameSpace other)
         {
             Functions = Functions.Union(other.Functions).ToList();
-            Classes = Classes.Union(other.Classes).ToList();
         }
     }
 

@@ -22,14 +22,10 @@ namespace AliceScript.NameSpaces
         {
             NetLibraryLoader.LoadLibrary(rawAsm);
         }
-        public static TypeObject Interop_GetType(string typaname,string locate = null)
+        public static TypeObject Interop_GetType(string typaname, string locate = null)
         {
             var t = Type.GetType(typaname + (locate == null ? string.Empty : "," + locate));
-            if (t != null)
-            {
-                return new TypeObject(Utils.CreateBindObject(t));
-            }
-            return null;
+            return t != null ? new TypeObject(Utils.CreateBindObject(t)) : null;
         }
         public static DelegateObject Interop_GetInvoker(string procName, string libraryName, string returnType, string[] parameterTypes, string entryPoint = null, bool? useUnicode = null)
         {
