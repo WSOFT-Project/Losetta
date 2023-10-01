@@ -1,11 +1,8 @@
 ﻿using AliceScript.Functions;
-using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace AliceScript.Binding
 {
@@ -26,13 +23,30 @@ namespace AliceScript.Binding
             {
                 if ((!wantMethod || load.IsMethod) && load.TryConvertParameters(e, this, out var args))
                 {
-                    if (load.IsVoidFunc)
+                    if (load.IsInstanceFunc)
                     {
-                        load.VoidFunc.Invoke(args);
+                        if (Instance != null)
+                        {
+                            if (load.IsVoidFunc)
+                            {
+                                load.InstanceVoidFunc.Invoke(Instance, args);
+                            }
+                            else
+                            {
+                                e.Return = new Variable(load.InstanceObjFunc.Invoke(Instance, args));
+                            }
+                        }
                     }
                     else
                     {
-                        e.Return = new Variable(load.ObjFunc.Invoke(args));
+                        if (load.IsVoidFunc)
+                        {
+                            load.VoidFunc.Invoke(args);
+                        }
+                        else
+                        {
+                            e.Return = new Variable(load.ObjFunc.Invoke(args));
+                        }
                     }
                     return;
                 }
@@ -52,7 +66,7 @@ namespace AliceScript.Binding
             foreach (var methodInfo in methodInfos)
             {
                 string name = methodInfo.Name;
-                if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
+                if (Utils.TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {
                     if (attribute.Name != null)
                     {
@@ -90,42 +104,109 @@ namespace AliceScript.Binding
                 load.MinimumArgCounts = i;
 
                 var args = Expression.Parameter(typeof(object[]), "args");
+                var instance = Expression.Parameter(typeof(object), "instance");
                 var parameters = load.TrueParameters.Select((x, index) =>
                 Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), Utils.GetTrueParametor(x.ParameterType))).ToArray();
                 if (methodInfo.ReturnType == typeof(void))
                 {
-                    load.VoidFunc = Expression.Lambda<Action<object[]>>(
-                    Expression.Convert(
-                        Expression.Call(methodInfo, parameters),
-                        typeof(void)),
-                    args).Compile();
+                    if (methodInfo.IsStatic)
+                    {
+                        load.VoidFunc = Expression.Lambda<Action<object[]>>(
+                        Expression.Convert(
+                            Expression.Call(methodInfo, parameters),
+                            typeof(void)),
+                        args).Compile();
+                    }
+                    else
+                    {
+                        load.InstanceVoidFunc = Expression.Lambda<Action<object, object[]>>(
+                        Expression.Convert(
+                            Expression.Call(Expression.Convert(instance, methodInfo.DeclaringType), methodInfo, parameters),
+                            typeof(void)),
+                        instance , args).Compile();
+                        load.IsInstanceFunc = true;
+                    }
                     load.IsVoidFunc = true;
                 }
                 else
                 {
-                    load.ObjFunc = Expression.Lambda<Func<object[], object>>(
-                    Expression.Convert(
-                        Expression.Call(methodInfo, parameters),
-                        typeof(object)),
-                    args).Compile();
+                    if (methodInfo.IsStatic)
+                    {
+                        load.ObjFunc = Expression.Lambda<Func<object[], object>>(
+                        Expression.Convert(
+                            Expression.Call(methodInfo, parameters),
+                            typeof(object)),
+                        args).Compile();
+                    }
+                    else
+                    {
+                        load.InstanceObjFunc = Expression.Lambda<Func<object, object[], object>>(
+                        Expression.Convert(
+                            Expression.Call(Expression.Convert(instance, methodInfo.DeclaringType), methodInfo, parameters),
+                            typeof(object)),
+                        instance , args).Compile();
+                        load.IsInstanceFunc = true;
+                    }
                 }
                 func.Overloads.Add(load);
             }
 
             return func;
         }
-        internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
+        internal static BindFunction CreateBindConstructor(ConstructorInfo[] constructors)
         {
-            attribute = null;
-            var attr = System.Attribute.GetCustomAttributes(memberInfo, typeof(T));
-            if (attr.Length > 0)
+            var func = new BindFunction();
+            foreach (var methodInfo in constructors)
             {
-                attribute = attr[0] as T;
-                return true;
+                string name = methodInfo.Name;
+                if (Utils.TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
+                {
+                    if (attribute.Name != null)
+                    {
+                        name = attribute.Name;
+                    }
+                    if (attribute.MethodOnly)
+                    {
+                        func.MethodOnly = true;
+                    }
+                    func.Attribute = attribute.Attribute;
+                }
+                func.Name = name;
+                var load = new BindingOverloadFunction();
+                load.TrueParameters = methodInfo.GetParameters();
+
+                if (load.TrueParameters.Length > 0)
+                {
+                    load.HasParams = load.TrueParameters[^1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
+                    load.IsMethod = methodInfo.IsDefined(typeof(ExtensionAttribute), true);
+                    func.RequestType = load.IsMethod ? new TypeObject() : null;
+                }
+                int i = 0;
+                for (; i < load.TrueParameters.Length; i++)
+                {
+                    if (load.TrueParameters[i].HasDefaultValue)
+                    {
+                        break;
+                    }
+                }
+                load.MinimumArgCounts = i;
+
+                var args = Expression.Parameter(typeof(object[]), "args");
+                var instance = Expression.Parameter(typeof(object), "instance");
+                var parameters = load.TrueParameters.Select((x, index) =>
+                Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), Utils.GetTrueParametor(x.ParameterType))).ToArray();
+                load.ObjFunc = Expression.Lambda<Func<object[], object>>(
+                Expression.Convert(
+                    Expression.New(methodInfo, parameters),
+                    typeof(object)),
+                args).Compile();
+                func.Overloads.Add(load);
             }
-            return false;
+
+            return func;
         }
 
         private SortedSet<BindingOverloadFunction> Overloads = new SortedSet<BindingOverloadFunction>();
+        public object Instance { get; set; }
     }
 }

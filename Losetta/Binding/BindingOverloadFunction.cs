@@ -23,7 +23,10 @@ namespace AliceScript.Binding
         public ParameterInfo[] TrueParameters { get; set; }
         public Action<object[]> VoidFunc { get; set; }
         public Func<object[], object> ObjFunc { get; set; }
+        public Action<object,object[]> InstanceVoidFunc { get; set; }
+        public Func<object, object[], object> InstanceObjFunc { get; set; }
         public bool IsVoidFunc { get; set; }
+        public bool IsInstanceFunc { get; set; }
         public bool IsMethod { get; set; }
 
         public int CompareTo(BindingOverloadFunction other)

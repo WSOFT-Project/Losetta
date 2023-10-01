@@ -35,6 +35,21 @@ namespace AliceScript.Binding
         /// </summary>
         public string Name { get; set; }
     }
+    /// <summary>
+     /// AliceScriptで使用できるオブジェクトとして公開するクラス
+     /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class AliceObjectAttribute : Attribute
+    {
+        /// <summary>
+        /// オブジェクトの名前
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// オブジェクトの所属する名前空間
+        /// </summary>
+        public string NameSpace { get; set; }
+    }
 
     /// <summary>
     /// AliceScriptの名前空間として公開するクラス

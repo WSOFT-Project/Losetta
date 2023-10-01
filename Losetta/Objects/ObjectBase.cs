@@ -5,7 +5,6 @@ namespace AliceScript.Objects
 {
     public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
-
         public Dictionary<string, FunctionBase> Functions
         {
             get => m_customFunctions;
@@ -56,7 +55,7 @@ namespace AliceScript.Objects
                     return impl;
                 }
             }
-            var obase = (ObjectBase)Activator.CreateInstance(GetType());
+            var obase = (ObjectBase)this.MemberwiseClone();  //(ObjectBase)Activator.CreateInstance(GetType());
             obase.Namespace = Namespace;
             return new Variable(obase);
         }

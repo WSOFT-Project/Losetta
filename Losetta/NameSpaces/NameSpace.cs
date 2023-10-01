@@ -26,6 +26,17 @@ namespace AliceScript.NameSpaces
         {
             Add(Utils.BindToNameSpace(type), name);
         }
+        public static void AddObj(Type type,string name = null)
+        {
+            var obj = Utils.CreateBindObject(type);
+            if (name == null) { name = obj.Namespace; }
+            if (string.IsNullOrEmpty(name)) { name = Constants.TOP_NAMESPACE; }
+            if (!NameSpaces.ContainsKey(name))
+            {
+                Add(new NameSpace(name));
+            }
+            NameSpaces[name].Add(obj);
+        }
         public static bool Contains(NameSpace name)
         {
             return NameSpaces.ContainsValue(name);
@@ -58,6 +69,7 @@ namespace AliceScript.NameSpaces
         {
             obj.Namespace = Name;
             Classes.Add(obj);
+            Functions.Add(new ValueFunction(new Variable(new TypeObject(obj))));
         }
         public void Add(string name, string val)
         {

@@ -89,6 +89,10 @@ namespace AliceScript.Functions
             }
 
             m_impl = GetVariable(item, script, false, keywords);
+            if(keywords.Contains(Constants.NEW) && m_impl is ValueFunction vf && vf.Value.Object is TypeObject t)
+            {
+                m_impl = new ConstructorFunction(t);
+            }
             if (m_impl != null)
             {
                 m_impl.Keywords = keywords;
@@ -435,7 +439,7 @@ namespace AliceScript.Functions
 
         public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
         {
-            if (!force && script != null && script.TryPrev() == Constants.START_ARG)
+            if (!force && script != null && script.TryPrev() == Constants.START_ARG && !keywords.Contains(Constants.NEW))
             {
                 return GetFunction(name, script);
             }

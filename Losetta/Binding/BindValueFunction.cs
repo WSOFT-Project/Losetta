@@ -17,7 +17,14 @@ namespace AliceScript.Binding
         {
             if (Get != null)
             {
-                e.Value = new Variable(Get.ObjFunc.Invoke(new object[] { }));
+                if (Get.IsInstanceFunc)
+                {
+                    e.Value = new Variable(Get.InstanceObjFunc.Invoke(Instance,new object[] { }));
+                }
+                else
+                {
+                    e.Value = new Variable(Get.ObjFunc.Invoke(new object[] { }));
+                }
                 return;
             }
             throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
@@ -32,7 +39,14 @@ namespace AliceScript.Binding
 
                 if (Set.TryConvertParameters(ex, this, out var args))
                 {
-                    Set.VoidFunc.Invoke(args);
+                    if (Set.IsInstanceFunc)
+                    {
+                        Set.InstanceVoidFunc.Invoke(Instance,args);
+                    }
+                    else
+                    {
+                        Set.VoidFunc.Invoke(args);
+                    }
                     return;
                 }
 
@@ -42,5 +56,6 @@ namespace AliceScript.Binding
 
         public BindingOverloadFunction Set { get; set; }
         public BindingOverloadFunction Get { get; set; }
+        public object Instance { get; set; }
     }
 }

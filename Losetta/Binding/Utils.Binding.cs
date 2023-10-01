@@ -1,5 +1,6 @@
 ﻿using AliceScript.Binding;
 using AliceScript.NameSpaces;
+using AliceScript.Objects;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -19,7 +20,7 @@ namespace AliceScript
         {
             var space = new NameSpace(type.Name);
             bool needbind = false;
-            if (BindFunction.TryGetAttibutte<AliceNameSpaceAttribute>(type, out var attribute))
+            if (TryGetAttibutte<AliceNameSpaceAttribute>(type, out var attribute))
             {
                 if (attribute.Name != null)
                 {
@@ -136,7 +137,7 @@ namespace AliceScript
         /// </summary>
         /// <param name="methodInfo">バインドしたいプロパティ</param>
         /// <returns>バインドされた関数</returns>
-        public static BindValueFunction CreateBindFunction(PropertyInfo propertyInfo)
+        public static BindValueFunction CreateBindFunction(PropertyInfo propertyInfo, bool staticOnly = true)
         {
             var func = new BindValueFunction();
             func.Name = propertyInfo.Name;
@@ -145,7 +146,7 @@ namespace AliceScript
             var getFunc = propertyInfo.GetGetMethod();
             var setFunc = propertyInfo.GetSetMethod();
 
-            if (BindFunction.TryGetAttibutte<AlicePropertyAttribute>(propertyInfo, out var attribute))
+            if (TryGetAttibutte<AlicePropertyAttribute>(propertyInfo, out var attribute))
             {
                 if (attribute.Name != null)
                 {
@@ -153,40 +154,162 @@ namespace AliceScript
                 }
             }
 
-            if (setFunc != null && setFunc.IsPublic)
+            if (setFunc != null && setFunc.IsPublic && (!staticOnly || setFunc.IsStatic))
             {
                 func.CanSet = true;
                 var load = new BindingOverloadFunction();
                 load.TrueParameters = setFunc.GetParameters();
                 var args = Expression.Parameter(typeof(object[]), "args");
+                var instance = Expression.Parameter(typeof(object), "instance");
                 var parameters = load.TrueParameters.Select((x, index) =>
                 Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), GetTrueParametor(x.ParameterType))).ToArray();
-                load.VoidFunc = Expression.Lambda<Action<object[]>>(
-                Expression.Convert(
-                    Expression.Call(setFunc, parameters),
-                    typeof(void)),
-                args).Compile();
+                if (setFunc.IsStatic)
+                {
+                    load.VoidFunc = Expression.Lambda<Action<object[]>>(
+                    Expression.Convert(
+                        Expression.Call(setFunc, parameters),
+                        typeof(void)),
+                    args).Compile();
+                }
+                else
+                {
+                    load.InstanceVoidFunc = Expression.Lambda<Action<object, object[]>>(
+                        Expression.Convert(
+                            Expression.Call(Expression.Convert(instance, propertyInfo.DeclaringType), setFunc, parameters),
+                            typeof(void)),
+                        instance, args).Compile();
+                    load.IsInstanceFunc = true;
+                }
                 load.IsVoidFunc = true;
 
                 func.Set = load;
             }
-            if (getFunc != null && getFunc.IsPublic)
+            if (getFunc != null && getFunc.IsPublic && (!staticOnly || getFunc.IsStatic))
             {
                 var load = new BindingOverloadFunction();
                 load.TrueParameters = getFunc.GetParameters();
                 var args = Expression.Parameter(typeof(object[]), "args");
+                var instance = Expression.Parameter(typeof(object), "instance");
                 var parameters = load.TrueParameters.Select((x, index) =>
                 Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), GetTrueParametor(x.ParameterType))).ToArray();
 
-                load.ObjFunc = Expression.Lambda<Func<object[], object>>(
+
+
+                if (getFunc.IsStatic)
+                {
+                    load.ObjFunc = Expression.Lambda<Func<object[], object>>(
                     Expression.Convert(
                         Expression.Call(getFunc, parameters),
                         typeof(object)),
                     args).Compile();
+                }
+                else
+                {
+                    load.InstanceObjFunc = Expression.Lambda<Func<object, object[], object>>(
+                        Expression.Convert(
+                            Expression.Call(Expression.Convert(instance, propertyInfo.DeclaringType), getFunc, parameters),
+                            typeof(object)),
+                        instance, args).Compile();
+                    load.IsInstanceFunc = true;
+                }
 
                 func.Get = load;
             }
             return func;
+        }
+
+        public static ObjectBase CreateBindObject(Type type)
+        {
+            var obj = new ObjectBase();
+            obj.Name = type.Name;
+
+            if(TryGetAttibutte<AliceObjectAttribute>(type,out var attr))
+            {
+                obj.Namespace = attr.NameSpace;
+                if (!string.IsNullOrEmpty(attr.Name))
+                {
+                    obj.Name = attr.Name;
+                }
+            }
+            Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
+            Dictionary<string, HashSet<MethodInfo>> staticmethods = new Dictionary<string, HashSet<MethodInfo>>();
+            foreach (var m in type.GetMethods())
+            {
+                if (m.IsPublic && !m.IsDefined(typeof(CompilerGeneratedAttribute)))
+                {
+                    if (m.IsStatic)
+                    {
+                        if (!staticmethods.ContainsKey(m.Name))
+                        {
+                            staticmethods[m.Name] = new HashSet<MethodInfo>();
+                        }
+                        staticmethods[m.Name].Add(m);
+                    }
+                    else
+                    {
+                        if (!methods.ContainsKey(m.Name))
+                        {
+                            methods[m.Name] = new HashSet<MethodInfo>();
+                        }
+                        methods[m.Name].Add(m);
+                    }
+                }
+            }
+            foreach (HashSet<MethodInfo> mi in methods.Values)
+            {
+                var func = CreateBindFunction(mi, false);
+                if (func != null)
+                {
+                    obj.AddFunction(func);
+                }
+            }
+            foreach (HashSet<MethodInfo> mi in staticmethods.Values)
+            {
+                var func = CreateBindFunction(mi);
+                if (func != null)
+                {
+                    obj.StaticFunctions[func.Name] = func;
+                }
+            }
+            foreach (var p in type.GetProperties())
+            {
+                var prop = CreateBindFunction(p, false);
+                if (prop != null)
+                {
+                    obj.AddFunction(prop);
+                }
+            }
+            obj.Constructor = BindFunction.CreateBindConstructor(type.GetConstructors());
+            obj.Constructor.Run += delegate (object sender, Functions.FunctionBaseEventArgs e)
+            {
+                object instance = e.Return.AsObject();
+
+                foreach (var func in obj.Functions.Values)
+                {
+                    if (func is BindFunction bf)
+                    {
+                        bf.Instance = instance;
+                    }
+                    else if (func is BindValueFunction bp)
+                    {
+                        bp.Instance = instance;
+                    }
+                }
+            };
+
+            return obj;
+        }
+
+        internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
+        {
+            attribute = null;
+            var attr = System.Attribute.GetCustomAttributes(memberInfo, typeof(T));
+            if (attr.Length > 0)
+            {
+                attribute = attr[0] as T;
+                return true;
+            }
+            return false;
         }
 
         internal static Type GetTrueParametor(Type t)

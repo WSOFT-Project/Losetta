@@ -499,45 +499,6 @@ namespace AliceScript.NameSpaces.Core
             Goto(script, func);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable New(ParsingScript script, BindFunction func)
-        {
-            if (script.Prev == Constants.START_ARG)
-            {
-                //new関数として動作
-                List<Variable> args = script.GetFunctionArgs(func);
-                if (args.Count > 0 && args[0].Object is TypeObject type)
-                {
-                    var arg = new List<Variable>();
-                    if (args.Count > 1)
-                    {
-                        arg = args.Skip(1).ToList();
-                    }
-                    return new Variable(type.Activate(arg, script));
-                }
-            }
-            else
-            {
-                //new式として動作
-                string className = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
-
-                className = Constants.ConvertName(className);
-                script.MoveForwardIf(Constants.START_ARG);
-                List<Variable> args = script.GetFunctionArgs(func);
-
-                ObjectBase csClass = AliceScriptClass.GetClass(className, script) as ObjectBase;
-                if (csClass != null)
-                {
-                    return csClass.GetImplementation(args, script);
-                }
-
-                AliceScriptClass.ClassInstance instance = new
-                    AliceScriptClass.ClassInstance(script.CurrentAssign, className, args, script);
-
-                return new Variable(instance);
-            }
-            return Variable.EmptyInstance;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Default(ParsingScript script)
         {
             script.MoveForwardIf(':');

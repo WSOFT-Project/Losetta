@@ -104,8 +104,7 @@ namespace AliceScript.Objects
             if (ClassType != null)
             {
                 //TODO:非ObjectBaseのクラスのアクティベート
-                ObjectBase csClass = ClassType as ObjectBase;
-                if (csClass != null)
+                if(ClassType is ObjectBase csClass)
                 {
                     return csClass.GetImplementation(args, script);
                 }
