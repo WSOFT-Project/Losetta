@@ -68,7 +68,9 @@ namespace AliceScript.NameSpaces
         public void Add(ObjectBase obj)
         {
             obj.Namespace = Name;
-            Functions.Add(new ValueFunction(new Variable(new TypeObject(obj))));
+            var func = new ValueFunction(new Variable(new TypeObject(obj)));
+            func.Name = obj.Name;
+            Functions.Add(func);
         }
         public void Add<T>()
         {

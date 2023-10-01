@@ -717,7 +717,7 @@ namespace AliceScript.Functions
                 {
                     newVar.TypeChecked = true;
                 }
-                if (type_modifer == null && !newVar.IsNull())
+                if (type_modifer == Constants.VAR && !newVar.IsNull())
                 {
                     newVar.Nullable = false;
                 }
