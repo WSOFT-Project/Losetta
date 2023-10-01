@@ -26,29 +26,6 @@ namespace AliceScript.Functions
         }
     }
 
-    internal sealed class CustomMethodFunction : FunctionBase
-    {
-        public CustomMethodFunction(CustomFunction func, string name = "")
-        {
-            Function = func;
-            Name = name;
-            if (Function.IsMethod)
-            {
-                RequestType = Function.MethodRequestType;
-                isNative = Function.isNative;
-                IsVirtual = Function.IsVirtual;
-                Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-                Run += CustomMethodFunction_Run;
-            }
-        }
-
-        private void CustomMethodFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = Function.GetVariable(e.Script, e.CurentVariable);
-        }
-
-        public CustomFunction Function { get; set; }
-    }
     internal sealed class ArrayTypeFunction : FunctionBase
     {
         public ArrayTypeFunction()

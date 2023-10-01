@@ -39,7 +39,7 @@ namespace AliceScript.Functions
                 {
                     throw new ScriptException("parmsキーワードより後にパラメータを追加することはできません", Exceptions.COULDNT_ADD_PARAMETERS_AFTER_PARMS_KEYWORD, script);
                 }
-                if (arg.Contains(" "))
+                if (arg.Contains(Constants.SPACE))
                 {
                     //属性等の指定がある場合
                     var stb = new HashSet<string>(arg.Split(' '));
@@ -87,19 +87,19 @@ namespace AliceScript.Functions
                 {
                     parms = options.Contains(Constants.PARAMS);
                     refs = options.Contains(Constants.REF);
-                    if (options.Contains("this"))
+                    if (options.Contains(Constants.THIS))
                     {
                         m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
 
                     }
-                    else if (!refs && options.Count > 1)
+                    if (!refs && options.Count > 1)
                     {
                         Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
                         if (v != null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
                         {
                             reqType = to;
                         }
-                        m_typArgMap.Add(i, reqType);
+                        m_typArgMap[i] = reqType;
                     }
 
                     int ind = arg.IndexOf('=', StringComparison.Ordinal);
@@ -124,7 +124,7 @@ namespace AliceScript.Functions
                     }
                     else
                     {
-                        string argName = arg;// RealArgs[i].ToLower();
+                        string argName = arg;// RealArgs[i].ToLowerInvariant();
                         if (parms)
                         {
                             parmsindex = i;
@@ -146,6 +146,10 @@ namespace AliceScript.Functions
                     }
                     ArgMap[trueArgs[i]] = i;
                 }
+                if (m_this != -1)
+                {
+                    RequestType = reqType;
+                }
                 m_args = RealArgs = trueArgs.ToArray();
             }
 
@@ -157,16 +161,21 @@ namespace AliceScript.Functions
 
             if (m_args == null)
             {
-                m_args = new string[0];
+                m_args = Array.Empty<string>();
             }
-            if (e.Args.Count + m_defaultArgs.Count < m_args.Length)
+            if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable != null ? 1 : 0) < m_args.Length)
             {
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
-            Variable result = ARun(e.Args, e.Script);
-            if ((m_returnType != Variable.VarType.VARIABLE && m_returnType != result.Type) || (!m_nullable && result.IsNull()))
+            Variable result = ARun(e.Args, e.Script, e.ClassInstance, e.CurentVariable);
+            if (m_nullable)
             {
-                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.IsNull() ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
+                result.Nullable = true;
+            }
+            if (!(result.Type == Variable.VarType.VARIABLE && result.IsNull()) && (m_nullable || (!m_nullable && result.Nullable)) && !result.Type.HasFlag(m_returnType))
+            // if ((!m_nullable && result.Nullable) && !result.Type.HasFlag(m_returnType))
+            {
+                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(m_nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
             e.Return = result;
         }
@@ -179,7 +188,7 @@ namespace AliceScript.Functions
             {
                 args = new List<Variable>();
             }
-            if (m_this != -1)
+            if (m_this != -1 && current != null)
             {
                 args.Insert(m_this, current);
             }
@@ -193,14 +202,14 @@ namespace AliceScript.Functions
             {
                 var arg = args[i];
                 int argIndex = -1;
-                if (m_typArgMap.ContainsKey(i) && !m_typArgMap[i].Match(arg))
+                if (m_typArgMap.Count > i && !m_typArgMap[i].Match(arg))
                 {
                     throw new ScriptException("この引数にその型を使用することはできません", Exceptions.WRONG_TYPE_VARIABLE);
                 }
                 else
                 {
 
-                    if (ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
+                    if (arg != null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
                     {
                         namedParameters = true;
                         if (i != argIndex)
@@ -263,7 +272,7 @@ namespace AliceScript.Functions
                 {
                     var val = new Variable();
                     val.Assign(entry.Value);
-                    var arg = new GetVarFunction(val);
+                    var arg = new ValueFunction(val);
                     arg.Name = entry.Key;
                     //m_VarMap[entry.Key] = arg;
                     script.Variables[entry.Key] = arg;
@@ -276,13 +285,13 @@ namespace AliceScript.Functions
                 if (parmsindex == i)
                 {
                     Variable parmsarg = new Variable(Variable.VarType.ARRAY);
-                    foreach (Variable argx in args.GetRange(i, args.Count - i))
+                    foreach (Variable argx in Utils.GetSpan(args).Slice(i, args.Count - i))
                     {
                         var val = new Variable();
                         val.Assign(argx);
                         parmsarg.Tuple.Add(val);
                     }
-                    var arg = new GetVarFunction(parmsarg);
+                    var arg = new ValueFunction(parmsarg);
                     arg.Name = m_args[i];
                     //m_VarMap[m_args[i]] = arg;
                     script.Variables[m_args[i]] = arg;
@@ -307,7 +316,7 @@ namespace AliceScript.Functions
                         val = new Variable();
                         val.Assign(args[i]);
                     }
-                    var arg = new GetVarFunction(val);
+                    var arg = new ValueFunction(val);
                     arg.Name = m_args[i];
                     //m_VarMap[m_args[i]] = arg;
                     script.Variables[m_args[i]] = arg;
@@ -333,7 +342,7 @@ namespace AliceScript.Functions
                     val = new Variable();
                     val.Assign(args[i]);
                 }
-                var arg = new GetVarFunction(val);
+                var arg = new ValueFunction(val);
                 if (i + 1 > m_args.Length)
                 {
                     throw new ScriptException($"関数 `{m_name}`は、{m_args.Length}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);
@@ -393,7 +402,7 @@ namespace AliceScript.Functions
         {
 
             Variable result = null;
-            ParsingScript tempScript = Utils.GetTempScript(m_body, null, m_name, m_parentScript,
+            ParsingScript tempScript = Utils.GetTempScript(m_body, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
             tempScript.Filename = m_parentScript.Filename;
             if (script != null)
@@ -408,7 +417,6 @@ namespace AliceScript.Functions
             RegisterArguments(args, args2, current, tempScript);
 
             // さて実行
-
 
             while (tempScript.Pointer < m_body.Length &&
                   (result == null || !result.IsReturn))
@@ -461,8 +469,7 @@ namespace AliceScript.Functions
         public int ArgumentCount => m_args.Length;
 
         public StackLevel NamespaceData { get; set; }
-        public bool IsMethod => m_this != -1;
-        public TypeObject MethodRequestType => IsMethod && m_typArgMap.ContainsKey(m_this) ? m_typArgMap[m_this] : new TypeObject();
+        public TypeObject MethodRequestType => IsMethod && m_typArgMap.Count >= m_this ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
@@ -476,139 +483,11 @@ namespace AliceScript.Functions
         protected Variable.VarType m_returnType;
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;
+        private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
-        private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
 
         private Dictionary<string, int> ArgMap { get; set; } = new Dictionary<string, int>();
     }
-
-    internal sealed class FunctionCreator : FunctionBase
-    {
-        public FunctionCreator()
-        {
-            Name = Constants.FUNCTION;
-            Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
-            Run += FunctionCreator_Run;
-        }
-
-        private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            bool? mode = null;
-            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
-            bool isCommand = Keywords.Contains(Constants.COMMAND);
-            if (Keywords.Contains(Constants.OVERRIDE))
-            {
-                mode = true;
-            }
-            else if (Keywords.Contains(Constants.VIRTUAL))
-            {
-                mode = false;
-            }
-
-            Variable.VarType type_modifer = Variable.VarType.VARIABLE;
-            bool nullable = false;
-            foreach (string str in Keywords)
-            {
-                string type_str = str.TrimEnd(Constants.TERNARY_OPERATOR);
-                nullable = type_str.Length != str.Length;
-                if (Constants.TYPE_MODIFER.Contains(type_str))
-                {
-                    type_modifer = Constants.StringToType(str);
-                    break;
-                }
-            }
-
-            funcName = Constants.ConvertName(funcName);
-
-            string[] args = Utils.GetFunctionSignature(e.Script);
-            if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
-            {
-                args = new string[0];
-            }
-
-            e.Script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
-            /*string line = */
-            e.Script.GetOriginalLine(out _);
-
-            int parentOffset = e.Script.Pointer;
-
-            if (e.Script.CurrentClass != null)
-            {
-                parentOffset += e.Script.CurrentClass.ParentOffset;
-            }
-
-            string body = Utils.GetBodyBetween(e.Script, Constants.START_GROUP, Constants.END_GROUP);
-            e.Script.MoveForwardIf(Constants.END_GROUP);
-
-            CustomFunction customFunc = new CustomFunction(funcName, body, args, e.Script, false, type_modifer, nullable);
-            customFunc.ParentScript = e.Script;
-            customFunc.ParentOffset = parentOffset;
-            if (isCommand)
-            {
-                customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            }
-            if (mode != null)
-            {
-                customFunc.IsVirtual = true;
-            }
-            if (customFunc.IsMethod)
-            {
-                if (isGlobal)
-                {
-                    if (!Variable.Functions.TryGetValue(funcName, out FunctionBase fb) || !fb.IsVirtual)
-                    {
-                        Variable.AddFunc(new CustomMethodFunction(customFunc, funcName));
-                    }
-                    else
-                    {
-                        throw new ScriptException("指定されたメソッドはすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
-                    }
-                }
-                else
-                {
-                    throw new ScriptException("メソッドはグローバル関数である必要があります", Exceptions.FUNCTION_NOT_GLOBAL, e.Script);
-                }
-            }
-            else
-            if (e.Script.CurrentClass != null)
-            {
-                e.Script.CurrentClass.AddMethod(funcName, args, customFunc);
-            }
-            else
-            {
-                if (!FunctionExists(funcName, e.Script, out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
-                {
-                    FunctionBaseManager.Add(customFunc, funcName, e.Script, isGlobal);
-                }
-                else
-                {
-                    throw new ScriptException("指定された関数はすでに登録されていて、オーバーライド不可能です。関数にoverride属性を付与することを検討してください。", Exceptions.FUNCTION_IS_ALREADY_DEFINED, e.Script);
-                }
-            }
-
-        }
-
-        private bool FunctionIsVirtual(string name, ParsingScript script)
-        {
-            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
-            {
-                if (impl.IsVirtual)
-                {
-                    return true;
-                }
-            }
-            if (s_functions.TryGetValue(name, out impl))
-            {
-                if (impl.IsVirtual)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
 }

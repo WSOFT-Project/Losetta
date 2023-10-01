@@ -22,11 +22,11 @@ namespace AliceScript.Objects
             Source = source;
             HelpLink = helplink;
             Constructor = new Exception_Constractor();
-            AddProperty(new Exception_MessageProperty(this));
-            AddProperty(new Exception_SourceProperty(this));
-            AddProperty(new Exception_HelpLinkProperty(this));
-            AddProperty(new Exception_ErrorcodeProperty(this));
-            AddProperty(new Exception_StackTraceProperty(this));
+            AddFunction(new Exception_MessageProperty(this));
+            AddFunction(new Exception_SourceProperty(this));
+            AddFunction(new Exception_HelpLinkProperty(this));
+            AddFunction(new Exception_ErrorcodeProperty(this));
+            AddFunction(new Exception_StackTraceProperty(this));
             AddFunction(new Exception_ToStringFunc(this));
         }
         public ExceptionObject()
@@ -91,7 +91,7 @@ namespace AliceScript.Objects
                 }
             }
         }
-        private class Exception_MessageProperty : PropertyBase
+        private class Exception_MessageProperty : ValueFunction
         {
             public Exception_MessageProperty(ExceptionObject eo)
             {
@@ -102,12 +102,12 @@ namespace AliceScript.Objects
                 Getting += Exception_MessageProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_MessageProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void Exception_MessageProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.Message);
             }
         }
-        private class Exception_SourceProperty : PropertyBase
+        private class Exception_SourceProperty : ValueFunction
         {
             public Exception_SourceProperty(ExceptionObject eo)
             {
@@ -118,12 +118,12 @@ namespace AliceScript.Objects
                 Getting += Exception_SourceProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_SourceProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void Exception_SourceProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.Source);
             }
         }
-        private class Exception_HelpLinkProperty : PropertyBase
+        private class Exception_HelpLinkProperty : ValueFunction
         {
             public Exception_HelpLinkProperty(ExceptionObject eo)
             {
@@ -134,13 +134,13 @@ namespace AliceScript.Objects
                 Getting += Exception_HelpLinkProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_HelpLinkProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void Exception_HelpLinkProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(ExceptionObject.HelpLink);
             }
         }
 
-        private class Exception_StackTraceProperty : PropertyBase
+        private class Exception_StackTraceProperty : ValueFunction
         {
             public Exception_StackTraceProperty(ExceptionObject eo)
             {
@@ -151,13 +151,13 @@ namespace AliceScript.Objects
                 Getting += Exception_StackTraceProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_StackTraceProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void Exception_StackTraceProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = ExceptionObject.MainScript.GetStackTrace();
             }
         }
 
-        private class Exception_ErrorcodeProperty : PropertyBase
+        private class Exception_ErrorcodeProperty : ValueFunction
         {
             public Exception_ErrorcodeProperty(ExceptionObject eo)
             {
@@ -168,7 +168,7 @@ namespace AliceScript.Objects
                 Getting += Exception_MessageProperty_Getting;
             }
             public ExceptionObject ExceptionObject { get; set; }
-            private void Exception_MessageProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void Exception_MessageProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable((int)ExceptionObject.ErrorCode);
             }

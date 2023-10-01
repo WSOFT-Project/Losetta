@@ -34,6 +34,16 @@ namespace AliceScript.Functions
         /// この関数が所属する名前空間の名前を取得または設定します。
         /// </summary>
         public string RelatedNameSpace { get; set; }
+
+        /// <summary>
+        /// この関数を拡張メソッドとして呼び出し可能な場合はTrue、それ以外の場合はfalse。このプロパティは読み取り専用です。
+        /// </summary>
+        public bool IsMethod => RequestType != null;
+
+        /// <summary>
+        /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができる
+        /// </summary>
+        public bool MethodOnly { get; set; } = true;
         /// <summary>
         /// この関数を呼び出します
         /// </summary>
@@ -44,21 +54,7 @@ namespace AliceScript.Functions
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = new List<Variable>();
-            if (args != null)
-            {
-                foreach (var a in args)
-                {
-                    if (a == null)
-                    {
-                        ex.Args.Add(Variable.EmptyInstance);
-                    }
-                    else
-                    {
-                        ex.Args.Add(a);
-                    }
-                }
-            }
+            ex.Args = args ?? new List<Variable>();
             ex.UseObjectResult = false;
             ex.ObjectResult = null;
             if (script != null)
@@ -67,6 +63,7 @@ namespace AliceScript.Functions
             }
             ex.Return = Variable.EmptyInstance;
             ex.Script = script;
+            ex.Keywords = Keywords;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
             if (ex.Return == null)
@@ -74,6 +71,17 @@ namespace AliceScript.Functions
                 ex.Return = Variable.EmptyInstance;
             }
             return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
+        }
+
+        /// <summary>
+        /// この関数を呼び出し、結果を取得します
+        /// </summary>
+        /// <param name="script">呼び出し元のスクリプト</param>
+        /// <returns>この関数の戻り値</returns>
+        /// <exception cref="ScriptException">受け入れ範囲外の引数を受取ることはできません</exception>
+        public Variable Execute(ParsingScript script)
+        {
+            return Evaluate(script);
         }
         /// <summary>
         /// この関数を呼び出します
@@ -129,7 +137,7 @@ namespace AliceScript.Functions
 
         private List<Variable> GetFunctionArguments(ParsingScript script)
         {
-            if (Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+            if (Attribute == FunctionAttribute.LANGUAGE_STRUCTURE)
             {
                 return null;
             }
@@ -188,6 +196,10 @@ namespace AliceScript.Functions
         }
 
     }
+    public class AttributeFunction : FunctionBase
+    {
+
+    }
     /// <summary>
     /// 関数の機能の種類を表します
     /// </summary>
@@ -216,7 +228,7 @@ namespace AliceScript.Functions
         /// <summary>
         /// オーバーライド可能です。CanOverrideプロパティもしくはこの属性が定義のいずれかが定義されている場合、オーバーライド可能です。
         /// </summary>
-        VIRTUAL = 5,
+        VIRTUAL = 5
     }
     /// <summary>
     /// 関数を登録または登録解除する操作を提供します
@@ -230,7 +242,8 @@ namespace AliceScript.Functions
         /// <param name="name">登録される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
         /// <param name="isGlobal">常にグローバルに登録する場合はtrue、それ以外の場合はfalse</param>
-        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false)
+        /// <param name="byPassCheck">識別子のチェックをバイパスする場合はtrue、それ以外の場合はfalse</param>
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false, bool byPassCheck = false)
         {
 
             string fname = func.Name;
@@ -238,7 +251,10 @@ namespace AliceScript.Functions
             {
                 fname = name;
             }
-            Utils.CheckLegalName(fname);
+            if (!byPassCheck)
+            {
+                Utils.CheckLegalName(fname);
+            }
             if (script == null || isGlobal)
             {
                 script = ParsingScript.GetTopLevelScript(script);
@@ -338,6 +354,11 @@ namespace AliceScript.Functions
         /// (Variableオブジェクト内のみ)呼び出し元のオブジェクトを表します
         /// </summary>
         public Variable CurentVariable { get; set; }
+
+        /// <summary>
+        /// この関数の呼び出し時に同時に指定されたキーワードを表します
+        /// </summary>
+        public HashSet<string> Keywords { get; set; }
 
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
     }

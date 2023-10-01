@@ -55,7 +55,7 @@ namespace AliceScript.Parsing
 
         private static List<Variable> Split(ParsingScript script, char[] to)
         {
-            List<Variable> listToMerge = new List<Variable>(16);
+            List<Variable> listToMerge = new List<Variable>();
 
             if (!script.StillValid() || to.Contains(script.Current))
             {
@@ -71,7 +71,7 @@ namespace AliceScript.Parsing
             string action;
 
             do
-            { 
+            {
                 HashSet<string> keywords = new HashSet<string>();
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
@@ -90,7 +90,7 @@ namespace AliceScript.Parsing
                         //本来の位置に進めておく
                         script.Forward();
                     }
-                    keywords.Add(token.ToLower());//キーワード一覧に格納
+                    keywords.Add(token.ToLowerInvariant());//キーワード一覧に格納
                     goto ExtractNextToken;
                 }
 
@@ -107,6 +107,10 @@ namespace AliceScript.Parsing
                 if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is LiteralFunction)))
                 {
                     script.ProcessingFunction = fb;//現在処理中としてマーク
+                    if (fb is AttributeFunction af)
+                    {
+                        script.AttributeFunction = af;
+                    }
                 }
                 Variable current = func.GetValue(script);//関数を呼び出し
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
@@ -254,24 +258,27 @@ namespace AliceScript.Parsing
             }
             current.ParsingToken = token;
 
-            switch (preop)
+            if (current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
             {
-                case PreOperetors.Minus:
-                    {
-                        // -マークがついている場合は数値がマイナス
-                        current = new Variable(-1 * current.Value);
-                        break;
-                    }
-                case PreOperetors.Increment:
-                    {
-                        current.Value++;
-                        break;
-                    }
-                case PreOperetors.Decrement:
-                    {
-                        current.Value--;
-                        break;
-                    }
+                switch (preop)
+                {
+                    case PreOperetors.Minus:
+                        {
+                            // -マークがついている場合は数値がマイナス
+                            current.Value = current.Value * -1;
+                            break;
+                        }
+                    case PreOperetors.Increment:
+                        {
+                            current.Value++;
+                            break;
+                        }
+                    case PreOperetors.Decrement:
+                        {
+                            current.Value--;
+                            break;
+                        }
+                }
             }
 
             if (negated > 0 && current.Type == Variable.VarType.BOOLEAN)
@@ -371,11 +378,11 @@ namespace AliceScript.Parsing
             /// <summary>
             /// 前置インクリメント
             /// </summary>
-            Increment, 
+            Increment,
             /// <summary>
             /// 前置デクリメント
             /// </summary>
-            Decrement, 
+            Decrement,
             /// <summary>
             /// 単項マイナス
             /// </summary>
@@ -459,7 +466,7 @@ namespace AliceScript.Parsing
             }
 
             // eを用いた数値記法の場合
-            if (char.ToUpper(prev) == 'E' &&
+            if (char.ToUpperInvariant(prev) == 'E' &&
                (ch == '-' || ch == '+' || char.IsDigit(ch)) &&
                item.Length > 1 && char.IsDigit(item[item.Length - 2]))
             {
@@ -586,11 +593,10 @@ namespace AliceScript.Parsing
             return result;
         }
 
-        
+
         private static Variable Merge(Variable current, ref int index, List<Variable> listToMerge,
                                       ParsingScript script, bool mergeOneOnly = false)
         {
-
             while (index < listToMerge.Count)
             {
                 Variable next = listToMerge[index++];
@@ -598,7 +604,7 @@ namespace AliceScript.Parsing
                 while (!CanMergeCells(current, next))
                 {
                     // 優先順位が前後する場合、先に高いほうを演算する
-                    Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
+                    next = Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
                 }
 
                 current = MergeCells(current, next, script);
@@ -631,6 +637,7 @@ namespace AliceScript.Parsing
             else if (leftCell.Action == Constants.AS && rightCell.Object is TypeObject type)
             {
                 leftCell = leftCell.Convert(type.Type);
+                leftCell.Nullable = true;
             }
             else if (leftCell.Action == Constants.NULL_OP)
             {
@@ -672,15 +679,16 @@ namespace AliceScript.Parsing
             }
             switch (leftCell.Action)
             {
+                case "&":
+                    return new Variable(leftCell.Bool & rightCell.Bool);
                 case "&&":
-                    return new Variable(
-                        leftCell.Bool && rightCell.Bool);
+                    return new Variable(leftCell.Bool && rightCell.Bool);
+                case "|":
+                    return new Variable(leftCell.Bool | rightCell.Bool);
                 case "||":
-                    return new Variable(
-                         leftCell.Bool || rightCell.Bool);
+                    return new Variable(leftCell.Bool || rightCell.Bool);
                 case "^":
-                    return new Variable(
-                        leftCell.Bool ^ rightCell.Bool);
+                    return new Variable(leftCell.Bool ^ rightCell.Bool);
                 case null:
                 case "\0":
                 case ")":
@@ -720,6 +728,10 @@ namespace AliceScript.Parsing
                     return new Variable(leftCell.Value <= rightCell.Value);
                 case ">=":
                     return new Variable(leftCell.Value >= rightCell.Value);
+                case Constants.LEFT_SHIFT:
+                    return new Variable(leftCell.AsInt() << rightCell.AsInt());
+                case Constants.RIGHT_SHIFT:
+                    return new Variable(leftCell.AsInt() >> rightCell.AsInt());
                 case "&":
                     return new Variable((int)leftCell.Value & (int)rightCell.Value);
                 case "^":
@@ -931,14 +943,9 @@ namespace AliceScript.Parsing
                 case "^": return 4;
                 case "&&": return 2;
                 case "||": return 2;
-                case "+=":
-                case "-=":
-                case "*=":
-                case "/=":
-                case "%=":
                 case "=": return 1;
+                default: return 0;// NULL action has priority 0.
             }
-            return 0; // NULL action has priority 0.
         }
     }
 }

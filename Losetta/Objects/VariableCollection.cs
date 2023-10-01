@@ -4,7 +4,7 @@ namespace AliceScript.Objects
 {
     public class VariableCollection : IEnumerable<Variable>, IList<Variable>
     {
-        private List<Variable> Tuple
+        public List<Variable> Tuple
         {
             get => m_tuple;
             set => m_tuple = value;

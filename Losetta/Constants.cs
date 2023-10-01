@@ -32,7 +32,6 @@ namespace AliceScript
         public const string IS_NOT = "is not ";
         public const string FOR_EACH = ":";
         public const string FOR_IN = "in";
-        public const string FOR_OF = "of";
         public const string INFINITY = "Infinity";
         public const string NEG_INFINITY = "-Infinity";
         public const string ISFINITE = "IsFinite";
@@ -45,7 +44,6 @@ namespace AliceScript
         public const string ARROW = "=>";
         public const string AND = "&&";
         public const string OR = "||";
-        public const string NOT = "!";
         public const string INCREMENT = "++";
         public const string DECREMENT = "--";
         public const string EQUAL = "==";
@@ -55,19 +53,20 @@ namespace AliceScript
         public const string LESS_EQ = "<=";
         public const string GREATER = ">";
         public const string GREATER_EQ = ">=";
-        public const string ADD_ASSIGN = "+=";
-        public const string SUBT_ASSIGN = "-=";
-        public const string MULT_ASSIGN = "*=";
-        public const string DIV_ASSIGN = "/=";
+
+        public const string NOT = "!";
+        public const string EXPONENTIATION = "**";
+        public const string LEFT_SHIFT = "<<";
+        public const string RIGHT_SHIFT = ">>";
 
         public const string BREAK = "break";
         public const string CASE = "case";
         public const string CATCH = "catch";
-        public const string CANCEL = "cancel_operation";
         public const string COMMENT = "//";
         public const string CONTINUE = "continue";
         public const string DEFAULT = "default";
         public const string DO = "do";
+        public const string EXTERNAL = "extern";
         public const string ELSE = "else";
         public const string ELSE_IF = "elif";
         public const string FOR = "for";
@@ -76,8 +75,8 @@ namespace AliceScript
         public const string CLASS = "class";
         public const string ENUM = "enum";
         public const string IF = "if";
-        public const string INCLUDE = "include";
         public const string IMPORT = "import";
+        public const string INCLUDE = "include";
         public const string NEW = "new";
         public const string RETURN = "return";
         public const string SWITCH = "switch";
@@ -85,7 +84,6 @@ namespace AliceScript
         public const string THROW = "throw";
         public const string TRY = "try";
         public const string TYPE = "type";
-        public const string TYPE_OF = "typeOf";
         public const string WHILE = "while";
         public const string WHEN = "when";
 
@@ -96,77 +94,14 @@ namespace AliceScript
         public const string PARAMS = "params";
 
         public const string ADD = "add";
-        public const string ADD_RANGE = "AddRange";
-        public const string ADD_UNIQUE = "addunique";
         public const string ADD_TO_HASH = "AddToHash";
-        public const string ADD_ALL_TO_HASH = "AddAllToHash";
-        public const string CANCEL_RUN = "CancelRun";
-        public const string CHECK_LOADER_MAIN = "LoaderMain";
-        public const string CONTAINS = "contains";
-        public const string CURRENT_PATH = "CurrentPath";
-        public const string CLONE = "Clone";
-        public const string DEEP_CLONE = "DeepClone";
         public const string DEFINE_LOCAL = "DefineLocal";
-        public const string EXIT = "exit";
-        public const string FLOOR = "floor";
-        public const string GET_COLUMN = "GetColumn";
-        public const string GET_PROPERTIES = "GetPropertyStrings";
         public const string GET_PROPERTY = "GetProperty";
         public const string GET_KEYS = "GetKeys";
-        public const string LOCK = "lock";
         public const string NAMESPACE = "Namespace";
-        public const string ON_EXCEPTION = "OnException";
         public const string OBJECT_PROPERTIES = "Properties";
         public const string OBJECT_TYPE = "Type";
-        public const string PRINT = "print";
-        public const string REGEX = "Regex";
-        public const string REMOVE = "RemoveItem";
-        public const string REMOVE_AT = "RemoveAt";
-        public const string REMOVE_RANGE = "RemoveRange";
-        public const string SET_PROPERTY = "SetProperty";
-        public const string SIGNAL = "signal";
-        public const string SINGLETON = "singleton";
-        public const string SIZE = "Size";
-        public const string THREAD_ID = "threadid";
-        public const string TOKENIZE_LINES = "TokenizeLines";
-        public const string TOKEN_COUNTER = "CountTokens";
         public const string TO_STRING = "string";
-        public const string WAIT = "wait";
-
-        public const string ADD_DATA = "AddDataToCollection";
-        public const string COLLECT_DATA = "StartCollectingData";
-        public const string GET_DATA = "GetCollectedData";
-
-        // プロパティ
-        public const string EMPTY_NULL = "IsEmptyOrNull";
-        public const string EMPTY_WHITE = "IsEmptyOrWhite";
-        public const string ENDS_WITH = "EndsWith";
-        public const string EQUALS = "Equals";
-        public const string FIRST = "First";
-        public const string FOREACH = "ForEach";
-        public const string INDEX_OF = "IndexOf";
-        public const string JOIN = "Join";
-        public const string KEYS = "Keys";
-        public const string LAST = "Last";
-        public const string LENGTH = "Length";
-        public const string LOWER = "ToLower";
-        public const string REMOVE_ITEM = "Remove";
-        public const string REPLACE = "Replace";
-        public const string REPLACE_TRIM = "ReplaceAndTrim";
-        public const string REVERSE = "Reverse";
-        public const string SORT = "Sort";
-        public const string SPLIT = "Split";
-        public const string STRING = "String";
-        public const string STARTS_WITH = "StartsWith";
-        public const string SUBSTRING = "Substring";
-        public const string TOKENIZE = "Tokenize";
-        public const string TRIM = "Trim";
-        public const string TRIM_START = "TrimStart";
-        public const string TRIM_END = "TrimEnd";
-        public const string UPPER = "ToUpper";
-        public const string INSERT = "Insert";
-        public const string INSERT_RANGE = "InsertRange";
-
 
         public const string LABEL_OPERATOR = ":";
         public const string GOTO = "goto";
@@ -177,63 +112,69 @@ namespace AliceScript
         /// </summary>
         public const string LANGUAGE = "AliceScript";
 
+        public static readonly Version VERSION = new Version(3,0);
+
         public const string UTF8_LITERAL_PREFIX = "u8";
 
         public const string PROP_TO_STRING = "ToString";
 
-        public static string END_ARG_STR = END_ARG.ToString();
-        public static string NULL_ACTION = END_ARG.ToString();
+        public static char[] EMPTY_AND_WHITE = new char[] { ' ', '\0', '\n', '\r', '\t' };
 
-        public static string[] OPER_ACTIONS = { "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", ":", "??=", "=>" };
-        public static string[] MATH_ACTIONS = { "===", "!==",
-                                                "&&", "||", EQUAL,NOT_EQUAL, "<=", ">=", "++", "--", "**",
+        public static readonly string END_ARG_STR = END_ARG.ToString();
+        public static readonly string NULL_ACTION = END_ARG.ToString();
+
+        public static readonly string[] OPER_ACTIONS = { LABEL_OPERATOR, ARROW };
+        public static readonly string[] MATH_ACTIONS = { "===", "!==",
+                                                AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",NULL_OP,AS,IS_NOT,IS};
 
-        public static string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
+        public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
-        public static string[] CORE_OPERATORS = { TRY, FOR, WHILE };
+        public static readonly string[] CORE_OPERATORS = { TRY, FOR, WHILE };
 
         /// <summary>
         /// ICEファイルのマーク(ASCIIでI,C,Eとバージョン(1))
         /// </summary>
-        public static byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
+        public static readonly byte[] PACKAGE_MAGIC_NUMBER = { 0x49, 0x43, 0x45, 0x01 };
         /// <summary>
         /// DLLファイルのマーク(ASCIIでM,Z)
         /// </summary>
-        public static byte[] DLL_MAGIC_NUMBER = { 0x4d, 0x5a };
+        public static readonly byte[] DLL_MAGIC_NUMBER = { 0x4d, 0x5a };
         /// <summary>
         /// ZIPファイルのマーク(ASCIIでP,K)
         /// </summary>
-        public static byte[] ZIP_MAGIC_NUMBER = { 0x50, 0x4b };
+        public static readonly byte[] ZIP_MAGIC_NUMBER = { 0x50, 0x4b };
         /// <summary>
         /// パッケージマニフェストファイルの名前
         /// </summary>
         public const string PACKAGE_MANIFEST_FILENAME = "manifest.xml";
 
-        public static char[] TERNARY_SEPARATOR = { ':' };
-        public static char[] NEXT_ARG_ARRAY = NEXT_ARG.ToString().ToCharArray();
-        public static char[] END_ARG_ARRAY = END_ARG.ToString().ToCharArray();
-        public static char[] END_ARRAY_ARRAY = END_ARRAY.ToString().ToCharArray();
-        public static char[] END_LINE_ARRAY = END_LINE.ToString().ToCharArray();
-        public static char[] FOR_ARRAY = (END_ARG_STR + FOR_EACH).ToCharArray();
-        public static char[] QUOTE_ARRAY = QUOTE.ToString().ToCharArray();
+        public static readonly char[] TERNARY_SEPARATOR = { ':' };
+        public static readonly char[] NEXT_ARG_ARRAY = NEXT_ARG.ToString().ToCharArray();
+        public static readonly char[] END_ARG_ARRAY = END_ARG.ToString().ToCharArray();
+        public static readonly char[] END_ARRAY_ARRAY = END_ARRAY.ToString().ToCharArray();
+        public static readonly char[] END_LINE_ARRAY = END_LINE.ToString().ToCharArray();
+        public static readonly char[] FOR_ARRAY = (END_ARG_STR + FOR_EACH).ToCharArray();
+        public static readonly char[] QUOTE_ARRAY = QUOTE.ToString().ToCharArray();
 
-        public static char[] COMPARE_ARRAY = "<>=)".ToCharArray();
-        public static char[] IF_ARG_ARRAY = "&|)".ToCharArray();
-        public static char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n', '?' };
-        public static char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
-        public static char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
+        public static readonly char[] COMPARE_ARRAY = "<>=)".ToCharArray();
+        public static readonly char[] IF_ARG_ARRAY = "&|)".ToCharArray();
+        public static readonly char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n', '?' };
+        public static readonly char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
+        public static readonly char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
 
-        public static string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
-        public static char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
-        public static string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
-        public static char[] TOKENS_SEPARATION = ",;)".ToCharArray();
-        public static string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
+        public static readonly string TOKEN_START = "(\"\'[{";
+        public static readonly string TOKEN_END = ")\"\']}";
+        public static readonly string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
+        public static readonly char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
+        public static readonly string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
+        public static readonly char[] TOKENS_SEPARATION = ",;)".ToCharArray();
+        public static readonly string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
         /// <summary>
         /// パース中の言語構造が所属する名前空間
         /// </summary>
-        public static string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
+        public static readonly string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
 
         //最上位の名前空間
         public const string TOP_NAMESPACE = "Alice";
@@ -241,27 +182,32 @@ namespace AliceScript
         /// <summary>
         /// 変数・定数・関数名などの識別子がとるパターン
         /// </summary>
-        public static Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
+        public static readonly Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
+
+        /// <summary>
+        /// 複合代入式がとるパターン
+        /// </summary>
+        public static readonly Regex COMPOUND_ASSIGN_PATTERN = new Regex(@"(.*)([\+\-\\\*\/\%\^\&\|\?])=(.*)", RegexOptions.Compiled);
 
         /// <summary>
         /// UTF16表現がとるパターン
         /// </summary>
-        public static Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
+        public static readonly Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
         /// <summary>
         /// 可変長UTF16表現がとるパターン
         /// </summary>
-        public static Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
+        public static readonly Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
 
         /// <summary>
         /// UTF32表現がとるパターン
         /// </summary>
-        public static Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
+        public static readonly Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
 
         /// <summary>
         /// インデックスの逆引きがとるパターン
         /// </summary>
-        public static Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
+        public static readonly Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";
@@ -271,21 +217,24 @@ namespace AliceScript
         public const string OVERRIDE = "override";
         public const string COMMAND = "command";
         public const string READONLY = "readonly";
+        public const string EXTENSION = "extension";
 
 
         /// <summary>
         /// 型指定修飾子
         /// </summary>
-        public static HashSet<string> TYPE_MODIFER = new HashSet<string>{
+        public static readonly HashSet<string> TYPE_MODIFER = new HashSet<string>{
              "string","number","array","bytes","object","enum","delegate","bool","variable","void",
-              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?"
+              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?","var"
         };
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION }).ToHashSet();
 
         // シンボル
+        public const string LIBRARY_IMPORT = "libimport";
+        public const string NET_IMPORT = "netimport";
         public const string UNNEED_VAR = "unneed_var";
         public const string RESET_DEFINES = "reset_defines";
         //includeしたファイルにもシンボルを引き継ぐ
@@ -310,39 +259,39 @@ namespace AliceScript
         /// <summary>
         /// 関数呼び出し時に丸括弧が不要な関数の名前
         /// </summary>
-        public static HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
+        public static readonly HashSet<string> FUNCT_WITH_SPACE = new HashSet<string>
         {
             CLASS,
-            FUNCTION, NAMESPACE, NEW, PRINT
+            FUNCTION, NAMESPACE, NEW
         };
         /// <summary>
         /// 関数呼び出し時に丸括弧が不要な関数。ただしこれらの関数の引数は一つのみである必要があります。
         /// </summary>
-        public static HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
+        public static readonly HashSet<string> FUNCT_WITH_SPACE_ONCE = new HashSet<string>
         {
-            CASE, RETURN, THROW, TYPE_OF
+            CASE, RETURN, THROW
         };
 
         /// <summary>
         /// 言語構造の関数名
         /// </summary>
-        public static HashSet<string> CONTROL_FLOW = new HashSet<string>
+        public static readonly HashSet<string> CONTROL_FLOW = new HashSet<string>
         {
-            BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,FOREACH, FUNCTION, IF, INCLUDE, NEW,IMPORT,
+            BREAK, CATCH, CLASS, CONTINUE, ELSE, ELSE_IF, ELSE, FOR,"foreach", FUNCTION, IF, INCLUDE, NEW,IMPORT,
             RETURN, THROW, TRY, WHILE
         };
 
         /// <summary>
         /// 配列添え字演算子を使用できる変数の型
         /// </summary>
-        public static HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
+        public static readonly HashSet<Variable.VarType> CAN_GET_ARRAYELEMENT_VARIABLE_TYPES = new HashSet<Variable.VarType>()
         {
             Variable.VarType.ARRAY,Variable.VarType.DELEGATE,Variable.VarType.STRING
         };
         /// <summary>
         /// AliceScriptから参照できる定数
         /// </summary>
-        public static Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable>
+        public static readonly Dictionary<string, Variable> CONSTS = new Dictionary<string, Variable>
         {
             //Trueを表します
             { TRUE,Variable.True},
@@ -374,7 +323,7 @@ namespace AliceScript
         /// <summary>
         /// 算術演算子
         /// </summary>
-        public static HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
+        public static readonly HashSet<string> ARITHMETIC_EXPR = new HashSet<string>
         {
             "*", "*=" , "+", "+=" , "-", "-=", "/", "/=", "%", "%=", ">", "<", ">=", "<="
         };
@@ -382,7 +331,7 @@ namespace AliceScript
         public const int INDENT = 2;
         public const int DEFAULT_FILE_LINES = 20;
         public const int MAX_CHARS_TO_SHOW = 45;
-        private static Dictionary<string, string> s_realNames = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> s_realNames = new Dictionary<string, string>();
 
         public static string ConvertName(string name)
         {
@@ -392,7 +341,7 @@ namespace AliceScript
                 return name;
             }
 
-            string lower = name.ToLower(System.Globalization.CultureInfo.CurrentCulture);
+            string lower = name.ToLowerInvariant();
             if (name == lower || CONTROL_FLOW.Contains(lower))
             { // Do not permit using key words with no case, like IF, For
                 return name;
@@ -436,7 +385,7 @@ namespace AliceScript
         }
         public static bool TryParseType(string text, out Variable.VarType type)
         {
-            text = text.ToUpper();
+            text = text.ToUpperInvariant();
             switch (text)
             {
                 case "INT":
@@ -470,6 +419,86 @@ namespace AliceScript
         {
             TryParseType(type, out Variable.VarType ptype);
             return ptype;
+        }
+        public static Type InvokeStringToType(string typeStr)
+        {
+            switch (typeStr.ToUpperInvariant())
+            {
+                case "VOID":
+                    return typeof(void);
+                case "HDC":
+                case "HWND":
+                case "HANDLE":
+                case "INTPTR":
+                    return typeof(nint);
+                case "UINTPTR":
+                    return typeof(UIntPtr);
+                case "INT8":
+                case "SCHAR":
+                    return typeof(sbyte);
+                case "UCHAR":
+                case "CHAR":
+                case "BYTE":
+                case "BOOLEAN":
+                    return typeof(byte);
+                case "INT16":
+                case "SHORT":
+                    return typeof(short);
+                case "UINT16":
+                case "USHORT":
+                case "WORD":
+                    return typeof(ushort);
+                case "INT32":
+                case "INT":
+                case "LONG32":
+                case "LONG":
+                    return typeof(int);
+                case "UINT32":
+                case "ULONG32":
+                case "ULONG":
+                case "DWORD":
+                    return typeof(uint);
+                case "INT64":
+                case "LONG64":
+                case "LONGLONG":
+                    return typeof(long);
+                case "UINT64":
+                case "ULONG64":
+                case "ULONGLONG":
+                    return typeof(ulong);
+                case "BOOL":
+                    return typeof(bool);
+                case "LPSTR":
+                case "LPTSTR":
+                case "LPCSTR":
+                case "LPCTSTR":
+                case "LPCWSTR":
+                case "LPWSTR":
+                case "STRING":
+                    return typeof(string);
+                case "FLOAT":
+                case "SINGLE":
+                    return typeof(float);
+                case "DOUBLE":
+                    return typeof(double);
+                default:
+                    {
+                        // 関数のカンマと被るため[System.Console+System.Console]のようにする
+                        typeStr = typeStr.Replace('+', ',');
+                        return Type.GetType(typeStr, false, true);
+                    }
+            }
+        }
+        public static Type[] InvokeStringToType(string[] typeStrs)
+        {
+            var types = new List<Type>();
+
+            foreach (string typeStr in typeStrs)
+            {
+                types.Add(InvokeStringToType(typeStr));
+            }
+
+            return types.ToArray();
         }
     }
 }

@@ -270,7 +270,7 @@ namespace AliceScript.Extra
         /// <summary>
         /// EUC補助漢字特殊処理(MS版CP20932の特異なコード体系によりデコードする)
         /// </summary>
-        private class EucHText : Text
+        private sealed class EucHText : Text
         {
             internal EucHText(string Name) : base(Name, 20932) { }
 

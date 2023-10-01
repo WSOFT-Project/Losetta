@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-    <Version>0.9.24</Version>
+    <Version>0.10.0</Version>
     <Company>WSOFT</Company>
     <Product>Losetta</Product>
     <Title>Alice.Runtime</Title>
@@ -24,15 +24,8 @@
              
     <RepositoryType>git</RepositoryType>
     <PackageOutputPath>bin\packages</PackageOutputPath>
-	  <!-- ネイティブAOT向けの項目 -->
-	  <PublishAot>true</PublishAot>
-	  <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
-	  <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
-	  <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
-	  <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
-	  <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
-	  <IlcDisableUnhandledExceptionExperience>false</IlcDisableUnhandledExceptionExperience>
-	  <!-- ネイティブAOT向けの項目(終わり) -->
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <RootNamespace>AliceScript.NameSpaces</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">

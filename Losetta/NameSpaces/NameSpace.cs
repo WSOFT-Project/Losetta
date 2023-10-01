@@ -11,7 +11,7 @@ namespace AliceScript.NameSpaces
         public static void Add(NameSpace space, string name = null)
         {
             if (name == null) { name = space.Name; }
-            name = name.ToLower();
+            name = name.ToLowerInvariant();
             if (NameSpaces.ContainsKey(name))
             {
                 //既に存在する場合はマージ
@@ -24,7 +24,7 @@ namespace AliceScript.NameSpaces
         }
         public static void Add(Type type, string name = null)
         {
-            Add(BindFunction.BindToNameSpace(type), name);
+            Add(Utils.BindToNameSpace(type), name);
         }
         public static bool Contains(NameSpace name)
         {

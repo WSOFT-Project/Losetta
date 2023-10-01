@@ -1,7 +1,11 @@
 ﻿using AliceScript.Functions;
 using AliceScript.NameSpaces;
+using AliceScript.Objects;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace AliceScript.Binding
 {
@@ -17,9 +21,10 @@ namespace AliceScript.Binding
 
         private void BindFunction_Run(object sender, FunctionBaseEventArgs e)
         {
+            bool wantMethod = e.CurentVariable != null;
             foreach (var load in Overloads)
             {
-                if (load.TryConvertParameters(e.Args, out var args))
+                if ((!wantMethod || load.IsMethod) && load.TryConvertParameters(e, this, out var args))
                 {
                     if (load.IsVoidFunc)
                     {
@@ -36,65 +41,28 @@ namespace AliceScript.Binding
         }
 
         /// <summary>
-        /// 指定された型で公開されている静的メソッドをバインドし、名前空間を返します。
-        /// </summary>
-        /// <param name="type">バインドの対象となる型</param>
-        /// <returns>バインド済み関数が所属する名前空間</returns>
-        public static NameSpace BindToNameSpace(Type type)
-        {
-            var space = new NameSpace(type.Name);
-            bool needbind = false;
-            if (TryGetAttibutte<AliceNameSpaceAttribute>(type, out var attribute))
-            {
-                if (attribute.Name != null)
-                {
-                    space.Name = attribute.Name;
-                }
-                needbind = attribute.NeedBindAttribute;
-            }
-            Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
-            foreach (var m in type.GetMethods())
-            {
-                if (m.IsPublic && m.IsStatic)
-                {
-                    if (!methods.ContainsKey(m.Name))
-                    {
-                        methods[m.Name] = new HashSet<MethodInfo>();
-                    }
-                    methods[m.Name].Add(m);
-                }
-            }
-            foreach (HashSet<MethodInfo> mi in methods.Values)
-            {
-                var method = mi.OrderByDescending(x => x.GetParameters().Length);
-                var func = CreateBindFunction(method.ToArray(), needbind);
-                if (func != null)
-                {
-                    space.Add(func);
-                }
-            }
-            return space;
-        }
-        /// <summary>
         /// メソッドからBindFunctionを生成
         /// </summary>
         /// <param name="methodInfos">同じメソッド名のオーバーロード</param>
         /// <param name="needBind">このメソッドをバインドするには属性が必要</param>
         /// <returns>生成されたFunctionBase</returns>
-        private static FunctionBase CreateBindFunction(MethodInfo[] methodInfos, bool needBind)
+        internal static BindFunction CreateBindFunction(HashSet<MethodInfo> methodInfos, bool needBind)
         {
             var func = new BindFunction();
             foreach (var methodInfo in methodInfos)
             {
                 string name = methodInfo.Name;
-                FunctionAttribute funcAttribute = FunctionAttribute.GENERAL;
                 if (TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {
                     if (attribute.Name != null)
                     {
                         name = attribute.Name;
                     }
-                    funcAttribute = attribute.Attribute;
+                    if (attribute.MethodOnly)
+                    {
+                        func.MethodOnly = true;
+                    }
+                    func.Attribute = attribute.Attribute;
                 }
                 else if (needBind)
                 {
@@ -103,12 +71,27 @@ namespace AliceScript.Binding
 
                 func.Name = name;
                 var load = new BindingOverloadFunction();
-                load.Attribute = funcAttribute;
                 load.TrueParameters = methodInfo.GetParameters();
+
+                if (load.TrueParameters.Length > 0)
+                {
+                    load.HasParams = load.TrueParameters[^1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
+                    load.IsMethod = methodInfo.IsDefined(typeof(ExtensionAttribute), true);
+                    func.RequestType = load.IsMethod ? new TypeObject() : null;
+                }
+                int i = 0;
+                for (; i < load.TrueParameters.Length; i++)
+                {
+                    if (load.TrueParameters[i].HasDefaultValue)
+                    {
+                        break;
+                    }
+                }
+                load.MinimumArgCounts = i;
 
                 var args = Expression.Parameter(typeof(object[]), "args");
                 var parameters = load.TrueParameters.Select((x, index) =>
-                Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), x.ParameterType)).ToArray();
+                Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), Utils.GetTrueParametor(x.ParameterType))).ToArray();
                 if (methodInfo.ReturnType == typeof(void))
                 {
                     load.VoidFunc = Expression.Lambda<Action<object[]>>(
@@ -129,11 +112,9 @@ namespace AliceScript.Binding
                 func.Overloads.Add(load);
             }
 
-
             return func;
         }
-
-        private static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
+        internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
         {
             attribute = null;
             var attr = System.Attribute.GetCustomAttributes(memberInfo, typeof(T));
@@ -144,55 +125,7 @@ namespace AliceScript.Binding
             }
             return false;
         }
-        /// <summary>
-        /// 任意の静的メソッドを表すオブジェクト
-        /// </summary>
-        private sealed class BindingOverloadFunction : FunctionBase
-        {
-            public ParameterInfo[] TrueParameters { get; set; }
-            public Action<object[]> VoidFunc { get; set; }
-            public Func<object[], object> ObjFunc { get; set; }
-            public bool IsVoidFunc { get; set; }
-            public bool TryConvertParameters(List<Variable> args, out object[] converted)
-            {
-                converted = null;
 
-                var parametors = new List<object>(args.Count);
-                if (args.Count > TrueParameters.Length)
-                {
-                    //入力の引数の方が多い場合
-                    return false;
-                }
-                for (int i = 0; i < TrueParameters.Length; i++)
-                {
-                    if (i > args.Count - 1)
-                    {
-                        //マッチしたい引数の数の方が多い場合
-                        if (TrueParameters[i].IsOptional)
-                        {
-                            parametors.Add(TrueParameters[i].DefaultValue);
-                            continue;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-
-                    if (args[i].TryConvertTo(TrueParameters[i].ParameterType, out var result))
-                    {
-                        parametors.Add(result);
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                converted = parametors.ToArray();
-                return true;
-            }
-        }
-        private HashSet<BindingOverloadFunction> Overloads = new HashSet<BindingOverloadFunction>();
-
+        private SortedSet<BindingOverloadFunction> Overloads = new SortedSet<BindingOverloadFunction>();
     }
 }

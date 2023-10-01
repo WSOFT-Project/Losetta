@@ -1,6 +1,5 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
-using AliceScript.Interop;
 
 namespace AliceScript.NameSpaces
 {
@@ -8,11 +7,11 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(EnvironmentFunctions));
+            Alice.RegisterFunctions<EnvironmentFunctions>();
         }
     }
     [AliceNameSpace(Name = "Alice.Environment")]
-    internal static class EnvironmentFunctions
+    internal sealed class EnvironmentFunctions
     {
         #region システムの情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
@@ -208,15 +207,15 @@ namespace AliceScript.NameSpaces
         {
             return Environment.GetEnvironmentVariable(variable);
         }
-        public static string Env_Get_EnvironmentVariable(string? variable, int target)
+        public static string Env_Get_EnvironmentVariable(string variable, int target)
         {
             return Environment.GetEnvironmentVariable(variable, (EnvironmentVariableTarget)target);
         }
-        public static void Env_Set_EnvironmentVariable(string? variable)
+        public static void Env_Set_EnvironmentVariable(string variable)
         {
             Environment.GetEnvironmentVariable(variable);
         }
-        public static void Env_Set_EnvironmentVariable(string? variable, string? value, int target)
+        public static void Env_Set_EnvironmentVariable(string variable, string value, int target)
         {
             Environment.SetEnvironmentVariable(variable, value, (EnvironmentVariableTarget)target);
         }

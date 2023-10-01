@@ -53,7 +53,7 @@ namespace AliceScript.CLI
                 Runtime.Init();
             }
             //ShellFunctions登録
-            ShellFunctions.Init();
+            Alice.RegisterFunctions<ShellFunctions>();
 
             //例外出力
             ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;

@@ -1,6 +1,4 @@
 ﻿using AliceScript.Binding;
-using AliceScript.Functions;
-using AliceScript.Objects;
 using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
@@ -9,8 +7,6 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            Variable.AddFunc(new str_IsMatchFunc());
-            Variable.AddFunc(new str_MatchesFunc());
             NameSpaceManager.Add(typeof(RegexFunctions));
         }
     }
@@ -46,43 +42,39 @@ namespace AliceScript.NameSpaces
         {
             return Regex.Split(input, pattern);
         }
-    }
-    internal sealed class str_IsMatchFunc : FunctionBase
-    {
-        public str_IsMatchFunc()
+        public static bool IsMatch(this string input, string pattern)
         {
-            Name = "IsMatch";
-            MinimumArgCounts = 1;
-            RequestType = new TypeObject(Variable.VarType.STRING);
-            Run += Str_IsMatchFunc_Run;
+            return Regex.IsMatch(input, pattern);
         }
-
-        private void Str_IsMatchFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static string[] Matches(this string input, string pattern)
         {
-            e.Return = new Variable(Regex.IsMatch(e.CurentVariable.AsString(), e.Args[0].AsString()));
-        }
-    }
-
-    internal sealed class str_MatchesFunc : FunctionBase
-    {
-        public str_MatchesFunc()
-        {
-            Name = "Matches";
-            MinimumArgCounts = 1;
-            RequestType = new TypeObject(Variable.VarType.STRING);
-            Run += Str_IsMatchFunc_Run;
-        }
-
-        private void Str_IsMatchFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            var mc = Regex.Matches(e.CurentVariable.AsString(), e.Args[0].AsString());
-            Variable r = new Variable(Variable.VarType.ARRAY);
+            var mc = Regex.Matches(input, pattern);
+            List<string> result = new List<string>();
             foreach (Match m in mc)
             {
-                r.Tuple.Add(new Variable(m.Value));
+                result.Add(m.Value);
             }
-            e.Return = r;
+            return result.ToArray();
+        }
+        public static string ReplaceAll(this string input, string pattern, string replacement)
+        {
+            return Regex.Replace(input, pattern, replacement);
+        }
+        public static string ReplaceFirst(this string input, string pattern, string replacement)
+        {
+            var reg = new Regex(pattern);
+            return reg.Replace(input, replacement, 1);
+        }
+        public static string Regex_FromWildCard(string wildCard)
+        {
+            wildCard = Regex.Escape(wildCard);
+            wildCard = wildCard.Replace("\\*", ".*");
+            wildCard = wildCard.Replace("\\?", ".");
+            wildCard = wildCard.Replace("\\[", "[");
+            wildCard = wildCard.Replace("[!", "[^");
+            wildCard = wildCard.Replace("#", "\\d");
+
+            return $"^({wildCard})$";
         }
     }
-
 }

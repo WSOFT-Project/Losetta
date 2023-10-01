@@ -23,9 +23,7 @@
         /// <summary>
         /// プラグインのエントリポイント
         /// </summary>
-        public virtual void Main()
-        {
-        }
+        public virtual void Main() { }
 
         /// <summary>
         /// プラグインの名前
