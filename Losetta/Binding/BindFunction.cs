@@ -25,15 +25,15 @@ namespace AliceScript.Binding
                 {
                     if (load.IsInstanceFunc)
                     {
-                        if (Instance != null)
+                        if (Parent?.Instance != null)
                         {
                             if (load.IsVoidFunc)
                             {
-                                load.InstanceVoidFunc.Invoke(Instance, args);
+                                load.InstanceVoidFunc.Invoke(Parent?.Instance, args);
                             }
                             else
                             {
-                                e.Return = new Variable(load.InstanceObjFunc.Invoke(Instance, args));
+                                e.Return = new Variable(load.InstanceObjFunc.Invoke(Parent?.Instance, args));
                             }
                         }
                     }
@@ -207,6 +207,6 @@ namespace AliceScript.Binding
         }
 
         private SortedSet<BindingOverloadFunction> Overloads = new SortedSet<BindingOverloadFunction>();
-        public object Instance { get; set; }
+        public BindObject Parent { get; set; }
     }
 }

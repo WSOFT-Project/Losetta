@@ -19,7 +19,7 @@ namespace AliceScript.Binding
             {
                 if (Get.IsInstanceFunc)
                 {
-                    e.Value = new Variable(Get.InstanceObjFunc.Invoke(Instance,new object[] { }));
+                    e.Value = new Variable(Get.InstanceObjFunc.Invoke(Parent?.Instance,new object[] { }));
                 }
                 else
                 {
@@ -41,7 +41,7 @@ namespace AliceScript.Binding
                 {
                     if (Set.IsInstanceFunc)
                     {
-                        Set.InstanceVoidFunc.Invoke(Instance,args);
+                        Set.InstanceVoidFunc.Invoke(Parent?.Instance,args);
                     }
                     else
                     {
@@ -56,6 +56,6 @@ namespace AliceScript.Binding
 
         public BindingOverloadFunction Set { get; set; }
         public BindingOverloadFunction Get { get; set; }
-        public object Instance { get; set; }
+        public BindObject Parent { get; set; }
     }
 }

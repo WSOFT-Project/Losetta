@@ -1,6 +1,7 @@
 ﻿using AliceScript.Binding;
 using AliceScript.NameSpaces;
 using AliceScript.Objects;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -218,9 +219,9 @@ namespace AliceScript
             return func;
         }
 
-        public static ObjectBase CreateBindObject(Type type)
+        public static BindObject CreateBindObject(Type type)
         {
-            var obj = new ObjectBase();
+            var obj = new BindObject();
             obj.Name = type.Name;
 
             if(TryGetAttibutte<AliceObjectAttribute>(type,out var attr))
@@ -260,6 +261,7 @@ namespace AliceScript
                 var func = CreateBindFunction(mi, false);
                 if (func != null)
                 {
+                    func.Parent = obj;
                     obj.AddFunction(func);
                 }
             }
@@ -268,6 +270,7 @@ namespace AliceScript
                 var func = CreateBindFunction(mi);
                 if (func != null)
                 {
+                    func.Parent = obj;
                     obj.StaticFunctions[func.Name] = func;
                 }
             }
@@ -276,25 +279,14 @@ namespace AliceScript
                 var prop = CreateBindFunction(p, false);
                 if (prop != null)
                 {
+                    prop.Parent = obj;
                     obj.AddFunction(prop);
                 }
             }
             obj.Constructor = BindFunction.CreateBindConstructor(type.GetConstructors());
             obj.Constructor.Run += delegate (object sender, Functions.FunctionBaseEventArgs e)
             {
-                object instance = e.Return.AsObject();
-
-                foreach (var func in obj.Functions.Values)
-                {
-                    if (func is BindFunction bf)
-                    {
-                        bf.Instance = instance;
-                    }
-                    else if (func is BindValueFunction bp)
-                    {
-                        bp.Instance = instance;
-                    }
-                }
+                obj.Instance = e.Return.AsObject();
             };
 
             return obj;

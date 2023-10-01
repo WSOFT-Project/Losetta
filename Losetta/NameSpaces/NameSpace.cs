@@ -71,6 +71,10 @@ namespace AliceScript.NameSpaces
             Classes.Add(obj);
             Functions.Add(new ValueFunction(new Variable(new TypeObject(obj))));
         }
+        public void Add<T>()
+        {
+            NameSpaces.NameSpaceManager.Add(typeof(T));
+        }
         public void Add(string name, string val)
         {
             Enums.Add(name, val);

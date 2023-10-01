@@ -17,7 +17,7 @@ namespace AliceScript.Functions
         public TypeObject Type { get; set; }
         private void ConstructorFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            Type.Activate(e.Args,e.Script);
+            e.Return = Type.Activate(e.Args,e.Script);
         }
     }
 }

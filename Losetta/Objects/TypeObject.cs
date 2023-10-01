@@ -115,11 +115,7 @@ namespace AliceScript.Objects
                 v.Tuple.Type = ArrayType;
                 return v;
             }
-            else
-            {
-                return new Variable(Type);
-            }
-            return Variable.EmptyInstance;
+            return new Variable(Type);
         }
 
         public bool Match(Variable item)

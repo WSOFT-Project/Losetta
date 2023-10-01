@@ -1,4 +1,5 @@
-﻿using AliceScript.Extra;
+﻿using AliceScript.Binding;
+using AliceScript.Extra;
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
@@ -168,7 +169,7 @@ namespace AliceScript
         }
         public Variable(object o)
         {
-            if(o == null)
+            if (o == null)
             {
                 AssignNull();
                 return;
@@ -188,7 +189,7 @@ namespace AliceScript
                 String = s;
                 return;
             }
-            if(o is StringBuilder sb)
+            if (o is StringBuilder sb)
             {
                 String = sb.ToString();
                 return;
@@ -223,7 +224,7 @@ namespace AliceScript
                 Value = i;
                 return;
             }
-            if(o is nint ni)
+            if (o is nint ni)
             {
                 Value = ni;
                 return;
@@ -276,7 +277,15 @@ namespace AliceScript
                 Delegate = m;
                 return;
             }
-            Object = o;
+            if (o is ObjectBase obj)
+            {
+                Object = obj;
+                return;
+            }
+            var ob = Utils.CreateBindObject(o.GetType());
+            ob.Instance = o;
+            Object = ob;
+            return;
         }
         public virtual Variable Clone()
         {
@@ -703,7 +712,7 @@ namespace AliceScript
         {
             if (check)
             {
-                Utils.CheckNumInRange(this, true,short.MinValue,short.MaxValue);
+                Utils.CheckNumInRange(this, true, short.MinValue, short.MaxValue);
             }
             return (short)Value;
         }
@@ -727,7 +736,7 @@ namespace AliceScript
         {
             if (check)
             {
-                Utils.CheckNumInRange(this, true,uint.MinValue, uint.MaxValue);
+                Utils.CheckNumInRange(this, true, uint.MinValue, uint.MaxValue);
             }
             return (uint)Value;
         }
@@ -1004,7 +1013,7 @@ namespace AliceScript
                 //null許容値型かつnullでない場合、その型パラメーターについてチェックする
                 type = type.GetGenericArguments()[0];
             }
-            if(!type.IsValueType && isNull)
+            if (!type.IsValueType && isNull)
             {
                 result = null;
                 return true;
@@ -1013,7 +1022,7 @@ namespace AliceScript
             {
                 case VarType.STRING:
                     {
-                        if(type == typeof(StringBuilder))
+                        if (type == typeof(StringBuilder))
                         {
                             result = new StringBuilder(String);
                             return true;
@@ -1143,6 +1152,11 @@ namespace AliceScript
                             result = null;
                             return true;
                         }
+                        if(Object is BindObject bo)
+                        {
+                            result = bo.Instance;
+                            return true;
+                        }
                         result = System.Convert.ChangeType(Object, type);
                         return true;
                     }
@@ -1160,7 +1174,10 @@ namespace AliceScript
             {
                 case VarType.BOOLEAN: return AsBool();
                 case VarType.NUMBER: return AsDouble();
-                case VarType.OBJECT: return Object;
+                case VarType.OBJECT:
+                    {
+                        return Object is BindObject bo ? bo.Instance : Object;
+                    }
                 case VarType.ARRAY:
                 case VarType.ARRAY_NUM:
                 case VarType.ARRAY_STR:
