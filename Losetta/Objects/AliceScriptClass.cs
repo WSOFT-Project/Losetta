@@ -97,7 +97,7 @@ namespace AliceScript.Objects
 
         public void AddProperty(string name, Variable property)
         {
-            m_classProperties[name] = new PropertyBase(property);
+            m_classProperties[name] = new ValueFunction(property);
         }
 
         public static AliceScriptClass GetClass(string name, ParsingScript script)
@@ -105,7 +105,7 @@ namespace AliceScript.Objects
             string currNamespace = GetCurrentNamespace;
             if (!string.IsNullOrWhiteSpace(currNamespace))
             {
-                bool namespacePresent = name.Contains(".");
+                bool namespacePresent = name.Contains('.', StringComparison.Ordinal);
                 if (!namespacePresent)
                 {
                     name = currNamespace + "." + name;
@@ -123,23 +123,23 @@ namespace AliceScript.Objects
             }
 
             //ちょっとでも高速化（ここのロジックは時間がかかる）
-            if (name.Contains("."))
+            if (name.Contains('.', StringComparison.Ordinal))
             {
                 string namespacename = string.Empty;
 
                 foreach (string nsn in NameSpaceManager.NameSpaces.Keys)
                 {
                     //より長い名前（AliceとAlice.IOならAlice.IO）を採用
-                    if (name.StartsWith(nsn.ToLower() + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
+                    if (name.StartsWith(nsn.ToLowerInvariant() + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
                     {
-                        namespacename = nsn.ToLower();
+                        namespacename = nsn.ToLowerInvariant();
                     }
                 }
 
                 //完全修飾名で関数を検索
-                if (namespacename != string.Empty)
+                if (!string.IsNullOrEmpty(namespacename))
                 {
-                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.ToLower() == namespacename).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLower(), StringComparison.Ordinal)).FirstOrDefault();
+                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
                     if (cfc != null)
                     {
                         return cfc;
@@ -151,9 +151,9 @@ namespace AliceScript.Objects
         }
         private static AliceScriptClass GetFromNS(string name, ParsingScript script)
         {
-            for (int i = 0; i < script.UsingNamespaces.Count; i++)
+            foreach (NameSpace ns in script.UsingNamespaces)
             {
-                var fc = script.UsingNamespaces[i].Classes.Where((x) => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                var fc = ns.Classes.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
@@ -168,8 +168,8 @@ namespace AliceScript.Objects
             new Dictionary<int, CustomFunction>();
         protected Dictionary<string, FunctionBase> m_customFunctions =
             new Dictionary<string, FunctionBase>();
-        protected Dictionary<string, PropertyBase> m_classProperties =
-            new Dictionary<string, PropertyBase>();
+        protected Dictionary<string, ValueFunction> m_classProperties =
+            new Dictionary<string, ValueFunction>();
         protected Dictionary<string, FunctionBase> m_static_customFunctions =
             new Dictionary<string, FunctionBase>();
 
@@ -212,7 +212,7 @@ namespace AliceScript.Objects
 
             public override string ToString()
             {
-                if (!m_cscsClass.m_customFunctions.TryGetValue(Constants.PROP_TO_STRING.ToLower(),
+                if (!m_cscsClass.m_customFunctions.TryGetValue(Constants.PROP_TO_STRING.ToLowerInvariant(),
                      out FunctionBase customFunction))
                 {
                     return m_cscsClass.Name + "." + InstanceName;
@@ -226,7 +226,7 @@ namespace AliceScript.Objects
             {
                 m_properties[name] = value;
                 m_propSet.Add(name);
-                m_propSetLower.Add(name.ToLower());
+                m_propSetLower.Add(name.ToLowerInvariant());
                 return Task.FromResult(Variable.EmptyInstance);
             }
 
@@ -274,7 +274,7 @@ namespace AliceScript.Objects
             }
             public bool PropertyExists(string name)
             {
-                return m_propSetLower.Contains(name.ToLower());
+                return m_propSetLower.Contains(name.ToLowerInvariant());
             }
 
             public bool FunctionExists(string name)

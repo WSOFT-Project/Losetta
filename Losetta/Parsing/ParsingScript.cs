@@ -21,14 +21,14 @@ namespace AliceScript.Parsing
         private object m_tag;           // 現在のスクリプトに関連付けられたオブジェクト。これは多用途で使用されます
         private AlicePackage m_package = null;//現在のスクリプトが実行されているパッケージ
         private HashSet<string> m_defines = new HashSet<string>();// 現在のスクリプトで宣言されたシンボル
-        private static ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
+        private static readonly ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
         private ParsingScript m_parentScript = m_toplevel_script;// このスクリプトの親
         private ScriptSettings m_settings = new ScriptSettings();//このスクリプトの設定
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
-        private List<NameSpace> m_namespace = new List<NameSpace>();
+        private HashSet<NameSpace> m_namespace = new HashSet<NameSpace>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
 
@@ -95,10 +95,6 @@ namespace AliceScript.Parsing
             /// </summary>
             public string FileName { get; set; }
 
-            public StackInfo()
-            {
-
-            }
             public StackInfo(FunctionBase function, string line, int lineNumber, string fileName)
             {
                 Function = function;
@@ -124,6 +120,18 @@ namespace AliceScript.Parsing
                 {
                     sb.Append(".bind ");
                 }
+                if (Function is FunctionBase fb)
+                {
+                    if (fb.IsMethod)
+                    {
+                        sb.Append(".method ");
+                    }
+                    if (fb.IsMethod && !fb.MethodOnly)
+                    {
+                        sb.Append(Constants.EXTENSION);
+                        sb.Append(Constants.SPACE);
+                    }
+                }
                 if (Function is CustomFunction)
                 {
                     sb.Append(".custom ");
@@ -137,7 +145,7 @@ namespace AliceScript.Parsing
                 if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
                 {
                     sb.Append(Function.RelatedNameSpace);
-                    sb.Append(".");
+                    sb.Append('.');
                 }
                 sb.Append(string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name);
                 sb.Append(Constants.START_ARG);
@@ -166,6 +174,10 @@ namespace AliceScript.Parsing
         /// 現在実行中あるいは最後に実行された関数
         /// </summary>
         public FunctionBase ProcessingFunction { get; set; }
+        /// <summary>
+        /// ひとつ前に実行した関数
+        /// </summary>
+        public AttributeFunction AttributeFunction { get; set; }
 
         /// <summary>
         /// このスクリプトの現在の名前空間
@@ -177,7 +189,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// このスクリプトでusingされた名前空間の一覧
         /// </summary>
-        public List<NameSpace> UsingNamespaces
+        public HashSet<NameSpace> UsingNamespaces
         {
             get => m_namespace;
             set => m_namespace = value;
@@ -574,7 +586,7 @@ namespace AliceScript.Parsing
         public string FunctionName
         {
             get => m_functionName;
-            set => m_functionName = value.ToLower();
+            set => m_functionName = value.ToLowerInvariant();
         }
 
         public ParserFunction.StackLevel StackLevel { get; set; }
@@ -639,7 +651,7 @@ namespace AliceScript.Parsing
         /// <param name="whenPossible">名前空間が存在しない場合に例外を発生させない場合にtrue</param>
         public void Using(string name, bool whenPossible = false)
         {
-            name = name.ToLower();
+            name = name.ToLowerInvariant();
             if (NameSpaceManager.Contains(name))
             {
                 UsingNamespaces.Add(NameSpaceManager.NameSpaces[name]);
@@ -735,12 +747,9 @@ namespace AliceScript.Parsing
             {
                 return true;
             }
-            else
+            else if (ParentScript != null && ParentScript.TryGetFunction(name, out function))
             {
-                if (ParentScript != null && ParentScript.TryGetFunction(name, out function))
-                {
-                    return true;
-                }
+                return true;
             }
             return false;
         }
@@ -827,7 +836,7 @@ namespace AliceScript.Parsing
         }
 
         public int OriginalLineNumber => GetOriginalLineNumber();
-        public string OriginalLine => GetOriginalLine(out int lineNumber);
+        public string OriginalLine => GetOriginalLine(out _);
 
         public int GetOriginalLineNumber()
         {
@@ -888,9 +897,9 @@ namespace AliceScript.Parsing
         {
             return m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
         }
-        public char TryNext()
+        public char TryNext(int count = 1)
         {
-            return m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
+            return m_from + count < m_data.Length ? m_data[m_from + count] : Constants.EMPTY;
         }
         public char TryPrev(int count = 1)
         {
@@ -948,6 +957,20 @@ namespace AliceScript.Parsing
         public void MoveForwardIfNotPrevious(char ch)
         {
             if (Prev != ch)
+            {
+                Forward();
+            }
+        }
+        public void MoveForwardWhile(char[] ch)
+        {
+            while (StillValid() && ch.Contains(Current))
+            {
+                Forward();
+            }
+        }
+        public void MoveForwardNotWhile(char[] ch)
+        {
+            while (StillValid() && !ch.Contains(Current))
             {
                 Forward();
             }
@@ -1026,7 +1049,7 @@ namespace AliceScript.Parsing
 #if !DEBUG_THROW
             catch (ScriptException scriptExc)
             {
-                OnThrowError(scriptExc, scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script, scriptExc.Exception);
+                OnThrowError(scriptExc, scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script ?? this, scriptExc.Exception);
             }
             catch (ParsingException parseExc)
             {
@@ -1144,7 +1167,7 @@ namespace AliceScript.Parsing
             }
             return result;
         }
-        public Variable Process(bool checkBreak = false)
+        public Variable Process(bool checkBreak = true)
         {
             Variable result = null;
             while (Pointer < m_data.Length)
@@ -1156,6 +1179,7 @@ namespace AliceScript.Parsing
                 }
                 if (checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
                 {
+                    SkipBlock();
                     return result;
                 }
                 GoToNextStatement();
@@ -1182,7 +1206,6 @@ namespace AliceScript.Parsing
         }
         public void SkipBlock()
         {
-            int blockStart = Pointer;
             int startCount = 0;
             int endCount = 0;
             bool inQuotes = false;
@@ -1195,8 +1218,9 @@ namespace AliceScript.Parsing
             {
                 if (!StillValid())
                 {
-                    throw new ScriptException("次のブロックを実行できませんでした [" +
-                    Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, this);
+                    return;
+                    // throw new ScriptException("次のブロックを実行できませんでした [" +
+                    // Substr(blockStart, Constants.MAX_CHARS_TO_SHOW) + "]", Exceptions.COULDNT_EXECUTE_BLOCK, this);
                 }
                 char currentChar = CurrentAndForward();
                 switch (currentChar)
@@ -1259,13 +1283,12 @@ namespace AliceScript.Parsing
         /// <summary>
         /// 波かっこで始まって終わるブロックを子スクリプトとして実行します
         /// </summary>
-        /// <param name="inForOrWhile">forブロックやwhileブロックなど、breakなどで抜けるブロック</param>
         /// <returns>ブロックの値</returns>
-        public Variable ProcessBlock(bool inForOrWhile = false)
+        public Variable ProcessBlock()
         {
             string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             ParsingScript mainScript = GetTempScript(body);
-            return mainScript.Process(inForOrWhile);
+            return mainScript.Process();
         }
 
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
@@ -1299,7 +1322,7 @@ namespace AliceScript.Parsing
             if (EnableInclude)
             {
                 string includeFile = GetIncludeFileLine(filename, out string pathname, out bool isPackageFile);
-                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out var def, out var setting, pathname);
+                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out _, out var setting, pathname);
                 ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line);
                 tempScript.TopInFile = true;
                 tempScript.Settings = setting;

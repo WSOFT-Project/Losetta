@@ -153,7 +153,7 @@ namespace AliceScript.CLI
             contents.Add("Content");
             foreach (string s in dic.Keys)
             {
-                if (dic[s] is GetVarFunction vf)
+                if (dic[s] is ValueFunction vf)
                 {
                     names.Add(s);
                     if (s.Length > namemax)
@@ -203,7 +203,7 @@ namespace AliceScript.CLI
             {
                 try
                 {
-                    if (dic[s] is GetVarFunction vf)
+                    if (dic[s] is ValueFunction vf)
                     {
                         names.Add(s);
                         if (s.Length > namemax)

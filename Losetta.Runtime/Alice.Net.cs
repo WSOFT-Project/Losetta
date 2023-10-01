@@ -7,12 +7,12 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            NameSpaceManager.Add(typeof(WebFunctions));
+            Alice.RegisterFunctions<WebFunctions>();
         }
         internal static WebClient wc = new WebClient();
     }
     [AliceNameSpace(Name = "Alice.Net")]
-    internal static class WebFunctions
+    internal sealed class WebFunctions
     {
         #region Webアップロード
         public static byte[] Web_Upload_Data(string uri, byte[] data)
@@ -27,15 +27,15 @@ namespace AliceScript.NameSpaces
         {
             return Alice_Net.wc.UploadString(uri, text);
         }
-        public static byte[] Web_Upload_Data(string uri, string? method, byte[] data)
+        public static byte[] Web_Upload_Data(string uri, string method, byte[] data)
         {
             return Alice_Net.wc.UploadData(uri, method, data);
         }
-        public static byte[] Web_Upload_File(string uri, string? method, string filename)
+        public static byte[] Web_Upload_File(string uri, string method, string filename)
         {
             return Alice_Net.wc.UploadFile(uri, method, filename);
         }
-        public static string Web_Upload_String(string uri, string? method, string text)
+        public static string Web_Upload_String(string uri, string method, string text)
         {
             return Alice_Net.wc.UploadString(uri, method, text);
         }
@@ -56,19 +56,19 @@ namespace AliceScript.NameSpaces
         #endregion
 
         #region エンコード・デコード
-        public static string Web_UrlDecode(string? value)
+        public static string Web_UrlDecode(string value)
         {
             return WebUtility.UrlDecode(value);
         }
-        public static string Web_UrlEncode(string? value)
+        public static string Web_UrlEncode(string value)
         {
             return WebUtility.UrlEncode(value);
         }
-        public static string Web_HtmlDecode(string? value)
+        public static string Web_HtmlDecode(string value)
         {
             return WebUtility.HtmlDecode(value);
         }
-        public static string Web_HtmlEncode(string? value)
+        public static string Web_HtmlEncode(string value)
         {
             return WebUtility.HtmlEncode(value);
         }

@@ -6,11 +6,6 @@ namespace AliceScript.Objects
     public class ObjectBase : AliceScriptClass, IComparable, ScriptObject
     {
 
-        public Dictionary<string, PropertyBase> Properties
-        {
-            get => m_classProperties;
-            set => m_classProperties = value;
-        }
         public Dictionary<string, FunctionBase> Functions
         {
             get => m_customFunctions;
@@ -44,7 +39,7 @@ namespace AliceScript.Objects
 
         public override string ToString()
         {
-            var tsf = Functions.Keys.Where(x => x.ToLower() == "tostring").FirstOrDefault();
+            var tsf = Functions.Keys.Where(x => x.ToLowerInvariant() == "tostring").FirstOrDefault();
             return tsf != null
                 ? Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString()
                 : string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
@@ -68,8 +63,7 @@ namespace AliceScript.Objects
 
         public virtual List<string> GetProperties()
         {
-            List<string> v = new List<string>(Properties.Keys);
-            v.AddRange(new List<string>(Functions.Keys));
+            List<string> v = new List<string>(Functions.Keys);
             v.AddRange(new List<string>(Events.Keys));
             return v;
         }
@@ -92,10 +86,10 @@ namespace AliceScript.Objects
         {
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
 
-            var prop = GetPropertyBase(sPropertyName);
+            var prop = GetValueFunction(sPropertyName);
             if (prop != null)
             {
-                return Task.FromResult(prop.Property);
+                return Task.FromResult(prop.Value);
             }
             else
             {
@@ -122,19 +116,19 @@ namespace AliceScript.Objects
             }
         }
 
-        public virtual PropertyBase GetPropertyBase(string sPropertyName)
+        public virtual ValueFunction GetValueFunction(string sPropertyName)
         {
-            return Properties.ContainsKey(sPropertyName) ? Properties[sPropertyName] : null;
+            return Functions.TryGetValue(sPropertyName, out var f) && f is ValueFunction vf ? vf : null;
         }
 
         public virtual Task<Variable> SetProperty(string sPropertyName, Variable argValue)
         {
 
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
-            var prop = GetPropertyBase(sPropertyName);
+            var prop = GetValueFunction(sPropertyName);
             if (prop != null)
             {
-                prop.Property = argValue;
+                prop.Value = argValue;
             }
             else if (Events.ContainsKey(sPropertyName))
             {
@@ -149,14 +143,6 @@ namespace AliceScript.Objects
             }
 
             return Task.FromResult(Variable.EmptyInstance);
-        }
-        public void AddProperty(PropertyBase property)
-        {
-            Properties.Add(property.Name, property);
-        }
-        public void RemoveProperty(PropertyBase property)
-        {
-            Properties.Remove(property.Name);
         }
         public void AddFunction(FunctionBase function, string name = "")
         {
@@ -174,125 +160,14 @@ namespace AliceScript.Objects
 
 
     }
-
-
     public class ObjectBaseManager
     {
         public static void AddObject(ObjectBase obj)
         {
             if (obj != null)
             {
-                ParserFunction.RegisterFunction(obj.Name, new GetVarFunction(new Variable(obj)), true);
+                ParserFunction.RegisterFunction(obj.Name, new ValueFunction(new Variable(obj)), true);
             }
         }
-    }
-
-    public class PropertyBaseEventArgs : EventArgs
-    {
-        /// <summary>
-        /// プロパティの変数の内容
-        /// </summary>
-        public Variable Value { get; set; }
-
-        /// <summary>
-        /// 呼び出し元の変数。これはコアプロパティで使用します。
-        /// </summary>
-        public Variable Parent { get; set; }
-    }
-    public delegate void PropertySettingEventHandler(object sender, PropertyBaseEventArgs e);
-
-    public delegate void PropertyGettingEventHandler(object sender, PropertyBaseEventArgs e);
-
-    public class PropertyBase
-    {
-        /// <summary>
-        /// このプロパティの名前
-        /// </summary>
-        public string Name { get; set; }
-        /// <summary>
-        /// TrueにするとSettingイベントおよびGettingイベントが発生します
-        /// </summary>
-
-        public bool HandleEvents { get; set; }
-        /// <summary>
-        /// プロパティに存在する変数。このプロパティはHandleEventsがTrueの場合には使用されません
-        /// </summary>
-
-        public Variable Value { get; set; }
-
-        /// <summary>
-        /// プロパティに変数が代入されるときに発生するイベント。このイベントはHandleEventsがTrueの場合のみ発生します
-        /// </summary>
-        public event PropertySettingEventHandler Setting;
-        /// <summary>
-        /// プロパティから変数が読みだされるときに発生するイベント。このイベントはHandleEventsがTrueの場合のみ発生します
-        /// </summary>
-
-        public event PropertyGettingEventHandler Getting;
-
-        /// <summary>
-        /// プロパティはこの型向けのプロパティとして登録されている。これはコアプロパティで使用します。
-        /// </summary>
-        public Variable.VarType Type { get; set; }
-
-        /// <summary>
-        /// SetPropertyが使用可能かを表す値。デフォルトではTrueです。
-        /// </summary>
-        public bool CanSet
-        {
-            get => m_CanSet;
-            set => m_CanSet = value;
-        }
-        private bool m_CanSet = true;
-        public PropertyBase(Variable value)
-        {
-            Value = value;
-        }
-        public PropertyBase()
-        {
-
-        }
-        public Variable GetProperty(Variable parent = null)
-        {
-            if (HandleEvents)
-            {
-                PropertyBaseEventArgs e = new PropertyBaseEventArgs();
-                e.Parent = parent;
-                e.Value = Value;
-                Getting?.Invoke(this, e);
-                return e.Value;
-            }
-            else
-            {
-                return Value;
-            }
-        }
-        public void SetProperty(Variable value, Variable parent = null)
-        {
-            if (CanSet)
-            {
-                if (HandleEvents)
-                {
-                    PropertyBaseEventArgs e = new PropertyBaseEventArgs();
-                    e.Parent = parent;
-                    e.Value = value;
-                    Setting?.Invoke(this, e);
-                }
-                else
-                {
-                    Value = value;
-                }
-            }
-            else
-            {
-                throw new ScriptException("このプロパティには代入できません", Exceptions.COULDNT_ASSIGN_THIS_PROPERTY);
-            }
-        }
-        public Variable Property
-        {
-            get => GetProperty();
-            set => SetProperty(value);
-        }
-
     }
 }

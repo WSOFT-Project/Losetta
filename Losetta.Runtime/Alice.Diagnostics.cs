@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using AliceScript.Binding;
 using AliceScript.Functions;
 using AliceScript.Objects;
-using AliceScript.Parsing;
+using System.Diagnostics;
+using System.Text;
 
 namespace AliceScript.NameSpaces
 {
@@ -10,190 +10,166 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            try
-            {
-                //名前空間のメインエントリポイントです。
-                NameSpace space = new NameSpace("Alice.Diagnostics");
+            Alice.RegisterFunctions<DiagnosticsFunctions>();
 
-                space.Add(new Process_GetProcessFunc());
-                space.Add(new Process_GetProcessFunc(true));
+            NameSpace space = new NameSpace("Alice.Diagnostics");
 
-                space.Add(new StopWatchObject());
-                space.Add(new ProcessObject());
-                space.Add(new ProcessStartInfoObject());
-                space.Add(new Process_StartFunc());
+            space.Add(new StopWatchObject());
+            space.Add(new ProcessObject());
+            space.Add(new ProcessStartInfoObject());
 
-                space.Add(new Debug_PrintFunction());
-                space.Add(new Debug_PrintFunction(true));
-                space.Add(new Debug_PrintFunction(true, true));
-                space.Add(new Debug_PrintFunction(false, true));
-                space.Add(new Debug_IndentFunction());
-                space.Add(new Debug_IndentFunction(true));
-                space.Add(new Debug_IndentLevelFunction());
+            space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
 
-                space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
-
-                NameSpaceManager.Add(space);
-            }
-            catch { }
+            NameSpaceManager.Add(space);
         }
     }
-    internal sealed class Debug_IndentFunction : FunctionBase
+    [AliceNameSpace(Name = "Alice.Diagnostics")]
+    internal sealed class DiagnosticsFunctions
     {
-        public Debug_IndentFunction(bool unindent = false)
+        #region プロセス操作
+        public static ProcessObject[] Process_GetProcessesByName(string name)
         {
-            m_UnIndent = unindent;
-            Name = m_UnIndent ? "Debug_Unindent" : "Debug_Indent";
-            Run += Debug_IndentFunction_Run;
+            Process[] ps = Process.GetProcessesByName(name);
+            List<ProcessObject> pss = new List<ProcessObject>();
+            foreach (Process p in ps)
+            {
+                ProcessObject po = new ProcessObject();
+                po.Process = p;
+                pss.Add(po);
+            }
+            return pss.ToArray();
         }
-
-        private void Debug_IndentFunction_Run(object sender, FunctionBaseEventArgs e)
+        public static ProcessObject[] Process_GetProcessesByName(string name, string machineName)
         {
-            if (m_UnIndent && IndentLevel > 0)
+            Process[] ps = Process.GetProcessesByName(name, machineName);
+            List<ProcessObject> pss = new List<ProcessObject>();
+            foreach (Process p in ps)
+            {
+                ProcessObject po = new ProcessObject();
+                po.Process = p;
+                pss.Add(po);
+            }
+            return pss.ToArray();
+        }
+        public static ProcessObject Process_GetProcessById(int id)
+        {
+            ProcessObject po = new ProcessObject();
+            po.Process = Process.GetProcessById(id);
+            return po;
+        }
+        public static ProcessObject Process_GetProcessById(int id, string machineName)
+        {
+            ProcessObject po = new ProcessObject();
+            po.Process = Process.GetProcessById(id, machineName);
+            return po;
+        }
+        public static ProcessObject Process_Start(string path, string arguments = "")
+        {
+            var po = new ProcessObject();
+            po.Process = Process.Start(path, arguments);
+            return po;
+        }
+        #endregion
+        #region デバッグ機能
+        public static int IndentLevel = 0;
+        public static void Debug_Indent()
+        {
+            IndentLevel++;
+        }
+        public static void Debug_Unindent()
+        {
+            if (IndentLevel > 0)
             {
                 IndentLevel--;
             }
-            else if (!m_UnIndent)
-            {
-                IndentLevel++;
-            }
         }
-        public static int IndentLevel = 0;
-        private bool m_UnIndent = false;
-    }
-
-    internal sealed class Debug_IndentLevelFunction : FunctionBase
-    {
-        public Debug_IndentLevelFunction()
+        public static int Debug_IndentLevel()
         {
-            Name = "Debug_IndentLevel";
-            Run += Debug_IndentLevelFunction_Run;
+            return IndentLevel;
         }
-
-        private void Debug_IndentLevelFunction_Run(object sender, FunctionBaseEventArgs e)
+        public static int Debug_IndentLevel(int level)
         {
-            if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.NUMBER)
-            {
-                Debug_IndentFunction.IndentLevel = e.Args[0].AsInt();
-            }
-            e.Return = new Variable(Debug_IndentFunction.IndentLevel);
+            IndentLevel = level;
+            return IndentLevel;
         }
-    }
-
-    internal sealed class Debug_PrintFunction : FunctionBase
-    {
-        public Debug_PrintFunction(bool iswrite = false, bool isif = false)
+        public static void Debug_Print()
         {
-            string name = "Debug_";
-            if (iswrite)
-            {
-                name += "Write";
-            }
-            else
-            {
-                name += "Print";
-            }
-            if (isif)
-            {
-                name += "If";
-            }
-            MinimumArgCounts = isif ? 2 : 1;
-            m_isIf = isif;
-            m_isWrite = iswrite;
-            Name = name;
-            Run += PrintFunction_Run;
+            AddDebugOutput(string.Empty, true);
         }
-        private bool m_isIf = false;
-        private bool m_isWrite = false;
-        private void PrintFunction_Run(object sender, FunctionBaseEventArgs e)
+        public static void Debug_Print(string text)
         {
-            if (!m_isIf || e.Args[0].AsBool())
+            AddDebugOutput(text, true);
+        }
+        public static void Debug_Print(string format, Variable[] items)
+        {
+            AddDebugOutput(StringFormatFunction.Format(format, items), true);
+        }
+        public static void Debug_PrintIf(bool condition)
+        {
+            if (condition)
             {
-                int countnum = 0;
-                if (m_isIf) { countnum++; }
-                if (e.Args.Count == countnum)
-                {
-                    AddDebugOutput(string.Empty, e.Script, !m_isWrite);
-                }
-                else if (e.Args.Count == countnum + 1)
-                {
-                    AddDebugOutput(e.Args[countnum].AsString(), e.Script, !m_isWrite);
-                }
-                else
-                {
-                    string format = e.Args[countnum].AsString();
-                    for (int i = 0; i < countnum + 1; i++)
-                    {
-                        e.Args.RemoveAt(0);
-                    }
-                    AddDebugOutput(StringFormatFunction.Format(format, e.Args), e.Script, !m_isWrite);
-                }
+                AddDebugOutput(string.Empty, true);
             }
         }
-
-        public static void AddDebugOutput(string text, ParsingScript script = null,
+        public static void Debug_PrintIf(bool condition, string text)
+        {
+            if (condition)
+            {
+                AddDebugOutput(text, true);
+            }
+        }
+        public static void Debug_PrintIf(bool condition, string format, Variable[] items)
+        {
+            if (condition)
+            {
+                AddDebugOutput(StringFormatFunction.Format(format, items), true);
+            }
+        }
+        public static void Debug_Write()
+        {
+            AddDebugOutput(string.Empty, false);
+        }
+        public static void Debug_Write(string text)
+        {
+            AddDebugOutput(text, false);
+        }
+        public static void Debug_Write(string format, Variable[] items)
+        {
+            AddDebugOutput(StringFormatFunction.Format(format, items), false);
+        }
+        public static void Debug_WriteIf(bool condition)
+        {
+            if (condition)
+            {
+                AddDebugOutput(string.Empty, false);
+            }
+        }
+        public static void Debug_WriteIf(bool condition, string text)
+        {
+            if (condition)
+            {
+                AddDebugOutput(text, false);
+            }
+        }
+        public static void Debug_WriteIf(bool condition, string format, Variable[] items)
+        {
+            if (condition)
+            {
+                AddDebugOutput(StringFormatFunction.Format(format, items), false);
+            }
+        }
+        public static void AddDebugOutput(string text,
                                      bool addLine = true, bool addSpace = true, string start = "", string indent = "    ")
         {
             var indents = new StringBuilder();
-            for (int i = 0; i < Debug_IndentFunction.IndentLevel; i++)
+            for (int i = 0; i < IndentLevel; i++)
             {
                 indents.Append(indent);
             }
             string output = indents + text + (addLine ? Environment.NewLine : string.Empty);
             Interpreter.Instance.AppendDebug(output);
         }
-    }
-
-    internal sealed class Process_StartFunc : FunctionBase
-    {
-        public Process_StartFunc()
-        {
-            Name = "Process_Start";
-            MinimumArgCounts = 1;
-            Run += Process_StartFunc_Run;
-        }
-
-        private void Process_StartFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            var po = new ProcessObject();
-            po.Process = Process.Start(e.Args[0].AsString(), Utils.GetSafeString(e.Args, 1));
-            e.Return = new Variable(po);
-        }
-    }
-
-    internal sealed class Process_GetProcessFunc : FunctionBase
-    {
-        public Process_GetProcessFunc(bool byname = false)
-        {
-            m_ByName = byname;
-            Name = m_ByName ? "Process_GetProcessesByName" : "Process_GetProcessById";
-            MinimumArgCounts = 1;
-            Run += Process_GetProcessFunc_Run;
-        }
-
-        private void Process_GetProcessFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (m_ByName)
-            {
-                Process[] ps = Process.GetProcessesByName(e.Args[0].AsString());
-                Variable v = new Variable(Variable.VarType.ARRAY);
-                foreach (Process p in ps)
-                {
-                    ProcessObject po = new ProcessObject();
-                    po.Process = p;
-                    v.Tuple.Add(new Variable(po));
-                }
-                e.Return = v;
-            }
-            else
-            {
-                ProcessObject po = new ProcessObject();
-                po.Process = Process.GetProcessById(e.Args[0].AsInt());
-                e.Return = new Variable(po);
-            }
-        }
-
-        private bool m_ByName = false;
+        #endregion
     }
 
     internal sealed class ProcessObject : ObjectBase
@@ -202,7 +178,7 @@ namespace AliceScript.NameSpaces
         {
             Name = "Process";
 
-            AddProperty(new StartInfoProperty(this));
+            AddFunction(new StartInfoProperty(this));
 
             AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.CloseMainWindow, this));
             AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Kill, this));
@@ -215,7 +191,7 @@ namespace AliceScript.NameSpaces
         }
         internal Process Process = new Process();
 
-        private class StartInfoProperty : PropertyBase
+        private class StartInfoProperty : ValueFunction
         {
             public StartInfoProperty(ProcessObject host)
             {
@@ -226,7 +202,7 @@ namespace AliceScript.NameSpaces
                 Setting += StartInfoProperty_Setting;
             }
 
-            private void StartInfoProperty_Setting(object sender, PropertyBaseEventArgs e)
+            private void StartInfoProperty_Setting(object sender, ValueFunctionEventArgs e)
             {
                 if (Host.Process != null)
                 {
@@ -234,7 +210,7 @@ namespace AliceScript.NameSpaces
                 }
             }
 
-            private void StartInfoProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void StartInfoProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 if (Host.Process != null)
                 {
@@ -309,22 +285,22 @@ namespace AliceScript.NameSpaces
         {
             Name = "ProcessStartInfo";
 
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.CreateNoWindow, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.ErrorDialog, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.FileName, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.LoadUserProfile, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardError, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardInput, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardOutput, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.UseShellExecute, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Verb, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.WindowStyle, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.WorkingDirectory, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.CreateNoWindow, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.ErrorDialog, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.FileName, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.LoadUserProfile, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardError, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardInput, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardOutput, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.UseShellExecute, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.Verb, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.WindowStyle, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.WorkingDirectory, this));
         }
         internal ProcessStartInfo ps = new ProcessStartInfo();
 
-        private class InfoProperty : PropertyBase
+        private class InfoProperty : ValueFunction
         {
             internal enum InfoPropertyMode
             {
@@ -340,7 +316,7 @@ namespace AliceScript.NameSpaces
                 Setting += InfoProperty_Setting;
             }
             private ProcessStartInfoObject Host;
-            private void InfoProperty_Setting(object sender, PropertyBaseEventArgs e)
+            private void InfoProperty_Setting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {
@@ -409,7 +385,7 @@ namespace AliceScript.NameSpaces
 
 
 
-            private void InfoProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void InfoProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {
@@ -492,18 +468,18 @@ namespace AliceScript.NameSpaces
             AddFunction(new STWOFunc(this, 1), "stop");
             AddFunction(new STWOFunc(this, 2), "reset");
             AddFunction(new STWOFunc(this, 3), "restart");
-            AddProperty(new ElapsedProperty(stopwatch));
-            AddProperty(new ElapsedMillisecondsProperty(stopwatch));
-            AddProperty(new ElapsedTicksProperty(stopwatch));
-            AddProperty(new FrequencyProperty(stopwatch));
-            AddProperty(new IsHighResolutionProperty(stopwatch));
-            AddProperty(new IsRunningProperty(stopwatch));
+            AddFunction(new ElapsedProperty(stopwatch));
+            AddFunction(new ElapsedMillisecondsProperty(stopwatch));
+            AddFunction(new ElapsedTicksProperty(stopwatch));
+            AddFunction(new FrequencyProperty(stopwatch));
+            AddFunction(new IsHighResolutionProperty(stopwatch));
+            AddFunction(new IsRunningProperty(stopwatch));
         }
 
 
         private Stopwatch stopwatch = new Stopwatch();
 
-        private class ElapsedProperty : PropertyBase
+        private class ElapsedProperty : ValueFunction
         {
             public ElapsedProperty(Stopwatch stopwatch)
             {
@@ -514,13 +490,13 @@ namespace AliceScript.NameSpaces
                 Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.Elapsed);
             }
         }
 
-        private class ElapsedMillisecondsProperty : PropertyBase
+        private class ElapsedMillisecondsProperty : ValueFunction
         {
             public ElapsedMillisecondsProperty(Stopwatch stopwatch)
             {
@@ -531,13 +507,13 @@ namespace AliceScript.NameSpaces
                 Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.ElapsedMilliseconds);
             }
         }
 
-        private class ElapsedTicksProperty : PropertyBase
+        private class ElapsedTicksProperty : ValueFunction
         {
             public ElapsedTicksProperty(Stopwatch stopwatch)
             {
@@ -548,13 +524,13 @@ namespace AliceScript.NameSpaces
                 Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.ElapsedTicks);
             }
         }
 
-        private class IsRunningProperty : PropertyBase
+        private class IsRunningProperty : ValueFunction
         {
             public IsRunningProperty(Stopwatch stopwatch)
             {
@@ -565,13 +541,13 @@ namespace AliceScript.NameSpaces
                 Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.IsRunning);
             }
         }
 
-        private class IsHighResolutionProperty : PropertyBase
+        private class IsHighResolutionProperty : ValueFunction
         {
             public IsHighResolutionProperty(Stopwatch stopwatch)
             {
@@ -582,13 +558,13 @@ namespace AliceScript.NameSpaces
                 Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.IsHighResolution);
             }
         }
 
-        private class FrequencyProperty : PropertyBase
+        private class FrequencyProperty : ValueFunction
         {
             public FrequencyProperty(Stopwatch stopwatch)
             {
@@ -599,7 +575,7 @@ namespace AliceScript.NameSpaces
                 Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.Frequency);
             }

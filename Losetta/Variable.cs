@@ -2,6 +2,7 @@
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Collections;
 using System.Text;
 
 namespace AliceScript
@@ -14,24 +15,26 @@ namespace AliceScript
         [Flags]
         public enum VarType
         {
-            NONE = 0b0,
-            UNDEFINED = 0b1,
-            NUMBER = 0b10,
-            STRING = 0b100,
-            ARRAY = 0b1000,
-            ARRAY_NUM = 0b100000,
-            ARRAY_STR = 0b1000000,
-            MAP_NUM = 0b10000000,
-            MAP_STR = 0b100000000,
-            BYTES = 0b1000000000,
-            BREAK = 0b10000000000,
-            CONTINUE = 0b100000000000,
-            OBJECT = 0b1000000000000,
-            ENUM = 0b10000000000000,
-            VARIABLE = 0b100000000000000,
-            CUSTOM = 0b1000000000000000,
-            DELEGATE = 0b100000000000000000,
-            BOOLEAN = 0b1000000000000000000
+            VARIABLE = 0,
+            NONE = 1,
+            UNDEFINED = 2,
+            NUMBER = 4,
+            CHAR = 8,
+            ARRAY = 16,
+            ARRAY_NUM = 32,
+            ARRAY_STR = 64,
+            MAP_NUM = 128,
+            MAP_STR = 256,
+            BREAK = 1024,
+            CONTINUE = 2048,
+            OBJECT = 4096,
+            ENUM = 8192,
+            CUSTOM = 16384,
+            BOOLEAN = 65536,
+
+            BYTES = ARRAY | 512,
+            DELEGATE = ARRAY | 32768,
+            STRING = ARRAY | CHAR
         };
         public static Variable True => new Variable(true);
         public static Variable False => new Variable(false);
@@ -39,44 +42,21 @@ namespace AliceScript
         {
             return new Variable(text);
         }
-        public static void AddFunc(FunctionBase fb, string name = null)
-        {
-            if (name == null)
-            {
-                name = fb.Name;
-            }
-            name = name.ToLower();
-            Functions.Add(name, fb);
-        }
-        public static void AddProp(PropertyBase pb, string name = null)
+        public static void AddProp(ValueFunction pb, string name = null)
         {
             if (name == null)
             {
                 name = pb.Name;
             }
-            name = name.ToLower();
+            name = name.ToLowerInvariant();
             Properties.Add(name, pb);
         }
-        public static void RemoveFunc(FunctionBase fb, string name = "")
-        {
 
-            if (name == "")
-            {
-                name = fb.Name;
-            }
-            name = name.ToLower();
-            if (Functions.ContainsKey(name))
-            {
-                Functions.Remove(name);
-            }
-        }
-
-        public static Dictionary<string, FunctionBase> Functions = new Dictionary<string, FunctionBase>();
-        public static Dictionary<string, PropertyBase> Properties = new Dictionary<string, PropertyBase>();
+        public static Dictionary<string, ValueFunction> Properties = new Dictionary<string, ValueFunction>();
 
         List<string> ScriptObject.GetProperties()
         {
-            List<string> v = Functions.Keys.ToList();
+            List<string> v = Properties.Keys.ToList();
             return v;
         }
         public static bool GETTING = false;
@@ -89,11 +69,11 @@ namespace AliceScript
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
 
 
-            if (Functions.ContainsKey(sPropertyName))
+            if (Properties.ContainsKey(sPropertyName))
             {
                 GETTING = true;
 
-                Task<Variable> va = Task.FromResult(Functions[sPropertyName].GetValue(script));
+                Task<Variable> va = Task.FromResult(Properties[sPropertyName].Value);
                 GETTING = false;
                 return va;
             }
@@ -113,7 +93,7 @@ namespace AliceScript
         }
         public static Variable AsType(VarType type)
         {
-            return  new Variable(new TypeObject(type));
+            return new Variable(new TypeObject(type));
         }
         public Variable()
         {
@@ -186,11 +166,31 @@ namespace AliceScript
                 Tuple.Add(new Variable(i));
             }
         }
-        public Variable(object? o)
+        public Variable(object o)
         {
+            if(o == null)
+            {
+                AssignNull();
+                return;
+            }
+            if (o is Variable v)
+            {
+                Assign(v);
+                IsReturn = v.IsReturn;
+                Nullable = v.Nullable;
+                Type = v.Type;
+                TypeChecked = v.TypeChecked;
+                Readonly = v.Readonly;
+                return;
+            }
             if (o is string s)
             {
                 String = s;
+                return;
+            }
+            if(o is StringBuilder sb)
+            {
+                String = sb.ToString();
                 return;
             }
             if (o is bool b)
@@ -203,6 +203,16 @@ namespace AliceScript
                 ByteArray = data;
                 return;
             }
+            if (o is byte bt)
+            {
+                Value = bt;
+                return;
+            }
+            if (o is short sh)
+            {
+                Value = sh;
+                return;
+            }
             if (o is double d)
             {
                 Value = d;
@@ -213,9 +223,29 @@ namespace AliceScript
                 Value = i;
                 return;
             }
+            if(o is nint ni)
+            {
+                Value = ni;
+                return;
+            }
+            if (o is UIntPtr uni)
+            {
+                Value = uni.ToUInt64();
+                return;
+            }
+            if (o is uint ui)
+            {
+                Value = ui;
+                return;
+            }
             if (o is float f)
             {
                 Value = f;
+                return;
+            }
+            if (o is ulong ul)
+            {
+                Value = ul;
                 return;
             }
             if (o is long l)
@@ -226,18 +256,18 @@ namespace AliceScript
             if (o is IEnumerable<Variable> tuple)
             {
                 Tuple = new VariableCollection();
-                foreach (var v in tuple)
+                foreach (var item in tuple)
                 {
-                    Tuple.Add(v);
+                    Tuple.Add(item);
                 }
                 return;
             }
             if (o is IEnumerable<object> ary)
             {
                 Tuple = new VariableCollection();
-                foreach (var v in ary)
+                foreach (var item in ary)
                 {
-                    Tuple.Add(new Variable(v));
+                    Tuple.Add(new Variable(item));
                 }
                 return;
             }
@@ -300,7 +330,7 @@ namespace AliceScript
                 AssignNull();
                 return;
             }
-            else if (TypeChecked && m_type != v.Type)
+            else if (TypeChecked && (m_type != v.Type || (!Nullable && v.Nullable)))
             {
                 throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
             }
@@ -333,6 +363,7 @@ namespace AliceScript
         {
             switch (Type)
             {
+                case VarType.VARIABLE:
                 case VarType.NONE: return true;
                 default: return false;
                 case VarType.ARRAY:
@@ -357,7 +388,7 @@ namespace AliceScript
         /// </summary>
         public void AssignNull()
         {
-            if (TypeChecked && !Nullable && IsNull())
+            if (TypeChecked && !Nullable)
             {
                 throw new ScriptException($"この変数はnullをとりえません", Exceptions.VARIABLE_IS_NULL);
             }
@@ -411,7 +442,7 @@ namespace AliceScript
                                 }
                             case Variable.VarType.STRING:
                                 {
-                                    return new Variable(String.ToLower() == Constants.TRUE);
+                                    return new Variable(String.Equals(Constants.TRUE, StringComparison.OrdinalIgnoreCase));
                                 }
                         }
                         break;
@@ -515,7 +546,7 @@ namespace AliceScript
         public void AddVariableToHash(string hash, Variable newVar)
         {
             Variable listVar = null;
-            string lower = hash.ToLower();
+            string lower = hash.ToLowerInvariant();
             if (m_dictionary.TryGetValue(lower, out int retValue))
             {
                 // already exists, change the value:
@@ -564,7 +595,7 @@ namespace AliceScript
         public int SetHashVariable(string hash, Variable var)
         {
             SetAsArray();
-            string lower = hash.ToLower();
+            string lower = hash.ToLowerInvariant();
             if (m_dictionary.TryGetValue(lower, out int retValue))
             {
                 // already exists, change the value:
@@ -620,7 +651,7 @@ namespace AliceScript
             }
 
             string hash = indexVar.AsString();
-            string lower = hash.ToLower();
+            string lower = hash.ToLowerInvariant();
             int ptr = m_tuple.Count;
             if (m_dictionary.TryGetValue(lower, out ptr) &&
                 ptr < m_tuple.Count)
@@ -652,7 +683,38 @@ namespace AliceScript
         {
             return Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : Bool;
         }
-
+        public virtual byte AsByte(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, byte.MinValue, byte.MaxValue);
+            }
+            return (byte)Value;
+        }
+        public virtual sbyte AsSByte(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, sbyte.MinValue, sbyte.MaxValue);
+            }
+            return (sbyte)Value;
+        }
+        public virtual short AsShort(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true,short.MinValue,short.MaxValue);
+            }
+            return (short)Value;
+        }
+        public virtual ushort AsUShort(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, ushort.MinValue, ushort.MaxValue);
+            }
+            return (ushort)Value;
+        }
         public virtual int AsInt(bool check = true)
         {
             if (check)
@@ -661,21 +723,25 @@ namespace AliceScript
             }
             return (int)Value;
         }
+        public virtual uint AsUInt(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true,uint.MinValue, uint.MaxValue);
+            }
+            return (uint)Value;
+        }
         public virtual nint AsNInt(bool check = true)
         {
             if (check)
             {
-                Utils.CheckNumInRange(this,true,0);
+                Utils.CheckNumInRange(this, true, nint.MinValue, nint.MaxValue);
             }
             return (nint)Value;
         }
-        public virtual float AsFloat(bool check = true)
+        public virtual UIntPtr AsUNInt(bool check = true)
         {
-            if (check)
-            {
-                Utils.CheckNumber(this, null);
-            }
-            return (float)Value;
+            return new UIntPtr(AsUInt(check));
         }
         public virtual long AsLong(bool check = true)
         {
@@ -684,6 +750,22 @@ namespace AliceScript
                 Utils.CheckNumber(this, null);
             }
             return (long)Value;
+        }
+        public virtual ulong AsULong(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumInRange(this, true, ulong.MinValue, ulong.MaxValue);
+            }
+            return (ulong)Value;
+        }
+        public virtual float AsFloat(bool check = true)
+        {
+            if (check)
+            {
+                Utils.CheckNumber(this, null);
+            }
+            return (float)Value;
         }
         public virtual double AsDouble(bool check = true)
         {
@@ -726,7 +808,7 @@ namespace AliceScript
         /// </summary>
         /// <param name="obj">評価する対象のオブジェクト</param>
         /// <returns>二つのオブジェクトが等しければTrue、それ以外の場合はFalse</returns>
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj == null)
             {
@@ -848,7 +930,7 @@ namespace AliceScript
         /// </summary>
         /// <param name="other">比較する変数</param>
         /// <returns>より前にくる場合は負の値、後にくる場合は正の値、一致する場合は0</returns>
-        public int CompareTo(Variable? other)
+        public int CompareTo(Variable other)
         {
             return other == null
                 ? 0
@@ -896,16 +978,47 @@ namespace AliceScript
         /// <summary>
         /// この変数を指定した型に変換できるか試みます
         /// </summary>
-        /// <param name="type">変換先の型</param>
+        /// <param name="type">変換先の型。nullを代入すると自動的に最適な型になります。</param>
         /// <param name="result">変換されたオブジェクト</param>
         /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
         public bool TryConvertTo(Type type, out object result)
         {
+            if (type.IsByRef)
+            {
+                type = type.GetElementType();
+            }
+            if (type == typeof(Variable))
+            {
+                result = this;
+                return true;
+            }
+            bool isNull = IsNull();
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(System.Nullable<>))
+            {
+                if (isNull)
+                {
+                    //null許容値型かつnullなら、nullを返す
+                    result = null;
+                    return true;
+                }
+                //null許容値型かつnullでない場合、その型パラメーターについてチェックする
+                type = type.GetGenericArguments()[0];
+            }
+            if(!type.IsValueType && isNull)
+            {
+                result = null;
+                return true;
+            }
             switch (Type)
             {
                 case VarType.STRING:
                     {
-                        if(type == typeof(string))
+                        if(type == typeof(StringBuilder))
+                        {
+                            result = new StringBuilder(String);
+                            return true;
+                        }
+                        if (type is null || type == typeof(string))
                         {
                             result = String;
                             return true;
@@ -914,7 +1027,7 @@ namespace AliceScript
                     }
                 case VarType.BOOLEAN:
                     {
-                        if(type == typeof(bool))
+                        if (type is null || type == typeof(bool))
                         {
                             result = Bool;
                             return true;
@@ -923,7 +1036,7 @@ namespace AliceScript
                     }
                 case VarType.BYTES:
                     {
-                        if(type == typeof(byte[]))
+                        if (type is null || type == typeof(byte[]))
                         {
                             result = ByteArray;
                             return true;
@@ -932,9 +1045,24 @@ namespace AliceScript
                     }
                 case VarType.NUMBER:
                     {
-                        if(type == typeof(int))
+                        if (type == typeof(byte))
+                        {
+                            result = AsByte();
+                            return true;
+                        }
+                        if (type == typeof(int))
                         {
                             result = AsInt();
+                            return true;
+                        }
+                        if (type == typeof(uint))
+                        {
+                            result = AsUInt();
+                            return true;
+                        }
+                        if (type == typeof(UIntPtr))
+                        {
+                            result = AsUNInt();
                             return true;
                         }
                         if (type == typeof(nint))
@@ -947,12 +1075,17 @@ namespace AliceScript
                             result = AsFloat();
                             return true;
                         }
-                        if(type == typeof(long))
+                        if (type == typeof(long))
                         {
                             result = AsLong();
                             return true;
                         }
-                        if (type == typeof(double))
+                        if (type == typeof(ulong))
+                        {
+                            result = AsUInt();
+                            return true;
+                        }
+                        if (type is null || type == typeof(double))
                         {
                             result = AsDouble();
                             return true;
@@ -961,36 +1094,41 @@ namespace AliceScript
                     }
                 case VarType.ARRAY:
                     {
-                        if(Tuple.Type.Type == VarType.STRING && type == typeof(string[]))
-                        {
-                            var ary = new List<string>();
-                            foreach(var v in Tuple)
-                            {
-                                ary.Add(v.String);
-                            }
-                            result = ary.ToArray();
-                            return true;
-                        }
-                        if(type == typeof(VariableCollection))
+
+                        if (type is null || type == typeof(VariableCollection))
                         {
                             result = Tuple;
                             return true;
                         }
-                        if(type == typeof(Variable[]))
-                        {
-                            result = Tuple.ToArray();
-                            return true;
-                        }
-                        if(type == typeof(List<Variable>))
+                        if (type == typeof(List<Variable>))
                         {
                             result = Tuple.ToList();
+                            return true;
+                        }
+                        if (type.IsArray)
+                        {
+                            var target = type.GetElementType();
+                            ArrayList ary = new ArrayList();
+                            foreach (var v in Tuple)
+                            {
+                                if (v.TryConvertTo(target, out var r))
+                                {
+                                    ary.Add(r);
+                                }
+                                else
+                                {
+                                    result = null;
+                                    return false;
+                                }
+                            }
+                            result = ary.ToArray(target);
                             return true;
                         }
                         break;
                     }
                 case VarType.DELEGATE:
                     {
-                        if(type == typeof(DelegateObject))
+                        if (type is null || type == typeof(DelegateObject))
                         {
                             result = AsDelegate();
                             return true;
@@ -999,9 +1137,19 @@ namespace AliceScript
                     }
                 case VarType.OBJECT:
                     {
-                        result = System.Convert.ChangeType(Object,type);
+                        if (!type.IsValueType && isNull)
+                        {
+                            // nullを返してもよい型で、この値がnullの場合、nullを返す
+                            result = null;
+                            return true;
+                        }
+                        result = System.Convert.ChangeType(Object, type);
                         return true;
                     }
+            }
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) && TryConvertTo(null, out result))
+            {
+                return true;
             }
             result = null;
             return false;
@@ -1320,6 +1468,7 @@ namespace AliceScript
             { //x=a.b.cの場合はここで再帰的に処理
                 string varName = propName.Substring(0, ind);
                 string actualPropName = propName.Substring(ind + 1);
+
                 Variable property = GetProperty(varName, script);
                 result = string.IsNullOrEmpty(actualPropName) ? property :
                                property.GetProperty(actualPropName, script);
@@ -1401,23 +1550,25 @@ namespace AliceScript
         private Variable GetCoreProperty(string propName, ParsingScript script = null)
         {
             Variable result = Variable.EmptyInstance;
-            propName = propName.ToLower();
+            propName = propName.ToLowerInvariant();
 
             if (m_propertyMap.TryGetValue(propName, out result) ||
                 m_propertyMap.TryGetValue(GetRealName(propName), out result))
             {
                 return result;
             }
-            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type == Variable.VarType.NONE))
+            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.RequestType.Type.HasFlag(Type) || p.RequestType.Type == Variable.VarType.VARIABLE))
             {
-                return p.GetProperty(this);
+                return p.GetValue(this);
             }
-            else if (script != null && Functions.TryGetValue(propName, out var f))
+            else if (script != null)
             {
-
-                return f.Evaluate(script, this);
+                FunctionBase func = ParserFunction.GetFunction(propName, script, false, true) as FunctionBase;
+                if (func != null)
+                {
+                    return func.Evaluate(script, this);
+                }
             }
-
             return result;
         }
 
@@ -1442,16 +1593,8 @@ namespace AliceScript
 
             foreach (string key in m_propertyMap.Keys)
             {
-                allSet.Add(key.ToLower());
+                allSet.Add(key.ToLowerInvariant());
                 all.Add(key);
-            }
-            foreach (var fn in Functions)
-            {
-                FunctionBase fb = fn.Value;
-                if (fb.RequestType.Match(this))
-                {
-                    all.Add(fn.Key);
-                }
             }
 
             if (Object is ScriptObject)
@@ -1460,7 +1603,7 @@ namespace AliceScript
                 List<string> objProps = obj.GetProperties();
                 foreach (string key in objProps)
                 {
-                    if (allSet.Add(key.ToLower()))
+                    if (allSet.Add(key.ToLowerInvariant()))
                     {
                         all.Add(key);
                     }
@@ -1469,7 +1612,7 @@ namespace AliceScript
 
             all.Sort();
 
-            if (!allSet.Contains(Constants.OBJECT_TYPE.ToLower()))
+            if (!allSet.Contains(Constants.OBJECT_TYPE.ToLowerInvariant()))
             {
                 all.Add(Constants.OBJECT_TYPE);
             }

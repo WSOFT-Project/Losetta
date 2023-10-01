@@ -1,6 +1,6 @@
 ﻿namespace AliceScript.Interop
 {
-    public class NetLibraryLoader
+    public static class NetLibraryLoader
     {
         public static void LoadLibrary(string path)
         {

@@ -8,7 +8,7 @@
 	  
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-	  <Version>0.9.24</Version>
+	  <Version>0.10.0</Version>
 	  <Title>Losetta.CLI</Title>
 	  <Authors>WSOFT</Authors>
 	  <Company>WSOFT</Company>
@@ -28,6 +28,7 @@
 	  <RepositoryType>git</RepositoryType>
 	  <PackageTags>scripting;scripting-language;scripting-engine;cli;repl;</PackageTags>
 	  <PackageOutputPath>bin\packages</PackageOutputPath>
+	  <AnalysisLevel>latest-recommended</AnalysisLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

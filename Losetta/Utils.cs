@@ -1,10 +1,10 @@
-﻿using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
-using AliceScript.Extra;
+﻿using AliceScript.Extra;
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AliceScript
 {
@@ -42,7 +42,7 @@ namespace AliceScript
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
         {
-            if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || variable.Value != double.NaN))
+            if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || !double.IsNaN(variable.Value)))
             {
                 ThrowErrorMsg("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE, script);
             }
@@ -80,7 +80,7 @@ namespace AliceScript
             throw new ScriptException(msg, errorcode, script);
         }
 
-        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "", int minLines = 1)
+        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "")
         {
             string[] lines = script.Split('\n');
             lineNumber = lines.Length <= lineNumber ? -1 : lineNumber;
@@ -124,7 +124,7 @@ namespace AliceScript
             }
         }
 
-        public static ParsingScript GetTempScript(string str, ParserFunction.StackLevel stackLevel, string name = "",
+        public static ParsingScript GetTempScript(string str,
             ParsingScript script = null, ParsingScript parentScript = null,
             int parentOffset = 0, AliceScriptClass.ClassInstance instance = null)
         {
@@ -186,7 +186,7 @@ namespace AliceScript
         }
         public static string GetFileLines(string filename)
         {
-            string lines = SafeReader.ReadAllText(filename, out var v);
+            string lines = SafeReader.ReadAllText(filename, out _);
             if (lines == null)
             {
                 lines = string.Empty;
@@ -203,7 +203,7 @@ namespace AliceScript
             return lines;
         }
 
-        public static GetVarFunction ExtractArrayElement(string token, ParsingScript script)
+        public static ValueFunction ExtractArrayElement(string token, ParsingScript script)
         {
             if (!token.Contains(Constants.START_ARRAY))
             {
@@ -212,7 +212,7 @@ namespace AliceScript
 
             ParsingScript tempScript = script.GetTempScript(token);
             Variable result = tempScript.Execute();
-            return new GetVarFunction(result);
+            return new ValueFunction(result);
         }
 
 
@@ -240,7 +240,7 @@ namespace AliceScript
         }
         public static double ConvertToDouble(object obj, ParsingScript script = null, bool throwError = true)
         {
-            string str = obj.ToString().ToLower();
+            string str = obj.ToString().ToLowerInvariant();
             if (!CanConvertToDouble(str, out double num) &&
                 script != null && str != Constants.END_ARRAY.ToString() && throwError)
             {
@@ -252,7 +252,7 @@ namespace AliceScript
         public static bool CanConvertToDouble(string str, out double num)
         {
             //文字列を小文字に置き換え
-            str = str.ToLower();
+            str = str.ToLowerInvariant();
             if (str.StartsWith("_", StringComparison.Ordinal) || str.EndsWith("_", StringComparison.Ordinal) || str.Contains("_.") || str.Contains("._"))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
@@ -267,7 +267,7 @@ namespace AliceScript
             {
                 if (str.StartsWith("0x", StringComparison.Ordinal))
                 {
-                    num = Convert.ToInt32(str.Substring(2), 16);
+                    num = int.Parse(str.AsSpan(2), NumberStyles.HexNumber);
                     return true;
                 }
                 else if (str.StartsWith("0o", StringComparison.Ordinal))
@@ -347,6 +347,12 @@ namespace AliceScript
             int index = data.IndexOf(".", StringComparison.Ordinal);
             return index < 0 || index >= data.Length - 1 ? 0 : data.Length - index - 1;
         }
+
+        public static Span<T> GetSpan<T>(List<T> list)
+        {
+            return CollectionsMarshal.AsSpan(list);
+        }
+
         public static string GetFileContents(byte[] data)
         {
             return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());

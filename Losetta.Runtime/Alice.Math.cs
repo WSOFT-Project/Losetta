@@ -1,6 +1,4 @@
 ﻿using AliceScript.Binding;
-using AliceScript.Functions;
-using AliceScript.Interop;
 
 namespace AliceScript.NameSpaces
 {
@@ -9,60 +7,12 @@ namespace AliceScript.NameSpaces
         public static void Init()
         {
             NameSpaceManager.Add(typeof(MathFunctions));
-
-            NameSpace space = new NameSpace("Alice.Math");
-            space.Add(new math_MinMaxFunc(true));
-            space.Add(new math_MinMaxFunc(false));
-            NameSpaceManager.Add(space);
         }
-    }
-    internal sealed class math_MinMaxFunc : FunctionBase
-    {
-        public math_MinMaxFunc(bool max)
-        {
-            Mode = max;
-            Name = Mode ? "math_max" : "math_min";
-            MinimumArgCounts = 2;
-            Run += Math_MinMaxFunc_Run;
-        }
-
-        private void Math_MinMaxFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            double returnValue = 0;
-            foreach (Variable v in e.Args)
-            {
-                if (Mode)
-                {
-                    if (v.Value > returnValue)
-                    {
-                        returnValue = v.Value;
-                    }
-                }
-                else
-                {
-                    if (v.Value < returnValue)
-                    {
-                        returnValue = v.Value;
-                    }
-                }
-            }
-            e.Return = new Variable(returnValue);
-        }
-
-        private bool Mode { get; set; }
     }
 
     [AliceNameSpace(Name = "Alice.Math")]
     internal static class MathFunctions
     {
-        public static double Math_Round(double x)
-        {
-            return Math.Round(x);
-        }
-        public static double Math_Round(double x, int digits)
-        {
-            return Math.Round(x, digits);
-        }
         public static bool Math_IsPrime(long x)
         {
             if (x < 2)
@@ -91,6 +41,34 @@ namespace AliceScript.NameSpaces
             // 素数である
             return true;
         }
+        public static bool Math_IsNaN(double x)
+        {
+            return double.IsNaN(x);
+        }
+        public static bool Math_IsInfinity(double x)
+        {
+            return double.IsInfinity(x);
+        }
+        public static bool Math_IsPositiveInfinity(double x)
+        {
+            return double.IsPositiveInfinity(x);
+        }
+        public static bool Math_IsNegativeInfinity(double x)
+        {
+            return double.IsNegativeInfinity(x);
+        }
+        public static bool Math_IsFinite(double x)
+        {
+            return double.IsFinite(x);
+        }
+        public static bool Math_IsNormal(double x)
+        {
+            return double.IsNormal(x);
+        }
+        public static bool Math_IsSubnormal(double x)
+        {
+            return double.IsSubnormal(x);
+        }
         public static double Math_Pow(double x, double y)
         {
             return Math.Pow(x, y);
@@ -115,10 +93,6 @@ namespace AliceScript.NameSpaces
         {
             return Math.Exp(x);
         }
-        public static double Math_Floor(double x)
-        {
-            return Math.Floor(x);
-        }
         public static double Math_FusedMultiplyAdd(double x, double y, double z)
         {
             return Math.FusedMultiplyAdd(x, y, z);
@@ -131,40 +105,55 @@ namespace AliceScript.NameSpaces
         {
             return Math.Cbrt(x);
         }
+        public static double Math_Max(params double[] nums)
+        {
+            double max = double.MinValue;
+            foreach (double d in nums)
+            {
+                max = Math.Max(max, d);
+            }
+            return max;
+        }
+        public static double Math_Min(params double[] nums)
+        {
+            double min = double.MaxValue;
+            foreach (double d in nums)
+            {
+                min = Math.Min(min, d);
+            }
+            return min;
+        }
+        #region 数学定数
+        public static double Math_Tau => Math.Tau;
+        public static double Math_PI => Math.PI;
+        public static double Math_E => Math.E;
+
+        public static double Math_Infinity => double.PositiveInfinity;
+        public static double Math_NegativeInfinity => double.NegativeInfinity;
+
+        public static double Math_NaN => double.NaN;
+
+        public static double Math_Epsilon => double.Epsilon;
+
+        public static double Math_MaxValue => double.MaxValue;
+        public static double Math_MinValue => double.MinValue;
+        #endregion
+        #region 端数処理
+        public static double Math_Round(double x)
+        {
+            return Math.Round(x);
+        }
+        public static double Math_Round(double x, int digits)
+        {
+            return Math.Round(x, digits);
+        }
         public static double Math_Truncate(double x)
         {
             return Math.Truncate(x);
         }
-        #region 数学定数
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_Tau()
+        public static double Math_Floor(double x)
         {
-            return Math.Tau;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_PI()
-        {
-            return Math.PI;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_E()
-        {
-            return Math.E;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_Infinity()
-        {
-            return double.PositiveInfinity;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_NaN()
-        {
-            return double.NaN;
-        }
-        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static double Math_Epsilon()
-        {
-            return double.Epsilon;
+            return Math.Floor(x);
         }
         #endregion
         #region ビット加減算
