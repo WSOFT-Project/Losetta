@@ -17,7 +17,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64;Debug_Throw</Configurations>
-		<Platforms>AnyCPU;ARM32;ARM64;x64</Platforms>
+		<Platforms>AnyCPU;ARM32;ARM64;x64;x86;</Platforms>
 		<Description>Package of basic functions and APIs available in AliceScript</Description>
 		<PackageTags>scripting;scripting-language;scripting-engine;runtime;api;wrapper;</PackageTags>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
