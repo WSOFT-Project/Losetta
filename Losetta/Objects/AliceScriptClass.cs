@@ -97,7 +97,7 @@ namespace AliceScript.Objects
 
         public void AddProperty(string name, Variable property)
         {
-            m_classProperties[name] = new PropertyBase(property);
+            m_classProperties[name] = new ValueFunction(property);
         }
 
         public static AliceScriptClass GetClass(string name, ParsingScript script)
@@ -105,7 +105,7 @@ namespace AliceScript.Objects
             string currNamespace = GetCurrentNamespace;
             if (!string.IsNullOrWhiteSpace(currNamespace))
             {
-                bool namespacePresent = name.Contains('.',StringComparison.Ordinal);
+                bool namespacePresent = name.Contains('.', StringComparison.Ordinal);
                 if (!namespacePresent)
                 {
                     name = currNamespace + "." + name;
@@ -135,7 +135,7 @@ namespace AliceScript.Objects
                         namespacename = nsn.ToLowerInvariant();
                     }
                 }
-                    
+
                 //完全修飾名で関数を検索
                 if (!string.IsNullOrEmpty(namespacename))
                 {
@@ -151,9 +151,9 @@ namespace AliceScript.Objects
         }
         private static AliceScriptClass GetFromNS(string name, ParsingScript script)
         {
-            foreach(NameSpace ns in script.UsingNamespaces)
+            foreach (NameSpace ns in script.UsingNamespaces)
             {
-                var fc=ns.Classes.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                var fc = ns.Classes.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 if (fc != null)
                 {
                     return fc;
@@ -168,8 +168,8 @@ namespace AliceScript.Objects
             new Dictionary<int, CustomFunction>();
         protected Dictionary<string, FunctionBase> m_customFunctions =
             new Dictionary<string, FunctionBase>();
-        protected Dictionary<string, PropertyBase> m_classProperties =
-            new Dictionary<string, PropertyBase>();
+        protected Dictionary<string, ValueFunction> m_classProperties =
+            new Dictionary<string, ValueFunction>();
         protected Dictionary<string, FunctionBase> m_static_customFunctions =
             new Dictionary<string, FunctionBase>();
 

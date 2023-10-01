@@ -243,7 +243,7 @@ namespace AliceScript.Functions
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
         /// <param name="isGlobal">常にグローバルに登録する場合はtrue、それ以外の場合はfalse</param>
         /// <param name="byPassCheck">識別子のチェックをバイパスする場合はtrue、それ以外の場合はfalse</param>
-        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false,bool byPassCheck =false)
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false, bool byPassCheck = false)
         {
 
             string fname = func.Name;

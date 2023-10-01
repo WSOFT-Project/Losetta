@@ -1,5 +1,4 @@
-﻿using AliceScript.Objects;
-using AliceScript.Parsing;
+﻿using AliceScript.Parsing;
 
 namespace AliceScript.Functions
 {
@@ -155,12 +154,12 @@ namespace AliceScript.Functions
         /// <summary>
         /// プロパティに変数が代入されるときに発生するイベント。このイベントはHandleEventsがTrueの場合のみ発生します
         /// </summary>
-        public event PropertySettingEventHandler Setting;
+        public event ValueEventHandler Setting;
         /// <summary>
         /// プロパティから変数が読みだされるときに発生するイベント。このイベントはHandleEventsがTrueの場合のみ発生します
         /// </summary>
 
-        public event PropertyGettingEventHandler Getting;
+        public event ValueEventHandler Getting;
 
 
         /// <summary>
@@ -176,7 +175,7 @@ namespace AliceScript.Functions
         {
             if (HandleEvents)
             {
-                PropertyBaseEventArgs e = new PropertyBaseEventArgs();
+                ValueFunctionEventArgs e = new ValueFunctionEventArgs();
                 e.Parent = parent;
                 e.Value = m_value;
                 Getting?.Invoke(this, e);
@@ -193,7 +192,7 @@ namespace AliceScript.Functions
             {
                 if (HandleEvents)
                 {
-                    PropertyBaseEventArgs e = new PropertyBaseEventArgs();
+                    ValueFunctionEventArgs e = new ValueFunctionEventArgs();
                     e.Parent = parent;
                     e.Value = value;
                     Setting?.Invoke(this, e);

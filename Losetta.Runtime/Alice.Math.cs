@@ -1,5 +1,4 @@
 ﻿using AliceScript.Binding;
-using AliceScript.Functions;
 
 namespace AliceScript.NameSpaces
 {

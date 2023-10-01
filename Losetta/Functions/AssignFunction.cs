@@ -43,7 +43,7 @@ namespace AliceScript.Functions
                 }
             }
 
-            bool registVar = type_modifer != null ;
+            bool registVar = type_modifer != null;
             bool registConst = Keywords.Contains(Constants.CONST);
             bool isGlobal = Keywords.Contains(Constants.PUBLIC);
             bool isReadOnly = Keywords.Contains(Constants.READONLY);

@@ -15,7 +15,7 @@ namespace AliceScript.NameSpaces.Core
         {
             ary.AddRange(items);
         }
-        public static int BinarySearch(this VariableCollection ary,Variable item)
+        public static int BinarySearch(this VariableCollection ary, Variable item)
         {
             return ary.Tuple.BinarySearch(item);
         }
@@ -27,13 +27,13 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Contains(item);
         }
-        public static bool Exists(this VariableCollection ary,Variable item)
+        public static bool Exists(this VariableCollection ary, Variable item)
         {
             return ary.Tuple.Exists(x => x == item);
         }
-        public static bool Exists(this VariableCollection ary ,ParsingScript script, DelegateObject func)
+        public static bool Exists(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
-            return ary.Tuple.Exists(x => func.Invoke(x,script).AsBool());
+            return ary.Tuple.Exists(x => func.Invoke(x, script).AsBool());
         }
         public static Variable Find(this VariableCollection ary, ParsingScript script, Variable match)
         {
@@ -95,7 +95,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Where(item => item.AsType().Equals(t));
         }
-        public static IEnumerable<Variable> Convert(this VariableCollection ary,TypeObject t)
+        public static IEnumerable<Variable> Convert(this VariableCollection ary, TypeObject t)
         {
             return ary.Tuple.Select(item => item.Convert(t.Type));
         }
@@ -160,7 +160,7 @@ namespace AliceScript.NameSpaces.Core
             return ary.Tuple.Intersect(items);
         }
 
-        
+
         public static int IndexOf(this VariableCollection ary, Variable item)
         {
             return ary.Tuple.IndexOf(item);
@@ -227,10 +227,10 @@ namespace AliceScript.NameSpaces.Core
                 }
             }
         }
-        public static void Foreach(this VariableCollection ary, ParsingScript script,BindFunction func)
+        public static void Foreach(this VariableCollection ary, ParsingScript script, BindFunction func)
         {
             List<Variable> args = script.GetFunctionArgs(func, Constants.START_ARG, Constants.END_ARG);
-            if(args.Count>0 && args[0].Type == Variable.VarType.DELEGATE)
+            if (args.Count > 0 && args[0].Type == Variable.VarType.DELEGATE)
             {
                 var d = args[0].AsDelegate();
                 foreach (Variable item in ary.Tuple)
@@ -256,9 +256,9 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Sum(item => func.Invoke(item, script).AsDouble());
         }
-        public static Variable Aggregate(this VariableCollection ary,ParsingScript script,DelegateObject func)
+        public static Variable Aggregate(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
-            return ary.Tuple.Aggregate((result,current) => func.Invoke(new List<Variable> { result,current }, script));
+            return ary.Tuple.Aggregate((result, current) => func.Invoke(new List<Variable> { result, current }, script));
         }
         #endregion
         #region プロパティ

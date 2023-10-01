@@ -943,14 +943,9 @@ namespace AliceScript.Parsing
                 case "^": return 4;
                 case "&&": return 2;
                 case "||": return 2;
-                case "+=":
-                case "-=":
-                case "*=":
-                case "/=":
-                case "%=":
                 case "=": return 1;
+                default: return 0;// NULL action has priority 0.
             }
-            return 0; // NULL action has priority 0.
         }
     }
 }

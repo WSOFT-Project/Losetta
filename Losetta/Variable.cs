@@ -42,7 +42,7 @@ namespace AliceScript
         {
             return new Variable(text);
         }
-        public static void AddProp(PropertyBase pb, string name = null)
+        public static void AddProp(ValueFunction pb, string name = null)
         {
             if (name == null)
             {
@@ -52,7 +52,7 @@ namespace AliceScript
             Properties.Add(name, pb);
         }
 
-        public static Dictionary<string, PropertyBase> Properties = new Dictionary<string, PropertyBase>();
+        public static Dictionary<string, ValueFunction> Properties = new Dictionary<string, ValueFunction>();
 
         List<string> ScriptObject.GetProperties()
         {
@@ -1557,9 +1557,9 @@ namespace AliceScript
             {
                 return result;
             }
-            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.Type.HasFlag(Type) || p.Type == Variable.VarType.VARIABLE))
+            else if (script != null && Properties.TryGetValue(propName, out var p) && (p.RequestType.Type.HasFlag(Type) || p.RequestType.Type == Variable.VarType.VARIABLE))
             {
-                return p.GetProperty(this);
+                return p.GetValue(this);
             }
             else if (script != null)
             {

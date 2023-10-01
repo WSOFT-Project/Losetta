@@ -246,7 +246,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return Repeat(indentChar, indentLevel) + str;
         }
-        public static bool Like(this string str,string pattern)
+        public static bool Like(this string str, string pattern)
         {
             return new Regex(RegexFunctions.Regex_FromWildCard(pattern)).IsMatch(str);
         }

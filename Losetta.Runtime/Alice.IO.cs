@@ -288,12 +288,12 @@ namespace AliceScript.NameSpaces
                 }
             }
         }
-        public static string[] Directory_Grep(string path,string pattern, string filePattern,bool ignoreCase = false)
+        public static string[] Directory_Grep(string path, string pattern, string filePattern, bool ignoreCase = false)
         {
-            Regex textPattern = new Regex(pattern,ignoreCase ?  RegexOptions.IgnoreCase : RegexOptions.None);
+            Regex textPattern = new Regex(pattern, ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
             List<string> result = new List<string>();
 
-            foreach(string file in Directory.GetFiles(path,filePattern))
+            foreach (string file in Directory.GetFiles(path, filePattern))
             {
                 try
                 {

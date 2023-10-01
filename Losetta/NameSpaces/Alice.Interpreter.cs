@@ -1,12 +1,8 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
-using AliceScript.Interop;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 
 namespace AliceScript.NameSpaces
 {
@@ -138,10 +134,10 @@ namespace AliceScript.NameSpaces
             {
                 Name = "AlicePackage";
                 Package = package;
-                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
-                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
-                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
-                AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+                AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
+                AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
+                AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
+                AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
 
                 AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadData));
                 AddFunction(new AlicePackageObject_EntryIOFunctions(this, AlicePackageObject_EntryIOFunctions.AlicePackageObjectt_EntryIOFunctionMode.ReadText));
@@ -206,7 +202,7 @@ namespace AliceScript.NameSpaces
                     Exists, ReadData, ReadText
                 }
             }
-            private sealed class AlicePackageObjectProperty : PropertyBase
+            private sealed class AlicePackageObjectProperty : ValueFunction
             {
                 public AlicePackageObjectProperty(AlicePackageObject host, AlicePackageObjectPropertyMode mode)
                 {
@@ -218,7 +214,7 @@ namespace AliceScript.NameSpaces
                     Getting += AlicePackageObjectProperty_Getting;
                 }
 
-                private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
+                private void AlicePackageObjectProperty_Getting(object sender, ValueFunctionEventArgs e)
                 {
                     switch (Mode)
                     {
@@ -267,23 +263,23 @@ namespace AliceScript.NameSpaces
         public Interpreter_ScriptObject(ParsingScript script)
         {
             Name = "Script";
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.IsMainFile, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FileName, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.PWD, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalScript, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FunctionName, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StillValid, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Size, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLineNumber, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLine, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Labels, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Generation, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Functions, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Variables, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Consts, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Parent, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Package, this));
-            AddProperty(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StackTrace, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.IsMainFile, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FileName, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.PWD, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalScript, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.FunctionName, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StillValid, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Size, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLineNumber, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.OriginalLine, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Labels, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Generation, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Functions, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Variables, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Consts, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Parent, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.Package, this));
+            AddFunction(new Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property.Interpreter_ScriptObject_Property_Mode.StackTrace, this));
 
             Constructor = new Interpreter_ScriptObject_Constructor();
 
@@ -420,7 +416,7 @@ namespace AliceScript.NameSpaces
                 Host.Script.Using(e.Args[0].AsString());
             }
         }
-        private class Interpreter_ScriptObject_Property : PropertyBase
+        private class Interpreter_ScriptObject_Property : ValueFunction
         {
             public Interpreter_ScriptObject_Property(Interpreter_ScriptObject_Property_Mode mode, Interpreter_ScriptObject host)
             {
@@ -445,7 +441,7 @@ namespace AliceScript.NameSpaces
                 Setting += Interpreter_ScriptObject_Property_Setting;
             }
 
-            private void Interpreter_ScriptObject_Property_Setting(object sender, PropertyBaseEventArgs e)
+            private void Interpreter_ScriptObject_Property_Setting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {
@@ -474,7 +470,7 @@ namespace AliceScript.NameSpaces
             {
                 IsMainFile, FileName, PWD, OriginalScript, FunctionName, StillValid, Size, OriginalLineNumber, OriginalLine, Labels, Generation, Functions, Variables, Consts, Parent, Package, StackTrace
             }
-            private void Interpreter_ScriptObject_Property_Getting(object sender, PropertyBaseEventArgs e)
+            private void Interpreter_ScriptObject_Property_Getting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {

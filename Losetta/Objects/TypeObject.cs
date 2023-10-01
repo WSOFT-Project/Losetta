@@ -30,47 +30,47 @@ namespace AliceScript.Objects
             Functions.Add("Activate", new ActivateFunction(this));
             Functions.Add("ToString", new ToStringFunction(this));
             Functions.Add("ToNativeProperty", new ToNativeProperty(this));
-            Properties.Add("IsObject", new IsObjectProperty(this));
-            Properties.Add("Namespace", new NamespaceProperty(this));
-            Properties.Add("Base", new BaseProperty(this));
+            Functions.Add("IsObject", new IsObjectProperty(this));
+            Functions.Add("Namespace", new NamespaceProperty(this));
+            Functions.Add("Base", new BaseProperty(this));
         }
         public Variable.VarType Type { get; set; }
         public TypeObject ArrayType { get; set; }
         public AliceScriptClass ClassType { get; set; }
-        internal class NamespaceProperty : PropertyBase
+        internal class NamespaceProperty : ValueFunction
         {
             public NamespaceProperty(TypeObject type)
             {
                 Name = "Namespace";
                 HandleEvents = true;
                 CanSet = false;
-                Getting += delegate (object sender, PropertyBaseEventArgs e)
+                Getting += delegate (object sender, ValueFunctionEventArgs e)
                 {
                     e.Value = type.ClassType != null ? new Variable(type.ClassType.Namespace) : Variable.EmptyInstance;
                 };
             }
         }
-        internal class BaseProperty : PropertyBase
+        internal class BaseProperty : ValueFunction
         {
             public BaseProperty(TypeObject type)
             {
                 Name = "Base";
                 HandleEvents = true;
                 CanSet = false;
-                Getting += delegate (object sender, PropertyBaseEventArgs e)
+                Getting += delegate (object sender, ValueFunctionEventArgs e)
                 {
                     e.Value = type.ClassType != null ? new Variable(type.ClassType.BaseClasses) : Variable.EmptyInstance;
                 };
             }
         }
-        internal class IsObjectProperty : PropertyBase
+        internal class IsObjectProperty : ValueFunction
         {
             public IsObjectProperty(TypeObject type)
             {
                 Name = "IsObject";
                 HandleEvents = true;
                 CanSet = false;
-                Getting += delegate (object sender, PropertyBaseEventArgs e)
+                Getting += delegate (object sender, ValueFunctionEventArgs e)
                 {
                     e.Value = new Variable(type.ClassType != null);
                 };
@@ -125,7 +125,7 @@ namespace AliceScript.Objects
 
         public bool Match(Variable item)
         {
-            if(Type == Variable.VarType.VARIABLE)
+            if (Type == Variable.VarType.VARIABLE)
             {
                 return true;
             }
@@ -135,7 +135,7 @@ namespace AliceScript.Objects
                 {
                     return false;
                 }
-                else if (item.Type != Variable.VarType.STRING  && (Type == Variable.VarType.ARRAY && item.Tuple.Type != ArrayType))
+                else if (item.Type != Variable.VarType.STRING && Type == Variable.VarType.ARRAY && item.Tuple.Type != ArrayType)
                 {
                     return false;
                 }

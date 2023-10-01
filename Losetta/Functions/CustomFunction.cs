@@ -172,8 +172,8 @@ namespace AliceScript.Functions
             {
                 result.Nullable = true;
             }
-            if(!(result.Type == Variable.VarType.VARIABLE && result.IsNull()) && (m_nullable || !m_nullable && result.Nullable) && !result.Type.HasFlag(m_returnType))
-               // if ((!m_nullable && result.Nullable) && !result.Type.HasFlag(m_returnType))
+            if (!(result.Type == Variable.VarType.VARIABLE && result.IsNull()) && (m_nullable || (!m_nullable && result.Nullable)) && !result.Type.HasFlag(m_returnType))
+            // if ((!m_nullable && result.Nullable) && !result.Type.HasFlag(m_returnType))
             {
                 throw new ScriptException($"関数は宣言とは異なり{result.Type}{(m_nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
@@ -469,7 +469,7 @@ namespace AliceScript.Functions
         public int ArgumentCount => m_args.Length;
 
         public StackLevel NamespaceData { get; set; }
-        public TypeObject MethodRequestType => IsMethod && m_typArgMap.Count>=m_this ? m_typArgMap[m_this] : new TypeObject();
+        public TypeObject MethodRequestType => IsMethod && m_typArgMap.Count >= m_this ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
@@ -483,7 +483,7 @@ namespace AliceScript.Functions
         protected Variable.VarType m_returnType;
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;
-        private Dictionary<int,TypeObject> m_typArgMap = new Dictionary<int,TypeObject>();
+        private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();

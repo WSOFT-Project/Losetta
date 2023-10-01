@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -112,6 +111,8 @@ namespace AliceScript
         /// このプログラミング言語の名前
         /// </summary>
         public const string LANGUAGE = "AliceScript";
+
+        public static readonly Version VERSION = new Version(3,0);
 
         public const string UTF8_LITERAL_PREFIX = "u8";
 
@@ -483,8 +484,8 @@ namespace AliceScript
                 default:
                     {
                         // 関数のカンマと被るため[System.Console+System.Console]のようにする
-                        typeStr = typeStr.Replace('+',',');
-                        return Type.GetType(typeStr,false,true);
+                        typeStr = typeStr.Replace('+', ',');
+                        return Type.GetType(typeStr, false, true);
                     }
             }
         }

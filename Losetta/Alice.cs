@@ -108,9 +108,9 @@ namespace AliceScript
         /// </summary>
         /// <typeparam name="T">登録するクラス</typeparam>
         /// <param name="name">登録する名前空間の名前。nullにすると自動選択されます。</param>
-        public static void RegisterFunctions<T>(string name=null)
+        public static void RegisterFunctions<T>(string name = null)
         {
-           NameSpaces.NameSpaceManager.Add(typeof(T),name);
+            NameSpaces.NameSpaceManager.Add(typeof(T), name);
         }
         /// <summary>
         /// プログラムが終了を求めているときに発生するイベントです
@@ -138,7 +138,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのバージョン
         /// </summary>
-        public static Version Version => new Version(2, 3);
+        public static Version Version => Constants.VERSION;
         /// <summary>
         /// Losettaのバージョン
         /// </summary>

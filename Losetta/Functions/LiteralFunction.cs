@@ -44,7 +44,6 @@ namespace AliceScript.Functions
                             result = result.Replace("\\r", "\r");
                             result = result.Replace("\\t", "\t");
                             result = result.Replace("\\v", "\v");
-                            //result = Utils.ConvertUnicodeLiteral(result);
                         }
 
                         if (DetectionStringFormat)

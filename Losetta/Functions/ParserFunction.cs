@@ -676,7 +676,7 @@ namespace AliceScript.Functions
             {
                 function.Value.ParamName = function.Name;
             }
-            var func = GetVariable(name,script,true);
+            var func = GetVariable(name, script, true);
             bool exists = func != null;
             bool unneed = script.UnneedVarKeyword;
 

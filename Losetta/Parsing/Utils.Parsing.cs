@@ -1040,7 +1040,6 @@ namespace AliceScript
                     return null;
             }
         }
-
         public static string GetBodySize(ParsingScript script, string endToken1, string endToken2 = null)
         {
             int start = script.Pointer;

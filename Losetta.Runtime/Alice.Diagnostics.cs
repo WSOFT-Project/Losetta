@@ -178,7 +178,7 @@ namespace AliceScript.NameSpaces
         {
             Name = "Process";
 
-            AddProperty(new StartInfoProperty(this));
+            AddFunction(new StartInfoProperty(this));
 
             AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.CloseMainWindow, this));
             AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Kill, this));
@@ -191,7 +191,7 @@ namespace AliceScript.NameSpaces
         }
         internal Process Process = new Process();
 
-        private class StartInfoProperty : PropertyBase
+        private class StartInfoProperty : ValueFunction
         {
             public StartInfoProperty(ProcessObject host)
             {
@@ -202,7 +202,7 @@ namespace AliceScript.NameSpaces
                 Setting += StartInfoProperty_Setting;
             }
 
-            private void StartInfoProperty_Setting(object sender, PropertyBaseEventArgs e)
+            private void StartInfoProperty_Setting(object sender, ValueFunctionEventArgs e)
             {
                 if (Host.Process != null)
                 {
@@ -210,7 +210,7 @@ namespace AliceScript.NameSpaces
                 }
             }
 
-            private void StartInfoProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void StartInfoProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 if (Host.Process != null)
                 {
@@ -285,22 +285,22 @@ namespace AliceScript.NameSpaces
         {
             Name = "ProcessStartInfo";
 
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.CreateNoWindow, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.ErrorDialog, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.FileName, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.LoadUserProfile, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardError, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardInput, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardOutput, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.UseShellExecute, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Verb, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.WindowStyle, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.WorkingDirectory, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.CreateNoWindow, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.ErrorDialog, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.FileName, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.LoadUserProfile, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardError, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardInput, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardOutput, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.UseShellExecute, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.Verb, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.WindowStyle, this));
+            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.WorkingDirectory, this));
         }
         internal ProcessStartInfo ps = new ProcessStartInfo();
 
-        private class InfoProperty : PropertyBase
+        private class InfoProperty : ValueFunction
         {
             internal enum InfoPropertyMode
             {
@@ -316,7 +316,7 @@ namespace AliceScript.NameSpaces
                 Setting += InfoProperty_Setting;
             }
             private ProcessStartInfoObject Host;
-            private void InfoProperty_Setting(object sender, PropertyBaseEventArgs e)
+            private void InfoProperty_Setting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {
@@ -385,7 +385,7 @@ namespace AliceScript.NameSpaces
 
 
 
-            private void InfoProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void InfoProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {
@@ -468,18 +468,18 @@ namespace AliceScript.NameSpaces
             AddFunction(new STWOFunc(this, 1), "stop");
             AddFunction(new STWOFunc(this, 2), "reset");
             AddFunction(new STWOFunc(this, 3), "restart");
-            AddProperty(new ElapsedProperty(stopwatch));
-            AddProperty(new ElapsedMillisecondsProperty(stopwatch));
-            AddProperty(new ElapsedTicksProperty(stopwatch));
-            AddProperty(new FrequencyProperty(stopwatch));
-            AddProperty(new IsHighResolutionProperty(stopwatch));
-            AddProperty(new IsRunningProperty(stopwatch));
+            AddFunction(new ElapsedProperty(stopwatch));
+            AddFunction(new ElapsedMillisecondsProperty(stopwatch));
+            AddFunction(new ElapsedTicksProperty(stopwatch));
+            AddFunction(new FrequencyProperty(stopwatch));
+            AddFunction(new IsHighResolutionProperty(stopwatch));
+            AddFunction(new IsRunningProperty(stopwatch));
         }
 
 
         private Stopwatch stopwatch = new Stopwatch();
 
-        private class ElapsedProperty : PropertyBase
+        private class ElapsedProperty : ValueFunction
         {
             public ElapsedProperty(Stopwatch stopwatch)
             {
@@ -490,13 +490,13 @@ namespace AliceScript.NameSpaces
                 Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.Elapsed);
             }
         }
 
-        private class ElapsedMillisecondsProperty : PropertyBase
+        private class ElapsedMillisecondsProperty : ValueFunction
         {
             public ElapsedMillisecondsProperty(Stopwatch stopwatch)
             {
@@ -507,13 +507,13 @@ namespace AliceScript.NameSpaces
                 Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.ElapsedMilliseconds);
             }
         }
 
-        private class ElapsedTicksProperty : PropertyBase
+        private class ElapsedTicksProperty : ValueFunction
         {
             public ElapsedTicksProperty(Stopwatch stopwatch)
             {
@@ -524,13 +524,13 @@ namespace AliceScript.NameSpaces
                 Getting += ElapsedProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.ElapsedTicks);
             }
         }
 
-        private class IsRunningProperty : PropertyBase
+        private class IsRunningProperty : ValueFunction
         {
             public IsRunningProperty(Stopwatch stopwatch)
             {
@@ -541,13 +541,13 @@ namespace AliceScript.NameSpaces
                 Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.IsRunning);
             }
         }
 
-        private class IsHighResolutionProperty : PropertyBase
+        private class IsHighResolutionProperty : ValueFunction
         {
             public IsHighResolutionProperty(Stopwatch stopwatch)
             {
@@ -558,13 +558,13 @@ namespace AliceScript.NameSpaces
                 Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.IsHighResolution);
             }
         }
 
-        private class FrequencyProperty : PropertyBase
+        private class FrequencyProperty : ValueFunction
         {
             public FrequencyProperty(Stopwatch stopwatch)
             {
@@ -575,7 +575,7 @@ namespace AliceScript.NameSpaces
                 Getting += IsRunningProperty_Getting;
             }
             private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.Frequency);
             }

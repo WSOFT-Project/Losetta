@@ -1,11 +1,10 @@
-﻿using System.Globalization;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using AliceScript.Extra;
+﻿using AliceScript.Extra;
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AliceScript
 {
@@ -125,7 +124,7 @@ namespace AliceScript
             }
         }
 
-        public static ParsingScript GetTempScript(string str, 
+        public static ParsingScript GetTempScript(string str,
             ParsingScript script = null, ParsingScript parentScript = null,
             int parentOffset = 0, AliceScriptClass.ClassInstance instance = null)
         {
@@ -268,7 +267,7 @@ namespace AliceScript
             {
                 if (str.StartsWith("0x", StringComparison.Ordinal))
                 {
-                    num = int.Parse(str.AsSpan(2),NumberStyles.HexNumber);
+                    num = int.Parse(str.AsSpan(2), NumberStyles.HexNumber);
                     return true;
                 }
                 else if (str.StartsWith("0o", StringComparison.Ordinal))

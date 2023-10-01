@@ -165,7 +165,7 @@ namespace AliceScript.Objects
     /// <summary>
     /// C#からAliceScriptにイベントを通知するためのプロパティベースです。
     /// </summary>
-    public class EventBase : PropertyBase
+    public class EventBase : ValueFunction
     {
         public EventBase()
         {

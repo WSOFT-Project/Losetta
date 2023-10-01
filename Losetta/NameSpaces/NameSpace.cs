@@ -24,7 +24,7 @@ namespace AliceScript.NameSpaces
         }
         public static void Add(Type type, string name = null)
         {
-            Add(BindFunction.BindToNameSpace(type), name);
+            Add(Utils.BindToNameSpace(type), name);
         }
         public static bool Contains(NameSpace name)
         {
