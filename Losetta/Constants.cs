@@ -173,6 +173,11 @@ namespace AliceScript
         public static readonly string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
         /// <summary>
+        /// ソースコード上では無視される文字
+        /// </summary>
+        public const string IGNORE_CHARS = "\t\r\u200a\u200b\u200c\u200d\u200e\u200f";
+
+        /// <summary>
         /// パース中の言語構造が所属する名前空間
         /// </summary>
         public static readonly string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";

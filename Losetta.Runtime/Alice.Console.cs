@@ -93,9 +93,14 @@ namespace AliceScript.NameSpaces
             get => Console.WindowWidth;
             set => Console.WindowWidth = value;
         }
+        public static string Console_InputEncoding
+        {
+            get => Console.InputEncoding.EncodingName;
+            set => Console.InputEncoding = Encoding.GetEncoding(value);
+        }
         public static string Console_OutputEncoding
         {
-            get => Console.OutputEncoding.ToString();
+            get => Console.OutputEncoding.EncodingName;
             set => Console.OutputEncoding = Encoding.GetEncoding(value);
         }
 

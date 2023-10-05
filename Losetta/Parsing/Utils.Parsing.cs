@@ -659,6 +659,15 @@ namespace AliceScript
                     continue;
                 }
 
+                if (Constants.IGNORE_CHARS.Contains(ch) || char.IsControl(ch))
+                {
+                    if (inQuotes)
+                    {
+                        sb.Append(ch);
+                    }
+                    continue;
+                }
+
                 switch (ch)
                 {
                     case '/':
@@ -714,13 +723,6 @@ namespace AliceScript
                             sb.Append('\\');
                         }
                         break;
-                    case '\t':
-                    case '\r':
-                        if (inQuotes)
-                        {
-                            sb.Append(ch);
-                        }
-                        continue;
                     case Constants.START_ARG:
                         if (!inQuotes && !inComments && (!inIf || If))
                         {
