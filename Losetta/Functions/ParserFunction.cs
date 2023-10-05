@@ -700,12 +700,15 @@ namespace AliceScript.Functions
                 if (type_modifer != Constants.VAR)
                 {
                     newVar.TypeChecked = true;
-                    if (type_modifer.EndsWith("?", StringComparison.Ordinal))
+                    if (type_modifer != null)
                     {
-                        newVar.Nullable = true;
-                        type_modifer = type_modifer.Substring(0, type_modifer.Length - 1);
+                        if (type_modifer.EndsWith("?", StringComparison.Ordinal))
+                        {
+                            newVar.Nullable = true;
+                            type_modifer = type_modifer.Substring(0, type_modifer.Length - 1);
+                        }
+                        newVar.Type = Constants.StringToType(type_modifer);
                     }
-                    newVar.Type = Constants.StringToType(type_modifer);
                 }
                 else
                 {
@@ -713,11 +716,7 @@ namespace AliceScript.Functions
                     newVar.Nullable = true;
                 }
                 newVar.Assign(function.Value);
-                if (type_inference && type_modifer == Constants.VAR)
-                {
-                    newVar.TypeChecked = true;
-                }
-                if (type_modifer == Constants.VAR && !newVar.IsNull())
+                if (type_inference && type_modifer == Constants.VAR && !newVar.IsNull())
                 {
                     newVar.Nullable = false;
                 }

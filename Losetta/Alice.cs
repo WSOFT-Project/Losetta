@@ -161,7 +161,13 @@ namespace AliceScript
                 return asm.GetName().Version;
             }
         }
+        /// <summary>
+        /// このインタプリタの名前
+        /// </summary>
         public static string ImplementationName => Interpreter.Instance.Name;
+        /// <summary>
+        /// このインタプリタへのファイルパス
+        /// </summary>
         public static string ImplementationLocation => AppContext.BaseDirectory;
         /// <summary>
         /// このAliceScriptが実行されているアプリケーションの名前
@@ -171,7 +177,15 @@ namespace AliceScript
             get; set;
         }
     }
+    /// <summary>
+    /// スクリプトによって終了されようとしている場合に呼び出されるデリゲート
+    /// </summary>
+    /// <param name="sender">イベントの発生元</param>
+    /// <param name="e">スクリプトの終了に関する情報</param>
     public delegate void Exiting(object sender, ExitingEventArgs e);
+    /// <summary>
+    /// スクリプトによって終了されようとしているとき、情報を表すオブジェクト
+    /// </summary>
     public class ExitingEventArgs : EventArgs
     {
         /// <summary>

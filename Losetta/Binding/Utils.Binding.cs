@@ -1,7 +1,5 @@
 ﻿using AliceScript.Binding;
 using AliceScript.NameSpaces;
-using AliceScript.Objects;
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -136,7 +134,8 @@ namespace AliceScript
         /// <summary>
         /// 指定されたプロパティをバインドし、関数を返します。
         /// </summary>
-        /// <param name="methodInfo">バインドしたいプロパティ</param>
+        /// <param name="propertyInfo">バインドしたいプロパティ</param>
+        /// <param name="staticOnly">静的メソッドのみをバインドする場合はtrue</param>
         /// <returns>バインドされた関数</returns>
         public static BindValueFunction CreateBindFunction(PropertyInfo propertyInfo, bool staticOnly = true)
         {
@@ -218,13 +217,17 @@ namespace AliceScript
             }
             return func;
         }
-
+        /// <summary>
+        /// 指定された型にある関数やプロパティをバインドし、BindObjectを返します
+        /// </summary>
+        /// <param name="type">バインドしたい型</param>
+        /// <returns>型がバインドされたBindObject</returns>
         public static BindObject CreateBindObject(Type type)
         {
             var obj = new BindObject();
             obj.Name = type.Name;
 
-            if(TryGetAttibutte<AliceObjectAttribute>(type,out var attr))
+            if (TryGetAttibutte<AliceObjectAttribute>(type, out var attr))
             {
                 obj.Namespace = attr.NameSpace;
                 if (!string.IsNullOrEmpty(attr.Name))

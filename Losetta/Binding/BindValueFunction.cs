@@ -5,6 +5,9 @@ using static AliceScript.Binding.BindFunction;
 
 namespace AliceScript.Binding
 {
+    /// <summary>
+    /// .NETのプロパティと対応するAliceScriptの関数
+    /// </summary>
     public class BindValueFunction : ValueFunction
     {
         public BindValueFunction()

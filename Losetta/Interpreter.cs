@@ -145,7 +145,6 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }
 
-
         public void RegisterActions()
         {
             ParserFunction.AddAction(Constants.ASSIGNMENT, new AssignFunction());

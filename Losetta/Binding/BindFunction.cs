@@ -207,6 +207,9 @@ namespace AliceScript.Binding
         }
 
         private SortedSet<BindingOverloadFunction> Overloads = new SortedSet<BindingOverloadFunction>();
+        /// <summary>
+        /// この関数がBindObjectのメソッドの場合、そのオブジェクト
+        /// </summary>
         public BindObject Parent { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -112,7 +113,7 @@ namespace AliceScript
         /// </summary>
         public const string LANGUAGE = "AliceScript";
 
-        public static readonly Version VERSION = new Version(3,0);
+        public static readonly Version VERSION = new Version(3, 0);
 
         public const string UTF8_LITERAL_PREFIX = "u8";
 
@@ -230,7 +231,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION,NEW }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";
@@ -422,6 +423,10 @@ namespace AliceScript
         }
         public static Type InvokeStringToType(string typeStr)
         {
+            if (typeStr.EndsWith("[]", StringComparison.OrdinalIgnoreCase))
+            {
+                return InvokeStringToType(typeStr.Substring(0, typeStr.Length - 2)).MakeArrayType();
+            }
             switch (typeStr.ToUpperInvariant())
             {
                 case "VOID":
@@ -432,9 +437,10 @@ namespace AliceScript
                 case "INTPTR":
                     return typeof(nint);
                 case "UINTPTR":
-                    return typeof(UIntPtr);
+                    return typeof(nuint);
                 case "INT8":
                 case "SCHAR":
+                case "SBYTE":
                     return typeof(sbyte);
                 case "UCHAR":
                 case "CHAR":
@@ -453,6 +459,7 @@ namespace AliceScript
                 case "LONG32":
                 case "LONG":
                     return typeof(int);
+                case "UINT":
                 case "UINT32":
                 case "ULONG32":
                 case "ULONG":
@@ -468,14 +475,16 @@ namespace AliceScript
                     return typeof(ulong);
                 case "BOOL":
                     return typeof(bool);
-                case "LPSTR":
                 case "LPTSTR":
                 case "LPCSTR":
                 case "LPCTSTR":
                 case "LPCWSTR":
-                case "LPWSTR":
                 case "STRING":
                     return typeof(string);
+                case "LPSTR":
+                case "LPWSTR":
+                case "STRINGBUILDER":
+                    return typeof(StringBuilder);
                 case "FLOAT":
                 case "SINGLE":
                     return typeof(float);

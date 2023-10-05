@@ -714,36 +714,12 @@ namespace AliceScript
                             sb.Append('\\');
                         }
                         break;
-                    case Constants.SPACE:
-                        if (inQuotes)
-                        {
-                            sb.Append(ch);
-                        }
-                        else if (inPragmaCommand)
-                        {
-                            inPragmaCommand = false;
-                            inPragmaArgs = true;
-                        }
-                        else
-                        {
-                            bool keepSpace = KeepSpace(sb, next);
-                            bool usedSpace = spaceOK;
-                            spaceOK = keepSpace ||
-                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK);
-                            if (spaceOK || KeepSpaceOnce(sb, next))
-                            {
-                                sb.Append(ch);
-                            }
-                            spaceOK = spaceOK || (usedSpace && prev == Constants.NEXT_ARG);
-                        }
-                        continue;
                     case '\t':
                     case '\r':
                         if (inQuotes)
                         {
                             sb.Append(ch);
                         }
-
                         continue;
                     case Constants.START_ARG:
                         if (!inQuotes && !inComments && (!inIf || If))
@@ -821,7 +797,33 @@ namespace AliceScript
                     default:
                         break;
                 }
-                if (!inComments && (!inIf || If) && !inPragma)
+
+                // 文字がスペースの場合
+                if (char.IsWhiteSpace(ch))
+                {
+                    if (inQuotes)
+                    {
+                        sb.Append(ch);
+                    }
+                    else if (inPragmaCommand)
+                    {
+                        inPragmaCommand = false;
+                        inPragmaArgs = true;
+                    }
+                    else
+                    {
+                        bool keepSpace = KeepSpace(sb, next);
+                        bool usedSpace = spaceOK;
+                        spaceOK = keepSpace ||
+                             (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK);
+                        if (spaceOK || KeepSpaceOnce(sb, next))
+                        {
+                            sb.Append(Constants.SPACE);
+                        }
+                        spaceOK = spaceOK || (usedSpace && prev == Constants.NEXT_ARG);
+                    }
+                }
+                else if (!inComments && (!inIf || If) && !inPragma)
                 {
                     sb.Append(ch);
                     lastToken.Append(ch);

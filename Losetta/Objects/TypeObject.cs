@@ -1,9 +1,12 @@
-﻿using AliceScript.Functions;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
 using AliceScript.Parsing;
+using System.Xml.Linq;
 
 namespace AliceScript.Objects
 {
-    public class TypeObject : ObjectBase
+
+    public class TypeObject : ObjectBase, IEquatable<TypeObject>
     {
         public TypeObject()
         {
