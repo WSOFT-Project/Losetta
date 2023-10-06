@@ -115,7 +115,7 @@ namespace AliceScript
             }
             if (checkReserved && Constants.CheckReserved(name))
             {
-                Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
+                Utils.ThrowErrorMsg($"識別子`{name}`は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
             }
 
             if (!Constants.IDENTIFIER_PATTERN.IsMatch(name))
