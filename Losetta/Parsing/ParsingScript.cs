@@ -10,6 +10,7 @@ namespace AliceScript.Parsing
     /// <summary>
     /// パース中のスクリプトを表します
     /// </summary>
+    [AliceObject(Name = "Script", DefaultState = AliceBindState.Disabled)]
     public class ParsingScript
     {
         private string m_data;          // スクリプト全体が含まれます
@@ -37,6 +38,7 @@ namespace AliceScript.Parsing
         /// </summary>
         /// <param name="script">呼び出し元のスクリプト</param>
         /// <returns>最上位のスクリプト</returns>
+        [AliceFunction(State = AliceBindState.Enabled)]
         public static ParsingScript GetTopLevelScript(ParsingScript script = null)
         {
             if (m_toplevel_script.ParentScript != null)
@@ -205,6 +207,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// これが実行されているパッケージを表します
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public AlicePackage Package
         {
             get => m_package;
@@ -213,6 +216,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// 現在のスクリプトの世代数を取得または設定します
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public int Generation
         {
             get => m_generation;
@@ -221,6 +225,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// 現在のスクリプトのポインタを取得または設定します
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public int Pointer
         {
             get => m_from;
@@ -229,6 +234,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// 現在のスクリプト全体を取得または設定します
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public string String
         {
             get => m_data;
@@ -266,43 +272,55 @@ namespace AliceScript.Parsing
         /// <summary>
         /// これから実行されるコード
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public string Rest => Substr(m_from, Constants.MAX_CHARS_TO_SHOW);
         /// <summary>
         /// 現在解析中の文字
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public char Current => m_from < m_data.Length ? m_data[m_from] : Constants.EMPTY;
         /// <summary>
         /// ひとつ前に解析された文字
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public char Prev => m_from >= 1 ? m_data[m_from - 1] : Constants.EMPTY;
         /// <summary>
         /// ふたつ前に解析された文字
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public char PrevPrev => m_from >= 2 ? m_data[m_from - 2] : Constants.EMPTY;
         /// <summary>
         /// ひとつ後に解析される文字
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public char Next => m_from + 1 < m_data.Length ? m_data[m_from + 1] : Constants.EMPTY;
         /// <summary>
         /// 二つ後に解析される文字
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public char NextNext => m_from + 2 < m_data.Length ? m_data[m_from + 2] : Constants.EMPTY;
         public Dictionary<int, int> Char2Line
         {
             get => m_char2Line;
             set => m_char2Line = value;
         }
+        [AliceProperty(State = AliceBindState.Enabled)]
         public int ScriptOffset
         {
             get => m_scriptOffset;
             set => m_scriptOffset = value;
         }
+        [AliceProperty(State = AliceBindState.Enabled)]
         public string Filename
         {
             get => m_filename;
             set => m_filename = Utils.GetFullPath(value);
         }
+        [AliceProperty(State = AliceBindState.Enabled)]
+        public bool IsMainFile => !string.IsNullOrEmpty(MainFilename) && MainFilename == Filename;
+        [AliceProperty(State = AliceBindState.Enabled)]
         public string PWD => Utils.GetDirectoryName(m_filename);
+        [AliceProperty(State = AliceBindState.Enabled)]
         public string OriginalScript
         {
             get => m_originalScript;
@@ -598,6 +616,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// このスクリプトの親
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public ParsingScript ParentScript
         {
             get => m_parentScript;
@@ -606,6 +625,7 @@ namespace AliceScript.Parsing
         public AliceScriptClass CurrentClass { get; set; }
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
 
+        [AliceFunction(State = AliceBindState.Enabled)]
         public ParsingScript(string data, int from = 0,
                              Dictionary<int, int> char2Line = null, bool usingAlice = true)
         {
@@ -618,6 +638,7 @@ namespace AliceScript.Parsing
             }
         }
 
+        [AliceFunction(State = AliceBindState.Enabled)]
         public ParsingScript(ParsingScript other, bool usingAlice = true)
         {
             m_data = other.String;
@@ -1027,6 +1048,7 @@ namespace AliceScript.Parsing
             return result;
         }
 
+        [AliceFunction(State = AliceBindState.Enabled)]
         public Variable Execute(char[] toArray = null, int from = -1)
         {
             toArray = toArray ?? Constants.END_PARSE_ARRAY;
@@ -1153,6 +1175,7 @@ namespace AliceScript.Parsing
             return result;
         }
 
+        [AliceFunction(State = AliceBindState.Enabled)]
         public Variable ExecuteAll()
         {
             Variable result = null;
@@ -1167,6 +1190,8 @@ namespace AliceScript.Parsing
             }
             return result;
         }
+
+        [AliceFunction(State = AliceBindState.Enabled)]
         public Variable Process(bool checkBreak = true)
         {
             Variable result = null;

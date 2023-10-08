@@ -14,7 +14,8 @@ namespace AliceScript.NameSpaces
             {
                 Alice.RegisterFunctions<InterpreterFunctions>();
                 NameSpace space = new NameSpace("Alice.Interpreter");
-                space.Add(new Interpreter_ScriptObject(null));
+                space.Add<ParsingScript>();
+                //space.Add(new Interpreter_ScriptObject(null));
                 space.Add(new TypeObject());
 
                 NameSpaceManager.Add(space);

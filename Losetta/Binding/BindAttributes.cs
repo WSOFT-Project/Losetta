@@ -6,7 +6,7 @@ namespace AliceScript.Binding
     /// <summary>
     /// AliceScriptで使用できる関数として公開するメソッド
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor)]
     public class AliceFunctionAttribute : Attribute
     {
         /// <summary>
@@ -19,25 +19,50 @@ namespace AliceScript.Binding
         public FunctionAttribute Attribute { get; set; }
 
         /// <summary>
-        /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができる
+        /// この関数をAliceScriptにバインドするか指定する値
+        /// </summary>
+        public AliceBindState State { get; set; }
+
+        /// <summary>
+        /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができます
         /// </summary>
         public bool MethodOnly { get; set; } = true;
     }
 
     /// <summary>
+    /// メソッドまたはプロパティをAliceScriptで使用できるようにバインドするかどうかを表す値
+    /// </summary>
+    public enum AliceBindState
+    {
+        /// <summary>
+        /// メソッドまたはプロパティをバインドします
+        /// </summary>
+        Enabled = 0,
+        /// <summary>
+        /// メソッドまたはプロパティをバインドしません
+        /// </summary>
+        Disabled = 1
+    }
+
+    /// <summary>
     /// AliceScriptで使用できるプロパティとして公開するプロパティ
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Property)]
     public class AlicePropertyAttribute : Attribute
     {
         /// <summary>
         /// プロパティの名前
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// このプロパティをAliceScriptにバインドするか指定する値
+        /// </summary>
+        public AliceBindState State { get; set; }
     }
     /// <summary>
-     /// AliceScriptで使用できるオブジェクトとして公開するクラス
-     /// </summary>
+    /// AliceScriptで使用できるオブジェクトとして公開するクラス
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class AliceObjectAttribute : Attribute
     {
@@ -49,6 +74,11 @@ namespace AliceScript.Binding
         /// オブジェクトの所属する名前空間
         /// </summary>
         public string NameSpace { get; set; }
+
+        /// <summary>
+        /// この関数を規定でAliceScriptにバインドするか指定する値
+        /// </summary>
+        public AliceBindState DefaultState { get; set; }
     }
 
     /// <summary>
@@ -62,9 +92,9 @@ namespace AliceScript.Binding
         /// </summary>
         public string Name { get; set; }
         /// <summary>
-        /// このクラスの公開するメソッドにはすべてAliceFunction属性を付けることを求める場合はTrue
+        /// この関数を規定でAliceScriptにバインドするか指定する値
         /// </summary>
-        public bool NeedBindAttribute { get; set; }
+        public AliceBindState DefaultState { get; set; }
 
     }
 }

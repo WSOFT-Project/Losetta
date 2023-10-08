@@ -1,5 +1,6 @@
 ﻿using AliceScript.Binding;
 using AliceScript.NameSpaces;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -25,7 +26,7 @@ namespace AliceScript
                 {
                     space.Name = attribute.Name;
                 }
-                needbind = attribute.NeedBindAttribute;
+                needbind = attribute.DefaultState != AliceBindState.Enabled;
             }
             Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
             foreach (var m in type.GetMethods())
@@ -49,7 +50,7 @@ namespace AliceScript
             }
             foreach (var p in type.GetProperties())
             {
-                var prop = CreateBindFunction(p);
+                var prop = CreateBindFunction(p, needbind);
                 if (prop != null)
                 {
                     space.Add(prop);
@@ -135,9 +136,10 @@ namespace AliceScript
         /// 指定されたプロパティをバインドし、関数を返します。
         /// </summary>
         /// <param name="propertyInfo">バインドしたいプロパティ</param>
-        /// <param name="staticOnly">静的メソッドのみをバインドする場合はtrue</param>
+        /// <param name="needBind">メソッドにAliceMethod属性が必要かを表す値</param>
+        /// <param name="staticOnly">静的メソッドのみをバインドする場合はtrue、通常のメソッドのみをバインドする場合はfalse</param>
         /// <returns>バインドされた関数</returns>
-        public static BindValueFunction CreateBindFunction(PropertyInfo propertyInfo, bool staticOnly = true)
+        public static BindValueFunction CreateBindFunction(PropertyInfo propertyInfo, bool needBind, bool staticOnly = true)
         {
             var func = new BindValueFunction();
             func.Name = propertyInfo.Name;
@@ -152,9 +154,17 @@ namespace AliceScript
                 {
                     func.Name = attribute.Name;
                 }
+                if (attribute.State == AliceBindState.Disabled)
+                {
+                    return null;
+                }
+            }
+            else if (needBind)
+            {
+                return null;
             }
 
-            if (setFunc != null && setFunc.IsPublic && (!staticOnly || setFunc.IsStatic))
+            if (setFunc != null && setFunc.IsPublic && (staticOnly == setFunc.IsStatic) && TryGetAttibutte<AliceFunctionAttribute>(setFunc, out var attrS, true) && attrS.State == AliceBindState.Enabled)
             {
                 func.CanSet = true;
                 var load = new BindingOverloadFunction();
@@ -184,7 +194,8 @@ namespace AliceScript
 
                 func.Set = load;
             }
-            if (getFunc != null && getFunc.IsPublic && (!staticOnly || getFunc.IsStatic))
+
+            if (getFunc != null && getFunc.IsPublic && (staticOnly == getFunc.IsStatic) && TryGetAttibutte<AliceFunctionAttribute>(getFunc, out var attrG, true) && attrG.State == AliceBindState.Enabled)
             {
                 var load = new BindingOverloadFunction();
                 load.TrueParameters = getFunc.GetParameters();
@@ -226,6 +237,7 @@ namespace AliceScript
         {
             var obj = new BindObject();
             obj.Name = type.Name;
+            bool defaultState = true;
 
             if (TryGetAttibutte<AliceObjectAttribute>(type, out var attr))
             {
@@ -234,6 +246,7 @@ namespace AliceScript
                 {
                     obj.Name = attr.Name;
                 }
+                defaultState = attr.DefaultState == AliceBindState.Enabled;
             }
             Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
             Dictionary<string, HashSet<MethodInfo>> staticmethods = new Dictionary<string, HashSet<MethodInfo>>();
@@ -261,7 +274,7 @@ namespace AliceScript
             }
             foreach (HashSet<MethodInfo> mi in methods.Values)
             {
-                var func = CreateBindFunction(mi, false);
+                var func = CreateBindFunction(mi, !defaultState);
                 if (func != null)
                 {
                     func.Parent = obj;
@@ -279,29 +292,46 @@ namespace AliceScript
             }
             foreach (var p in type.GetProperties())
             {
-                var prop = CreateBindFunction(p, false);
+                var prop = CreateBindFunction(p, !defaultState,false);
                 if (prop != null)
                 {
                     prop.Parent = obj;
                     obj.AddFunction(prop);
                 }
             }
-            obj.Constructor = BindFunction.CreateBindConstructor(type.GetConstructors());
-            obj.Constructor.Run += delegate (object sender, Functions.FunctionBaseEventArgs e)
+            foreach (var p in type.GetProperties())
             {
-                obj.Instance = e.Return.AsObject();
-            };
+                var prop = CreateBindFunction(p, !defaultState, true);
+                if (prop != null)
+                {
+                    prop.Parent = obj;
+                    obj.StaticFunctions[prop.Name] = prop;
+                }
+            }
+            obj.Constructor = BindFunction.CreateBindConstructor(type.GetConstructors(), !defaultState);
+            if (obj.Constructor != null)
+            {
+                obj.Constructor.Run += delegate (object sender, Functions.FunctionBaseEventArgs e)
+                {
+                    obj.Instance = e.Return.AsObject();
+                };
+            }
 
             return obj;
         }
 
-        internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute) where T : Attribute
+        internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute, bool createNew = false) where T : Attribute, new()
         {
             attribute = null;
             var attr = System.Attribute.GetCustomAttributes(memberInfo, typeof(T));
             if (attr.Length > 0)
             {
                 attribute = attr[0] as T;
+                return true;
+            }
+            if (createNew)
+            {
+                attribute = new T();
                 return true;
             }
             return false;

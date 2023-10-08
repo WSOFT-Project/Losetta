@@ -68,6 +68,10 @@ namespace AliceScript.Binding
                 string name = methodInfo.Name;
                 if (Utils.TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {
+                    if (attribute.State == AliceBindState.Disabled)
+                    {
+                        continue;
+                    }
                     if (attribute.Name != null)
                     {
                         name = attribute.Name;
@@ -123,7 +127,7 @@ namespace AliceScript.Binding
                         Expression.Convert(
                             Expression.Call(Expression.Convert(instance, methodInfo.DeclaringType), methodInfo, parameters),
                             typeof(void)),
-                        instance , args).Compile();
+                        instance, args).Compile();
                         load.IsInstanceFunc = true;
                     }
                     load.IsVoidFunc = true;
@@ -144,16 +148,16 @@ namespace AliceScript.Binding
                         Expression.Convert(
                             Expression.Call(Expression.Convert(instance, methodInfo.DeclaringType), methodInfo, parameters),
                             typeof(object)),
-                        instance , args).Compile();
+                        instance, args).Compile();
                         load.IsInstanceFunc = true;
                     }
                 }
                 func.Overloads.Add(load);
             }
 
-            return func;
+            return func.Overloads.Count > 0 ? func : null;
         }
-        internal static BindFunction CreateBindConstructor(ConstructorInfo[] constructors)
+        internal static BindFunction CreateBindConstructor(ConstructorInfo[] constructors, bool needBind)
         {
             var func = new BindFunction();
             foreach (var methodInfo in constructors)
@@ -169,7 +173,15 @@ namespace AliceScript.Binding
                     {
                         func.MethodOnly = true;
                     }
+                    if (attribute.State == AliceBindState.Disabled)
+                    {
+                        continue;
+                    }
                     func.Attribute = attribute.Attribute;
+                }
+                else if (needBind)
+                {
+                    return null;
                 }
                 func.Name = name;
                 var load = new BindingOverloadFunction();
@@ -203,7 +215,7 @@ namespace AliceScript.Binding
                 func.Overloads.Add(load);
             }
 
-            return func;
+            return func.Overloads.Count > 0 ? func : null;
         }
 
         private SortedSet<BindingOverloadFunction> Overloads = new SortedSet<BindingOverloadFunction>();
