@@ -659,7 +659,7 @@ namespace AliceScript
                     continue;
                 }
 
-                if (Constants.IGNORE_CHARS.Contains(ch) || char.IsControl(ch) || char.GetUnicodeCategory(ch) == System.Globalization.UnicodeCategory.Format)
+                if (Constants.IGNORE_CHARS.Contains(ch) || char.IsControl(ch) || char.GetUnicodeCategory(ch).HasFlag(System.Globalization.UnicodeCategory.Format))
                 {
                     if (inQuotes)
                     {

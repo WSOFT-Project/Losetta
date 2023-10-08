@@ -189,6 +189,16 @@ namespace AliceScript
                 String = s;
                 return;
             }
+            if (o is char c)
+            {
+                String = c.ToString();
+                return;
+            }
+            if (o is char[] ca)
+            {
+                String = ca.ToString();
+                return;
+            }
             if (o is StringBuilder sb)
             {
                 String = sb.ToString();
@@ -1027,6 +1037,16 @@ namespace AliceScript
                             result = new StringBuilder(String);
                             return true;
                         }
+                        if (type == typeof(char[]))
+                        {
+                            result = String.ToCharArray();
+                            return true;
+                        }
+                        if (type == typeof(char))
+                        {
+                            result = String.Length > 0 ? String[0] : Constants.EMPTY;
+                            return true;
+                        }
                         if (type is null || type == typeof(string))
                         {
                             result = String;
@@ -1152,7 +1172,7 @@ namespace AliceScript
                             result = null;
                             return true;
                         }
-                        if(Object is BindObject bo)
+                        if (Object is BindObject bo)
                         {
                             result = bo.Instance;
                             return true;
