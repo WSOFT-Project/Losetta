@@ -175,7 +175,7 @@ namespace AliceScript
         /// <summary>
         /// ソースコード上では無視される文字
         /// </summary>
-        public const string IGNORE_CHARS = "\t\r\u200a\u200b\u200c\u200d\u200e\u200f";
+        public const string IGNORE_CHARS = "\t\r";
 
         /// <summary>
         /// パース中の言語構造が所属する名前空間
