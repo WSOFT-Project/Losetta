@@ -55,6 +55,28 @@ namespace AliceScript.NameSpaces
         }
         #endregion
 
+        #region DNS解決
+        public static string Dns_GetHostName()
+        {
+            return Dns.GetHostName();
+        }
+        public static string Dns_GetHostName(string hostNameOrAddress)
+        {
+            var ip = Dns.GetHostEntry(hostNameOrAddress);
+            return ip.HostName;
+        }
+        public static IEnumerable<string> Dns_GetIPAdress(string hostNameOrAddress)
+        {
+            var ip = Dns.GetHostEntry(hostNameOrAddress);
+            return ip.AddressList.Select(x => x.ToString());
+        }
+        public static IEnumerable<string> Dns_GetAliases(string hostNameOrAddress)
+        {
+            var ip = Dns.GetHostEntry(hostNameOrAddress);
+            return ip.Aliases;
+        }
+        #endregion
+
         #region エンコード・デコード
         public static string Web_UrlDecode(string value)
         {
