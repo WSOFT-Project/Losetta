@@ -60,7 +60,6 @@ namespace AliceScript.NameSpaces
                         }
                 }
             }
-
             public enum AlicePackageObjectPropertyMode
             {
                 Manifest

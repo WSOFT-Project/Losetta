@@ -62,6 +62,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// このスクリプトのCustomFunctionの呼び出し履歴
         /// </summary>
+        [AliceProperty(State = AliceBindState.Enabled)]
         public List<StackInfo> StackTrace
         {
             get
@@ -75,102 +76,7 @@ namespace AliceScript.Parsing
             }
         }
 
-        /// <summary>
-        /// StackTraceで使用するひとつ当たりのスタック
-        /// </summary>
-        public class StackInfo
-        {
-            /// <summary>
-            /// 現在実行中の関数
-            /// </summary>
-            public FunctionBase Function { get; set; }
-            /// <summary>
-            /// 現在の行の文字列
-            /// </summary>
-            public string Line { get; set; }
-            /// <summary>
-            /// 現在の行番号
-            /// </summary>
-            public int LineNumber { get; set; }
-            /// <summary>
-            /// ファイル名
-            /// </summary>
-            public string FileName { get; set; }
-
-            public StackInfo(FunctionBase function, string line, int lineNumber, string fileName)
-            {
-                Function = function;
-                Line = line;
-                LineNumber = lineNumber;
-                FileName = fileName;
-            }
-            public override string ToString()
-            {
-                var sb = new StringBuilder();
-                sb.Append("場所 ");
-                foreach (string k in Function.Keywords)
-                {
-                    sb.Append(k);
-                    sb.Append(Constants.SPACE);
-                }
-                if (Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
-                {
-                    sb.Append(Constants.COMMAND);
-                    sb.Append(Constants.SPACE);
-                }
-                if (Function is BindFunction)
-                {
-                    sb.Append(".bind ");
-                }
-                if (Function is FunctionBase fb)
-                {
-                    if (fb.IsMethod)
-                    {
-                        sb.Append(".method ");
-                    }
-                    if (fb.IsMethod && !fb.MethodOnly)
-                    {
-                        sb.Append(Constants.EXTENSION);
-                        sb.Append(Constants.SPACE);
-                    }
-                }
-                if (Function is CustomFunction)
-                {
-                    sb.Append(".custom ");
-                }
-                else if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
-                {
-                    sb.Append(".structure ");
-                }
-                sb.Append(Constants.FUNCTION);
-                sb.Append(Constants.SPACE);
-                if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
-                {
-                    sb.Append(Function.RelatedNameSpace);
-                    sb.Append('.');
-                }
-                sb.Append(string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name);
-                sb.Append(Constants.START_ARG);
-                int args_count = 0;
-                if (Function is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)
-                {
-                    foreach (string a in Function.RealArgs)
-                    {
-                        sb.Append(a);
-                        sb.Append(++args_count == Function.RealArgs.Length ? string.Empty : ",");
-                    }
-                }
-                sb.Append(");");
-                if (!string.IsNullOrWhiteSpace(FileName))
-                {
-                    sb.Append(" 場所 ");
-                    sb.Append(FileName);
-                    sb.Append(":行 ");
-                    sb.Append(LineNumber);
-                }
-                return sb.ToString();
-            }
-        }
+        
 
         /// <summary>
         /// 現在実行中あるいは最後に実行された関数
@@ -1387,6 +1293,102 @@ namespace AliceScript.Parsing
             isPackageFile = false;
             pathname = GetFilePath(filename);
             return Utils.GetFileLines(pathname);
+        }
+        /// <summary>
+        /// StackTraceで使用するひとつ当たりのスタック
+        /// </summary>
+        public class StackInfo
+        {
+            /// <summary>
+            /// 現在実行中の関数
+            /// </summary>
+            public FunctionBase Function { get; set; }
+            /// <summary>
+            /// 現在の行の文字列
+            /// </summary>
+            public string Line { get; set; }
+            /// <summary>
+            /// 現在の行番号
+            /// </summary>
+            public int LineNumber { get; set; }
+            /// <summary>
+            /// ファイル名
+            /// </summary>
+            public string FileName { get; set; }
+
+            public StackInfo(FunctionBase function, string line, int lineNumber, string fileName)
+            {
+                Function = function;
+                Line = line;
+                LineNumber = lineNumber;
+                FileName = fileName;
+            }
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+                sb.Append("場所 ");
+                foreach (string k in Function.Keywords)
+                {
+                    sb.Append(k);
+                    sb.Append(Constants.SPACE);
+                }
+                if (Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
+                {
+                    sb.Append(Constants.COMMAND);
+                    sb.Append(Constants.SPACE);
+                }
+                if (Function is BindFunction)
+                {
+                    sb.Append(".bind ");
+                }
+                if (Function is FunctionBase fb)
+                {
+                    if (fb.IsMethod)
+                    {
+                        sb.Append(".method ");
+                    }
+                    if (fb.IsMethod && !fb.MethodOnly)
+                    {
+                        sb.Append(Constants.EXTENSION);
+                        sb.Append(Constants.SPACE);
+                    }
+                }
+                if (Function is CustomFunction)
+                {
+                    sb.Append(".custom ");
+                }
+                else if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+                {
+                    sb.Append(".structure ");
+                }
+                sb.Append(Constants.FUNCTION);
+                sb.Append(Constants.SPACE);
+                if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
+                {
+                    sb.Append(Function.RelatedNameSpace);
+                    sb.Append('.');
+                }
+                sb.Append(string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name);
+                sb.Append(Constants.START_ARG);
+                int args_count = 0;
+                if (Function is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)
+                {
+                    foreach (string a in Function.RealArgs)
+                    {
+                        sb.Append(a);
+                        sb.Append(++args_count == Function.RealArgs.Length ? string.Empty : ",");
+                    }
+                }
+                sb.Append(");");
+                if (!string.IsNullOrWhiteSpace(FileName))
+                {
+                    sb.Append(" 場所 ");
+                    sb.Append(FileName);
+                    sb.Append(":行 ");
+                    sb.Append(LineNumber);
+                }
+                return sb.ToString();
+            }
         }
     }
 

@@ -23,7 +23,7 @@ namespace AliceScript.Binding
         public ParameterInfo[] TrueParameters { get; set; }
         public Action<object[]> VoidFunc { get; set; }
         public Func<object[], object> ObjFunc { get; set; }
-        public Action<object,object[]> InstanceVoidFunc { get; set; }
+        public Action<object, object[]> InstanceVoidFunc { get; set; }
         public Func<object, object[], object> InstanceObjFunc { get; set; }
         public bool IsVoidFunc { get; set; }
         public bool IsInstanceFunc { get; set; }
@@ -71,7 +71,6 @@ namespace AliceScript.Binding
             int diff = 0;//TrueParametersとargsのインデックスのずれ
             for (i = 0; i < TrueParameters.Length; i++)
             {
-
                 paramType = TrueParameters[i].ParameterType;
 
                 if (paramType == typeof(FunctionBaseEventArgs))

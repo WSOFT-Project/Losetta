@@ -35,7 +35,6 @@ namespace AliceScript.Objects
             Name = name;
         }
 
-
         public override string ToString()
         {
             var tsf = Functions.Keys.Where(x => x.ToLowerInvariant() == "tostring").FirstOrDefault();

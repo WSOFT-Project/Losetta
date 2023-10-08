@@ -11,7 +11,7 @@ namespace AliceScript.NameSpaces
         {
             NameSpaceManager.Add(typeof(Core.CoreFunctions));
             NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
-            space.Add(new ExceptionObject());
+            space.Add<ExceptionObject>();
             NameSpaceManager.Add(space);
         }
     }
