@@ -1,6 +1,7 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Interop;
 using AliceScript.Objects;
+using System.Reflection;
 
 namespace AliceScript.NameSpaces
 {
@@ -22,10 +23,23 @@ namespace AliceScript.NameSpaces
         {
             NetLibraryLoader.LoadLibrary(rawAsm);
         }
-        public static TypeObject Interop_GetType(string typaname, string locate = null)
+        public static TypeObject Interop_GetType(string typeName, string asmName = null, string asmLocate = null)
         {
-            var t = Type.GetType(typaname + (locate == null ? string.Empty : "," + locate));
-            return t != null ? new TypeObject(Utils.CreateBindObject(t)) : null;
+            Type type = null;
+            if (!string.IsNullOrEmpty(asmName))
+            {
+                typeName += $",{asmName}";
+            }
+            if (string.IsNullOrEmpty(asmLocate))
+            {
+                type = Type.GetType(typeName);
+            }
+            else
+            {
+                var asm = Assembly.LoadFrom(asmLocate);
+                type = asm.GetType(typeName);
+            }
+            return type != null ? new TypeObject(Utils.CreateBindObject(type)) : null;
         }
         public static DelegateObject Interop_GetInvoker(string procName, string libraryName, string returnType, string[] parameterTypes, string entryPoint = null, bool? useUnicode = null)
         {

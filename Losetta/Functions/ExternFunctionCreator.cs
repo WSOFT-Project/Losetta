@@ -1,5 +1,4 @@
-﻿using AliceScript.Binding;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace AliceScript.Functions
 {
@@ -97,14 +96,29 @@ namespace AliceScript.Functions
         public NetImportFunction()
         {
             Name = "." + Constants.NET_IMPORT;
+            MinimumArgCounts = 1;
             Run += PInvokeFlagFunction_Run;
         }
 
         private void PInvokeFlagFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            string locate = Utils.GetSafeString(e.Args, 1, null);
-            string typeName = Utils.GetSafeString(e.Args, 0) + (locate == null ? string.Empty : "," + locate);
-            Class = Type.GetType(typeName, false, true);
+            string asmName = Utils.GetSafeString(e.Args, 1, null);
+            string asmLocate = Utils.GetSafeString(e.Args, 2, null);
+            string typeName = e.Args[0].AsString();
+
+            if (!string.IsNullOrEmpty(asmName))
+            {
+                typeName += $",{asmName}";
+            }
+            if (string.IsNullOrEmpty(asmLocate))
+            {
+                Class = Type.GetType(typeName, false, true);
+            }
+            else
+            {
+                var asm = Assembly.LoadFrom(asmLocate);
+                Class = asm.GetType(typeName);
+            }
         }
         public Type Class { get; set; }
     }

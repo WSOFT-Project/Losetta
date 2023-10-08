@@ -513,7 +513,6 @@ namespace AliceScript
         }
 
 
-
         public static bool EndsWithFunction(string buffer, HashSet<string> functions)
         {
             foreach (string key in functions)
@@ -532,7 +531,6 @@ namespace AliceScript
 
             return false;
         }
-
         public static bool SpaceNotNeeded(char next)
         {
             return next == Constants.SPACE || next == Constants.START_ARG ||
@@ -556,6 +554,10 @@ namespace AliceScript
             return (char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next)) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
+        public static bool IsIgnoreChar(char ch)
+        {
+            return Constants.IGNORE_CHARS.Contains(ch) || char.IsControl(ch) || char.GetUnicodeCategory(ch).HasFlag(System.Globalization.UnicodeCategory.Format);
+        }
 
         public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, out ParsingScript.ScriptSettings settings, string filename = "")
         {
@@ -659,7 +661,7 @@ namespace AliceScript
                     continue;
                 }
 
-                if (Constants.IGNORE_CHARS.Contains(ch) || char.IsControl(ch) || char.GetUnicodeCategory(ch).HasFlag(System.Globalization.UnicodeCategory.Format))
+                if (IsIgnoreChar(ch))
                 {
                     if (inQuotes)
                     {
