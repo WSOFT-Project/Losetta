@@ -240,7 +240,15 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         #region 配列集計
-        public static double Avg(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        public static double Mean(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        {
+            return ary.Tuple.Average(item => func.Invoke(item, script).AsDouble());
+        }
+        public static double Mean(this double[] ary)
+        {
+            return ary.Average();
+        }
+        public static double Average(this VariableCollection ary,ParsingScript script,DelegateObject func)
         {
             return ary.Tuple.Average(item => func.Invoke(item, script).AsDouble());
         }
@@ -248,13 +256,25 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Max(item => func.Invoke(item, script).AsDouble());
         }
+        public static double Max(this double[] ary)
+        {
+            return ary.Max();
+        }
         public static double Min(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
             return ary.Tuple.Min(item => func.Invoke(item, script).AsDouble());
         }
+        public static double Min(this double[] ary)
+        {
+            return ary.Min();
+        }
         public static double Sum(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
             return ary.Tuple.Sum(item => func.Invoke(item, script).AsDouble());
+        }
+        public static double Sum(this double[] ary)
+        {
+            return ary.Sum();
         }
         public static Variable Aggregate(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
