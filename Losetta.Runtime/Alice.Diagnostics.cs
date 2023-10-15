@@ -15,8 +15,7 @@ namespace AliceScript.NameSpaces
             NameSpace space = new NameSpace("Alice.Diagnostics");
 
             space.Add(new StopWatchObject());
-            space.Add(new ProcessObject());
-            space.Add(new ProcessStartInfoObject());
+            space.Add<ProcessObject>();
 
             space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
 
@@ -68,6 +67,44 @@ namespace AliceScript.NameSpaces
             var po = new ProcessObject();
             po.Process = Process.Start(path, arguments);
             return po;
+        }
+        public static ProcessObject Exec(string fileName, bool waitForExit = true, bool useShell = false)
+        {
+            var p = new Process();
+            p.StartInfo.FileName = fileName;
+            p.StartInfo.RedirectStandardInput = !useShell;
+            p.StartInfo.RedirectStandardOutput = !useShell;
+            p.StartInfo.UseShellExecute = useShell;
+
+            p.Start();
+
+            if (waitForExit)
+            {
+                p.WaitForExit();
+            }
+            return new ProcessObject()
+            {
+                Process = p
+            };
+        }
+        public static ProcessObject Exec(string fileName, string arguments, bool waitForExit = true, bool useShell = false)
+        {
+            var p = new Process();
+            p.StartInfo.FileName = fileName;
+            p.StartInfo.RedirectStandardInput = !useShell;
+            p.StartInfo.RedirectStandardOutput = !useShell;
+            p.StartInfo.UseShellExecute = useShell;
+
+            p.Start();
+
+            if (waitForExit)
+            {
+                p.WaitForExit();
+            }
+            return new ProcessObject()
+            {
+                Process = p
+            };
         }
         #endregion
         #region デバッグ機能
@@ -172,292 +209,92 @@ namespace AliceScript.NameSpaces
         #endregion
     }
 
-    internal sealed class ProcessObject : ObjectBase
+    [AliceObject(Name = "Process")]
+    internal sealed class ProcessObject
     {
-        public ProcessObject()
-        {
-            Name = "Process";
 
-            AddFunction(new StartInfoProperty(this));
-
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.CloseMainWindow, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Kill, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Reflesh, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Start, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.WaitForExit, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.WaitForInputIdle, this));
-
-
-        }
         internal Process Process = new Process();
 
-        private class StartInfoProperty : ValueFunction
+        public void Close()
         {
-            public StartInfoProperty(ProcessObject host)
-            {
-                Host = host;
-                Name = "StartInfo";
-                HandleEvents = true;
-                Getting += StartInfoProperty_Getting;
-                Setting += StartInfoProperty_Setting;
-            }
-
-            private void StartInfoProperty_Setting(object sender, ValueFunctionEventArgs e)
-            {
-                if (Host.Process != null)
-                {
-                    Host.Process.StartInfo = ((ProcessStartInfoObject)e.Value.Object).ps;
-                }
-            }
-
-            private void StartInfoProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                if (Host.Process != null)
-                {
-                    ProcessStartInfoObject psio = new ProcessStartInfoObject();
-                    psio.ps = Host.Process.StartInfo;
-                    e.Value = new Variable(psio);
-                }
-            }
-
-            private ProcessObject Host;
+            Process.Close();
         }
 
-        private class ProcessFunction : FunctionBase
+        public void CloseMainWindow()
         {
-            internal enum ProcessFunctionMode
-            {
-                Start, Kill, WaitForExit, Reflesh, WaitForInputIdle, CloseMainWindow
-            }
-            public ProcessFunction(ProcessFunctionMode mode, ProcessObject host)
-            {
-                Mode = mode;
-                Host = host;
-                Name = Mode.ToString();
-                Run += ProcessFunction_Run;
-            }
-
-            private ProcessObject Host;
-            private void ProcessFunction_Run(object sender, FunctionBaseEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case ProcessFunctionMode.Start:
-                        {
-                            Host.Process.Start();
-                            break;
-                        }
-                    case ProcessFunctionMode.Kill:
-                        {
-                            Host.Process.Kill();
-                            break;
-                        }
-                    case ProcessFunctionMode.Reflesh:
-                        {
-                            Host.Process.Refresh();
-                            break;
-                        }
-                    case ProcessFunctionMode.WaitForExit:
-                        {
-                            Host.Process.WaitForExit();
-                            break;
-                        }
-                    case ProcessFunctionMode.WaitForInputIdle:
-                        {
-                            Host.Process.WaitForInputIdle();
-                            break;
-                        }
-                    case ProcessFunctionMode.CloseMainWindow:
-                        {
-                            Host.Process.CloseMainWindow();
-                            break;
-                        }
-                }
-            }
-
-            private ProcessFunctionMode Mode;
+            Process.CloseMainWindow();
         }
+
+        public void Kill()
+        {
+            Process.Kill();
+        }
+
+        public void Kill(bool entireProcessTree)
+        {
+            Process.Kill(entireProcessTree);
+        }
+
+        public void Reflesh()
+        {
+            Process.Refresh();
+        }
+
+        public void Start()
+        {
+            Process.Start();
+        }
+
+        public void WaitForExit()
+        {
+            Process.WaitForExit();
+        }
+
+        public void WaitForExit(int milliseconds)
+        {
+            Process.WaitForInputIdle(milliseconds);
+        }
+
+        public void WaitForInputIdle()
+        {
+            Process.WaitForExit();
+        }
+
+        public void WaitFWaitForInputIdleorExit(int milliseconds)
+        {
+            Process.WaitForInputIdle(milliseconds);
+        }
+        public string Read()
+        {
+            StringBuilder sb = new StringBuilder();
+            while (Process.StandardOutput.Peek() >= 0)
+            {
+                sb.Append((char)Process.StandardOutput.Read());
+            }
+
+            return sb.ToString();
+        }
+        public string ReadToEnd()
+        {
+            return Process.StandardOutput.ReadToEnd();
+        }
+        public string ReadLine()
+        {
+            return Process.StandardOutput.ReadLine();
+        }
+        public void Write(string input)
+        {
+            Process.StandardInput.Write(input);
+            Process.StandardInput.Flush();
+        }
+        public void WriteLine(string input)
+        {
+            Process.StandardInput.WriteLine(input);
+            Process.StandardInput.Flush();
+        }
+        public ProcessStartInfo ProcessStartInfo => Process.StartInfo;
     }
 
-    internal sealed class ProcessStartInfoObject : ObjectBase
-    {
-        public ProcessStartInfoObject()
-        {
-            Name = "ProcessStartInfo";
-
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.CreateNoWindow, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.ErrorDialog, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.FileName, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.LoadUserProfile, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardError, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardInput, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardOutput, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.UseShellExecute, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.Verb, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.WindowStyle, this));
-            AddFunction(new InfoProperty(InfoProperty.InfoPropertyMode.WorkingDirectory, this));
-        }
-        internal ProcessStartInfo ps = new ProcessStartInfo();
-
-        private class InfoProperty : ValueFunction
-        {
-            internal enum InfoPropertyMode
-            {
-                Arguments, CreateNoWindow, ErrorDialog, FileName, LoadUserProfile, RedirectStandardError, RedirectStandardInput, RedirectStandardOutput, UseShellExecute, Verb, WindowStyle, WorkingDirectory
-            }
-            public InfoProperty(InfoPropertyMode mode, ProcessStartInfoObject host)
-            {
-                Mode = mode;
-                Host = host;
-                Name = Mode.ToString();
-                HandleEvents = true;
-                Getting += InfoProperty_Getting;
-                Setting += InfoProperty_Setting;
-            }
-            private ProcessStartInfoObject Host;
-            private void InfoProperty_Setting(object sender, ValueFunctionEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case InfoPropertyMode.Arguments:
-                        {
-                            Host.ps.Arguments = e.Value.AsString();
-                            break;
-                        }
-                    case InfoPropertyMode.CreateNoWindow:
-                        {
-                            Host.ps.CreateNoWindow = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.ErrorDialog:
-                        {
-                            Host.ps.ErrorDialog = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.FileName:
-                        {
-                            Host.ps.FileName = e.Value.AsString();
-                            break;
-                        }
-                    case InfoPropertyMode.LoadUserProfile:
-                        {
-                            Host.ps.LoadUserProfile = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardError:
-                        {
-                            Host.ps.RedirectStandardError = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardInput:
-                        {
-                            Host.ps.RedirectStandardInput = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardOutput:
-                        {
-                            Host.ps.RedirectStandardOutput = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.UseShellExecute:
-                        {
-                            Host.ps.UseShellExecute = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.Verb:
-                        {
-                            Host.ps.Verb = e.Value.AsString();
-                            break;
-                        }
-                    case InfoPropertyMode.WindowStyle:
-                        {
-                            Host.ps.WindowStyle = (ProcessWindowStyle)e.Value.AsInt();
-                            break;
-                        }
-                    case InfoPropertyMode.WorkingDirectory:
-                        {
-                            Host.ps.WorkingDirectory = e.Value.AsString();
-                            break;
-                        }
-                }
-            }
-
-
-
-            private void InfoProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case InfoPropertyMode.Arguments:
-                        {
-                            e.Value = new Variable(Host.ps.Arguments);
-                            break;
-                        }
-                    case InfoPropertyMode.CreateNoWindow:
-                        {
-                            e.Value = new Variable(Host.ps.CreateNoWindow);
-                            break;
-                        }
-                    case InfoPropertyMode.ErrorDialog:
-                        {
-                            e.Value = new Variable(Host.ps.ErrorDialog);
-                            break;
-                        }
-                    case InfoPropertyMode.FileName:
-                        {
-                            e.Value = new Variable(Host.ps.FileName);
-                            break;
-                        }
-                    case InfoPropertyMode.LoadUserProfile:
-                        {
-                            e.Value = new Variable(Host.ps.LoadUserProfile);
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardError:
-                        {
-                            e.Value = new Variable(Host.ps.RedirectStandardError);
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardInput:
-                        {
-                            e.Value = new Variable(Host.ps.RedirectStandardInput);
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardOutput:
-                        {
-                            e.Value = new Variable(Host.ps.RedirectStandardOutput);
-                            break;
-                        }
-                    case InfoPropertyMode.UseShellExecute:
-                        {
-                            e.Value = new Variable(Host.ps.UseShellExecute);
-                            break;
-                        }
-                    case InfoPropertyMode.Verb:
-                        {
-                            e.Value = new Variable(Host.ps.Verb);
-                            break;
-                        }
-                    case InfoPropertyMode.WindowStyle:
-                        {
-                            e.Value = new Variable((int)Host.ps.WindowStyle);
-                            break;
-                        }
-                    case InfoPropertyMode.WorkingDirectory:
-                        {
-                            e.Value = new Variable(Host.ps.WorkingDirectory);
-                            break;
-                        }
-                }
-            }
-
-            private InfoPropertyMode Mode;
-        }
-
-
-
-    }
 
     internal sealed class StopWatchObject : ObjectBase
     {

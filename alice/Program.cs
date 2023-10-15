@@ -12,6 +12,10 @@ namespace AliceScript.CLI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
+            foreach(string a in args)
+            {
+                Console.WriteLine(a);
+            }
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.Runtime.Args = pa.Args;
             if (pa.NeedHelp)
