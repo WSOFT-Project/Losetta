@@ -27,7 +27,7 @@ namespace AliceScript
             // A variable, a function, or a number.
             Variable var = script.Execute(sep);
             //value = var.Clone();
-            if (script.ProcessingFunction != null && script.ProcessingFunction.Keywords != null && var != null)
+            if (script.ProcessingFunction is not null && script.ProcessingFunction.Keywords is not null && var is not null)
             {
                 var.Keywords = script.ProcessingFunction.Keywords;
             }
@@ -174,7 +174,7 @@ namespace AliceScript
                 script.MoveForwardIf('}');
 
                 int parentOffset = script.Pointer +
-                    (script.CurrentClass != null ? script.CurrentClass.ParentOffset : 0);
+                    (script.CurrentClass is not null ? script.CurrentClass.ParentOffset : 0);
                 customFunc = new CustomFunction(funcName, body, args, script);
                 customFunc.ParentScript = script;
                 customFunc.ParentOffset = parentOffset;
@@ -190,7 +190,7 @@ namespace AliceScript
             {
                 Utils.ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
             }
-            if (customFunc != null)
+            if (customFunc is not null)
             {
                 if (funcName == "set")
                 {

@@ -115,7 +115,7 @@ namespace AliceScript.Objects
         public Variable Invoke(Variable arg = null, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
         {
             var args = new List<Variable>();
-            if (arg != null)
+            if (arg is not null)
             {
                 args.Add(arg);
             }
@@ -189,7 +189,7 @@ namespace AliceScript.Objects
         {
             Variable result = Variable.EmptyInstance;
 
-            if (Value.Type == Variable.VarType.DELEGATE && Value.Delegate != null)
+            if (Value.Type == Variable.VarType.DELEGATE && Value.Delegate is not null)
             {
                 result = Value.Delegate.Invoke(args, script, instance);
             }

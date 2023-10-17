@@ -60,7 +60,7 @@ namespace AliceScript.Functions
                         }
                 }
 
-                if (m_arrayIndices == null)
+                if (m_arrayIndices is null)
                 {
                     string startName = e.Script.Substr(e.Script.Pointer - 1);
                     m_arrayIndices = Utils.GetArrayIndices(e.Script, startName, m_delta, (newStart, newDelta) => { startName = newStart; m_delta = newDelta; }, this);
@@ -110,16 +110,16 @@ namespace AliceScript.Functions
         }
         public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName, FunctionBase callFrom)
         {
-            if (var != null && var.CustomFunctionGet != null)
+            if (var is not null && var.CustomFunctionGet is not null)
             {
                 List<Variable> args = script.Prev == '(' ? script.GetFunctionArgs(callFrom) : new List<Variable>();
-                if (var.StackVariables != null)
+                if (var.StackVariables is not null)
                 {
                     args.AddRange(var.StackVariables);
                 }
                 return var.CustomFunctionGet.ARun(args, script);
             }
-            return var != null && !string.IsNullOrWhiteSpace(var.CustomGet) ? ParsingScript.RunString(var.CustomGet, script) : var;
+            return var is not null && !string.IsNullOrWhiteSpace(var.CustomGet) ? ParsingScript.RunString(var.CustomGet, script) : var;
         }
         public int Delta
         {

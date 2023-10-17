@@ -38,10 +38,7 @@ namespace AliceScript
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new Interpreter();
-                }
+                instance ??= new Interpreter();
                 return instance;
             }
         }
@@ -68,7 +65,7 @@ namespace AliceScript
         public string ReadInput()
         {
             var handler = OnInput;
-            if (handler != null)
+            if (handler is not null)
             {
                 var args = new ReadInputEventArgs();
                 handler(this, args);
@@ -83,7 +80,7 @@ namespace AliceScript
         public void AppendOutput(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnOutput;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -93,7 +90,7 @@ namespace AliceScript
         public void AppendDebug(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnDebug;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -104,7 +101,7 @@ namespace AliceScript
         public bool AppendData(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnData;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -270,12 +267,14 @@ namespace AliceScript
                 return null;
             }
 
-            ParsingScript toParse = new ParsingScript(data, 0, char2Line);
-            toParse.TopInFile = true;
-            toParse.Settings = setting;
-            toParse.Defines = def;
-            toParse.OriginalScript = script;
-            toParse.Filename = filename;
+            ParsingScript toParse = new ParsingScript(data, 0, char2Line)
+            {
+                TopInFile = true,
+                Settings = setting,
+                Defines = def,
+                OriginalScript = script,
+                Filename = filename
+            };
 
             if (mainFile)
             {

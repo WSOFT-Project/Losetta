@@ -12,10 +12,6 @@ namespace AliceScript.CLI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-            foreach(string a in args)
-            {
-                Console.WriteLine(a);
-            }
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.Runtime.Args = pa.Args;
             if (pa.NeedHelp)
@@ -238,7 +234,7 @@ namespace AliceScript.CLI
                 }
                 Console.WriteLine(num + "> 検出: マニフェストファイル: " + manifestPath);
                 PackageManifest manifest = AlicePackage.GetManifest(File.ReadAllText(manifestPath));
-                if (manifest == null)
+                if (manifest is null)
                 {
                     Console.WriteLine(num + "> エラー: パッケージマニフェストファイルが正しい形式ではありません");
                     Console.WriteLine(num + "> パッケージ \"{0}\" のビルドが終了しました --失敗", Path.GetFileName(outfilename));
@@ -246,7 +242,7 @@ namespace AliceScript.CLI
                 }
                 string srcpath = manifest.UseInlineScript ? "マニフェストに埋め込み" : manifest.ScriptPath;
                 Console.WriteLine(num + "> パッケージ名: " + manifest.Name + " エントリポイント: " + srcpath);
-                string target = manifest.Target == null ? "Any" : ListToString(manifest.Target);
+                string target = manifest.Target is null ? "Any" : ListToString(manifest.Target);
                 Console.WriteLine(num + "> ターゲット: " + target);
                 string path = Path.GetTempFileName();
                 File.Delete(path);

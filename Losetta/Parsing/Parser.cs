@@ -104,7 +104,7 @@ namespace AliceScript.Parsing
 
                 // このトークンに対応する関数を取得する
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is LiteralFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || !(fb is LiteralFunction)))
                 {
                     script.ProcessingFunction = fb;//現在処理中としてマーク
                     if (fb is AttributeFunction af)
@@ -170,7 +170,7 @@ namespace AliceScript.Parsing
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction == null || !(fb is LiteralFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || !(fb is LiteralFunction)))
                 {
                     script.ProcessingFunction = fb;
                 }
@@ -197,7 +197,7 @@ namespace AliceScript.Parsing
             do
             {
                 string negateSymbol = Utils.IsNotSign(script.Rest);
-                if (negateSymbol != null && !inQuotes)
+                if (negateSymbol is not null && !inQuotes)
                 {
                     negated++;
                     script.Forward(negateSymbol.Length);
@@ -252,7 +252,7 @@ namespace AliceScript.Parsing
         private static bool UpdateResult(ParsingScript script, char[] to, List<Variable> listToMerge, string token, PreOperetors preop,
                                  ref Variable current, ref int negated, ref string action)
         {
-            if (current == null)
+            if (current is null)
             {
                 current = Variable.EmptyInstance;
             }
@@ -302,7 +302,7 @@ namespace AliceScript.Parsing
                 current = propValue;
             }
 
-            if (action == null)
+            if (action is null)
             {
                 action = UpdateAction(script, to);
             }
@@ -315,8 +315,8 @@ namespace AliceScript.Parsing
             char next = script.TryCurrent(); // 前進済み
             bool done = listToMerge.Count == 0 &&
                         (next == Constants.END_STATEMENT ||
-                        ((action == Constants.NULL_ACTION) && current != null && current.Type != Variable.VarType.BOOLEAN) ||
-                         (current != null && current.IsReturn));
+                        ((action == Constants.NULL_ACTION) && current is not null && current.Type != Variable.VarType.BOOLEAN) ||
+                         (current is not null && current.IsReturn));
             if (done)
             {
 
@@ -344,7 +344,7 @@ namespace AliceScript.Parsing
 
             script.MoveForwardIf(Constants.SPACE);
 
-            if (action != null && action.Length > 1)
+            if (action is not null && action.Length > 1)
             {
                 script.Forward(action.Length - 1);
             }
@@ -475,7 +475,7 @@ namespace AliceScript.Parsing
 
 
             //それ以外の場合完了
-            if ((action = Utils.ValidAction(script.FromPrev())) != null ||
+            if ((action = Utils.ValidAction(script.FromPrev())) is not null ||
                 (item.Length > 0 && ch == Constants.SPACE))
             {
                 return false;
@@ -568,7 +568,7 @@ namespace AliceScript.Parsing
             string action = Utils.ValidAction(script.Rest);
 
             // ポインタを合わせる
-            int advance = action == null ? 0 : action.Length;
+            int advance = action is null ? 0 : action.Length;
             script.Forward(advance);
             return action ?? Constants.NULL_ACTION;
         }
@@ -626,11 +626,11 @@ namespace AliceScript.Parsing
                 return Variable.EmptyInstance;
             }
 
-            if (leftCell.Action == Constants.IS && rightCell.Object != null && rightCell.Object is TypeObject to)
+            if (leftCell.Action == Constants.IS && rightCell.Object is not null && rightCell.Object is TypeObject to)
             {
                 leftCell = new Variable(to.Match(leftCell));
             }
-            else if (leftCell.Action == Constants.IS_NOT && rightCell.Object != null && rightCell.Object is TypeObject t)
+            else if (leftCell.Action == Constants.IS_NOT && rightCell.Object is not null && rightCell.Object is TypeObject t)
             {
                 leftCell = new Variable(!t.Match(leftCell));
             }

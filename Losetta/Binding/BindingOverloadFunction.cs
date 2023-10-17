@@ -62,7 +62,7 @@ namespace AliceScript.Binding
             bool inParams = false;
             Type paramType = null;
 
-            if (!HasParams && e.Args.Count + (parent.IsMethod && e.CurentVariable != null ? 1 : 0) > TrueParameters.Length)
+            if (!HasParams && e.Args.Count + (parent.IsMethod && e.CurentVariable is not null ? 1 : 0) > TrueParameters.Length)
             {
                 //入力の引数の方が多い場合かつparamsではない場合
                 return false;
@@ -109,7 +109,7 @@ namespace AliceScript.Binding
                     parametors.Add(this);
                     continue;
                 }
-                if (i == 0 && IsMethod && e.CurentVariable != null)
+                if (i == 0 && IsMethod && e.CurentVariable is not null)
                 {
                     diff++;
                     if (e.CurentVariable.TryConvertTo(paramType, out var r))
@@ -147,7 +147,7 @@ namespace AliceScript.Binding
                 }
 
                 var item = e.Args[i - diff];
-                if (item == null)
+                if (item is null)
                 {
                     if (inParams)
                     {
@@ -181,7 +181,7 @@ namespace AliceScript.Binding
                 if (inParams)
                 {
                     var item = e.Args[i - diff];
-                    if (item == null)
+                    if (item is null)
                     {
                         if (inParams)
                         {

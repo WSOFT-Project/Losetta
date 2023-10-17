@@ -23,11 +23,11 @@ namespace AliceScript.Functions
             m_name = Constants.GetRealName(varName);
             script.CurrentAssign = m_name;
             Variable varValue = Utils.GetItem(script);
-            if (baseScript == null)
+            if (baseScript is null)
             {
                 baseScript = script;
             }
-            if (varValue == null)
+            if (varValue is null)
             {
                 return Variable.EmptyInstance;
             }
@@ -43,7 +43,7 @@ namespace AliceScript.Functions
                 }
             }
 
-            bool registVar = type_modifer != null;
+            bool registVar = type_modifer is not null;
             bool registConst = Keywords.Contains(Constants.CONST);
             bool isGlobal = Keywords.Contains(Constants.PUBLIC);
             bool isReadOnly = Keywords.Contains(Constants.READONLY);
@@ -84,7 +84,7 @@ namespace AliceScript.Functions
                     Variable array;
 
                     ParserFunction pf = ParserFunction.GetVariable(m_name, script, false, Keywords);
-                    array = pf != null ? pf.GetValue(script) : new Variable();
+                    array = pf is not null ? pf.GetValue(script) : new Variable();
 
                     ExtendArray(array, arrayIndices, 0, varValue);
                     if (isGlobal)
@@ -106,7 +106,7 @@ namespace AliceScript.Functions
             {
                 // First try processing as an object (with a dot notation):
                 Variable result = ProcessObject(m_name, script, varValue);
-                if (result != null)
+                if (result is not null)
                 {
                     return result;
                 }
@@ -126,7 +126,7 @@ namespace AliceScript.Functions
                 Variable array;
 
                 ParserFunction pf = ParserFunction.GetVariable(m_name, baseScript);
-                array = pf != null ? pf.GetValue(script) : new Variable();
+                array = pf is not null ? pf.GetValue(script) : new Variable();
 
                 ExtendArray(array, arrayIndices, 0, varValue);
 
@@ -136,13 +136,13 @@ namespace AliceScript.Functions
         }
         internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)
         {
-            if (script.CurrentClass != null)
+            if (script.CurrentClass is not null)
             {
                 script.CurrentClass.AddProperty(m_name, varValue);
                 return varValue.DeepClone();
             }
             string varName = m_name;
-            if (script.ClassInstance != null)
+            if (script.ClassInstance is not null)
             {
                 //varName = script.ClassInstance.InstanceName + "." + m_name;
                 varValue = script.ClassInstance.SetProperty(m_name, varValue).Result;
@@ -164,7 +164,7 @@ namespace AliceScript.Functions
             }
 
             ParserFunction existing = ParserFunction.GetVariable(name, script);
-            Variable baseValue = existing != null ? existing.GetValue(script) : new Variable(Variable.VarType.ARRAY);
+            Variable baseValue = existing is not null ? existing.GetValue(script) : new Variable(Variable.VarType.ARRAY);
             baseValue.SetProperty(prop, varValue, script, name);
 
 

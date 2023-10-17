@@ -32,34 +32,34 @@ namespace AliceScript.Functions
 
         public ParserFunction(ParsingScript script, string item, char ch, ref string action, HashSet<string> keywords = null)
         {
-            if (keywords == null)
+            if (keywords is null)
             {
                 keywords = new HashSet<string>();
             }
 
             m_impl = CheckGroup(script, ref item, ch, ref action);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = CheckDefineFunction(script, item, keywords);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = CheckString(script, item, ch);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = GetLambdaFunction(script, item, ch, ref action);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
@@ -68,21 +68,21 @@ namespace AliceScript.Functions
             item = Constants.ConvertName(item);
 
             m_impl = GetRegisteredAction(item, script, ref action);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = GetArrayFunction(item, script, action);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = GetObjectFunction(item, script, keywords);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
@@ -93,20 +93,20 @@ namespace AliceScript.Functions
             {
                 m_impl = new ConstructorFunction(t);
             }
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = TryCustomFunction(item, script, keywords);
-            if (m_impl != null)
+            if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
 
-            if (m_impl == null)
+            if (m_impl is null)
             {
                 Utils.ProcessErrorMsg(item, script);
             }
@@ -181,7 +181,7 @@ namespace AliceScript.Functions
         }
         public static ParserFunction TryCustomFunction(string name, ParsingScript script = null, HashSet<string> keywords = null)
         {
-            if (script != null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
+            if (script is not null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
             {
                 //ここまでくる=その関数は存在しない=存在チェックは不要
                 return FunctionCreator.DefineFunction(name, script, keywords) ? new ValueFunction(Variable.EmptyInstance) : null;
@@ -214,7 +214,7 @@ namespace AliceScript.Functions
 
             string varName = arrayName.Substring(0, arrayStart);
             Variable ary = Utils.GetItem(script.GetTempScript(varName));
-            int max = ary == null ? 0 : ary.Count;
+            int max = ary is null ? 0 : ary.Count;
             int delta = 0;
             List<Variable> arrayIndices = Utils.GetArrayIndices(script, arrayName, delta, (arr, del) => { arrayName = arr; delta = del; }, null, max);
 
@@ -225,17 +225,17 @@ namespace AliceScript.Functions
 
             ParserFunction pf = GetVariable(arrayName, script);
             ValueFunction varFunc = pf as ValueFunction;
-            if (varFunc == null)
+            if (varFunc is null)
             {
                 return null;
             }
 
             // we temporarily backtrack for the processing
             script.Backward(name.Length - arrayStart - 1);
-            script.Backward(action != null ? action.Length : 0);
+            script.Backward(action is not null ? action.Length : 0);
             // delta shows us how manxy chars we need to advance forward in ValueFunction()
             delta -= arrayName.Length;
-            delta += action != null ? action.Length : 0;
+            delta += action is not null ? action.Length : 0;
 
             varFunc.Indices = arrayIndices;
             varFunc.Delta = delta;
@@ -244,12 +244,12 @@ namespace AliceScript.Functions
 
         public static ParserFunction GetObjectFunction(string name, ParsingScript script, HashSet<string> keywords)
         {
-            if (script.CurrentClass != null && script.CurrentClass.Name == name)
+            if (script.CurrentClass is not null && script.CurrentClass.Name == name)
             {
                 script.Backward(name.Length + 1);
                 return new FunctionCreator();
             }
-            if (script.ClassInstance != null &&
+            if (script.ClassInstance is not null &&
                (script.ClassInstance.PropertyExists(name) || script.ClassInstance.FunctionExists(name)))
             {
                 name = script.ClassInstance.InstanceName + "." + name;
@@ -274,24 +274,24 @@ namespace AliceScript.Functions
             string prop = name.Substring(ind + 1);
 
             ParserFunction pf = GetFromNamespace(prop, baseName, script);
-            if (pf != null)
+            if (pf is not null)
             {
                 pf.Keywords = keywords;
                 return pf;
             }
 
             pf = GetVariable(baseName, script, true);
-            if (pf == null || !(pf is ValueFunction))
+            if (pf is null || !(pf is ValueFunction))
             {
                 pf = GetFunction(baseName, script);
-                if (pf == null)
+                if (pf is null)
                 {
                     pf = Utils.ExtractArrayElement(baseName, script);
                 }
             }
 
             ValueFunction varFunc = pf as ValueFunction;
-            if (varFunc == null)
+            if (varFunc is null)
             {
                 return null;
             }
@@ -325,7 +325,7 @@ namespace AliceScript.Functions
                 }
 
                 int parentOffset = script.Pointer;
-                if (script.CurrentClass != null)
+                if (script.CurrentClass is not null)
                 {
                     parentOffset += script.CurrentClass.ParentOffset;
                 }
@@ -362,7 +362,7 @@ namespace AliceScript.Functions
             ActionFunction actionFunction = GetAction(action);
 
             // If passed action exists and is registered we are done.
-            if (actionFunction == null)
+            if (actionFunction is null)
             {
                 return null;
             }
@@ -439,7 +439,7 @@ namespace AliceScript.Functions
 
         public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
         {
-            if (!force && script != null && script.TryPrev() == Constants.START_ARG && !keywords.Contains(Constants.NEW))
+            if (!force && script is not null && script.TryPrev() == Constants.START_ARG && !keywords.Contains(Constants.NEW))
             {
                 return GetFunction(name, script);
             }
@@ -447,9 +447,9 @@ namespace AliceScript.Functions
             name = Constants.ConvertName(name);
 
             ParserFunction impl;
-            StackLevel localStack = script != null && script.StackLevel != null ?
+            StackLevel localStack = script is not null && script.StackLevel is not null ?
                  script.StackLevel : s_locals.Count > StackLevelDelta ? s_lastExecutionLevel : null;
-            if (localStack != null)
+            if (localStack is not null)
             {
                 Dictionary<string, ParserFunction> local = localStack.Variables;
                 if (local.TryGetValue(name, out impl))
@@ -458,13 +458,13 @@ namespace AliceScript.Functions
                 }
             }
             //ローカルスコープに存在するか確認
-            string scopeName = script == null || script.Filename == null ? "" : script.Filename;
+            string scopeName = script is null || script.Filename is null ? "" : script.Filename;
             impl = GetLocalScopeVariable(name, scopeName);
-            if (impl != null)
+            if (impl is not null)
             {
                 return impl;
             }
-            if (script != null && script.TryGetVariable(name, out impl))
+            if (script is not null && script.TryGetVariable(name, out impl))
             {
                 return impl.NewInstance();
             }
@@ -474,7 +474,7 @@ namespace AliceScript.Functions
             }
 
             //定数に存在するか確認
-            if (script != null && script.TryGetConst(name, out impl) && impl != null)
+            if (script is not null && script.TryGetConst(name, out impl) && impl is not null)
             {
                 return impl.NewInstance();
             }
@@ -485,7 +485,7 @@ namespace AliceScript.Functions
 
             //関数として取得を続行
             var pfx = GetFunction(name, script, true);
-            if (pfx != null)
+            if (pfx is not null)
             {
                 pfx.Keywords = keywords;
             }
@@ -531,7 +531,7 @@ namespace AliceScript.Functions
             }
 
             var fc = GetFromNS(name, script);
-            if (fc != null)
+            if (fc is not null)
             {
                 if (fc is FunctionBase fb)
                 {
@@ -569,7 +569,7 @@ namespace AliceScript.Functions
                 if (namespacename.Length > 0)
                 {
                     fc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
-                    if (fc != null)
+                    if (fc is not null)
                     {
                         if (fc is FunctionBase fb)
                         {
@@ -592,19 +592,19 @@ namespace AliceScript.Functions
             string className = Constants.ConvertName(name);
 
             var csClass = AliceScriptClass.GetClass(className, script);
-            return csClass != null ? new ValueFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
+            return csClass is not null ? new ValueFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
         }
         internal static ParserFunction GetFromNS(string name, ParsingScript script)
         {
             foreach (var nm in script.UsingNamespaces)
             {
                 var fc = nm.Functions.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                if (fc != null)
+                if (fc is not null)
                 {
                     return fc;
                 }
             }
-            return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;
+            return script.ParentScript is not null ? GetFromNS(name, script.ParentScript) : null;
         }
         public static ActionFunction GetAction(string action)
         {
@@ -625,11 +625,11 @@ namespace AliceScript.Functions
         public static bool FunctionExists(string item, ParsingScript script, out ParserFunction func, bool continueConst = false)
         {
             // If it is not defined locally, then check globally:
-            return (script != null && script.TryGetLocal(item, out func)) || TryGetGlobal(item, out func, continueConst);
+            return (script is not null && script.TryGetLocal(item, out func)) || TryGetGlobal(item, out func, continueConst);
         }
         public static bool FunctionIsVirtual(string name, ParsingScript script)
         {
-            if (script != null && script.TryGetFunction(name, out ParserFunction impl))
+            if (script is not null && script.TryGetFunction(name, out ParserFunction impl))
             {
                 if (impl.IsVirtual)
                 {
@@ -671,7 +671,7 @@ namespace AliceScript.Functions
                 function.Value.ParamName = function.Name;
             }
             var func = GetVariable(name, script, true);
-            bool exists = func != null;
+            bool exists = func is not null;
             bool unneed = script.UnneedVarKeyword;
 
             if (exists && registVar)
@@ -682,16 +682,16 @@ namespace AliceScript.Functions
             {
                 throw new ScriptException("変数[" + name + "]は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
             }
-            if (func != null && func is ValueFunction v)
+            if (func is not null && func is ValueFunction v)
             {
                 //代入の場合
-                if (v.Value.Parent == null)
+                if (v.Value.Parent is null)
                 {
                     v.Value.Parent = script;
                 }
                 v.Value = function.Value;
             }
-            else if (func == null)
+            else if (func is null)
             {
                 //変数定義の場合
                 ValueFunction value = new ValueFunction();
@@ -700,7 +700,7 @@ namespace AliceScript.Functions
                 if (type_modifer != Constants.VAR)
                 {
                     newVar.TypeChecked = true;
-                    if (type_modifer != null)
+                    if (type_modifer is not null)
                     {
                         if (type_modifer.EndsWith("?", StringComparison.Ordinal))
                         {
@@ -748,7 +748,7 @@ namespace AliceScript.Functions
             {
                 return enumVar;
             }
-            if (script == null)
+            if (script is null)
             {
                 RegisterFunction(varName, new ValueFunction(enumVar));
             }
@@ -800,7 +800,7 @@ namespace AliceScript.Functions
                 //ローカル関数でまだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 script.Functions[name] = function;
                 function.isNative = isNative;
-                if (impl != null)
+                if (impl is not null)
                 {
                     impl.IsVirtual = true;
                 }
@@ -824,7 +824,7 @@ namespace AliceScript.Functions
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
         {
             name = Constants.ConvertName(name);
-            return script != null && script.Functions.Remove(name) ? true : s_functions.Remove(name);
+            return script is not null && script.Functions.Remove(name) ? true : s_functions.Remove(name);
         }
         public static bool UnregisterFunction(string name)
         {
@@ -843,7 +843,7 @@ namespace AliceScript.Functions
         private static void NormalizeValue(ParserFunction function)
         {
             ValueFunction gvf = function as ValueFunction;
-            if (gvf != null)
+            if (gvf is not null)
             {
                 gvf.Value.CurrentAssign = "";
             }

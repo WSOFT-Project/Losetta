@@ -31,7 +31,7 @@ namespace AliceScript.Objects
             foreach (string baseClass in baseClasses)
             {
                 var bc = GetClass(baseClass, script);
-                if (bc == null)
+                if (bc is null)
                 {
                     throw new ScriptException(" `" + className + "` の基底クラス `" + baseClass + "` が見つかりませんでした。", Exceptions.COULDNT_FIND_CLASS);
                 }
@@ -135,7 +135,7 @@ namespace AliceScript.Objects
                 if (!string.IsNullOrEmpty(namespacename))
                 {
                     var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.EndsWith(x.Name.ToLowerInvariant(), StringComparison.Ordinal) && x is ValueFunction v && v.Value.Object is ObjectBase).FirstOrDefault();
-                    if (cfc != null)
+                    if (cfc is not null)
                     {
                         return (cfc as ValueFunction).Value.Object as ObjectBase;
                     }
@@ -167,7 +167,7 @@ namespace AliceScript.Objects
             {
                 InstanceName = instanceName;
                 m_cscsClass = GetClass(className, script);
-                if (m_cscsClass == null)
+                if (m_cscsClass is null)
                 {
                     throw new ScriptException("基底クラス `" + className + "` が見つかりませんでした。", Exceptions.COULDNT_FIND_CLASS);
                 }
@@ -223,7 +223,7 @@ namespace AliceScript.Objects
                 {
                     return null;
                 }
-                if (args == null)
+                if (args is null)
                 {
                     return Variable.EmptyInstance;
                 }
@@ -303,7 +303,7 @@ namespace AliceScript.Objects
             tempScript.DisableBreakpoints = true;
 
             while (tempScript.Pointer < body.Length - 1 &&
-                  (result == null || !result.IsReturn))
+                  (result is null || !result.IsReturn))
             {
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();

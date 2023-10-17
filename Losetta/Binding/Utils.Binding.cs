@@ -22,7 +22,7 @@ namespace AliceScript
             bool needbind = false;
             if (TryGetAttibutte<AliceNameSpaceAttribute>(type, out var attribute))
             {
-                if (attribute.Name != null)
+                if (attribute.Name is not null)
                 {
                     space.Name = attribute.Name;
                 }
@@ -43,7 +43,7 @@ namespace AliceScript
             foreach (HashSet<MethodInfo> mi in methods.Values)
             {
                 var func = CreateBindFunction(mi, needbind);
-                if (func != null)
+                if (func is not null)
                 {
                     space.Add(func);
                 }
@@ -51,7 +51,7 @@ namespace AliceScript
             foreach (var p in type.GetProperties())
             {
                 var prop = CreateBindFunction(p, needbind);
-                if (prop != null)
+                if (prop is not null)
                 {
                     space.Add(prop);
                 }
@@ -150,7 +150,7 @@ namespace AliceScript
 
             if (TryGetAttibutte<AlicePropertyAttribute>(propertyInfo, out var attribute))
             {
-                if (attribute.Name != null)
+                if (attribute.Name is not null)
                 {
                     func.Name = attribute.Name;
                 }
@@ -164,7 +164,7 @@ namespace AliceScript
                 return null;
             }
 
-            if (setFunc != null && setFunc.IsPublic && (staticOnly == setFunc.IsStatic) && TryGetAttibutte<AliceFunctionAttribute>(setFunc, out var attrS, true) && attrS.State == AliceBindState.Enabled)
+            if (setFunc is not null && setFunc.IsPublic && (staticOnly == setFunc.IsStatic) && TryGetAttibutte<AliceFunctionAttribute>(setFunc, out var attrS, true) && attrS.State == AliceBindState.Enabled)
             {
                 func.CanSet = true;
                 var load = new BindingOverloadFunction();
@@ -195,7 +195,7 @@ namespace AliceScript
                 func.Set = load;
             }
 
-            if (getFunc != null && getFunc.IsPublic && (staticOnly == getFunc.IsStatic) && TryGetAttibutte<AliceFunctionAttribute>(getFunc, out var attrG, true) && attrG.State == AliceBindState.Enabled)
+            if (getFunc is not null && getFunc.IsPublic && (staticOnly == getFunc.IsStatic) && TryGetAttibutte<AliceFunctionAttribute>(getFunc, out var attrG, true) && attrG.State == AliceBindState.Enabled)
             {
                 var load = new BindingOverloadFunction();
                 load.TrueParameters = getFunc.GetParameters();
@@ -275,7 +275,7 @@ namespace AliceScript
             foreach (HashSet<MethodInfo> mi in methods.Values)
             {
                 var func = CreateBindFunction(mi, !defaultState);
-                if (func != null)
+                if (func is not null)
                 {
                     func.Parent = obj;
                     obj.AddFunction(func);
@@ -284,7 +284,7 @@ namespace AliceScript
             foreach (HashSet<MethodInfo> mi in staticmethods.Values)
             {
                 var func = CreateBindFunction(mi);
-                if (func != null)
+                if (func is not null)
                 {
                     func.Parent = obj;
                     obj.StaticFunctions[func.Name] = func;
@@ -293,7 +293,7 @@ namespace AliceScript
             foreach (var p in type.GetProperties())
             {
                 var prop = CreateBindFunction(p, !defaultState,false);
-                if (prop != null)
+                if (prop is not null)
                 {
                     prop.Parent = obj;
                     obj.AddFunction(prop);
@@ -302,14 +302,14 @@ namespace AliceScript
             foreach (var p in type.GetProperties())
             {
                 var prop = CreateBindFunction(p, !defaultState, true);
-                if (prop != null)
+                if (prop is not null)
                 {
                     prop.Parent = obj;
                     obj.StaticFunctions[prop.Name] = prop;
                 }
             }
             obj.Constructor = BindFunction.CreateBindConstructor(type.GetConstructors(), !defaultState);
-            if (obj.Constructor != null)
+            if (obj.Constructor is not null)
             {
                 obj.Constructor.Run += delegate (object sender, Functions.FunctionBaseEventArgs e)
                 {

@@ -164,7 +164,7 @@ namespace AliceScript.NameSpaces.Core
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();
             }
-            if (result == null) { result = Variable.EmptyInstance; }
+            if (result is null) { result = Variable.EmptyInstance; }
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
@@ -172,7 +172,7 @@ namespace AliceScript.NameSpaces.Core
         {
             // Returnに到達したら終了
             script.SetDone();
-            if (result == null)
+            if (result is null)
             {
                 result = Variable.EmptyInstance;
             }

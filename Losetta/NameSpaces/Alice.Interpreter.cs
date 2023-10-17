@@ -47,7 +47,7 @@ namespace AliceScript.NameSpaces
         {
             string varName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             varName = Constants.ConvertName(varName);
-            return ParserFunction.GetVariable(varName, script) != null;
+            return ParserFunction.GetVariable(varName, script) is not null;
         }
         public static string Interpreter_Name()
         {
@@ -117,7 +117,7 @@ namespace AliceScript.NameSpaces
         public static void Bind_Register(string name)
         {
             Type t = Type.GetType(name);
-            if (t == null)
+            if (t is null)
             {
                 throw new ScriptException($"{name}という名前の型を検索できませんでした。アセンブリ名の指定を忘れていませんか？", Exceptions.OBJECT_DOESNT_EXIST);
             }
@@ -525,7 +525,7 @@ namespace AliceScript.NameSpaces
                     case Interpreter_ScriptObject_Property_Mode.Labels:
                         {
                             Variable v = new Variable(Variable.VarType.ARRAY);
-                            if (Host.Script.AllLabels == null)
+                            if (Host.Script.AllLabels is null)
                             {
                                 e.Value = Variable.EmptyInstance;
                                 break;
@@ -574,7 +574,7 @@ namespace AliceScript.NameSpaces
                         }
                     case Interpreter_ScriptObject_Property_Mode.Parent:
                         {
-                            if (Host.Script.ParentScript != null)
+                            if (Host.Script.ParentScript is not null)
                             {
                                 e.Value = new Variable(new Interpreter_ScriptObject(Host.Script.ParentScript));
                             }
@@ -582,7 +582,7 @@ namespace AliceScript.NameSpaces
                         }
                     case Interpreter_ScriptObject_Property_Mode.Package:
                         {
-                            if (Host.Script.Package != null)
+                            if (Host.Script.Package is not null)
                             {
                                 e.Value = new Variable(new InterpreterFunctions.AlicePackageObject(Host.Script.Package));
                             }
@@ -590,7 +590,7 @@ namespace AliceScript.NameSpaces
                         }
                     case Interpreter_ScriptObject_Property_Mode.StackTrace:
                         {
-                            if (Host.Script != null)
+                            if (Host.Script is not null)
                             {
                                 e.Value = Host.Script.GetStackTrace();
                             }

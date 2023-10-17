@@ -41,12 +41,12 @@ namespace AliceScript.Parsing
         [AliceFunction(State = AliceBindState.Enabled)]
         public static ParsingScript GetTopLevelScript(ParsingScript script = null)
         {
-            if (m_toplevel_script.ParentScript != null)
+            if (m_toplevel_script.ParentScript is not null)
             {
                 //トップレベルスクリプトは親を持たない
                 m_toplevel_script.ParentScript = null;
             }
-            return script != null && script.DenyAccessToTopLevelScript
+            return script is not null && script.DenyAccessToTopLevelScript
                 ? throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, script)
                 : m_toplevel_script;
         }
@@ -68,7 +68,7 @@ namespace AliceScript.Parsing
             get
             {
                 var s = new List<StackInfo>(m_stacktrace);
-                if (ProcessingFunction != null)
+                if (ProcessingFunction is not null)
                 {
                     s.Add(new StackInfo(ProcessingFunction, OriginalLine, OriginalLineNumber, Filename));
                 }
@@ -352,7 +352,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.UnneedVarKeyword.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.UnneedVarKeyword;
                 }
@@ -372,7 +372,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.TypeInference.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.TypeInference;
                 }
@@ -393,7 +393,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.FallThrough.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.FallThrough;
                 }
@@ -413,7 +413,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.CheckBreakWhenEndCaseBlock.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.CheckBreakWhenEndCaseBlock;
                 }
@@ -433,7 +433,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.EnableUsing.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.EnableUsing;
                 }
@@ -453,7 +453,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.EnableImport.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.EnableImport;
                 }
@@ -473,7 +473,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.EnableInclude.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.EnableInclude;
                 }
@@ -491,7 +491,7 @@ namespace AliceScript.Parsing
                 {
                     result = Settings.DenyAccessToTopLevelScript.Value;
                 }
-                else if (ParentScript != null && !ParentScript.TopInFile)
+                else if (ParentScript is not null && !ParentScript.TopInFile)
                 {
                     result = ParentScript.DenyAccessToTopLevelScript;
                 }
@@ -634,7 +634,7 @@ namespace AliceScript.Parsing
             }
             else
             {
-                if (ParentScript != null && ParentScript.TryGetVariable(name, out function))
+                if (ParentScript is not null && ParentScript.TryGetVariable(name, out function))
                 {
                     return true;
                 }
@@ -655,7 +655,7 @@ namespace AliceScript.Parsing
             }
             else
             {
-                if (ParentScript != null && ParentScript.TryGetConst(name, out function))
+                if (ParentScript is not null && ParentScript.TryGetConst(name, out function))
                 {
                     return true;
                 }
@@ -674,7 +674,7 @@ namespace AliceScript.Parsing
             {
                 return true;
             }
-            else if (ParentScript != null && ParentScript.TryGetFunction(name, out function))
+            else if (ParentScript is not null && ParentScript.TryGetFunction(name, out function))
             {
                 return true;
             }
@@ -731,7 +731,7 @@ namespace AliceScript.Parsing
             StringBuilder result = new StringBuilder();
             ParsingScript script = this;
 
-            while (script != null)
+            while (script is not null)
             {
                 int pointer = script == this ? script.Pointer + firstOffset : script.Pointer;
                 int lineNumber = script.GetOriginalLineNumber(pointer);
@@ -753,7 +753,7 @@ namespace AliceScript.Parsing
         public string GetOriginalLine(out int lineNumber)
         {
             lineNumber = GetOriginalLineNumber();
-            if (lineNumber < 0 || m_originalScript == null)
+            if (lineNumber < 0 || m_originalScript is null)
             {
                 return "";
             }
@@ -771,7 +771,7 @@ namespace AliceScript.Parsing
         }
         public int GetOriginalLineNumber(int charNumber)
         {
-            if (m_char2Line == null || m_char2Line.Count == 0)
+            if (m_char2Line is null || m_char2Line.Count == 0)
             {
                 return -1;
             }
@@ -1013,7 +1013,7 @@ namespace AliceScript.Parsing
             {
                 ex.HelpLink = Constants.HELP_LINK + ((int)ex.ErrorCode).ToString("x3");
             }
-            if (script == null)
+            if (script is null)
             {
                 ex.Script = this;
             }
@@ -1021,7 +1021,7 @@ namespace AliceScript.Parsing
             if (!ex.Handled)
             {
                 //続行されなかった場合は再スロー
-                if (ParentScript != null)
+                if (ParentScript is not null)
                 {
                     //throw exc;
                     ParentScript.OnThrowError(exc, message, errorCode, source, helpLink, script, parsingException);
@@ -1061,7 +1061,7 @@ namespace AliceScript.Parsing
                 {
                     ex.ErrorCode = scriptExc.ErrorCode;
                     ex.Exception = scriptExc.Exception;
-                    if (scriptExc.Script != null)
+                    if (scriptExc.Script is not null)
                     {
                         ex.Script = scriptExc.Script;
                     }
@@ -1090,7 +1090,7 @@ namespace AliceScript.Parsing
                 result = Execute(Constants.END_LINE_ARRAY);
                 GoToNextStatement();
             }
-            if (result == null)
+            if (result is null)
             {
                 result = Variable.EmptyInstance;
             }
@@ -1104,7 +1104,7 @@ namespace AliceScript.Parsing
             while (Pointer < m_data.Length)
             {
                 result = Execute();
-                if (result == null)
+                if (result is null)
                 {
                     result = Variable.EmptyInstance;
                 }
@@ -1115,7 +1115,7 @@ namespace AliceScript.Parsing
                 }
                 GoToNextStatement();
             }
-            if (result == null)
+            if (result is null)
             {
                 result = Variable.EmptyInstance;
             }
@@ -1129,7 +1129,7 @@ namespace AliceScript.Parsing
                 result = await ExecuteAsync();
                 GoToNextStatement();
             }
-            if (result == null)
+            if (result is null)
             {
                 result = Variable.EmptyInstance;
             }
@@ -1241,7 +1241,7 @@ namespace AliceScript.Parsing
             tempScript.Generation = Generation + 1;
             tempScript.ThrowError = ThrowError;
             tempScript.m_stacktrace = new List<StackInfo>(m_stacktrace);
-            if (callFrom != null)
+            if (callFrom is not null)
             {
                 tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
             }
@@ -1266,7 +1266,7 @@ namespace AliceScript.Parsing
                 tempScript.m_stacktrace = new List<StackInfo>(m_stacktrace);
 
 
-                if (callFrom != null)
+                if (callFrom is not null)
                 {
                     tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
                 }
@@ -1285,7 +1285,7 @@ namespace AliceScript.Parsing
         private string GetIncludeFileLine(string filename, out string pathname, out bool isPackageFile)
         {
             pathname = filename;
-            if (Package != null && Package.ExistsEntry(pathname))
+            if (Package is not null && Package.ExistsEntry(pathname))
             {
                 isPackageFile = true;
                 return AlicePackage.GetEntryScript(Package.archive.GetEntry(pathname), pathname);
@@ -1371,7 +1371,7 @@ namespace AliceScript.Parsing
                 sb.Append(string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name);
                 sb.Append(Constants.START_ARG);
                 int args_count = 0;
-                if (Function is CustomFunction cf && cf.RealArgs != null && cf.RealArgs.Length > 0)
+                if (Function is CustomFunction cf && cf.RealArgs is not null && cf.RealArgs.Length > 0)
                 {
                     foreach (string a in Function.RealArgs)
                     {

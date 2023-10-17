@@ -9,7 +9,6 @@ namespace AliceScript.NameSpaces
         {
             Alice.RegisterFunctions<WebFunctions>();
         }
-        internal static WebClient wc = new WebClient();
     }
     [AliceNameSpace(Name = "Alice.Net")]
     internal sealed class WebFunctions
@@ -17,41 +16,50 @@ namespace AliceScript.NameSpaces
         #region Webアップロード
         public static byte[] Web_Upload_Data(string uri, byte[] data)
         {
-            return Alice_Net.wc.UploadData(uri, data);
+            WebClient ??= new WebClient();
+            return WebClient.UploadData(uri, data);
         }
         public static byte[] Web_Upload_File(string uri, string filename)
         {
-            return Alice_Net.wc.UploadFile(uri, filename);
+            WebClient ??= new WebClient();
+            return WebClient.UploadFile(uri, filename);
         }
         public static string Web_Upload_String(string uri, string text)
         {
-            return Alice_Net.wc.UploadString(uri, text);
+            WebClient ??= new WebClient();
+            return WebClient.UploadString(uri, text);
         }
         public static byte[] Web_Upload_Data(string uri, string method, byte[] data)
         {
-            return Alice_Net.wc.UploadData(uri, method, data);
+            WebClient ??= new WebClient();
+            return WebClient.UploadData(uri, method, data);
         }
         public static byte[] Web_Upload_File(string uri, string method, string filename)
         {
-            return Alice_Net.wc.UploadFile(uri, method, filename);
+            WebClient ??= new WebClient();
+            return WebClient.UploadFile(uri, method, filename);
         }
         public static string Web_Upload_String(string uri, string method, string text)
         {
-            return Alice_Net.wc.UploadString(uri, method, text);
+            WebClient ??= new WebClient();
+            return WebClient.UploadString(uri, method, text);
         }
         #endregion
         #region Webダウンロード
         public static byte[] Web_Download_Data(string uri)
         {
-            return Alice_Net.wc.DownloadData(uri);
+            WebClient ??= new WebClient();
+            return WebClient.DownloadData(uri);
         }
         public static void Web_Download_File(string uri, string filename)
         {
-            Alice_Net.wc.DownloadFile(uri, filename);
+            WebClient ??= new WebClient();
+            WebClient.DownloadFile(uri, filename);
         }
         public static string Web_Download_Text(string uri)
         {
-            return Alice_Net.wc.DownloadString(uri);
+            WebClient ??= new WebClient();
+            return WebClient.DownloadString(uri);
         }
         #endregion
 
@@ -97,19 +105,16 @@ namespace AliceScript.NameSpaces
         #endregion
         public static bool Web_Send_Ping(string host)
         {
-            using (var p = new System.Net.NetworkInformation.Ping())
-            {
-                var reply = p.Send(host);
-                return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
-            }
+            using var p = new System.Net.NetworkInformation.Ping();
+            var reply = p.Send(host);
+            return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
         }
         public static bool Web_Send_Ping(string host, int timeout)
         {
-            using (var p = new System.Net.NetworkInformation.Ping())
-            {
-                var reply = p.Send(host, timeout);
-                return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
-            }
+            using var p = new System.Net.NetworkInformation.Ping();
+            var reply = p.Send(host, timeout);
+            return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
         }
+        private static WebClient WebClient { get; set; }
     }
 }

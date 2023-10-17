@@ -90,7 +90,7 @@ namespace AliceScript.Functions
                                                 string code = nowBlack.ToString();
                                                 ParsingScript tempScript = e.Script.GetTempScript(code);
                                                 var rrr = tempScript.Process();
-                                                if (rrr == null)
+                                                if (rrr is null)
                                                 {
                                                     rrr = Variable.EmptyInstance;
                                                 }

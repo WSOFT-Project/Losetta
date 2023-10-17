@@ -95,7 +95,7 @@ namespace AliceScript.Functions
                     if (!refs && options.Count > 1)
                     {
                         Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
-                        if (v != null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
+                        if (v is not null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
                         {
                             reqType = to;
                         }
@@ -159,11 +159,11 @@ namespace AliceScript.Functions
         {
             Utils.ExtractParameterNames(e.Args, m_name, e.Script);
 
-            if (m_args == null)
+            if (m_args is null)
             {
                 m_args = Array.Empty<string>();
             }
-            if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable != null ? 1 : 0) < m_args.Length)
+            if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable is not null ? 1 : 0) < m_args.Length)
             {
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
@@ -184,15 +184,15 @@ namespace AliceScript.Functions
         private void RegisterArguments(List<Variable> args,
                                       List<KeyValuePair<string, Variable>> args2 = null, Variable current = null, ParsingScript script = null)
         {
-            if (args == null)
+            if (args is null)
             {
                 args = new List<Variable>();
             }
-            if (m_this != -1 && current != null)
+            if (m_this != -1 && current is not null)
             {
                 args.Insert(m_this, current);
             }
-            if (m_args == null)
+            if (m_args is null)
             {
                 m_args = new List<string>().ToArray();
             }
@@ -209,7 +209,7 @@ namespace AliceScript.Functions
                 else
                 {
 
-                    if (arg != null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
+                    if (arg is not null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
                     {
                         namedParameters = true;
                         if (i != argIndex)
@@ -266,7 +266,7 @@ namespace AliceScript.Functions
                 args.Add(m_defaultArgs[defIndex]);
             }
 
-            if (args2 != null)
+            if (args2 is not null)
             {
                 foreach (var entry in args2)
                 {
@@ -351,7 +351,7 @@ namespace AliceScript.Functions
                 script.Variables[args[i].ParamName] = arg;
             }
 
-            if (NamespaceData != null)
+            if (NamespaceData is not null)
             {
                 var vars = NamespaceData.Variables;
                 string prefix = NamespaceData.Name + ".";
@@ -388,7 +388,7 @@ namespace AliceScript.Functions
 
             Variable result = ARun(args, script, null, current);
             //このCustomFunctionに子があればそれも実行する
-            if (Children != null)
+            if (Children is not null)
             {
                 foreach (CustomFunction child in Children)
                 {
@@ -405,27 +405,27 @@ namespace AliceScript.Functions
             ParsingScript tempScript = Utils.GetTempScript(m_body, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
             tempScript.Filename = m_parentScript.Filename;
-            if (script != null)
+            if (script is not null)
             {
                 tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.m_stacktrace);
                 tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
             }
             tempScript.Tag = m_tag;
             //tempScript.Variables = m_VarMap;
-            List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
+            List<KeyValuePair<string, Variable>> args2 = instance is null ? null : instance.GetPropList();
             // ひとまず引数をローカルに追加
             RegisterArguments(args, args2, current, tempScript);
 
             // さて実行
 
             while (tempScript.Pointer < m_body.Length &&
-                  (result == null || !result.IsReturn))
+                  (result is null || !result.IsReturn))
             {
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();
             }
 
-            if (result == null || (!result.IsReturn && !m_forceReturn))
+            if (result is null || (!result.IsReturn && !m_forceReturn))
             {
                 result = Variable.EmptyInstance;
             }
@@ -434,7 +434,7 @@ namespace AliceScript.Functions
 
 
             //このCustomFunctionに子があればそれも実行する
-            if (Children != null)
+            if (Children is not null)
             {
                 foreach (CustomFunction child in Children)
                 {

@@ -59,12 +59,12 @@ namespace AliceScript.Functions
             }
             else if (prevfunc is NetImportFunction libInfo)
             {
-                if (libInfo.Class == null)
+                if (libInfo.Class is null)
                 {
                     throw new ScriptException("メソッドが存在する適切なクラスが見つかりませんでした", Exceptions.OBJECT_DOESNT_EXIST);
                 }
                 MethodInfo method = libInfo.Class.GetMethod(funcName, Constants.InvokeStringToType(args.ToArray()));
-                if (libInfo.Class == null)
+                if (libInfo.Class is null)
                 {
                     throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.COULDNT_FIND_VARIABLE);
                 }
@@ -77,7 +77,7 @@ namespace AliceScript.Functions
 
             funcName = Constants.ConvertName(funcName);
 
-            if (mode != null)
+            if (mode is not null)
             {
                 func.IsVirtual = true;
             }

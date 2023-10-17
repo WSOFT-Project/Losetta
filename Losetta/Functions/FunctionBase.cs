@@ -38,7 +38,7 @@ namespace AliceScript.Functions
         /// <summary>
         /// この関数を拡張メソッドとして呼び出し可能な場合はTrue、それ以外の場合はfalse。このプロパティは読み取り専用です。
         /// </summary>
-        public bool IsMethod => RequestType != null;
+        public bool IsMethod => RequestType is not null;
 
         /// <summary>
         /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができる
@@ -57,7 +57,7 @@ namespace AliceScript.Functions
             ex.Args = args ?? new List<Variable>();
             ex.UseObjectResult = false;
             ex.ObjectResult = null;
-            if (script != null)
+            if (script is not null)
             {
                 ex.OriginalScript = script.OriginalScript;
             }
@@ -66,7 +66,7 @@ namespace AliceScript.Functions
             ex.Keywords = Keywords;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
-            if (ex.Return == null)
+            if (ex.Return is null)
             {
                 ex.Return = Variable.EmptyInstance;
             }
@@ -116,7 +116,7 @@ namespace AliceScript.Functions
         /// <exception cref="ScriptException">この拡張メソッドが使用できない場合はエラー</exception>
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
-            if (currentVariable == null)
+            if (currentVariable is null)
             {
                 return Variable.EmptyInstance;
             }
@@ -255,7 +255,7 @@ namespace AliceScript.Functions
             {
                 Utils.CheckLegalName(fname);
             }
-            if (script == null || isGlobal)
+            if (script is null || isGlobal)
             {
                 script = ParsingScript.GetTopLevelScript(script);
             }
@@ -290,7 +290,7 @@ namespace AliceScript.Functions
             {
                 fname = name;
             }
-            if (script == null)
+            if (script is null)
             {
                 ParserFunction.UnregisterFunction(fname);
                 if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))

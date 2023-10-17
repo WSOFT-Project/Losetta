@@ -56,7 +56,7 @@ namespace AliceScript.CLI
             }
             if (Program.IsDebugMode)
             {
-                if (e.Script != null)
+                if (e.Script is not null)
                 {
                     if (e.Script.StackTrace.Count > 0)
                     {
@@ -127,14 +127,14 @@ namespace AliceScript.CLI
             {
                 dic.Add(s, script.Variables[s]);
             }
-            if (script.ParentScript != null)
+            if (script.ParentScript is not null)
             {
                 AddDictionaryScriptVariables(script.ParentScript, ref dic);
             }
         }
         public static void DumpLocalVariables(ParsingScript script)
         {
-            if (script == null) { return; }
+            if (script is null) { return; }
             DumpLocalVariables(script.ParentScript);
             Dictionary<string, ParserFunction> dic = new Dictionary<string, ParserFunction>();
             AddDictionaryScriptVariables(script, ref dic);
@@ -440,7 +440,7 @@ namespace AliceScript.CLI
                 else
                 {
                     //Interpreter.Instance.ProcessAsync(script, filename)).Result;
-                    CurrentScript = CurrentScript == null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
+                    CurrentScript = CurrentScript is null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
                     result = CurrentScript.Process();
                 }
             }
@@ -449,7 +449,7 @@ namespace AliceScript.CLI
             {
                 ///TODO:補足されなかった例外にエラー番号振る。
                 /*
-                errorMsg ="補足されなかった例外:"+ (exc.InnerException != null ? exc.InnerException.Message : exc.Message);
+                errorMsg ="補足されなかった例外:"+ (exc.InnerException is not null ? exc.InnerException.Message : exc.Message);
                 ParserFunction.InvalidateStacksAfterLevel(0);
                 */
 
@@ -463,7 +463,7 @@ namespace AliceScript.CLI
                 {
                     Console.WriteLine(output);
                 }
-                else if (result != null)
+                else if (result is not null)
                 {
                     output = result.AsString();
                     if (!string.IsNullOrWhiteSpace(output))

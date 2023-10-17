@@ -30,14 +30,14 @@ namespace AliceScript
         public static void CheckNumInRange(Variable variable, bool needInteger = false, double? min = null, double? max = null, ParsingScript script = null)
         {
             CheckNumber(variable, script);
-            double trueMax = max == null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
-            double trueMin = max == null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
+            double trueMax = max is null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
+            double trueMin = max is null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
             bool type = !needInteger || variable.Value % 1 != 0.0;
             bool less = variable.Value < trueMin;
             bool over = variable.Value > trueMax;
             if (type || less || over)
             {
-                throw new ScriptException($"数値は{(min != null ? $" {min}以上かつ" : string.Empty)}{(max != null ? $" {max}以下の" : string.Empty)}{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
+                throw new ScriptException($"数値は{(min is not null ? $" {min}以上かつ" : string.Empty)}{(max is not null ? $" {max}以下の" : string.Empty)}{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
             }
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
@@ -49,7 +49,7 @@ namespace AliceScript
         }
         public static void CheckNotNull(string name, ParserFunction func, ParsingScript script)
         {
-            if (func == null)
+            if (func is null)
             {
                 string realName = Constants.GetRealName(name);
                 ThrowErrorMsg("次の変数または関数は存在しません [" + realName + "]", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
@@ -57,7 +57,7 @@ namespace AliceScript
         }
         public static bool CheckNotNull(object obj, string name, ParsingScript script)
         {
-            if (obj == null)
+            if (obj is null)
             {
                 string realName = Constants.GetRealName(name);
                 ThrowErrorMsg("次のオブジェクトは存在しません [" + realName + "]", Exceptions.OBJECT_DOESNT_EXIST, script);
@@ -130,7 +130,7 @@ namespace AliceScript
         {
             ParsingScript tempScript = new ParsingScript(str);
             tempScript.ScriptOffset = parentOffset;
-            if (parentScript != null)
+            if (parentScript is not null)
             {
                 tempScript.Char2Line = parentScript.Char2Line;
                 tempScript.Filename = parentScript.Filename;
@@ -139,7 +139,7 @@ namespace AliceScript
             tempScript.ParentScript = script;
             tempScript.ClassInstance = instance;
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
-            if (script != null)
+            if (script is not null)
             {
                 tempScript.Package = script.Package;
                 tempScript.Tag = script.Tag;
@@ -151,7 +151,7 @@ namespace AliceScript
         public static bool ExtractParameterNames(List<Variable> args, string functionName, ParsingScript script)
         {
             FunctionBase custFunc = ParserFunction.GetFunction(functionName, script) as FunctionBase;
-            if (custFunc == null)
+            if (custFunc is null)
             {
                 return false;
             }
@@ -159,7 +159,7 @@ namespace AliceScript
             var realArgs = custFunc.RealArgs;
             for (int i = 0; i < args.Count && i < realArgs.Length; i++)
             {
-                if (args[i] == null)
+                if (args[i] is null)
                 {
                     throw new ScriptException("関数 `" + functionName + "` の`" + i + "`番目の引数が不正です。", Exceptions.INVAILD_ARGUMENT_FUNCTION);
                 }
@@ -180,14 +180,14 @@ namespace AliceScript
         /// <returns></returns>
         public static byte[] GetFileFromPackageOrLocal(string filename, bool fromPackage = false, ParsingScript script = null)
         {
-            return script != null && script.Package != null && script.Package.ExistsEntry(filename)
+            return script is not null && script.Package is not null && script.Package.ExistsEntry(filename)
                 ? script.Package.GetEntryData(filename)
                 : fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
         }
         public static string GetFileLines(string filename)
         {
             string lines = SafeReader.ReadAllText(filename, out _);
-            if (lines == null)
+            if (lines is null)
             {
                 lines = string.Empty;
             }
@@ -196,7 +196,7 @@ namespace AliceScript
         public static string GetFileLines(byte[] data)
         {
             string lines = SafeReader.ReadAllText(data, out _);
-            if (lines == null)
+            if (lines is null)
             {
                 lines = string.Empty;
             }
@@ -242,7 +242,7 @@ namespace AliceScript
         {
             string str = obj.ToString().ToLowerInvariant();
             if (!CanConvertToDouble(str, out double num) &&
-                script != null && str != Constants.END_ARRAY.ToString() && throwError)
+                script is not null && str != Constants.END_ARRAY.ToString() && throwError)
             {
                 ProcessErrorMsg(str, script);
             }

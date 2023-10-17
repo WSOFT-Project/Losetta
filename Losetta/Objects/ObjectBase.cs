@@ -38,14 +38,14 @@ namespace AliceScript.Objects
         public override string ToString()
         {
             var tsf = Functions.Keys.Where(x => x.ToLowerInvariant() == "tostring").FirstOrDefault();
-            return tsf != null
+            return tsf is not null
                 ? Functions[tsf].Evaluate(new List<Variable>(), null, null).AsString()
                 : string.IsNullOrEmpty(Namespace) ? Name : Namespace + "." + Name;
         }
 
         public virtual Variable GetImplementation(List<Variable> args, ParsingScript script)
         {
-            if (m_constructor != null)
+            if (m_constructor is not null)
             {
                 var impl = m_constructor.Evaluate(args, script);
                 if (impl.Type == Variable.VarType.OBJECT && impl.Object is ObjectBase ob)
@@ -85,7 +85,7 @@ namespace AliceScript.Objects
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
 
             var prop = GetValueFunction(sPropertyName);
-            if (prop != null)
+            if (prop is not null)
             {
                 return Task.FromResult(prop.Value);
             }
@@ -124,13 +124,13 @@ namespace AliceScript.Objects
 
             sPropertyName = Variable.GetActualPropertyName(sPropertyName, GetProperties());
             var prop = GetValueFunction(sPropertyName);
-            if (prop != null)
+            if (prop is not null)
             {
                 prop.Value = argValue;
             }
             else if (Events.ContainsKey(sPropertyName))
             {
-                if (argValue.Type == Variable.VarType.DELEGATE && argValue.Delegate != null)
+                if (argValue.Type == Variable.VarType.DELEGATE && argValue.Delegate is not null)
                 {
                     Events[sPropertyName] = argValue;
                 }
@@ -162,7 +162,7 @@ namespace AliceScript.Objects
     {
         public static void AddObject(ObjectBase obj)
         {
-            if (obj != null)
+            if (obj is not null)
             {
                 ParserFunction.RegisterFunction(obj.Name, new ValueFunction(new Variable(obj)), true);
             }

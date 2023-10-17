@@ -101,7 +101,7 @@ namespace AliceScript.NameSpaces
                         }
                         else
                         {
-                            if (args != null && args[mn] != null)
+                            if (args is not null && args[mn] is not null)
                             {
                                 text = text.Replace(match.Value, args[mn].AsString());
                             }

@@ -17,8 +17,8 @@ namespace AliceScript.Functions
         protected override Variable Evaluate(ParsingScript script)
         {
             var variable = ParserFunction.GetVariable(m_argument, script);
-            var varValue = variable == null ? null : variable.GetValue(script);
-            bool isUndefined = varValue == null || varValue.Type == Variable.VarType.UNDEFINED;
+            var varValue = variable is null ? null : variable.GetValue(script);
+            bool isUndefined = varValue is null || varValue.Type == Variable.VarType.UNDEFINED;
 
             bool result = m_action == "===" || m_action == "==" ? isUndefined :
                           !isUndefined;

@@ -64,8 +64,10 @@ namespace AliceScript.NameSpaces
         }
         public static ProcessObject Process_Start(string path, string arguments = "")
         {
-            var po = new ProcessObject();
-            po.Process = Process.Start(path, arguments);
+            var po = new ProcessObject
+            {
+                Process = Process.Start(path, arguments)
+            };
             return po;
         }
         public static ProcessObject Exec(string fileName, bool waitForExit = true, bool useShell = false)
@@ -390,11 +392,9 @@ namespace AliceScript.NameSpaces
             {
                 Name = "ishighresolution";
                 CanSet = false;
-                Stopwatch = stopwatch;
                 HandleEvents = true;
                 Getting += IsRunningProperty_Getting;
             }
-            private Stopwatch Stopwatch;
             private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.IsHighResolution);
@@ -407,11 +407,9 @@ namespace AliceScript.NameSpaces
             {
                 Name = "frequency";
                 CanSet = false;
-                Stopwatch = stopwatch;
                 HandleEvents = true;
                 Getting += IsRunningProperty_Getting;
             }
-            private Stopwatch Stopwatch;
             private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 e.Value = new Variable(Stopwatch.Frequency);

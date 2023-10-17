@@ -18,14 +18,14 @@ namespace AliceScript.Binding
 
         private void BindFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            bool wantMethod = e.CurentVariable != null;
+            bool wantMethod = e.CurentVariable is not null;
             foreach (var load in Overloads)
             {
                 if ((!wantMethod || load.IsMethod) && load.TryConvertParameters(e, this, out var args))
                 {
                     if (load.IsInstanceFunc)
                     {
-                        if (Parent?.Instance != null)
+                        if (Parent?.Instance is not null)
                         {
                             if (load.IsVoidFunc)
                             {
@@ -72,7 +72,7 @@ namespace AliceScript.Binding
                     {
                         continue;
                     }
-                    if (attribute.Name != null)
+                    if (attribute.Name is not null)
                     {
                         name = attribute.Name;
                     }
@@ -165,7 +165,7 @@ namespace AliceScript.Binding
                 string name = methodInfo.Name;
                 if (Utils.TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {
-                    if (attribute.Name != null)
+                    if (attribute.Name is not null)
                     {
                         name = attribute.Name;
                     }

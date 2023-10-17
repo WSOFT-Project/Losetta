@@ -18,7 +18,7 @@ namespace AliceScript.Binding
 
         private void BindValueFunction_Getting(object sender, ValueFunctionEventArgs e)
         {
-            if (Get != null)
+            if (Get is not null)
             {
                 if (Get.IsInstanceFunc)
                 {
@@ -35,7 +35,7 @@ namespace AliceScript.Binding
 
         private void BindValueFunction_Setting(object sender, ValueFunctionEventArgs e)
         {
-            if (Set != null)
+            if (Set is not null)
             {
                 FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
                 ex.Args = new List<Variable> { e.Value };

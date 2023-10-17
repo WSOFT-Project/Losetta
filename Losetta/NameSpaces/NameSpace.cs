@@ -11,7 +11,7 @@ namespace AliceScript.NameSpaces
         public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>();
         public static void Add(NameSpace space, string name = null)
         {
-            if (name == null) { name = space.Name; }
+            if (name is null) { name = space.Name; }
             name = name.ToLowerInvariant();
             if (NameSpaces.ContainsKey(name))
             {
@@ -30,7 +30,7 @@ namespace AliceScript.NameSpaces
         public static void AddObj(Type type,string name = null)
         {
             var obj = Utils.CreateBindObject(type);
-            if (name == null) { name = obj.Namespace; }
+            if (name is null) { name = obj.Namespace; }
             if (string.IsNullOrEmpty(name)) { name = Constants.TOP_NAMESPACE; }
             if (!NameSpaces.ContainsKey(name))
             {

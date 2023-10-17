@@ -70,7 +70,7 @@ namespace AliceScript.Functions
             }
             else
             {
-                if (script.CurrentClass != null)
+                if (script.CurrentClass is not null)
                 {
                     parentOffset += script.CurrentClass.ParentOffset;
                 }
@@ -86,11 +86,11 @@ namespace AliceScript.Functions
             {
                 customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
             }
-            if (mode != null)
+            if (mode is not null)
             {
                 customFunc.IsVirtual = true;
             }
-            if (script.CurrentClass != null)
+            if (script.CurrentClass is not null)
             {
                 script.CurrentClass.AddMethod(funcName, args, customFunc);
             }

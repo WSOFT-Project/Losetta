@@ -39,7 +39,7 @@ namespace AliceScript.NameSpaces
                 var asm = Assembly.LoadFrom(asmLocate);
                 type = asm.GetType(typeName);
             }
-            return type != null ? new TypeObject(Utils.CreateBindObject(type)) : null;
+            return type is not null ? new TypeObject(Utils.CreateBindObject(type)) : null;
         }
         public static DelegateObject Interop_GetInvoker(string procName, string libraryName, string returnType, string[] parameterTypes, string entryPoint = null, bool? useUnicode = null)
         {

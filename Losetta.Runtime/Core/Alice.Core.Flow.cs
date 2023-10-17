@@ -103,7 +103,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 result = script.ProcessBlock();
 
-                if (result != null && (result.IsReturn ||
+                if (result is not null && (result.IsReturn ||
                     result.Type == Variable.VarType.BREAK ||
                     result.Type == Variable.VarType.CONTINUE))
                 {
@@ -171,7 +171,7 @@ namespace AliceScript.NameSpaces.Core
                 }
 
             }
-            if (result == null)
+            if (result is null)
             {
                 result = Variable.EmptyInstance;
             }
@@ -346,7 +346,7 @@ namespace AliceScript.NameSpaces.Core
             while (stillValid)
             {
                 Variable condResult = condScript.Execute(null, 0); condScript.Tag = "COND";
-                if (condResult == null)
+                if (condResult is null)
                 {
                     condResult = Variable.EmptyInstance;
                 }
@@ -403,7 +403,7 @@ namespace AliceScript.NameSpaces.Core
 
             Variable arrayValue = Utils.GetItem(forScript);
 
-            if (arrayValue == null)
+            if (arrayValue is null)
             {
                 return Variable.EmptyInstance;
             }
@@ -457,7 +457,7 @@ namespace AliceScript.NameSpaces.Core
         {
             var labelName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
 
-            if (script.AllLabels == null || script.LabelToFile == null |
+            if (script.AllLabels is null || script.LabelToFile is null |
                !script.AllLabels.TryGetValue(script.FunctionName, out Dictionary<string, int> labels))
             {
                 Utils.ThrowErrorMsg("次のラベルは関数内に存在しません [" + script.FunctionName + "]", Exceptions.COULDNT_FIND_LABEL_IN_FUNCTION,
@@ -588,7 +588,7 @@ namespace AliceScript.NameSpaces.Core
 
             }
 
-            bool handled = catches.Count > 0 || final_body != null;
+            bool handled = catches.Count > 0 || final_body is not null;
             if (!handled)
             {
                 throw new ScriptException("tryブロックには1つ以上catchまたはfinallyブロックが必要です。", Exceptions.TRY_BLOCK_MISSING_HANDLERS, script);
@@ -599,10 +599,10 @@ namespace AliceScript.NameSpaces.Core
                 foreach (var data in catches)
                 {
                     ValueFunction excMsgFunc = new ValueFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
-                    if (data.Filter != null)
+                    if (data.Filter is not null)
                     {
                         ParsingScript filterScript = script.ParentScript.GetTempScript(data.Filter, func);
-                        if (data.ExceptionName != null)
+                        if (data.ExceptionName is not null)
                         {
                             filterScript.Variables.Add(data.ExceptionName, excMsgFunc);
                         }
@@ -615,7 +615,7 @@ namespace AliceScript.NameSpaces.Core
                     }
 
                     ParsingScript catchScript = script.ParentScript.GetTempScript(data.Body);
-                    if (data.ExceptionName != null)
+                    if (data.ExceptionName is not null)
                     {
                         catchScript.Variables.Add(data.ExceptionName, excMsgFunc);
                     }
@@ -623,7 +623,7 @@ namespace AliceScript.NameSpaces.Core
                     e.Handled = true;
                     break;
                 }
-                if (final_body != null)
+                if (final_body is not null)
                 {
                     ParsingScript finallyScript = script.GetTempScript(final_body);
                     finallyScript.Process();
@@ -633,7 +633,7 @@ namespace AliceScript.NameSpaces.Core
 
             result = mainScript.Process();
 
-            if (final_body != null)
+            if (final_body is not null)
             {
                 ParsingScript finallyScript = script.GetTempScript(final_body);
                 finallyScript.Process();
@@ -662,7 +662,7 @@ namespace AliceScript.NameSpaces.Core
 
             int parentOffset = script.Pointer;
 
-            if (script.CurrentClass != null)
+            if (script.CurrentClass is not null)
             {
                 parentOffset += script.CurrentClass.ParentOffset;
             }
