@@ -45,14 +45,17 @@ namespace AliceScript.NameSpaces
         {
             return double.IsNaN(x);
         }
+
         public static bool Math_IsInfinity(double x)
         {
             return double.IsInfinity(x);
         }
+
         public static bool Math_IsPositiveInfinity(double x)
         {
             return double.IsPositiveInfinity(x);
         }
+
         public static bool Math_IsNegativeInfinity(double x)
         {
             return double.IsNegativeInfinity(x);
@@ -226,6 +229,23 @@ namespace AliceScript.NameSpaces
             return Math.Atanh(x);
         }
         #endregion
+        #region 対数関数
+        public static double Math_Log(double a)
+        {
+            return Math.Log(a);
+        }
+
+        public static double Math_Log(double a, double baseNum)
+        {
+            return Math.Log(a, baseNum);
+        }
+        #endregion
+
+
+        public static double Math_ReciprocalEstimate(double a)
+        {
+            return Math.ReciprocalEstimate(a);
+        }
     }
 
 }
