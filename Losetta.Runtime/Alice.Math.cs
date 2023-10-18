@@ -142,18 +142,21 @@ namespace AliceScript.NameSpaces
         public static double Math_MinValue => double.MinValue;
         #endregion
         #region 端数処理
-        public static double Math_Round(double x)
+        public static double Math_Round(double x, bool? roudingMode = null)
         {
-            return Math.Round(x);
+            MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero : MidpointRounding.ToZero : MidpointRounding.ToEven;
+            return Math.Round(x, mode);
         }
-        public static double Math_Round(double x, int digits)
+        public static double Math_Round(double x, int digits, bool? roudingMode = null)
         {
-            return Math.Round(x, digits);
+            MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero : MidpointRounding.ToZero : MidpointRounding.ToEven;
+            return Math.Round(x, digits, mode);
         }
         public static double Math_Truncate(double x)
         {
             return Math.Truncate(x);
         }
+
         public static double Math_Floor(double x)
         {
             return Math.Floor(x);
@@ -174,10 +177,12 @@ namespace AliceScript.NameSpaces
         {
             return Math.Sin(x);
         }
+
         public static double Math_cos(double x)
         {
             return Math.Cos(x);
         }
+
         public static double Math_tan(double x)
         {
             return Math.Tan(x);
@@ -206,10 +211,12 @@ namespace AliceScript.NameSpaces
         {
             return Math.Sinh(x);
         }
+
         public static double Math_Consh(double x)
         {
             return Math.Cosh(x);
         }
+
         public static double Math_Tanh(double x)
         {
             return Math.Tanh(x);

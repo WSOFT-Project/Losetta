@@ -41,7 +41,6 @@ namespace AliceScript.CLI
             RunLoop();
         }
 
-        private static bool mainfile = false;
         internal static void ThrowErrorManager_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (!Program.allow_throw)

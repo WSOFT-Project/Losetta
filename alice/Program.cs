@@ -14,11 +14,6 @@ namespace AliceScript.CLI
         {
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.Runtime.Args = pa.Args;
-            if (pa.NeedHelp)
-            {
-                ShowHelp();
-                return;
-            }
             CreateAliceDirectory(false);
             if (pa.Values.ContainsKey("print"))
             {
@@ -175,26 +170,6 @@ namespace AliceScript.CLI
             string fpath = Path.Combine(AppContext.BaseDirectory, ".alice", path);
             return File.Exists(fpath) ? fpath : path;
         }
-        internal static void ShowHelp()
-        {
-            Console.WriteLine("AliceScript言語で記述されたプログラムを実行します。");
-            Console.WriteLine();
-            Console.WriteLine("使用法：alice [ファイル名] [オプション] [-e 式] [--args パラメータ]");
-            Console.WriteLine();
-            Console.WriteLine("  [ファイル名]           ファイルを実行");
-            Console.WriteLine();
-            Console.WriteLine("  -d                     デバッグモードを有効化");
-            Console.WriteLine("  -print=off             標準出力を無効化");
-            Console.WriteLine("  -throw=off             例外のハンドルを無効化");
-            Console.WriteLine("  -runtime=nano          ランタイムを最小モードで初期化");
-            Console.WriteLine("  -run                   ファイルをスクリプトとして実行");
-            Console.WriteLine("  -run -mainfile         ファイルをスクリプトとしてメインファイルで実行");
-            Console.WriteLine();
-            Console.WriteLine("  -e,-execute,-evaluate  後続の式を評価");
-            Console.WriteLine("  --arg,--args           後続の引数をすべてAliceScriptで使う");
-            Console.WriteLine();
-            Console.WriteLine("AliceScriptについて詳しく知るには、https://docs.wsoft.ws/products/alice を参照してください。");
-        }
         internal static void CreateAliceDirectory(bool force)
         {
             string path = Path.Combine(AppContext.BaseDirectory, ".alice");
@@ -217,6 +192,8 @@ namespace AliceScript.CLI
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "update"), Properties.Resources.update, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "path"), Properties.Resources.path, Encoding.UTF8);
+
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "help"), Properties.Resources.help, Encoding.UTF8);
             }
         }
         internal static bool BuildPackage(string fn, string outfilename, int num = 1)

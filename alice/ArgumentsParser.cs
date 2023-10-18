@@ -24,7 +24,7 @@ namespace AliceScript.CLI
                 var argl = arg.ToLowerInvariant();
                 if (argl == "-h" || argl == "-help" || argl == "?")
                 {
-                    NeedHelp = true;
+                    Files.Add("help");
                 }
                 if (argl == "--arg" || argl == "--args")
                 {
@@ -103,7 +103,6 @@ namespace AliceScript.CLI
             get => m_files;
             set => m_files = value;
         }
-        public bool NeedHelp { get; set; }
         public string Script { get; set; }
     }
 }
