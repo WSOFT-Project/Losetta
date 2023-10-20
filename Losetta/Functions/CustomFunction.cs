@@ -50,7 +50,7 @@ namespace AliceScript.Functions
                     {
                         if (connectnexttoken)
                         {
-                            oldtoken += option;
+                            oldtoken = oldtoken + option;
                             connectnexttoken = false;
                             options.Add(oldtoken);
                         }
@@ -75,7 +75,7 @@ namespace AliceScript.Functions
                         options.Add(oldtoken);
                     }
                     //最後のトークンを変数名として解釈
-                    arg = options[^1];
+                    arg = options[options.Count - 1];
                     trueArgs.Add(arg);
                 }
                 else
@@ -94,7 +94,7 @@ namespace AliceScript.Functions
                     }
                     if (!refs && options.Count > 1)
                     {
-                        Variable v = script.GetTempScript(options[^2]).Execute();
+                        Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
                         if (v != null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
                         {
                             reqType = to;
@@ -159,7 +159,10 @@ namespace AliceScript.Functions
         {
             Utils.ExtractParameterNames(e.Args, m_name, e.Script);
 
-            m_args ??= Array.Empty<string>();
+            if (m_args == null)
+            {
+                m_args = Array.Empty<string>();
+            }
             if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable != null ? 1 : 0) < m_args.Length)
             {
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
@@ -181,12 +184,18 @@ namespace AliceScript.Functions
         private void RegisterArguments(List<Variable> args,
                                       List<KeyValuePair<string, Variable>> args2 = null, Variable current = null, ParsingScript script = null)
         {
-            args ??= new List<Variable>();
+            if (args == null)
+            {
+                args = new List<Variable>();
+            }
             if (m_this != -1 && current != null)
             {
                 args.Insert(m_this, current);
             }
-            m_args ??= new List<string>().ToArray();
+            if (m_args == null)
+            {
+                m_args = new List<string>().ToArray();
+            }
             int missingArgs = m_args.Length - args.Count;
             bool namedParameters = false;
             for (int i = 0; i < args.Count; i++)
@@ -263,10 +272,8 @@ namespace AliceScript.Functions
                 {
                     var val = new Variable();
                     val.Assign(entry.Value);
-                    var arg = new ValueFunction(val)
-                    {
-                        Name = entry.Key
-                    };
+                    var arg = new ValueFunction(val);
+                    arg.Name = entry.Key;
                     //m_VarMap[entry.Key] = arg;
                     script.Variables[entry.Key] = arg;
                 }
@@ -278,7 +285,7 @@ namespace AliceScript.Functions
                 if (parmsindex == i)
                 {
                     Variable parmsarg = new Variable(Variable.VarType.ARRAY);
-                    foreach (Variable argx in Utils.GetSpan(args)[i..args.Count])
+                    foreach (Variable argx in Utils.GetSpan(args).Slice(i, args.Count - i))
                     {
                         var val = new Variable();
                         val.Assign(argx);
@@ -400,14 +407,12 @@ namespace AliceScript.Functions
             tempScript.Filename = m_parentScript.Filename;
             if (script != null)
             {
-                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.m_stacktrace)
-                {
-                    new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename)
-                };
+                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.m_stacktrace);
+                tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
             }
             tempScript.Tag = m_tag;
             //tempScript.Variables = m_VarMap;
-            List<KeyValuePair<string, Variable>> args2 = instance?.GetPropList();
+            List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
             // ひとまず引数をローカルに追加
             RegisterArguments(args, args2, current, tempScript);
 

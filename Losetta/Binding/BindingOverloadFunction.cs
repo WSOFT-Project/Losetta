@@ -20,31 +20,12 @@ namespace AliceScript.Binding
         /// この関数に必要な引数の最小個数
         /// </summary>
         public int MinimumArgCounts { get; set; }
-        /// <summary>
-        /// この関数がとる引数
-        /// </summary>
         public ParameterInfo[] TrueParameters { get; set; }
-        /// <summary>
-        /// この関数に束縛されているメソッド本体(voidを返す)
-        /// </summary>
         public Action<object[]> VoidFunc { get; set; }
-        /// <summary>
-        /// この関数に束縛されているメソッド本体
-        /// </summary>
         public Func<object[], object> ObjFunc { get; set; }
-        /// <summary>
-        /// この関数が値を返さない場合はtrue、それ以外の場合はfalse
-        /// </summary>
         public bool IsVoidFunc { get; set; }
-        /// <summary>
-        /// この関数がオブジェクトのメソッドの場合はtrue、それ以外の場合はfalse
-        /// </summary>
         public bool IsMethod { get; set; }
-        /// <summary>
-        /// BindOverloadに対する比較
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+
         public int CompareTo(BindingOverloadFunction other)
         {
             int result = MinimumArgCounts.CompareTo(other.MinimumArgCounts);
@@ -53,13 +34,13 @@ namespace AliceScript.Binding
             {
                 // 比較に困る場合、引数のVariableCollection(なんでも配列型)の数で比べる
                 int? r = TrueParameters.Where(item => item.ParameterType == typeof(VariableCollection))?.Count().CompareTo(other.TrueParameters.Where(item => item.ParameterType == typeof(VariableCollection))?.Count());
-                result = r ?? result;
+                result = r.HasValue ? r.Value : result;
             }
             if (result == 0)
             {
                 // それでも比較に困る場合、引数のVariable(なんでも型)の数で比べる
                 int? r = TrueParameters.Where(item => item.ParameterType == typeof(Variable))?.Count().CompareTo(other.TrueParameters.Where(item => item.ParameterType == typeof(Variable))?.Count());
-                result = r ?? result;
+                result = r.HasValue ? r.Value : result;
             }
             if (other.HasParams || result == 0)
             {

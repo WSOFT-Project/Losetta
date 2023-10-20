@@ -1,8 +1,5 @@
 ﻿namespace AliceScript
 {
-    /// <summary>
-    /// 発生した例外の種類を表すコード
-    /// </summary>
     public enum Exceptions
     {
         /// <summary>

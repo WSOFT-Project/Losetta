@@ -186,8 +186,8 @@ namespace AliceScript.Functions
         }
         private static bool IsQuotedString(string item)
         {
-            return item.Length > 1 && ((item[0] == Constants.QUOTE && item[^1] == Constants.QUOTE) ||
-                    (item[0] == Constants.QUOTE1 && item[^1] == Constants.QUOTE1));
+            return item.Length > 1 && ((item[0] == Constants.QUOTE && item[item.Length - 1] == Constants.QUOTE) ||
+                    (item[0] == Constants.QUOTE1 && item[item.Length - 1] == Constants.QUOTE1));
         }
 
 
@@ -220,7 +220,8 @@ namespace AliceScript.Functions
             }
 
             ParserFunction pf = GetVariable(arrayName, script);
-            if (pf is not ValueFunction varFunc)
+            ValueFunction varFunc = pf as ValueFunction;
+            if (varFunc == null)
             {
                 return null;
             }
@@ -279,7 +280,10 @@ namespace AliceScript.Functions
             if (pf == null || !(pf is ValueFunction))
             {
                 pf = GetFunction(baseName, script);
-                pf ??= Utils.ExtractArrayElement(baseName, script);
+                if (pf == null)
+                {
+                    pf = Utils.ExtractArrayElement(baseName, script);
+                }
             }
 
             ValueFunction varFunc = pf as ValueFunction;
@@ -332,11 +336,9 @@ namespace AliceScript.Functions
 
         private static CustomFunction CreateCustomFunction(string body, string[] args, ParsingScript script, int parentOffset)
         {
-            CustomFunction customFunc = new CustomFunction("", body, args, script, true)
-            {
-                ParentScript = script,
-                ParentOffset = parentOffset
-            };
+            CustomFunction customFunc = new CustomFunction("", body, args, script, true);
+            customFunc.ParentScript = script;
+            customFunc.ParentOffset = parentOffset;
             return customFunc;
         }
 
@@ -424,9 +426,9 @@ namespace AliceScript.Functions
                 return null;
             }
 
-            if (!string.IsNullOrWhiteSpace(prop) && impl is ValueFunction function)
+            if (!string.IsNullOrWhiteSpace(prop) && impl is ValueFunction)
             {
-                function.PropertyName = prop;
+                ((ValueFunction)impl).PropertyName = prop;
             }
             return impl;
         }
@@ -829,7 +831,7 @@ namespace AliceScript.Functions
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
         {
             name = Constants.ConvertName(name);
-            return script != null && script.Functions.Remove(name) || s_functions.Remove(name);
+            return script != null && script.Functions.Remove(name) ? true : s_functions.Remove(name);
         }
         public static bool UnregisterFunction(string name)
         {
@@ -847,7 +849,8 @@ namespace AliceScript.Functions
 
         private static void NormalizeValue(ParserFunction function)
         {
-            if (function is ValueFunction gvf)
+            ValueFunction gvf = function as ValueFunction;
+            if (gvf != null)
             {
                 gvf.Value.CurrentAssign = "";
             }

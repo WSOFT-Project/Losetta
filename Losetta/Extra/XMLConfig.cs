@@ -13,7 +13,7 @@ namespace AliceScript.Extra
     {
 
 
-        private readonly string m_default = "<?xml version=\"1.0\" encoding=\"utf-8\"?><package></package>";
+        private string m_default = "<?xml version=\"1.0\" encoding=\"utf-8\"?><package></package>";
         /// <summary>
         /// 読み込み時のファイルパスです。Save()のパスを省略した時の保存先でもあります
         /// </summary>
@@ -60,6 +60,30 @@ namespace AliceScript.Extra
             get => xmlText;
             set => xmlText = value;
         }
+        private string[] CountSplit(string str, int count)
+        {
+            var list = new List<string>();
+            int length = (int)Math.Ceiling((double)str.Length / count);
+
+            for (int i = 0; i < length; i++)
+            {
+                int start = count * i;
+                if (str.Length <= start)
+                {
+                    break;
+                }
+                if (str.Length < start + count)
+                {
+                    list.Add(str.Substring(start));
+                }
+                else
+                {
+                    list.Add(str.Substring(start, count));
+                }
+            }
+
+            return list.ToArray();
+        }
         /// <summary>
         /// 指定されたパスを読み込みます
         /// </summary>
@@ -70,7 +94,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path += "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -103,7 +127,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path += "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -134,7 +158,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path += "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -154,7 +178,7 @@ namespace AliceScript.Extra
             }
             catch { return false; }
         }
-        private static bool ContainsAttribute(XmlNode node, string name)
+        private bool ContainsAttribute(XmlNode node, string name)
         {
             return ((XmlElement)node).HasAttribute(name);
         }
@@ -168,7 +192,7 @@ namespace AliceScript.Extra
             try
             {
 
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path += "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
 
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
@@ -192,19 +216,20 @@ namespace AliceScript.Extra
             value = SecurityElement.Escape(value);
 
 
-            if (path.EndsWith("/", StringComparison.Ordinal)) { path += "/default"; }
+            if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
             XmlDocument xml = new XmlDocument();
 
             xml.LoadXml(xmlText);
 
             if (xml.SelectSingleNode("package/" + path) != null)
             {
-                xml.SelectSingleNode("package/" + path).InnerText = SecurityElement.Escape(value); xmlText = xml.OuterXml; WritedEventArgs ws = new WritedEventArgs
-                {
-                    Path = path,
-                    Value = value
-                };
-                Writed?.Invoke(null, ws); return;
+                xml.SelectSingleNode("package/" + path).InnerText = SecurityElement.Escape(value); xmlText = xml.OuterXml; WritedEventArgs ws = new WritedEventArgs();
+                ws.Path = path;
+                ws.Value = value; Writed?.Invoke(null, ws); return;
+            }
+            else
+            {
+
             }
 
             XmlNode nownode = xml.SelectSingleNode("package");
@@ -231,11 +256,9 @@ namespace AliceScript.Extra
             {
                 Save();
             });
-            WritedEventArgs w = new WritedEventArgs
-            {
-                Path = path,
-                Value = value
-            };
+            WritedEventArgs w = new WritedEventArgs();
+            w.Path = path;
+            w.Value = value;
 
             Writed?.Invoke(null, w);
 
@@ -251,7 +274,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path += "/default"; }
+                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
                 xml.SelectSingleNode("package/" + path).ParentNode.RemoveChild(xml.SelectSingleNode("package/" + path));

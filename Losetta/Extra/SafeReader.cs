@@ -23,10 +23,12 @@ namespace AliceScript.Extra
                 throw new FileNotFoundException(null, filename);
             }
 
-            using FileReader reader = new FileReader(file);
-            CharCode c = reader.Read(file);
-            charcode = c.Name;
-            return reader.Text;
+            using (FileReader reader = new FileReader(file))
+            {
+                CharCode c = reader.Read(file);
+                charcode = c.Name;
+                return reader.Text;
+            }
         }
         /// <summary>
         /// ReadJEncを使用して、バイト配列から文字列を取得します
@@ -36,10 +38,12 @@ namespace AliceScript.Extra
         /// <returns>データ内の文字列</returns>
         public static string ReadAllText(byte[] data, out string charcode)
         {
-            using FileReader reader = new FileReader(data);
-            CharCode c = reader.Read(data);
-            charcode = c.Name;
-            return reader.Text;
+            using (FileReader reader = new FileReader(data))
+            {
+                CharCode c = reader.Read(data);
+                charcode = c.Name;
+                return reader.Text;
+            }
         }
     }
     /// <summary>
@@ -195,10 +199,13 @@ namespace AliceScript.Extra
         /// <summary>このファイル文字コード種類のEncodingオブジェクトを取得します。</summary>
         internal Encoding GetEncoding()
         {
-            Encoding ??=
+            if (Encoding == null)
+            {   // Encodingオブジェクトがまだ用意されていなければ初期化する
+                Encoding =
                     CodePage > 0 ? Encoding.GetEncoding(CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback)
                     : CodePage < 0 ? Encoding.GetEncoding(-CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ReplacementFallback)
                     : null;
+            }
             return Encoding;
         }
 
@@ -329,7 +336,7 @@ namespace AliceScript.Extra
                         // JIS補助漢字エスケープ部分の処理
                         if (pos < len)
                         {   // JIS補助漢字エスケープシーケンス除去、補助漢字範囲特定
-                            pos += 4;
+                            pos = pos + 4;
                             start = pos;
                             while (pos < len && bytes[pos] != 0x1B) { pos++; }
                             if (start < pos)
@@ -444,7 +451,10 @@ namespace AliceScript.Extra
                 {   // BOMありテキストなら文字列を取り出す（取り出せなかったら非テキスト扱い）
                     if ((text = c.GetString(Bytes, Length)) == null) { c = null; }
                 }
-                else c ??= ReadJEnc.GetEncoding(Bytes, Length, out text);
+                else if (c == null)
+                {   // ファイル文字コード種類不明なら、全バイト走査して文字コード確定
+                    c = ReadJEnc.GetEncoding(Bytes, Length, out text);
+                }
                 // ここまでで文字コードが決まらなかったらバイナリファイル扱い
                 return c ?? FileType.GetBinaryType(Bytes, Length);
             }
@@ -486,7 +496,10 @@ namespace AliceScript.Extra
                 {   // BOMありテキストなら文字列を取り出す（取り出せなかったら非テキスト扱い）
                     if ((text = c.GetString(Bytes, Length)) == null) { c = null; }
                 }
-                else c ??= ReadJEnc.GetEncoding(Bytes, Length, out text);
+                else if (c == null)
+                {   // ファイル文字コード種類不明なら、全バイト走査して文字コード確定
+                    c = ReadJEnc.GetEncoding(Bytes, Length, out text);
+                }
                 // ここまでで文字コードが決まらなかったらバイナリファイル扱い
                 return c ?? FileType.GetBinaryType(Bytes, Length);
             }
@@ -804,7 +817,7 @@ namespace AliceScript.Extra
                 }
                 if (b1 == 0x1B)
                 {   // エスケープシーケンス判定(エスケープコード内容を読み飛ばす)
-                    escapeSequenceChecker ??= new JIS(bytes, len, asciiEndPos);
+                    if (escapeSequenceChecker == null) { escapeSequenceChecker = new JIS(bytes, len, asciiEndPos); }
                     asciiEndPos += escapeSequenceChecker.GetEncoding(asciiEndPos);
                 }
                 // 次の文字へ
@@ -966,7 +979,7 @@ namespace AliceScript.Extra
                     }
                     if (b1 == 0x1B)
                     {   // エスケープシーケンス判定(エスケープコード内容を読み飛ばす)
-                        escapeSequenceChecker ??= new JIS(bytes, len, cp1252Pos);
+                        if (escapeSequenceChecker == null) { escapeSequenceChecker = new JIS(bytes, len, cp1252Pos); }
                         cp1252Pos += escapeSequenceChecker.GetEncoding(cp1252Pos);
                     }
                     cp1252Pos++;

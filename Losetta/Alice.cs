@@ -122,11 +122,9 @@ namespace AliceScript
         /// <param name="exitcode">終了の理由を表す終了コード</param>
         public static void OnExiting(int exitcode = 0)
         {
-            ExitingEventArgs e = new ExitingEventArgs
-            {
-                Cancel = false,
-                ExitCode = exitcode
-            };
+            ExitingEventArgs e = new ExitingEventArgs();
+            e.Cancel = false;
+            e.ExitCode = exitcode;
             Exiting?.Invoke(null, e);
             if (e.Cancel)
             {
@@ -154,13 +152,7 @@ namespace AliceScript
                 return asm.GetName().Version;
             }
         }
-        /// <summary>
-        /// AliceScriptの実装の名前
-        /// </summary>
         public static string ImplementationName => Interpreter.Instance.Name;
-        /// <summary>
-        /// AliceScriptの実装があるディレクトリの場所
-        /// </summary>
         public static string ImplementationLocation => AppContext.BaseDirectory;
         /// <summary>
         /// このAliceScriptが実行されているアプリケーションの名前
@@ -170,11 +162,6 @@ namespace AliceScript
             get; set;
         }
     }
-    /// <summary>
-    /// スクリプトによってプログラムが終了されようとしているときに呼び出されるデリゲート
-    /// </summary>
-    /// <param name="sender">オブジェクト</param>
-    /// <param name="e">プログラムが終了する理由</param>
     public delegate void Exiting(object sender, ExitingEventArgs e);
     public class ExitingEventArgs : EventArgs
     {

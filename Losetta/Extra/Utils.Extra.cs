@@ -12,7 +12,7 @@
             {
                 return "";
             }
-            i %= files.Count;
+            i = i % files.Count;
 
             string pathname = files[i];
             if (files.Count == 1)
