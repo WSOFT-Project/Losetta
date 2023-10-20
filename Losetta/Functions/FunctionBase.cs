@@ -66,10 +66,7 @@ namespace AliceScript.Functions
             ex.Keywords = Keywords;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
-            if (ex.Return == null)
-            {
-                ex.Return = Variable.EmptyInstance;
-            }
+            ex.Return ??= Variable.EmptyInstance;
             return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
 
@@ -188,8 +185,10 @@ namespace AliceScript.Functions
             {
                 Utils.CheckArgs(args.Count, MinimumArgCounts, m_name);
             }
-            FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = args;
+            FunctionBaseEventArgs ex = new FunctionBaseEventArgs
+            {
+                Args = args
+            };
             Run?.Invoke(null, ex);
 
             return ex.Return;

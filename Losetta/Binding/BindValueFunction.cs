@@ -17,7 +17,7 @@ namespace AliceScript.Binding
         {
             if (Get != null)
             {
-                e.Value = new Variable(Get.ObjFunc.Invoke(new object[] { }));
+                e.Value = new Variable(Get.ObjFunc.Invoke(Array.Empty<object>()));
                 return;
             }
             throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
@@ -27,8 +27,10 @@ namespace AliceScript.Binding
         {
             if (Set != null)
             {
-                FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-                ex.Args = new List<Variable> { e.Value };
+                FunctionBaseEventArgs ex = new FunctionBaseEventArgs
+                {
+                    Args = new List<Variable> { e.Value }
+                };
 
                 if (Set.TryConvertParameters(ex, this, out var args))
                 {

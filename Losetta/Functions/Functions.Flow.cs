@@ -17,7 +17,7 @@ namespace AliceScript.Functions
         protected override Variable Evaluate(ParsingScript script)
         {
             var variable = ParserFunction.GetVariable(m_argument, script);
-            var varValue = variable == null ? null : variable.GetValue(script);
+            var varValue = variable?.GetValue(script);
             bool isUndefined = varValue == null || varValue.Type == Variable.VarType.UNDEFINED;
 
             bool result = m_action == "===" || m_action == "==" ? isUndefined :
@@ -39,8 +39,10 @@ namespace AliceScript.Functions
         {
             if (e.Args.Count > 0 && e.Args[0].Object is TypeObject t)
             {
-                var to = new TypeObject(Variable.VarType.ARRAY);
-                to.ArrayType = t;
+                var to = new TypeObject(Variable.VarType.ARRAY)
+                {
+                    ArrayType = t
+                };
                 e.Return = new Variable(to);
             }
             else

@@ -138,9 +138,11 @@ namespace AliceScript
         /// <returns>バインドされた関数</returns>
         public static BindValueFunction CreateBindFunction(PropertyInfo propertyInfo)
         {
-            var func = new BindValueFunction();
-            func.Name = propertyInfo.Name;
-            func.HandleEvents = true;
+            var func = new BindValueFunction
+            {
+                Name = propertyInfo.Name,
+                HandleEvents = true
+            };
 
             var getFunc = propertyInfo.GetGetMethod();
             var setFunc = propertyInfo.GetSetMethod();
@@ -156,8 +158,10 @@ namespace AliceScript
             if (setFunc != null && setFunc.IsPublic)
             {
                 func.CanSet = true;
-                var load = new BindingOverloadFunction();
-                load.TrueParameters = setFunc.GetParameters();
+                var load = new BindingOverloadFunction
+                {
+                    TrueParameters = setFunc.GetParameters()
+                };
                 var args = Expression.Parameter(typeof(object[]), "args");
                 var parameters = load.TrueParameters.Select((x, index) =>
                 Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), GetTrueParametor(x.ParameterType))).ToArray();

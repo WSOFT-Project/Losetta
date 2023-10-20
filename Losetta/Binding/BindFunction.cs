@@ -70,8 +70,10 @@ namespace AliceScript.Binding
                 }
 
                 func.Name = name;
-                var load = new BindingOverloadFunction();
-                load.TrueParameters = methodInfo.GetParameters();
+                var load = new BindingOverloadFunction
+                {
+                    TrueParameters = methodInfo.GetParameters()
+                };
 
                 if (load.TrueParameters.Length > 0)
                 {

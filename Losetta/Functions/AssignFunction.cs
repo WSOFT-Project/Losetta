@@ -23,10 +23,7 @@ namespace AliceScript.Functions
             m_name = Constants.GetRealName(varName);
             script.CurrentAssign = m_name;
             Variable varValue = Utils.GetItem(script);
-            if (baseScript == null)
-            {
-                baseScript = script;
-            }
+            baseScript ??= script;
             if (varValue == null)
             {
                 return Variable.EmptyInstance;
@@ -155,7 +152,7 @@ namespace AliceScript.Functions
                 return null;
             }
 
-            string name = varName.Substring(0, ind);
+            string name = varName[..ind];
             string prop = varName.Substring(ind + 1);
 
             if (TryAddToNamespace(prop, name, varValue))

@@ -159,7 +159,17 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Intersect(items);
         }
+        public static IEnumerable<Variable> Repeat(this VariableCollection ary, int repeatCount)
+        {
+            var newAry = new List<Variable>();
 
+            for (int i = 0; i < repeatCount; i++)
+            {
+                newAry.AddRange(ary);
+            }
+
+            return newAry;
+        }
 
         public static int IndexOf(this VariableCollection ary, Variable item)
         {

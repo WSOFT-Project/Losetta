@@ -24,7 +24,7 @@
 
 		<RepositoryType>git</RepositoryType>
 		<PackageOutputPath>bin\packages</PackageOutputPath>
-		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisLevel>latest-all</AnalysisLevel>
 		<RootNamespace>AliceScript</RootNamespace>
 	</PropertyGroup>
 
