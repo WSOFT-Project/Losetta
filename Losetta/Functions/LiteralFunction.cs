@@ -44,6 +44,7 @@ namespace AliceScript.Functions
                             result = result.Replace("\\r", "\r");
                             result = result.Replace("\\t", "\t");
                             result = result.Replace("\\v", "\v");
+                            result = result.Replace("\\e","\u001b");
                         }
 
                         if (DetectionStringFormat)
