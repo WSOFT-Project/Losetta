@@ -318,13 +318,13 @@ namespace AliceScript
                 switch (currentChar)
                 {
                     case Constants.QUOTE1:
-                        if (!inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                        if (!inQuotes2)
                         {
                             inQuotes = inQuotes1 = !inQuotes1;
                         }
                         break;
                     case Constants.QUOTE:
-                        if (!inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                        if (!inQuotes1)
                         {
                             inQuotes = inQuotes2 = !inQuotes2;
                         }
@@ -378,7 +378,7 @@ namespace AliceScript
             }
 
 #pragma warning disable 219
-            string body = Utils.GetBodyBetween(tempScript, start, end);
+            string body = Utils.GetBodyBetween(tempScript, start, end, "\0", false);
 #pragma warning restore 219
             // After the statement above tempScript.Parent will point to the last
             // character belonging to the body between start and end characters. 
@@ -556,6 +556,10 @@ namespace AliceScript
             return ((char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next))) || EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
+        public static bool IsIgnoreCharEvenIfString(char ch)
+        {
+            return '\ufdd0' <= ch && ch <= '\ufddf';
+        }
         public static bool IsIgnoreChar(char ch)
         {
             return Constants.IGNORE_CHARS.Contains(ch) || char.IsControl(ch) || char.GetUnicodeCategory(ch).HasFlag(System.Globalization.UnicodeCategory.Format);
@@ -664,6 +668,10 @@ namespace AliceScript
                     {
                         sb.Append(ch);
                     }
+                    continue;
+                }
+                if (IsIgnoreCharEvenIfString(ch))
+                {
                     continue;
                 }
 
@@ -852,16 +860,14 @@ namespace AliceScript
                                             sb.Append('\\');
                                             continue;
                                         }
-                                    case '\'':
+                                    case Constants.QUOTE:
                                         {
-                                            // シングルクオーテーションは一旦装置制御1に割り当て
-                                            sb.Append('\u0011');
+                                            sb.Append(Constants.QUOTE_IN_LITERAL);
                                             continue;
                                         }
-                                    case '\"':
+                                    case Constants.QUOTE1:
                                         {
-                                            // シングルクオーテーションは一旦装置制御2に割り当て
-                                            sb.Append('\u0012');
+                                            sb.Append(Constants.QUOTE1_IN_LITERAL);
                                             continue;
                                         }
                                     default:
@@ -870,11 +876,7 @@ namespace AliceScript
                                         }
                                 }
                             }
-                            else
-                            {
-                                sb.Append(ch);
-                                continue;
-                            }
+                            break;
                         }
                     default:
                         break;
@@ -1028,7 +1030,7 @@ namespace AliceScript
                             }
                         case Constants.LIBRARY_IMPORT:
                             {
-                                sb.Append('.');
+                                sb.Append(Constants.USER_CANT_USE_FUNCTION_PREFIX);
                                 sb.Append(Constants.LIBRARY_IMPORT);
                                 sb.Append(Constants.START_ARG);
                                 sb.Append(pragmaArgs);
@@ -1038,7 +1040,7 @@ namespace AliceScript
                             }
                         case Constants.NET_IMPORT:
                             {
-                                sb.Append('.');
+                                sb.Append(Constants.USER_CANT_USE_FUNCTION_PREFIX);
                                 sb.Append(Constants.NET_IMPORT);
                                 sb.Append(Constants.START_ARG);
                                 sb.Append(pragmaArgs);
@@ -1151,11 +1153,11 @@ namespace AliceScript
 
                 char ch = script.Current;
                 checkBraces = !inQuotes;
-                if (ch == Constants.QUOTE && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                if (ch == Constants.QUOTE && !inQuotes1)
                 {
                     inQuotes = inQuotes2 = !inQuotes2;
                 }
-                if (ch == Constants.QUOTE1 && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                if (ch == Constants.QUOTE1 && !inQuotes2)
                 {
                     inQuotes = inQuotes1 = !inQuotes1;
                 }
@@ -1219,11 +1221,11 @@ namespace AliceScript
                 if (close != Constants.QUOTE)
                 {
                     checkBraces = !inQuotes;
-                    if (ch == Constants.QUOTE && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                    if (ch == Constants.QUOTE)
                     {
                         inQuotes = inQuotes2 = !inQuotes2;
                     }
-                    if (ch == Constants.QUOTE1 && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                    if (ch == Constants.QUOTE1 && !inQuotes2)
                     {
                         inQuotes = inQuotes1 = !inQuotes1;
                     }

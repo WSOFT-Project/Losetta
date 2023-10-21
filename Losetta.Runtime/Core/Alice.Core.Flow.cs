@@ -3,6 +3,7 @@ using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Collections;
+using System.Text;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -375,31 +376,15 @@ namespace AliceScript.NameSpaces.Core
             script.Forward();
             //foreach(var in ary)の形式です
             //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-            var tokens = forString.Split(' ');
+            string[] tokens = forString.Split(Constants.FOR_IN);
 
-            bool registVar = false;
-            if (tokens[0].Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
+            if (tokens.Length != 2)
             {
-                tokens = tokens.Skip(1).ToArray();
-                forString = forString.Substring(3);
-                registVar = true;
-            }
-            var sep = tokens.Length > 2 ? tokens[1] : "";
-            string varName = tokens[0];
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-
-            if (sep != Constants.FOR_IN)
-            {
-                int index = forString.IndexOf(Constants.FOR_EACH);
-                if (index <= 0 || index == forString.Length - 1)
-                {
-                    Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
-                                     , script, "foreach");
-                }
-                varName = forString.Substring(0, index);
+                Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
+                                 , script, "foreach");
             }
 
-            ParsingScript forScript = script.GetTempScript(forString, func, varName.Length + sep.Length + 1);
+            ParsingScript forScript = script.GetTempScript(tokens[1], func);
 
             Variable arrayValue = Utils.GetItem(forScript);
 
@@ -425,11 +410,19 @@ namespace AliceScript.NameSpaces.Core
             {
                 script.Pointer = startForCondition;
                 Variable current = arrayValue.GetValue(i);
+                current.Readonly = true;
+                // 代入式を逐次実行できるように隠し変数を作成
+                string forConstName = Constants.USER_CANT_USE_VARIABLE_PREFIX + "eachconst";
 
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-                ParsingScript mainScript = script.GetTempScript(body);
-                ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new ValueFunction(current), mainScript, false, registVar, false);
+                var body = new StringBuilder();
+                body.Append(tokens[0].Trim());
+                body.Append(Constants.ASSIGNMENT);
+                body.Append(forConstName);
+                body.Append(Constants.END_STATEMENT);
+                body.Append(Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true));
+
+                ParsingScript mainScript = forScript.GetTempScript(body.ToString());
+                mainScript.Variables[forConstName] = new ValueFunction(current);
                 Variable result = mainScript.Process(true);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {

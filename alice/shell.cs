@@ -95,7 +95,7 @@ namespace AliceScript.CLI
                                 Console.WriteLine();
                                 Console.Write("評価する式>>>>");
                                 string code = Console.ReadLine();
-                                Console.WriteLine(e.Script.GetTempScript(code).Process());
+                                Console.WriteLine(e.Script.GetChildScript(code).Process());
                                 goto PauseInput;
                             }
                     }
@@ -437,7 +437,7 @@ namespace AliceScript.CLI
                 }
                 else
                 {
-                    CurrentScript = CurrentScript is null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
+                    CurrentScript = CurrentScript is null ? Alice.GetScript(script, filename, true) : CurrentScript.GetChildScript(script);
                     result = CurrentScript.Process();
                 }
             }

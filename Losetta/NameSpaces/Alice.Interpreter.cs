@@ -398,7 +398,7 @@ namespace AliceScript.NameSpaces
 
             private void Interpreter_ScriptObject_GetScriptFunction_Run(object sender, FunctionBaseEventArgs e)
             {
-                e.Return = new Variable(new Interpreter_ScriptObject(Host.Script.GetTempScript(e.Args[0].AsString())));
+                e.Return = new Variable(new Interpreter_ScriptObject(Host.Script.GetChildScript(e.Args[0].AsString())));
             }
         }
         private sealed class Interpreter_ScriptObject_UsingFunction : FunctionBase

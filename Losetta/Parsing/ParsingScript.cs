@@ -1228,14 +1228,18 @@ namespace AliceScript.Parsing
             ParsingScript mainScript = GetTempScript(body);
             return mainScript.Process();
         }
-
+        /// <summary>
+        /// 現在のスクリプトから、子スクリプトを作成します
+        /// スクリプトにユーザーのコードを使用しないでください
+        /// </summary>
+        /// <param name="str">スクリプト</param>
+        /// <param name="callFrom"></param>
+        /// <param name="startIndex"></param>
+        /// <returns></returns>
         public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
-            str = Utils.ConvertToScript(str, out _, out var def, out var settings);
             ParsingScript tempScript = new ParsingScript(str, startIndex)
             {
-                Settings = settings,
-                Defines = def,
                 Filename = Filename,
                 ParentScript = this,
                 Char2Line = Char2Line,
@@ -1256,6 +1260,23 @@ namespace AliceScript.Parsing
             }
 
             return tempScript;
+        }
+        /// <summary>
+        /// ユーザーの入力から、子スクリプトを作成します。
+        /// </summary>
+        /// <param name="str">ユーザーのコード</param>
+        /// <param name="callFrom"></param>
+        /// <param name="startIndex"></param>
+        /// <returns></returns>
+        public ParsingScript GetChildScript(string str, FunctionBase callFrom = null, int startIndex = 0)
+        {
+            str = Utils.ConvertToScript(str, out _, out var def, out var settings);
+            var script = GetTempScript(str, callFrom, startIndex);
+
+            script.Settings = settings;
+            script.Defines = def;
+
+            return script;
         }
         public ParsingScript GetIncludeFileScript(string filename, FunctionBase callFrom)
         {

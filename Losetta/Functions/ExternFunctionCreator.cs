@@ -95,7 +95,7 @@ namespace AliceScript.Functions
     {
         public NetImportFunction()
         {
-            Name = "." + Constants.NET_IMPORT;
+            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.NET_IMPORT;
             MinimumArgCounts = 1;
             Run += PInvokeFlagFunction_Run;
         }
@@ -126,7 +126,7 @@ namespace AliceScript.Functions
     {
         public LibImportFunction()
         {
-            Name = "." + Constants.LIBRARY_IMPORT;
+            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.LIBRARY_IMPORT;
             Run += PInvokeFlagFunction_Run;
         }
 

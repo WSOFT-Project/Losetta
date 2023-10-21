@@ -28,8 +28,8 @@ namespace AliceScript.Functions
                         //文字列型
                         string result = Item.Substring(1, Item.Length - 2);
                         //文字列補間
-                        result = result.Replace('\u0011', '\'');
-                        result = result.Replace('\u0012', '\"');
+                        result = result.Replace(Constants.QUOTE_IN_LITERAL,Constants.QUOTE);
+                        result = result.Replace(Constants.QUOTE1_IN_LITERAL, Constants.QUOTE1);
 
                         if (DetectionStringFormat)
                         {

@@ -28,6 +28,11 @@ namespace AliceScript
         public const char TERNARY_OPERATOR = '?';
         public const char DOLLER = '$';
 
+        public const char QUOTE_IN_LITERAL = '\ufdd2';
+        public const char QUOTE1_IN_LITERAL = '\ufdd1';
+        public const char USER_CANT_USE_FUNCTION_PREFIX = '\ufdd3';
+        public const char USER_CANT_USE_VARIABLE_PREFIX = '\ufdd4';
+
         public const string AS = "as ";
         public const string IS = "is ";
         public const string IS_NOT = "is not ";
