@@ -975,30 +975,45 @@ namespace AliceScript.Parsing
                 result = Parser.AliceScript(this, toArray);
             }
 #if !DEBUG_THROW
-            catch (ScriptException scriptExc)
-            {
-                OnThrowError(scriptExc, scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script ?? this, scriptExc.Exception);
-            }
-            catch (ParsingException parseExc)
-            {
-                OnThrowError(parseExc, parseExc.Message, Exceptions.COULDNT_PARSE, parseExc.Source, parseExc.HelpLink, this, parseExc);
-            }
-            catch (FileNotFoundException fileNotFoundExc)
-            {
-                OnThrowError(fileNotFoundExc, "ファイル" + (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ") + "が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source, fileNotFoundExc.HelpLink);
-            }
-            catch (IndexOutOfRangeException indexOutOfRangeExc)
-            {
-                OnThrowError(indexOutOfRangeExc, "インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
-            }
             catch (Exception otherExc)
             {
-                OnThrowError(otherExc, otherExc.Message, Exceptions.NONE, otherExc.Source, otherExc.HelpLink);
+                OnThrowError(otherExc);
             }
 
 #endif
             return result;
 
+        }
+        public void OnThrowError(Exception exception)
+        {
+            switch (exception)
+            {
+                case ScriptException scriptExc:
+                    {
+                        OnThrowError(scriptExc, scriptExc.Message, scriptExc.ErrorCode, scriptExc.Source, scriptExc.HelpLink, scriptExc.Script ?? this, scriptExc.Exception);
+                        return;
+                    }
+                case ParsingException parseExc:
+                    {
+                        OnThrowError(parseExc, parseExc.Message, Exceptions.COULDNT_PARSE, parseExc.Source, parseExc.HelpLink, this, parseExc);
+                        return;
+                    }
+                case FileNotFoundException fileNotFoundExc:
+                    {
+                        OnThrowError(fileNotFoundExc, "ファイル" + (string.IsNullOrEmpty(fileNotFoundExc.FileName) ? string.Empty : " '" + fileNotFoundExc.FileName + "' ") + "が見つかりませんでした。", Exceptions.FILE_NOT_FOUND, fileNotFoundExc.Source, fileNotFoundExc.HelpLink);
+                        return;
+                    }
+                case IndexOutOfRangeException indexOutOfRangeExc:
+                    {
+                        OnThrowError(indexOutOfRangeExc, "インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
+                        return;
+                    }
+                default:
+                    {
+                        OnThrowError(exception, exception.Message, Exceptions.NONE, exception.Source, exception.HelpLink);
+                        return;
+                    }
+            }
         }
         private void OnThrowError(Exception exc, string message, Exceptions errorCode, string source, string helpLink = null, ParsingScript script = null, ParsingException parsingException = null)
         {

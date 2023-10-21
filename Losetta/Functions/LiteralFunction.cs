@@ -28,24 +28,8 @@ namespace AliceScript.Functions
                         //文字列型
                         string result = Item.Substring(1, Item.Length - 2);
                         //文字列補間
-
-                        result = result.Replace("\\'", "'");
-                        //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識
-                        if (dq)
-                        {
-                            //[\\]は一時的に0x0011(装置制御1)に割り当て
-                            result = result.Replace("\\\\", "\u0011");
-                            result = result.Replace("\\\"", "\"");
-                            result = result.Replace("\\n", "\n");
-                            result = result.Replace("\\0", "\0");
-                            result = result.Replace("\\a", "\a");
-                            result = result.Replace("\\b", "\b");
-                            result = result.Replace("\\f", "\f");
-                            result = result.Replace("\\r", "\r");
-                            result = result.Replace("\\t", "\t");
-                            result = result.Replace("\\v", "\v");
-                            result = result.Replace("\\e", "\u001b");
-                        }
+                        result = result.Replace('\u0011', '\'');
+                        result = result.Replace('\u0012', '\"');
 
                         if (DetectionStringFormat)
                         {

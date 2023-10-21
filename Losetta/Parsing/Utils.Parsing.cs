@@ -614,11 +614,6 @@ namespace AliceScript
 
             StringBuilder lastToken = new StringBuilder();
 
-            // Remove these two lines for quality time debugging in case the user has special
-            // spaces with code 160. See https://en.wikipedia.org/wiki/Non-breaking_space
-            char extraSpace = Convert.ToChar(160);
-            source = source.Replace(extraSpace, ' ');
-
             for (int i = 0; i < source.Length; i++)
             {
                 char ch = source[i];
@@ -798,6 +793,87 @@ namespace AliceScript
                             inPragmaArgs = false;
                         }
                         break;
+                    case '\\':
+                        {
+                            if (inQuotes)
+                            {
+                                i++;
+                                switch (next)
+                                {
+                                    case '0':
+                                        {
+                                            sb.Append('\u0000');
+                                            continue;
+                                        }
+                                    case 'a':
+                                        {
+                                            sb.Append('\u0007');
+                                            continue;
+                                        }
+                                    case 'b':
+                                        {
+                                            sb.Append('\u0008');
+                                            continue;
+                                        }
+                                    case 'e':
+                                        {
+                                            sb.Append('\u001B');
+                                            continue;
+                                        }
+                                    case 'f':
+                                        {
+                                            sb.Append('\u000C');
+                                            continue;
+                                        }
+                                    case 'n':
+                                        {
+                                            sb.Append('\u000A');
+                                            continue;
+                                        }
+                                    case 'r':
+                                        {
+                                            sb.Append('\u000D');
+                                            continue;
+                                        }
+                                    case 't':
+                                        {
+                                            sb.Append('\u0009');
+                                            continue;
+                                        }
+                                    case 'v':
+                                        {
+                                            sb.Append('\u000B');
+                                            continue;
+                                        }
+                                    case '\\':
+                                        {
+                                            sb.Append('\\');
+                                            continue;
+                                        }
+                                    case '\'':
+                                        {
+                                            // シングルクオーテーションは一旦装置制御1に割り当て
+                                            sb.Append('\u0011');
+                                            continue;
+                                        }
+                                    case '\"':
+                                        {
+                                            // シングルクオーテーションは一旦装置制御2に割り当て
+                                            sb.Append('\u0012');
+                                            continue;
+                                        }
+                                    default:
+                                        {
+                                            throw new ScriptException("認識できないエスケープ文字です", Exceptions.UNKNOWN_ESCAPE_CHAR);
+                                        }
+                                }
+                            }
+                            else
+                            {
+                                sb.Append(ch);
+                                continue;
+                            }
+                        }
                     default:
                         break;
                 }

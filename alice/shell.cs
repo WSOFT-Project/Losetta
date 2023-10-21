@@ -444,14 +444,9 @@ namespace AliceScript.CLI
                 }
             }
 #if !DEBUG_THROW
-            catch (Exception)
+            catch (Exception exc)
             {
-                ///TODO:補足されなかった例外にエラー番号振る。
-                /*
-                errorMsg ="補足されなかった例外:"+ (exc.InnerException is not null ? exc.InnerException.Message : exc.Message);
-                ParserFunction.InvalidateStacksAfterLevel(0);
-                */
-
+                ParsingScript.GetTopLevelScript().OnThrowError(exc);
             }
 #endif
 

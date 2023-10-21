@@ -277,6 +277,6 @@
         /// <summary>
         /// 不明なエスケープ文字です
         /// </summary>
-        UNKNOWN_ESCAPE_CHAR = 0x04b
+        UNKNOWN_ESCAPE_CHAR = 0x04b,
     }
 }
