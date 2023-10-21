@@ -1,6 +1,5 @@
 ﻿using AliceScript.Binding;
 using AliceScript.NameSpaces;
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -292,7 +291,7 @@ namespace AliceScript
             }
             foreach (var p in type.GetProperties())
             {
-                var prop = CreateBindFunction(p, !defaultState,false);
+                var prop = CreateBindFunction(p, !defaultState, false);
                 if (prop is not null)
                 {
                     prop.Parent = obj;

@@ -24,7 +24,7 @@ namespace AliceScript.Objects
                     if (i == 0)
                     {
                         r = m_fucntions[i];
-                        if(r is CustomFunction cf)
+                        if (r is CustomFunction cf)
                         {
                             cf.Children = new HashSet<CustomFunction>();
                         }
@@ -119,7 +119,7 @@ namespace AliceScript.Objects
             {
                 args.Add(arg);
             }
-            return Invoke(args,script,instance);
+            return Invoke(args, script, instance);
         }
         public void BeginInvoke(List<Variable> args = null, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
         {

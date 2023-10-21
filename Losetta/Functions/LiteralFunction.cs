@@ -20,8 +20,8 @@ namespace AliceScript.Functions
             {
                 if (StringMode)
                 {
-                    bool sq = Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1;
-                    bool dq = Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE;
+                    bool sq = Item[0] == Constants.QUOTE1 && Item[^1] == Constants.QUOTE1;
+                    bool dq = Item[0] == Constants.QUOTE && Item[^1] == Constants.QUOTE;
                     Name = "StringLiteral";
                     if (dq || sq)
                     {
@@ -75,10 +75,7 @@ namespace AliceScript.Functions
                                                 string code = nowBlack.ToString();
                                                 ParsingScript tempScript = e.Script.GetTempScript(code);
                                                 var rrr = tempScript.Process();
-                                                if (rrr is null)
-                                                {
-                                                    rrr = Variable.EmptyInstance;
-                                                }
+                                                rrr ??= Variable.EmptyInstance;
                                                 stb.Append(rrr.AsString());
                                                 nowBlack.Clear();
                                             }

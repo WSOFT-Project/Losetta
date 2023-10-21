@@ -1,7 +1,5 @@
-﻿using AliceScript.Binding;
-using AliceScript.Functions;
+﻿using AliceScript.Functions;
 using AliceScript.Parsing;
-using System.Xml.Linq;
 
 namespace AliceScript.Objects
 {
@@ -107,7 +105,7 @@ namespace AliceScript.Objects
             if (ClassType is not null)
             {
                 //TODO:非ObjectBaseのクラスのアクティベート
-                if(ClassType is ObjectBase csClass)
+                if (ClassType is ObjectBase csClass)
                 {
                     return csClass.GetImplementation(args, script);
                 }

@@ -534,7 +534,7 @@ namespace AliceScript
                 : Variable.EmptyInstance;
         }
 
-        
+
         public void AddVariableToHash(string hash, Variable newVar)
         {
             Variable listVar = null;

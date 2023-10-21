@@ -1,7 +1,5 @@
-﻿using AliceScript.Binding;
-using AliceScript.Functions;
+﻿using AliceScript.Functions;
 using AliceScript.Objects;
-using System.Xml.Linq;
 
 namespace AliceScript.NameSpaces
 {
@@ -27,7 +25,7 @@ namespace AliceScript.NameSpaces
         {
             Add(Utils.BindToNameSpace(type), name);
         }
-        public static void AddObj(Type type,string name = null)
+        public static void AddObj(Type type, string name = null)
         {
             var obj = Utils.CreateBindObject(type);
             if (name is null) { name = obj.Namespace; }

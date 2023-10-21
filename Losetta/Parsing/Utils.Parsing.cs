@@ -175,9 +175,11 @@ namespace AliceScript
 
                 int parentOffset = script.Pointer +
                     (script.CurrentClass is not null ? script.CurrentClass.ParentOffset : 0);
-                customFunc = new CustomFunction(funcName, body, args, script);
-                customFunc.ParentScript = script;
-                customFunc.ParentOffset = parentOffset;
+                customFunc = new CustomFunction(funcName, body, args, script)
+                {
+                    ParentScript = script,
+                    ParentOffset = parentOffset
+                };
 
             }
             return customFunc;
@@ -186,7 +188,7 @@ namespace AliceScript
         private static void SetPropertyFromStr(string token, Variable result, ParsingScript script,
             string funcName, CustomFunction customFunc)
         {
-            if (string.IsNullOrWhiteSpace(token) || (token[0] == '"' && token[token.Length - 1] != '"'))
+            if (string.IsNullOrWhiteSpace(token) || (token[0] == '"' && token[^1] != '"'))
             {
                 Utils.ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
             }
@@ -493,7 +495,7 @@ namespace AliceScript
         {
             if (script.Current != ':')
             {
-                return new string[0];
+                return Array.Empty<string>();
             }
             script.Forward();
 
@@ -551,7 +553,7 @@ namespace AliceScript
 
             string str = sb.ToString();
             char last = str.Length < 1 ? Constants.EMPTY : str.Last();
-            return (char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next)) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
+            return ((char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next))) || EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
         public static bool IsIgnoreChar(char ch)
@@ -1085,7 +1087,7 @@ namespace AliceScript
 
         private static string ConvertUnicodeLiteral(string input)
         {
-            if (input.Contains("\\", StringComparison.Ordinal) && (input.Contains("u", StringComparison.OrdinalIgnoreCase) || input.Contains("x", StringComparison.Ordinal)))
+            if (input.Contains('\\', StringComparison.Ordinal) && (input.Contains('u', StringComparison.OrdinalIgnoreCase) || input.Contains('x', StringComparison.Ordinal)))
             {
                 //UTF-16文字コードの置き換え
                 foreach (Match match in Constants.UTF16_LITERAL.Matches(input))

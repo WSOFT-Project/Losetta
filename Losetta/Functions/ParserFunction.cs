@@ -89,7 +89,7 @@ namespace AliceScript.Functions
             }
 
             m_impl = GetVariable(item, script, false, keywords);
-            if(keywords.Contains(Constants.NEW) && m_impl is ValueFunction vf && vf.Value.Object is TypeObject t)
+            if (keywords.Contains(Constants.NEW) && m_impl is ValueFunction vf && vf.Value.Object is TypeObject t)
             {
                 m_impl = new ConstructorFunction(t);
             }

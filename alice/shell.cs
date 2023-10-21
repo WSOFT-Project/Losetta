@@ -318,7 +318,7 @@ namespace AliceScript.CLI
                     continue;
                 }
 
-                if (commands.Count == 0 || !commands[commands.Count - 1].Equals(script))
+                if (commands.Count == 0 || !commands[^1].Equals(script))
                 {
                     commands.Add(script);
                 }
@@ -434,11 +434,9 @@ namespace AliceScript.CLI
                 {
                     result = System.Threading.Tasks.Task.Run(() =>
                   Interpreter.Instance.ProcessFileAsync(filename, true)).Result;
-                    //Interpreter.Instance.ProcessFile(filename, true)).Result;
                 }
                 else
                 {
-                    //Interpreter.Instance.ProcessAsync(script, filename)).Result;
                     CurrentScript = CurrentScript is null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
                     result = CurrentScript.Process();
                 }

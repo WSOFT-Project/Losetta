@@ -23,12 +23,10 @@ namespace AliceScript.Extra
                 throw new FileNotFoundException(null, filename);
             }
 
-            using (FileReader reader = new FileReader(file))
-            {
-                CharCode c = reader.Read(file);
-                charcode = c.Name;
-                return reader.Text;
-            }
+            using FileReader reader = new FileReader(file);
+            CharCode c = reader.Read(file);
+            charcode = c.Name;
+            return reader.Text;
         }
         /// <summary>
         /// ReadJEncを使用して、バイト配列から文字列を取得します
@@ -38,12 +36,10 @@ namespace AliceScript.Extra
         /// <returns>データ内の文字列</returns>
         public static string ReadAllText(byte[] data, out string charcode)
         {
-            using (FileReader reader = new FileReader(data))
-            {
-                CharCode c = reader.Read(data);
-                charcode = c.Name;
-                return reader.Text;
-            }
+            using FileReader reader = new FileReader(data);
+            CharCode c = reader.Read(data);
+            charcode = c.Name;
+            return reader.Text;
         }
     }
     /// <summary>

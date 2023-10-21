@@ -1,7 +1,4 @@
 ﻿using AliceScript.Functions;
-using System.Linq.Expressions;
-using System.Reflection;
-using static AliceScript.Binding.BindFunction;
 
 namespace AliceScript.Binding
 {
@@ -20,14 +17,9 @@ namespace AliceScript.Binding
         {
             if (Get is not null)
             {
-                if (Get.IsInstanceFunc)
-                {
-                    e.Value = new Variable(Get.InstanceObjFunc.Invoke(Parent?.Instance,new object[] { }));
-                }
-                else
-                {
-                    e.Value = new Variable(Get.ObjFunc.Invoke(new object[] { }));
-                }
+                e.Value = Get.IsInstanceFunc
+                    ? new Variable(Get.InstanceObjFunc.Invoke(Parent?.Instance, new object[] { }))
+                    : new Variable(Get.ObjFunc.Invoke(new object[] { }));
                 return;
             }
             throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
@@ -44,7 +36,7 @@ namespace AliceScript.Binding
                 {
                     if (Set.IsInstanceFunc)
                     {
-                        Set.InstanceVoidFunc.Invoke(Parent?.Instance,args);
+                        Set.InstanceVoidFunc.Invoke(Parent?.Instance, args);
                     }
                     else
                     {

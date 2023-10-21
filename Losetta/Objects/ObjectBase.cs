@@ -54,7 +54,7 @@ namespace AliceScript.Objects
                     return impl;
                 }
             }
-            var obase = (ObjectBase)this.MemberwiseClone();  //(ObjectBase)Activator.CreateInstance(GetType());
+            var obase = (ObjectBase)MemberwiseClone();  //(ObjectBase)Activator.CreateInstance(GetType());
             obase.Namespace = Namespace;
             return new Variable(obase);
         }
