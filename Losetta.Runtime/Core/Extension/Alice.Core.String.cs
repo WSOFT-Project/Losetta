@@ -274,6 +274,11 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.Length;
         }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static int Count(this string str)
+        {
+            return str.Length;
+        }
         #endregion
     }
 }
