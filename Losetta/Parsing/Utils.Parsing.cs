@@ -696,13 +696,13 @@ namespace AliceScript
                     case '*':
                         if (!inQuotes && inComments && next == '/')
                         {
-                            i++; // skip next character
+                            i++;
                             inComments = false;
                             continue;
                         }
                         break;
                     case '\'':
-                        if (!inComments && (!inIf || If) && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                        if (!inComments && (!inIf || If) && !inQuotes2)
                         {
                             ch = '"';
                             inQuotes = inQuotes1 = !inQuotes1;
@@ -717,7 +717,7 @@ namespace AliceScript
                     case '„':
                     case '"':
                         ch = '"';
-                        if (!inComments && (!inIf || If) && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                        if (!inComments && (!inIf || If) && !inQuotes1)
                         {
                             inQuotes = inQuotes2 = !inQuotes2;
                             if (inQuotes && prev == '"' && lineNumberQuote == 0)
@@ -805,7 +805,7 @@ namespace AliceScript
                         break;
                     case '\\':
                         {
-                            if (inQuotes)
+                            if (inQuotes2)
                             {
                                 i++;
                                 switch (next)
