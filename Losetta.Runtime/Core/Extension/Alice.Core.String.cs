@@ -223,6 +223,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.Substring(startIndex, length);
         }
+        public static bool Equals(this string str, string value)
+        {
+            return str.Equals(value);
+        }
         public static bool Equals(this string str, string value, bool ignoreCase)
         {
             return str.Equals(value, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
@@ -245,10 +249,6 @@ namespace AliceScript.NameSpaces.Core
         public static string Indent(this string str, int indentLevel, string indentChar = " ")
         {
             return Repeat(indentChar, indentLevel) + str;
-        }
-        public static bool Like(this string str, string pattern)
-        {
-            return new Regex(RegexFunctions.Regex_FromWildCard(pattern)).IsMatch(str);
         }
         public static byte[] GetBytes(this string str)
         {
