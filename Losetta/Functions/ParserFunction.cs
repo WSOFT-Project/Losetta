@@ -348,11 +348,6 @@ namespace AliceScript.Functions
 
         public static ParserFunction GetRegisteredAction(string name, ParsingScript script, ref string action)
         {
-            if (Constants.CheckReserved(name))
-            {
-                return null;
-            }
-
             if (false && ActionForUndefined(action) && script.Rest.StartsWith(Constants.UNDEFINED, StringComparison.Ordinal))
             {
                 IsUndefinedFunction undef = new IsUndefinedFunction(name, action);
