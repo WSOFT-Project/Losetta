@@ -1752,12 +1752,12 @@ namespace AliceScript
 
         public virtual double Value
         {
-            get => !m_value.HasValue ? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) : m_value.Value;
+            get => m_value ?? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) ;
             set { m_value = value; Type = VarType.NUMBER; }
         }
         public virtual bool Bool
         {
-            get => !m_bool.HasValue ? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) : m_bool.Value;
+            get => m_bool ?? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) ;
             set { m_bool = value; Type = VarType.BOOLEAN; }
         }
         public virtual string String

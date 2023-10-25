@@ -14,7 +14,7 @@ namespace AliceScript.NameSpaces
 
             NameSpace space = new NameSpace("Alice.Diagnostics");
 
-            space.Add(new StopWatchObject());
+            space.Add<Stopwatch>();
             space.Add<ProcessObject>();
 
             space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
@@ -209,6 +209,36 @@ namespace AliceScript.NameSpaces
             Interpreter.Instance.AppendDebug(output);
         }
         #endregion
+        #region アサーション関連
+        public static void Assert(bool condition)
+        {
+            if (!condition)
+            {
+                throw new ScriptException("アサーションが失敗しました", Exceptions.ASSERTION_ERROR);
+            }
+        }
+        public static void Assert(bool condition, string message)
+        {
+            if (!condition)
+            {
+                throw new ScriptException(message, Exceptions.ASSERTION_ERROR);
+            }
+        }
+        public static void AssertEqual(Variable expected, Variable actual)
+        {
+            if (!expected.Equals(actual))
+            {
+                throw new ScriptException("アサーションが失敗しました", Exceptions.ASSERTION_ERROR);
+            }
+        }
+        public static void AssertEqual(Variable expected, Variable actual, string message)
+        {
+            if (!expected.Equals(actual))
+            {
+                throw new ScriptException(message, Exceptions.ASSERTION_ERROR);
+            }
+        }
+        #endregion
     }
 
     [AliceObject(Name = "Process")]
@@ -295,166 +325,5 @@ namespace AliceScript.NameSpaces
             Process.StandardInput.Flush();
         }
         public ProcessStartInfo ProcessStartInfo => Process.StartInfo;
-    }
-
-
-    internal sealed class StopWatchObject : ObjectBase
-    {
-        public StopWatchObject()
-        {
-            Name = "stopwatch";
-            AddFunction(new STWOFunc(this, 0), "start");
-            AddFunction(new STWOFunc(this, 1), "stop");
-            AddFunction(new STWOFunc(this, 2), "reset");
-            AddFunction(new STWOFunc(this, 3), "restart");
-            AddFunction(new ElapsedProperty(stopwatch));
-            AddFunction(new ElapsedMillisecondsProperty(stopwatch));
-            AddFunction(new ElapsedTicksProperty(stopwatch));
-            AddFunction(new FrequencyProperty(stopwatch));
-            AddFunction(new IsHighResolutionProperty(stopwatch));
-            AddFunction(new IsRunningProperty(stopwatch));
-        }
-
-
-        private Stopwatch stopwatch = new Stopwatch();
-
-        private class ElapsedProperty : ValueFunction
-        {
-            public ElapsedProperty(Stopwatch stopwatch)
-            {
-                Name = "elapsed";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += ElapsedProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.Elapsed);
-            }
-        }
-
-        private class ElapsedMillisecondsProperty : ValueFunction
-        {
-            public ElapsedMillisecondsProperty(Stopwatch stopwatch)
-            {
-                Name = "elapsedmilliseconds";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += ElapsedProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.ElapsedMilliseconds);
-            }
-        }
-
-        private class ElapsedTicksProperty : ValueFunction
-        {
-            public ElapsedTicksProperty(Stopwatch stopwatch)
-            {
-                Name = "elapsedticks";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += ElapsedProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.ElapsedTicks);
-            }
-        }
-
-        private class IsRunningProperty : ValueFunction
-        {
-            public IsRunningProperty(Stopwatch stopwatch)
-            {
-                Name = "isrunning";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += IsRunningProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.IsRunning);
-            }
-        }
-
-        private class IsHighResolutionProperty : ValueFunction
-        {
-            public IsHighResolutionProperty(Stopwatch stopwatch)
-            {
-                Name = "ishighresolution";
-                CanSet = false;
-                HandleEvents = true;
-                Getting += IsRunningProperty_Getting;
-            }
-            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.IsHighResolution);
-            }
-        }
-
-        private class FrequencyProperty : ValueFunction
-        {
-            public FrequencyProperty(Stopwatch stopwatch)
-            {
-                Name = "frequency";
-                CanSet = false;
-                HandleEvents = true;
-                Getting += IsRunningProperty_Getting;
-            }
-            private void IsRunningProperty_Getting(object sender, ValueFunctionEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.Frequency);
-            }
-        }
-
-        private class STWOFunc : FunctionBase
-        {
-            public STWOFunc(StopWatchObject sto, int mode)
-            {
-                Host = sto;
-                Mode = mode;
-                Run += STWOFunc_Run;
-            }
-
-            private void STWOFunc_Run(object sender, FunctionBaseEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case 0:
-                        {
-                            Host.stopwatch.Start();
-                            break;
-                        }
-                    case 1:
-                        {
-                            Host.stopwatch.Stop();
-                            break;
-                        }
-                    case 2:
-                        {
-                            Host.stopwatch.Reset();
-                            break;
-                        }
-                    case 3:
-                        {
-                            Host.stopwatch.Restart();
-                            break;
-                        }
-                }
-            }
-
-            private StopWatchObject Host;
-            private int Mode = 0;
-        }
-
     }
 }

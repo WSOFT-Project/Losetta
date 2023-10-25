@@ -278,5 +278,9 @@
         /// 不明なエスケープ文字です
         /// </summary>
         UNKNOWN_ESCAPE_CHAR = 0x04b,
+        /// <summary>
+        /// アサーションが失敗しました
+        /// </summary>
+        ASSERTION_ERROR = 0x04c,
     }
 }
