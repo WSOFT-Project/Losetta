@@ -1,6 +1,4 @@
 ﻿using AliceScript.Binding;
-using AliceScript.Functions;
-using AliceScript.Objects;
 using System.Diagnostics;
 using System.Text;
 
