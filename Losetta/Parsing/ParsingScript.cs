@@ -919,7 +919,7 @@ namespace AliceScript.Parsing
         {
             bool isList;
             List<Variable> args = Utils.GetArgs(this,
-                                                start, end, (outList) => { isList = outList; }, callFrom);
+                                                start, end, (outList) => { isList = outList; }, callFrom,false);
             return args;
         }
         public int GoToNextStatement()
@@ -1006,6 +1006,16 @@ namespace AliceScript.Parsing
                 case IndexOutOfRangeException indexOutOfRangeExc:
                     {
                         OnThrowError(indexOutOfRangeExc, "インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
+                        return;
+                    }
+                case ArgumentNullException argumentNullExc:
+                    {
+                        OnThrowError(argumentNullExc, "そのパラメーターはnullをとることができません", Exceptions.VARIABLE_IS_NULL, argumentNullExc.Source);
+                        return;
+                    }
+                case NullReferenceException nullReferenceExc:
+                    {
+                        OnThrowError(nullReferenceExc, "nullの値を参照しようとしました", Exceptions.VARIABLE_IS_NULL, nullReferenceExc.Source);
                         return;
                     }
                 default:

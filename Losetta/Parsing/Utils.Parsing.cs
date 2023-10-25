@@ -59,7 +59,7 @@ namespace AliceScript
             try
             {
                 value.Tuple = new VariableCollection();
-                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }, null));
+                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }, null, true));
             }
             finally
             {
@@ -358,7 +358,7 @@ namespace AliceScript
             }
         }
         public static List<Variable> GetArgs(ParsingScript script,
-            char start, char end, Action<bool> outList, FunctionBase callFrom)
+            char start, char end, Action<bool> outList, FunctionBase callFrom, bool arrayMode)
         {
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
@@ -372,7 +372,7 @@ namespace AliceScript
 
             if (script.Current != start && script.TryPrev() != start &&
                (script.Current == ' ' || script.TryPrev() == ' '))
-            { // Allow functions with space separated arguments
+            { // 引数がスペースで区切られている場合
                 start = ' ';
                 end = Constants.END_STATEMENT;
             }
@@ -380,13 +380,27 @@ namespace AliceScript
 #pragma warning disable 219
             string body = Utils.GetBodyBetween(tempScript, start, end, "\0", false);
 #pragma warning restore 219
-            // After the statement above tempScript.Parent will point to the last
-            // character belonging to the body between start and end characters. 
+            // 本文の最後の文字まで移動
 
             while (script.Pointer < tempScript.Pointer)
             {
+                bool spread = false;
+                // スプレッド構文かどうかを判定
+                if (arrayMode && script.Current == '.' && script.Next == '.' && script.NextNext == '.' && script.TryNext(3) != '.')
+                {
+                    spread = true;
+                    script.Forward(3);
+                }
                 Variable item = Utils.GetItem(script, false);
-                args.Add(item);
+                if (spread)
+                {
+                    // スプレッド構文なら展開
+                    args.AddRange(item.Tuple);
+                }
+                else
+                {
+                    args.Add(item);
+                }
                 if (script.Pointer < tempScript.Pointer)
                 {
                     script.MoveForwardIf(Constants.END_GROUP);
@@ -400,13 +414,11 @@ namespace AliceScript
 
             if (script.Pointer <= tempScript.Pointer)
             {
-                // Eat closing parenthesis, if there is one, but only if it closes
-                // the current argument list, not one after it. 
+                // 閉じかっこがあるなら、そのかっこ分前に進める
                 script.MoveForwardIf(Constants.END_ARG, end);
             }
 
             script.MoveForwardIf(Constants.SPACE);
-            //script.MoveForwardIf(Constants.SPACE, Constants.END_STATEMENT);
             outList(isList);
             return args;
         }
