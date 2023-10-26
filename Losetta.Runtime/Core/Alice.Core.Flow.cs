@@ -487,6 +487,53 @@ namespace AliceScript.NameSpaces.Core
             return;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static void NameSpace(ParsingScript script)
+        {
+            string spaceName = Utils.GetToken(script, Constants.TOKEN_SEPARATION).ToLowerInvariant();
+
+            if (script.Current == Constants.START_GROUP)
+            {
+                // 名前空間ブロック
+                ParsingScript block = script.GetBlock();
+
+                if (NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space))
+                {
+                    block.NameSpace = space;
+                }
+                else
+                {
+                    space = new NameSpace();
+                    space.Name = spaceName;
+                    block.NameSpace = space;
+                    NameSpaceManager.Add(space);
+                }
+
+                block.Process();
+            }
+            else
+            {
+                // スコープ名前空間
+                if(script.NameSpace is null)
+                {
+                    if (NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space))
+                    {
+                        script.NameSpace = space;
+                    }
+                    else
+                    {
+                        space = new NameSpace();
+                        space.Name = spaceName;
+                        script.NameSpace = space;
+                        NameSpaceManager.Add(space);
+                    }
+                }
+                else
+                {
+
+                }
+            }
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static void GoSub(ParsingScript script, BindFunction func)
         {
             Goto(script, func);

@@ -43,6 +43,8 @@ namespace AliceScript
             }
         }
 
+        public NameSpace GlobalNameSpace => NameSpaceManager.Get(Constants.TOP_NAMESPACE);
+
         public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
 
@@ -129,15 +131,16 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
-            NameSpaceManager.Add(new NameSpace(Constants.TOP_NAMESPACE));
+            NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
+            space.Add(new ClassCreator());
+            space.Add(new FunctionCreator());
+            space.Add(new EnumFunction());
+            space.Add(new ArrayTypeFunction());
+            space.Add(new ExternFunctionCreator());
+            space.Add(new LibImportFunction());
+            space.Add(new NetImportFunction());
 
-            FunctionBaseManager.Add(new ClassCreator());
-            FunctionBaseManager.Add(new FunctionCreator());
-            FunctionBaseManager.Add(new EnumFunction());
-            FunctionBaseManager.Add(new ArrayTypeFunction());
-            FunctionBaseManager.Add(new ExternFunctionCreator());
-            FunctionBaseManager.Add(new LibImportFunction(), "", null, true, true);
-            FunctionBaseManager.Add(new NetImportFunction(), "", null, true, true);
+            NameSpaceManager.Add(space);
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }

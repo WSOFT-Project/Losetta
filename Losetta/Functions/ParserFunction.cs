@@ -563,7 +563,7 @@ namespace AliceScript.Functions
                 //完全修飾名で関数を検索
                 if (namespacename.Length > 0)
                 {
-                    fc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
+                    fc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Key.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault().Value;
                     if (fc is not null)
                     {
                         if (fc is FunctionBase fb)
@@ -593,7 +593,7 @@ namespace AliceScript.Functions
         {
             foreach (var nm in script.UsingNamespaces)
             {
-                var fc = nm.Functions.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                var fc = nm.Functions.Where((x) => x.Key.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value;
                 if (fc is not null)
                 {
                     return fc;
@@ -649,11 +649,6 @@ namespace AliceScript.Functions
 
             function.Name = Constants.GetRealName(name);
             function.Value.ParamName = function.Name;
-
-            if (globalOnly)
-            {
-                script = ParsingScript.GetTopLevelScript(script);
-            }
 
             bool type_inference = script.TypeInference;
             NormalizeValue(function);
@@ -717,7 +712,15 @@ namespace AliceScript.Functions
                 }
                 newVar.Readonly = isReadOnly;
                 function = value;
-                script.Variables[name] = function;
+
+                if (globalOnly)
+                {
+                    script.NameSpace.Functions[name] = function as FunctionBase;
+                }
+                else
+                {
+                    script.Variables[name] = function;
+                }
             }
         }
 
@@ -785,30 +788,18 @@ namespace AliceScript.Functions
                 throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
             }
         }
-        public static void RegisterScriptFunction(string name, ParserFunction function, ParsingScript script, bool isNative = true, bool isLocal = true)
+        public static void RegisterScriptFunction(string name, ParserFunction function, ParsingScript script)
         {
             name = Constants.ConvertName(name);
             function.Name = Constants.GetRealName(name);
 
-            if (isLocal && (!FunctionExists(name, script, out ParserFunction impl, true) || impl.IsVirtual))
+            if (!FunctionExists(name, script, out ParserFunction impl, true) || impl.IsVirtual)
             {
                 //ローカル関数でまだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 script.Functions[name] = function;
-                function.isNative = isNative;
                 if (impl is not null)
                 {
                     impl.IsVirtual = true;
-                }
-            }
-            else if (!isLocal && (!s_functions.ContainsKey(name) || (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)))
-            {
-                //まだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
-                s_functions[name] = function;
-                function.isNative = isNative;
-                if (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)
-                {
-                    //オーバーライドした関数にもVirtual属性を引き継ぐ
-                    function.IsVirtual = true;
                 }
             }
             else

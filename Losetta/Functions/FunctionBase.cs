@@ -255,11 +255,15 @@ namespace AliceScript.Functions
             {
                 Utils.CheckLegalName(fname);
             }
-            if (script is null || isGlobal)
+            script ??= ParsingScript.GetTopLevelScript(script);
+            if (isGlobal)
             {
-                script = ParsingScript.GetTopLevelScript(script);
+                script.NameSpace.Add(func,true);
             }
-            ParserFunction.RegisterScriptFunction(fname, func, script);
+            else
+            {
+                ParserFunction.RegisterScriptFunction(fname, func, script);
+            }
             if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
             {
                 Constants.FUNCT_WITH_SPACE_ONCE.Add(fname);

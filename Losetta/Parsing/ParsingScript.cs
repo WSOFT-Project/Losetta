@@ -20,6 +20,7 @@ namespace AliceScript.Parsing
         private int m_scriptOffset = 0; // 大きなスクリプトで定義された関数で使用されます
         private int m_generation = 1;   // スクリプトの世代
         private object m_tag;           // 現在のスクリプトに関連付けられたオブジェクト。これは多用途で使用されます
+        private NameSpace m_namespace;    // 現在のスクリプトが直接所属する名前空間
         private AlicePackage m_package = null;//現在のスクリプトが実行されているパッケージ
         private HashSet<string> m_defines = new HashSet<string>();// 現在のスクリプトで宣言されたシンボル
         private static readonly ParsingScript m_toplevel_script = new ParsingScript("", 0, null);// 最上位のスクリプト
@@ -29,7 +30,7 @@ namespace AliceScript.Parsing
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
-        private HashSet<NameSpace> m_namespace = new HashSet<NameSpace>();
+        private HashSet<NameSpace> m_namespaces = new HashSet<NameSpace>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
 
@@ -99,8 +100,8 @@ namespace AliceScript.Parsing
         /// </summary>
         public HashSet<NameSpace> UsingNamespaces
         {
-            get => m_namespace;
-            set => m_namespace = value;
+            get => m_namespaces;
+            set => m_namespaces = value;
         }
         /// <summary>
         /// このスクリプトに関連付けられたオブジェクトです
@@ -518,6 +519,18 @@ namespace AliceScript.Parsing
 
         public bool DisableBreakpoints;
         public string MainFilename;
+
+        public NameSpace NameSpace
+        {
+            get
+            {
+                return m_namespace ?? (!TopInFile && ParentScript is not null ? ParentScript.NameSpace : Interpreter.Instance.GlobalNameSpace);
+            }
+            set
+            {
+                m_namespace = value;
+            }
+        }
 
         /// <summary>
         /// このスクリプトの親
@@ -1234,9 +1247,16 @@ namespace AliceScript.Parsing
         /// <returns>ブロックの値</returns>
         public Variable ProcessBlock()
         {
+            return GetBlock().Process();
+        }
+        /// <summary>
+        /// 波かっこで始まって終わるブロックを取得します
+        /// </summary>
+        /// <returns>ブロックを表すスクリプト</returns>
+        public ParsingScript GetBlock()
+        {
             string body = Utils.GetBodyBetween(this, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-            ParsingScript mainScript = GetTempScript(body);
-            return mainScript.Process();
+            return GetTempScript(body);
         }
         /// <summary>
         /// 現在のスクリプトから、子スクリプトを作成します

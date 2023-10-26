@@ -1,5 +1,6 @@
 ﻿using AliceScript.Functions;
 using AliceScript.Objects;
+using System.Xml.Linq;
 
 namespace AliceScript.NameSpaces
 {
@@ -42,7 +43,11 @@ namespace AliceScript.NameSpaces
         }
         public static bool Contains(string name)
         {
-            return NameSpaces.ContainsKey(name);
+            return NameSpaces.ContainsKey(name.ToLowerInvariant());
+        }
+        public static NameSpace Get(string name)
+        {
+            return NameSpaces.TryGetValue(name.ToLowerInvariant(),out var value) ? value : null;
         }
     }
     public class NameSpace
@@ -56,19 +61,29 @@ namespace AliceScript.NameSpaces
             Name = name;
         }
         public string Name { get; set; }
-        public List<FunctionBase> Functions = new List<FunctionBase>();
+        public Dictionary<string,FunctionBase> Functions = new Dictionary<string,FunctionBase>();
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
-        public void Add(FunctionBase func)
+        public void Add(FunctionBase func,bool throwError = false)
         {
             func.RelatedNameSpace = Name;
-            Functions.Add(func);
+            if (!Functions.TryGetValue(func.Name,out var f) || f.IsVirtual)
+            {
+                Functions[func.Name] = func;
+                if(f is not null)
+                {
+                    f.IsVirtual = true;
+                }
+            }else if (throwError)
+            {
+                throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+            }
         }
         public void Add(ObjectBase obj)
         {
             obj.Namespace = Name;
             var func = new ValueFunction(new Variable(new TypeObject(obj)));
             func.Name = obj.Name;
-            Functions.Add(func);
+            Add(func);
         }
         public void Add<T>()
         {
@@ -86,7 +101,7 @@ namespace AliceScript.NameSpaces
         /// <param name="other">マージする名前空間</param>
         public void Merge(NameSpace other)
         {
-            Functions = Functions.Union(other.Functions).ToList();
+            Functions = Functions.Union(other.Functions).ToDictionary(x => x.Key , y => y.Value);
         }
     }
 

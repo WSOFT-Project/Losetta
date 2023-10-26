@@ -134,7 +134,7 @@ namespace AliceScript.Objects
                 //完全修飾名で関数を検索
                 if (!string.IsNullOrEmpty(namespacename))
                 {
-                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.EndsWith(x.Name.ToLowerInvariant(), StringComparison.Ordinal) && x is ValueFunction v && v.Value.Object is ObjectBase).FirstOrDefault();
+                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.EndsWith(x.Key.ToLowerInvariant(), StringComparison.Ordinal) && x.Value is ValueFunction v && v.Value.Object is ObjectBase).FirstOrDefault().Value;
                     if (cfc is not null)
                     {
                         return (cfc as ValueFunction).Value.Object as ObjectBase;
