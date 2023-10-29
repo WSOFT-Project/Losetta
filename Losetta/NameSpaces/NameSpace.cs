@@ -7,7 +7,7 @@ namespace AliceScript.NameSpaces
 
     public static class NameSpaceManager
     {
-        public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>();
+        public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>(StringComparer.OrdinalIgnoreCase);
         public static void Add(NameSpace space, string name = null)
         {
             if (name is null) { name = space.Name; }
@@ -61,14 +61,14 @@ namespace AliceScript.NameSpaces
             Name = name;
         }
         public string Name { get; set; }
-        public Dictionary<string,FunctionBase> Functions = new Dictionary<string,FunctionBase>();
+        public Dictionary<string,FunctionBase> Functions = new Dictionary<string,FunctionBase>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
         public void Add(FunctionBase func,bool throwError = false)
         {
             func.RelatedNameSpace = Name;
             if (!Functions.TryGetValue(func.Name,out var f) || f.IsVirtual)
             {
-                Functions[func.Name] = func;
+                Functions[func.Name.ToLowerInvariant()] = func;
                 if(f is not null)
                 {
                     f.IsVirtual = true;

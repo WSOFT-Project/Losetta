@@ -71,10 +71,6 @@ namespace AliceScript.NameSpaces
         {
             return NameSpaceManager.NameSpaces.Keys;
         }
-        public static IEnumerable<string> Interpreter_GlobalVariables()
-        {
-            return ParserFunction.s_variables.Keys;
-        }
         public static IEnumerable<string> Interpreter_Consts()
         {
             return Constants.CONSTS.Keys;

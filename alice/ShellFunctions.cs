@@ -11,7 +11,6 @@ namespace AliceScript.CLI
         public static void Dump(ParsingScript script)
         {
             Shell.DumpLocalVariables(script);
-            Shell.DumpGlobalVariables();
         }
         public static void Init()
         {

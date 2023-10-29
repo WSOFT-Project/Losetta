@@ -254,33 +254,24 @@ namespace AliceScript.Functions
             {
                 name = script.ClassInstance.InstanceName + "." + name;
             }
-            //int ind = name.LastIndexOf('.');
-            int ind = name.IndexOf('.', StringComparison.Ordinal);
+            int ind = name.LastIndexOf('.');
             if (ind <= 0)
             {
                 return null;
             }
             string baseName = name.Substring(0, ind);
-            if (s_namespaces.ContainsKey(baseName))
-            {
-                int ind2 = name.IndexOf('.', ind + 1);
-                if (ind2 > 0)
-                {
-                    ind = ind2;
-                    baseName = name.Substring(0, ind);
-                }
-            }
 
             string prop = name.Substring(ind + 1);
 
+            /*
             ParserFunction pf = GetFromNamespace(prop, baseName, script);
             if (pf is not null)
             {
                 pf.Keywords = keywords;
                 return pf;
-            }
+            }*/
 
-            pf = GetVariable(baseName, script, true);
+            ParserFunction pf = GetVariable(baseName, script, true);
             if (pf is null || !(pf is ValueFunction))
             {
                 pf = GetFunction(baseName, script);
@@ -418,7 +409,6 @@ namespace AliceScript.Functions
 
             var vars = level.Variables;
             if (!vars.TryGetValue(name, out ParserFunction impl) &&
-                !s_variables.TryGetValue(name, out impl) &&
                 !s_functions.TryGetValue(name, out impl)
                 )
             {
@@ -453,17 +443,7 @@ namespace AliceScript.Functions
                 }
             }
             //ローカルスコープに存在するか確認
-            string scopeName = script is null || script.Filename is null ? "" : script.Filename;
-            impl = GetLocalScopeVariable(name, scopeName);
-            if (impl is not null)
-            {
-                return impl;
-            }
             if (script is not null && script.TryGetVariable(name, out impl))
-            {
-                return impl.NewInstance();
-            }
-            if (s_variables.TryGetValue(name, out impl))
             {
                 return impl.NewInstance();
             }
@@ -516,7 +496,7 @@ namespace AliceScript.Functions
                     return impl.NewInstance();
                 }
             }
-            if (script.TryGetVariable(name, out impl) || s_variables.TryGetValue(name, out impl))
+            if (script.TryGetVariable(name, out impl))
             {
                 //それがデリゲート型の変数である場合
                 if (!wantMethod && impl is ValueFunction gv && gv.Value.Type == Variable.VarType.DELEGATE && !gv.Value.IsNull())
@@ -525,81 +505,65 @@ namespace AliceScript.Functions
                 }
             }
 
-            var fc = GetFromNS(name, script);
-            if (fc is not null)
+            FunctionBase func = GetFromNamespcaeName(name);
+            if (func is not null)
             {
-                if (fc is FunctionBase fb)
+                if (wantMethod && func.IsMethod)
                 {
-                    if (wantMethod && fb.IsMethod)
-                    {
-                        return fc.NewInstance();
-                    }
-                    else if (!fb.IsMethod || !fb.MethodOnly)
-                    {
-                        return fb.NewInstance();
-                    }
+                    return func.NewInstance();
                 }
-                else
+                else if (!func.IsMethod || !func.MethodOnly)
                 {
-                    return fc.NewInstance();
+                    return func.NewInstance();
                 }
             }
 
-            //ちょっとでも高速化（ここのロジックは時間がかかる）
-            if (name.Contains("."))
+            func = GetFromUsingNamespace(name, script);
+            if (func is not null)
             {
-                string namespacename = string.Empty;
-
-                foreach (var ns in NameSpaceManager.NameSpaces)
+                if (wantMethod && func.IsMethod)
                 {
-                    var nsn = ns.Key.ToLowerInvariant();
-                    //より長い名前（AliceとAlice.IOならAlice.IO）を採用
-                    if (name.StartsWith(nsn + ".", StringComparison.Ordinal) && nsn.Length > namespacename.Length)
-                    {
-                        namespacename = nsn;
-                    }
+                    return func.NewInstance();
                 }
-
-                //完全修飾名で関数を検索
-                if (namespacename.Length > 0)
+                else if (!func.IsMethod || !func.MethodOnly)
                 {
-                    fc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.StartsWith(namespacename + "." + x.Key.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault().Value;
-                    if (fc is not null)
-                    {
-                        if (fc is FunctionBase fb)
-                        {
-                            if (wantMethod && fb.IsMethod)
-                            {
-                                return fc.NewInstance();
-                            }
-                            else if (!fb.IsMethod || !fb.MethodOnly)
-                            {
-                                return fb.NewInstance();
-                            }
-                        }
-                        else
-                        {
-                            return fc.NewInstance();
-                        }
-                    }
+                    return func.NewInstance();
                 }
             }
+
             string className = Constants.ConvertName(name);
 
             var csClass = AliceScriptClass.GetClass(className, script);
             return csClass is not null ? new ValueFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
         }
-        internal static ParserFunction GetFromNS(string name, ParsingScript script)
+        internal static FunctionBase GetFromNamespcaeName(string name)
         {
-            foreach (var nm in script.UsingNamespaces)
+            int ind = name.LastIndexOf('.');
+            string spaceName = string.Empty;
+            if(ind > 0)
             {
-                var fc = nm.Functions.Where((x) => x.Key.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value;
-                if (fc is not null)
+                spaceName = name.Substring(0, ind);
+            }
+            string funcName = name.Substring(ind + 1);
+            return NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space) && space.Functions.TryGetValue(funcName, out var func)
+                ? func
+                : null;
+        }
+        internal static FunctionBase GetFromUsingNamespace(string name, ParsingScript script)
+        {
+            foreach (string spaceName in script.UsingNamespaces)
+            {
+                var func = GetFromNamespcaeName(spaceName + "." + name);
+                if (func is not null)
                 {
-                    return fc;
+                    return func;
                 }
             }
-            return script.ParentScript is not null ? GetFromNS(name, script.ParentScript) : null;
+            if(!script.TopInFile && script.ParentScript is not null)
+            {
+                return GetFromUsingNamespace(name,script.ParentScript);
+            }
+            return null;
         }
         public static ActionFunction GetAction(string action)
         {
@@ -715,7 +679,7 @@ namespace AliceScript.Functions
 
                 if (globalOnly)
                 {
-                    script.NameSpace.Functions[name] = function as FunctionBase;
+                    script.NameSpace.Functions[name] = function;
                 }
                 else
                 {
@@ -727,7 +691,7 @@ namespace AliceScript.Functions
         public static bool TryGetGlobal(string name, out ParserFunction function, bool continueConst = false)
         {
             name = Constants.ConvertName(name);
-            if (s_variables.TryGetValue(name, out function) || s_functions.TryGetValue(name, out function))
+            if (s_functions.TryGetValue(name, out function))
             {
                 return true;
             }
@@ -820,11 +784,6 @@ namespace AliceScript.Functions
             return removed;
         }
 
-        public static bool RemoveGlobal(string name)
-        {
-            name = Constants.ConvertName(name);
-            return s_variables.Remove(name);
-        }
 
         private static void NormalizeValue(ParserFunction function)
         {
@@ -834,31 +793,10 @@ namespace AliceScript.Functions
                 gvf.Value.CurrentAssign = "";
             }
         }
-        private static ParserFunction GetLocalScopeVariable(string name, string scopeName)
-        {
-            scopeName = Path.GetFileName(scopeName);
-            if (!s_localScope.TryGetValue(scopeName, out Dictionary<string, ParserFunction> localScope))
-            {
-                return null;
-            }
-
-            name = Constants.ConvertName(name);
-            localScope.TryGetValue(name, out ParserFunction function);
-            return function;
-        }
 
         public static void AddAction(string name, ActionFunction action)
         {
             s_actions[name] = action;
-        }
-
-
-        public static int GetCurrentStackLevel()
-        {
-            lock (s_variables)
-            {
-                return s_locals.Count;
-            }
         }
 
         public Variable GetValue(ParsingScript script)
@@ -899,9 +837,7 @@ namespace AliceScript.Functions
 
         public static void CleanUpVariables()
         {
-            s_variables.Clear();
             s_locals.Clear();
-            s_localScope.Clear();
             s_namespaces.Clear();
             s_namespace = s_namespacePrefix = "";
         }
@@ -924,15 +860,9 @@ namespace AliceScript.Functions
         // Global functions:
         public static Dictionary<string, ParserFunction> s_functions = new Dictionary<string, ParserFunction>();
 
-        // Global variables:
-        public static Dictionary<string, ParserFunction> s_variables = new Dictionary<string, ParserFunction>();
-
         // Global actions to functions map:
         private static Dictionary<string, ActionFunction> s_actions = new Dictionary<string, ActionFunction>();
 
-        // Local scope variables:
-        private static Dictionary<string, Dictionary<string, ParserFunction>> s_localScope =
-           new Dictionary<string, Dictionary<string, ParserFunction>>();
 
         public static bool IsNumericFunction(string paramName, ParsingScript script = null)
         {

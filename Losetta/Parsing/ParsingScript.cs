@@ -30,7 +30,7 @@ namespace AliceScript.Parsing
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
-        private HashSet<NameSpace> m_namespaces = new HashSet<NameSpace>();
+        private HashSet<string> m_namespaces = new HashSet<string>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
 
@@ -98,7 +98,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// このスクリプトでusingされた名前空間の一覧
         /// </summary>
-        public HashSet<NameSpace> UsingNamespaces
+        public HashSet<string> UsingNamespaces
         {
             get => m_namespaces;
             set => m_namespaces = value;
@@ -594,7 +594,7 @@ namespace AliceScript.Parsing
             name = name.ToLowerInvariant();
             if (NameSpaceManager.Contains(name))
             {
-                UsingNamespaces.Add(NameSpaceManager.NameSpaces[name]);
+                UsingNamespaces.Add(name);
             }
             else if (!whenPossible)
             {

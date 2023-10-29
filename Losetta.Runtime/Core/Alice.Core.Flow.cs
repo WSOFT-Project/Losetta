@@ -574,7 +574,6 @@ namespace AliceScript.NameSpaces.Core
         public static Variable Try(ParsingScript script, BindFunction func)
         {
             int startTryCondition = script.Pointer - 1;
-            int currentStackLevel = ParserFunction.GetCurrentStackLevel();
 
             Variable result = null;
 

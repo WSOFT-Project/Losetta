@@ -182,58 +182,7 @@ namespace AliceScript.CLI
                 Console.WriteLine(print);
             }
         }
-        public static void DumpGlobalVariables()
-        {
-            Dictionary<string, ParserFunction> dic = ParserFunction.s_variables;
-            if (dic.Count <= 0)
-            {
-                return;
-            }
-            List<string> names = new List<string>();
-            List<string> types = new List<string>();
-            List<string> contents = new List<string>();
-            int namemax = 4;
-            int typemax = 4;
-            int contentmax = 7;
-            names.Add("Name");
-            types.Add("Type");
-            contents.Add("Content");
-            foreach (string s in dic.Keys)
-            {
-                try
-                {
-                    if (dic[s] is ValueFunction vf)
-                    {
-                        names.Add(s);
-                        if (s.Length > namemax)
-                        {
-                            namemax = s.Length;
-                        }
-                        string type = vf.Value.Type.ToString();
-                        types.Add(type);
-                        if (type.Length > typemax)
-                        {
-                            typemax = type.Length;
-                        }
-                        string content = vf.Value.AsString();
-                        contents.Add(content);
-                        if (content.Length > contentmax)
-                        {
-                            contentmax = content.Length;
-                        }
-                    }
-                }
-                catch { }
-            }
-            for (int i = 0; i < names.Count; i++)
-            {
-                string print = "|Global|";
-                print += Centering(names[i], namemax + 2) + "|";
-                print += Centering(types[i], typemax + 2) + "|";
-                print += Centering(contents[i], contentmax + 2) + "|";
-                Console.WriteLine(print);
-            }
-        }
+        
         private static void SplitByLast(string str, string sep, ref string a, ref string b)
         {
             int it = str.LastIndexOfAny(sep.ToCharArray());

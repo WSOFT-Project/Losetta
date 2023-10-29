@@ -32,11 +32,12 @@ namespace AliceScript
             {
                 if (m.IsPublic && m.IsStatic && !m.IsDefined(typeof(CompilerGeneratedAttribute)))
                 {
-                    if (!methods.ContainsKey(m.Name))
+                    string methodName = m.Name.ToLowerInvariant();
+                    if (!methods.ContainsKey(methodName))
                     {
-                        methods[m.Name] = new HashSet<MethodInfo>();
+                        methods[methodName] = new HashSet<MethodInfo>();
                     }
-                    methods[m.Name].Add(m);
+                    methods[methodName].Add(m);
                 }
             }
             foreach (HashSet<MethodInfo> mi in methods.Values)
