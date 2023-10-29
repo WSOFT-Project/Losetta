@@ -1,7 +1,6 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -135,17 +134,50 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.PadLeft(totalWidth);
         }
-        public static string PadLeft(this string str, int totalWidth, string chars)
+        public static string PadLeft(this string str, int totalWidth, char paddingChar)
         {
-            return str.PadLeft(totalWidth, chars.ToArray()[0]);
+            return str.PadLeft(totalWidth, paddingChar);
         }
         public static string PadRight(this string str, int totalWidth)
         {
             return str.PadRight(totalWidth);
         }
-        public static string PadRight(this string str, int totalWidth, string chars)
+        public static string PadRight(this string str, int totalWidth, char paddingChar)
         {
-            return str.PadRight(totalWidth, chars.ToArray()[0]);
+            return str.PadRight(totalWidth, paddingChar);
+        }
+        public static string PadCenter(this string str, int totalWidth, bool padRight = false, bool truncate = false)
+        {
+            return PadCenter(str, totalWidth, Constants.SPACE, padRight);
+        }
+        public static string PadCenter(this string str, int totalWidth, char paddingChar, bool padRight = false, bool truncate = false)
+        {
+            long length = (totalWidth - str.Length) / 2;
+            long surplus = totalWidth - str.Length - length;
+            if (padRight)
+            {
+                // 割り切れないとき右寄せ指定の場合はスワップ
+                (length, surplus) = (surplus, length);
+            }
+            var sb = new StringBuilder();
+            for (int i = 0; i < length; i++)
+            {
+                sb.Append(paddingChar);
+            }
+            if (truncate && str.Length > totalWidth)
+            {
+                // 文字列がtotalWidthより長い場合は切り詰め
+                sb.Append(str.AsSpan().Slice(0, totalWidth));
+            }
+            else
+            {
+                sb.Append(str);
+            }
+            for (int i = 0; i < surplus; i++)
+            {
+                sb.Append(paddingChar);
+            }
+            return sb.ToString();
         }
         public static string Format(this string str, params Variable[] args)
         {
