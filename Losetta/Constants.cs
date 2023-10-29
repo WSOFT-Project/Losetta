@@ -64,6 +64,7 @@ namespace AliceScript
         public const string EXPONENTIATION = "**";
         public const string LEFT_SHIFT = "<<";
         public const string RIGHT_SHIFT = ">>";
+        public const string SPREAD = "...";
 
         public const string BREAK = "break";
         public const string CASE = "case";

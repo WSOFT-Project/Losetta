@@ -513,7 +513,7 @@ namespace AliceScript.NameSpaces.Core
             else
             {
                 // スコープ名前空間
-                if(script.NameSpace is null)
+                if (script.NameSpace is null)
                 {
                     if (NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space))
                     {

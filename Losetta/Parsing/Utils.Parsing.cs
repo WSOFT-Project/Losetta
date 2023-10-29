@@ -386,7 +386,7 @@ namespace AliceScript
             {
                 bool spread = false;
                 // スプレッド構文かどうかを判定
-                if (arrayMode && script.Current == '.' && script.Next == '.' && script.NextNext == '.' && script.TryNext(3) != '.')
+                if (arrayMode && script.Current == Constants.SPREAD[0] && script.Next == Constants.SPREAD[1] && script.NextNext == Constants.SPREAD[2] && script.TryNext(3) != Constants.SPREAD[2])
                 {
                     spread = true;
                     script.Forward(3);
