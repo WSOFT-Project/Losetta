@@ -1,7 +1,6 @@
 ﻿using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Parsing;
-using System.Data;
 
 namespace AliceScript.Functions
 {
@@ -540,7 +539,7 @@ namespace AliceScript.Functions
         {
             int ind = name.LastIndexOf('.');
             string spaceName = string.Empty;
-            if(ind > 0)
+            if (ind > 0)
             {
                 spaceName = name.Substring(0, ind);
             }
@@ -559,11 +558,7 @@ namespace AliceScript.Functions
                     return func;
                 }
             }
-            if(!script.TopInFile && script.ParentScript is not null)
-            {
-                return GetFromUsingNamespace(name,script.ParentScript);
-            }
-            return null;
+            return !script.TopInFile && script.ParentScript is not null ? GetFromUsingNamespace(name, script.ParentScript) : null;
         }
         public static ActionFunction GetAction(string action)
         {
