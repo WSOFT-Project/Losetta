@@ -62,20 +62,40 @@ namespace AliceScript.NameSpaces
         }
         public string Name { get; set; }
         public Dictionary<string,FunctionBase> Functions = new Dictionary<string,FunctionBase>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, FunctionBase> InternalFunctions = new Dictionary<string, FunctionBase>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
-        public void Add(FunctionBase func,bool throwError = false)
+        public void Add(FunctionBase func,bool throwError = false,AccessModifier accessModifier = AccessModifier.PUBLIC)
         {
             func.RelatedNameSpace = Name;
-            if (!Functions.TryGetValue(func.Name,out var f) || f.IsVirtual)
+            if (accessModifier == AccessModifier.PUBLIC)
             {
-                Functions[func.Name.ToLowerInvariant()] = func;
-                if(f is not null)
+                if (!Functions.TryGetValue(func.Name, out var f) || f.IsVirtual)
                 {
-                    f.IsVirtual = true;
+                    Functions[func.Name.ToLowerInvariant()] = func;
+                    if (f is not null)
+                    {
+                        f.IsVirtual = true;
+                    }
                 }
-            }else if (throwError)
+                else if (throwError)
+                {
+                    throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                }
+            }
+            else
             {
-                throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                if (!InternalFunctions.TryGetValue(func.Name, out var f) || f.IsVirtual)
+                {
+                    InternalFunctions[func.Name.ToLowerInvariant()] = func;
+                    if (f is not null)
+                    {
+                        f.IsVirtual = true;
+                    }
+                }
+                else if (throwError)
+                {
+                    throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
+                }
             }
         }
         public void Add(ObjectBase obj)

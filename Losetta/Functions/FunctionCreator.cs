@@ -13,7 +13,11 @@ namespace AliceScript.Functions
         internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords)
         {
             bool? mode = null;
-            bool isGlobal = keywords.Contains(Constants.PUBLIC);
+
+            AccessModifier accessModifier = keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
+            accessModifier = keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
+            accessModifier = keywords.Contains(Constants.INTERNAL) ? AccessModifier.INTERNAL : accessModifier;
+
             bool isCommand = keywords.Contains(Constants.COMMAND);
             bool isExtension = keywords.Contains(Constants.EXTENSION);
             if (keywords.Contains(Constants.OVERRIDE))
@@ -98,7 +102,7 @@ namespace AliceScript.Functions
             {
                 if (!FunctionExists(funcName, script, out _) || (mode == true && FunctionIsVirtual(funcName, script)))
                 {
-                    FunctionBaseManager.Add(customFunc, funcName, script, isGlobal);
+                    FunctionBaseManager.Add(customFunc, funcName, script, accessModifier);
                 }
                 else
                 {

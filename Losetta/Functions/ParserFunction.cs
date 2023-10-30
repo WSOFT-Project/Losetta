@@ -504,10 +504,17 @@ namespace AliceScript.Functions
                 }
             }
 
-            FunctionBase func = GetFromNamespcaeName(name);
-            if (func is not null)
+            // 現在の名前空間を検索
+            if (script.NameSpace is not null && (script.NameSpace.InternalFunctions.TryGetValue(name, out FunctionBase func) || script.NameSpace.Functions.TryGetValue(name, out func)))
             {
-                if (wantMethod && func.IsMethod)
+                if (toDelegate && impl is CustomFunction cf)
+                {
+                    //デリゲートとして返したい場合
+                    var f = new Variable(cf);
+                    f.Readonly = f.TypeChecked = true;
+                    return new ValueFunction(f);
+                }
+                else if (wantMethod && func.IsMethod)
                 {
                     return func.NewInstance();
                 }
@@ -517,10 +524,39 @@ namespace AliceScript.Functions
                 }
             }
 
+            // 完全修飾名を検索
+            func = GetFromNamespcaeName(name);
+            if (func is not null)
+            {
+                if (toDelegate && impl is CustomFunction cf)
+                {
+                    //デリゲートとして返したい場合
+                    var f = new Variable(cf);
+                    f.Readonly = f.TypeChecked = true;
+                    return new ValueFunction(f);
+                }
+                else if (wantMethod && func.IsMethod)
+                {
+                    return func.NewInstance();
+                }
+                else if (!func.IsMethod || !func.MethodOnly)
+                {
+                    return func.NewInstance();
+                }
+            }
+
+            // usingした名前空間を検索
             func = GetFromUsingNamespace(name, script);
             if (func is not null)
             {
-                if (wantMethod && func.IsMethod)
+                if (toDelegate && impl is CustomFunction cf)
+                {
+                    //デリゲートとして返したい場合
+                    var f = new Variable(cf);
+                    f.Readonly = f.TypeChecked = true;
+                    return new ValueFunction(f);
+                }
+                else if (wantMethod && func.IsMethod)
                 {
                     return func.NewInstance();
                 }
@@ -550,15 +586,24 @@ namespace AliceScript.Functions
         }
         internal static FunctionBase GetFromUsingNamespace(string name, ParsingScript script)
         {
+            FunctionBase func = null;
+            string lastSpaceName = null;
             foreach (string spaceName in script.UsingNamespaces)
             {
-                var func = GetFromNamespcaeName(spaceName + "." + name);
-                if (func is not null)
+                var temp = GetFromNamespcaeName(spaceName + "." + name);
+                if (lastSpaceName is not null && temp is not null)
                 {
-                    return func;
+                    throw new ScriptException($"`{name}`は`{lastSpaceName}`と`{spaceName}`間があいまいです", Exceptions.AMBIGUOUS_IDENTIFIER);
+                }
+                if (temp is not null)
+                {
+                    func = temp;
+                    lastSpaceName = spaceName;
                 }
             }
-            return !script.TopInFile && script.ParentScript is not null ? GetFromUsingNamespace(name, script.ParentScript) : null;
+            return func is not null
+                ? func
+                : !script.TopInFile && script.ParentScript is not null ? GetFromUsingNamespace(name, script.ParentScript) : null;
         }
         public static ActionFunction GetAction(string action)
         {
@@ -601,7 +646,7 @@ namespace AliceScript.Functions
         }
 
         public static void AddGlobalOrLocalVariable(string name, ValueFunction function,
-            ParsingScript script, bool localIfPossible = false, bool registVar = false, bool globalOnly = false, string type_modifer = null, bool isReadOnly = false, bool fromAssign = false)
+            ParsingScript script, bool localIfPossible = false, bool registVar = false, AccessModifier accessModifier = AccessModifier.PRIVATE, string type_modifer = null, bool isReadOnly = false, bool fromAssign = false)
         {
             name = Constants.ConvertName(name);
             Utils.CheckLegalName(name, fromAssign);
@@ -671,14 +716,18 @@ namespace AliceScript.Functions
                 }
                 newVar.Readonly = isReadOnly;
                 function = value;
-
-                if (globalOnly)
+                function.AccessModifier = accessModifier;
+                if (accessModifier == AccessModifier.PRIVATE)
+                {
+                    script.Variables[name] = function;
+                }
+                else if (accessModifier == AccessModifier.PUBLIC)
                 {
                     script.NameSpace.Functions[name] = function;
                 }
-                else
+                else if (accessModifier == AccessModifier.INTERNAL)
                 {
-                    script.Variables[name] = function;
+                    script.NameSpace.InternalFunctions[name] = function;
                 }
             }
         }

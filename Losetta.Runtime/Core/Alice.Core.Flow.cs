@@ -262,31 +262,26 @@ namespace AliceScript.NameSpaces.Core
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable While(ParsingScript script)
         {
-            int startWhileCondition = script.Pointer;
+            //int startWhileCondition = script.Pointer;
             bool stillValid = true;
             Variable result = Variable.EmptyInstance;
+            string condExp = Utils.GetBodyBetween(script);
+            string loopBody = Utils.GetBodyBetween(script,Constants.START_GROUP,Constants.END_GROUP);
 
             while (stillValid)
             {
-                script.Pointer = startWhileCondition;
-
-                //int startSkipOnBreakChar = from;
-                Variable condResult = script.Execute(Constants.END_ARG_ARRAY);
-                stillValid = condResult.AsBool();
+                stillValid = script.GetTempScript(condExp).Process().Bool;
                 if (!stillValid)
                 {
                     break;
                 }
-                result = script.ProcessBlock();
+                result = script.GetTempScript(loopBody).Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
-                    script.Pointer = startWhileCondition;
-                    break;
+                    return result;
                 }
             }
 
-            // 条件はもうtrueではないので、ブロックをスキップ
-            script.SkipBlock();
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
@@ -513,25 +508,19 @@ namespace AliceScript.NameSpaces.Core
             else
             {
                 // スコープ名前空間
-                if (script.NameSpace is null)
+                if (NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space))
                 {
-                    if (NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space))
-                    {
-                        script.NameSpace = space;
-                    }
-                    else
-                    {
-                        space = new NameSpace();
-                        space.Name = spaceName;
-                        script.NameSpace = space;
-                        NameSpaceManager.Add(space);
-                    }
+                    script.NameSpace = space;
                 }
                 else
                 {
-
+                    space = new NameSpace();
+                    space.Name = spaceName;
+                    script.NameSpace = space;
+                    NameSpaceManager.Add(space);
                 }
             }
+
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static void GoSub(ParsingScript script, BindFunction func)

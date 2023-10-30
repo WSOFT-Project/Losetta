@@ -282,5 +282,9 @@
         /// アサーションが失敗しました
         /// </summary>
         ASSERTION_ERROR = 0x04c,
+        /// <summary>
+        /// 識別子間があいまいです
+        /// </summary>
+        AMBIGUOUS_IDENTIFIER = 0x04d,
     }
 }

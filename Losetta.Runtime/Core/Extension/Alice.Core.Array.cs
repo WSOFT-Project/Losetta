@@ -159,8 +159,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Intersect(items);
         }
-
-
+        public static IEnumerator<Variable> GetEnumerator(this VariableCollection ary)
+        {
+            return ary.Tuple.GetEnumerator();
+        }
         public static int IndexOf(this VariableCollection ary, Variable item)
         {
             return ary.Tuple.IndexOf(item);
@@ -248,7 +250,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Average();
         }
-        public static double Average(this VariableCollection ary,ParsingScript script,DelegateObject func)
+        public static double Average(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
             return ary.Tuple.Average(item => func.Invoke(item, script).AsDouble());
         }

@@ -186,10 +186,17 @@ namespace AliceScript
         /// <summary>
         /// パース中の言語構造が所属する名前空間
         /// </summary>
-        public static readonly string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
+        public static readonly string PARSING_NAMESPACE = TOP_API_NAMESPACE + ".Parsing";
 
-        //最上位の名前空間
-        public const string TOP_NAMESPACE = "Alice";
+        /// <summary>
+        /// グローバルの名前空間名
+        /// </summary>
+        public const string TOP_NAMESPACE = ":Global:";
+
+        /// <summary>
+        /// APIが使用する最上位の名前空間
+        /// </summary>
+        public const string TOP_API_NAMESPACE = "Alice";
 
         /// <summary>
         /// 変数・定数・関数名などの識別子がとるパターン
@@ -223,6 +230,8 @@ namespace AliceScript
 
         // キーワード
         public const string PUBLIC = "public";
+        public const string PRIVATE = "private";
+        public const string INTERNAL = "internal";
         public const string VAR = "var";
         public const string CONST = "const";
         public const string VIRTUAL = "virtual";
@@ -242,7 +251,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, INTERNAL, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";

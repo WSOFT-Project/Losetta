@@ -10,7 +10,7 @@ namespace AliceScript.NameSpaces
         public static void Init()
         {
             NameSpaceManager.Add(typeof(Core.CoreFunctions));
-            NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
+            NameSpace space = new NameSpace(Constants.TOP_API_NAMESPACE);
             space.Add<ExceptionObject>();
             NameSpaceManager.Add(space);
         }

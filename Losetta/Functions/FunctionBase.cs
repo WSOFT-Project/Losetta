@@ -174,6 +174,7 @@ namespace AliceScript.Functions
         }
 
         public string[] RealArgs { get; internal set; }
+        public AccessModifier AccessModifier { get; set; }
         public FunctionBase()
         {
             MinimumArgCounts = 0;
@@ -231,6 +232,24 @@ namespace AliceScript.Functions
         VIRTUAL = 5
     }
     /// <summary>
+    /// 関数に使用されるアクセス修飾子を表します
+    /// </summary>
+    public enum AccessModifier
+    {
+        /// <summary>
+        /// スコープの範囲内からのみアクセスできます
+        /// </summary>
+        PRIVATE = 0,
+        /// <summary>
+        /// 名前空間の外部からもアクセスできます
+        /// </summary>
+        PUBLIC = 1,
+        /// <summary>
+        /// 名前空間の内部からのみアクセスできます
+        /// </summary>
+        INTERNAL = 2
+    }
+    /// <summary>
     /// 関数を登録または登録解除する操作を提供します
     /// </summary>
     public static class FunctionBaseManager
@@ -241,12 +260,12 @@ namespace AliceScript.Functions
         /// <param name="func">登録される関数</param>
         /// <param name="name">登録される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
-        /// <param name="isGlobal">常にグローバルに登録する場合はtrue、それ以外の場合はfalse</param>
+        /// <param name="accessModifier">関数のアクセス修飾子</param>
         /// <param name="byPassCheck">識別子のチェックをバイパスする場合はtrue、それ以外の場合はfalse</param>
-        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false, bool byPassCheck = false)
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, AccessModifier accessModifier = AccessModifier.PRIVATE, bool byPassCheck = false)
         {
-
             string fname = func.Name;
+            func.AccessModifier = accessModifier;
             if (!string.IsNullOrEmpty(name))
             {
                 fname = name;
@@ -256,13 +275,13 @@ namespace AliceScript.Functions
                 Utils.CheckLegalName(fname);
             }
             script ??= ParsingScript.GetTopLevelScript(script);
-            if (isGlobal)
+            if (accessModifier == AccessModifier.PRIVATE)
             {
-                script.NameSpace.Add(func,true);
+                ParserFunction.RegisterScriptFunction(fname, func, script);
             }
             else
             {
-                ParserFunction.RegisterScriptFunction(fname, func, script);
+                script.NameSpace.Add(func, true, accessModifier);
             }
             if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
             {

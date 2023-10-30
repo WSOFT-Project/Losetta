@@ -131,7 +131,7 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
-            NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
+            NameSpace space = new NameSpace(Constants.TOP_API_NAMESPACE);
             space.Add(new ClassCreator());
             space.Add(new FunctionCreator());
             space.Add(new EnumFunction());

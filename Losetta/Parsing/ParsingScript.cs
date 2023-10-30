@@ -89,13 +89,6 @@ namespace AliceScript.Parsing
         public AttributeFunction AttributeFunction { get; set; }
 
         /// <summary>
-        /// このスクリプトの現在の名前空間
-        /// </summary>
-        public NameSpace CurrentNamespace
-        {
-            get; set;
-        }
-        /// <summary>
         /// このスクリプトでusingされた名前空間の一覧
         /// </summary>
         public HashSet<string> UsingNamespaces
@@ -551,9 +544,10 @@ namespace AliceScript.Parsing
             m_data = data;
             m_from = from;
             m_char2Line = char2Line;
+            Using(Constants.TOP_NAMESPACE, true);
             if (usingAlice)
             {
-                Using(Constants.TOP_NAMESPACE, true);
+                Using(Constants.TOP_API_NAMESPACE);
             }
         }
 
@@ -576,11 +570,11 @@ namespace AliceScript.Parsing
             Tag = other.Tag;
             Package = other.Package;
             Generation = other.Generation + 1;
-            CurrentNamespace = other.CurrentNamespace;
             ThrowError = other.ThrowError;
+            Using(Constants.TOP_NAMESPACE);
             if (usingAlice)
             {
-                Using(Constants.TOP_NAMESPACE);
+                Using(Constants.TOP_API_NAMESPACE);
             }
         }
 

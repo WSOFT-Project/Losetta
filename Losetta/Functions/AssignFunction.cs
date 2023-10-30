@@ -45,7 +45,9 @@ namespace AliceScript.Functions
 
             bool registVar = type_modifer is not null;
             bool registConst = Keywords.Contains(Constants.CONST);
-            bool isGlobal = Keywords.Contains(Constants.PUBLIC);
+            AccessModifier accessModifier = Keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
+            accessModifier = Keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
+            accessModifier = Keywords.Contains(Constants.INTERNAL) ? AccessModifier.INTERNAL : accessModifier;
             bool isReadOnly = Keywords.Contains(Constants.READONLY);
 
             script.MoveBackIfPrevious(Constants.END_ARG);
@@ -117,7 +119,7 @@ namespace AliceScript.Functions
 
                 if (arrayIndices.Count == 0)
                 {
-                    ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly, true);
+                    ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
                     Variable retVar = varValue.DeepClone();
                     retVar.CurrentAssign = m_name;
                     return retVar;
@@ -130,7 +132,7 @@ namespace AliceScript.Functions
 
                 ExtendArray(array, arrayIndices, 0, varValue);
 
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, isGlobal, type_modifer, isReadOnly, true);
+                ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
                 return array;
             }
         }
