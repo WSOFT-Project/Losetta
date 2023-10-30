@@ -374,8 +374,7 @@ namespace AliceScript.NameSpaces.Core
 
             if (tokens.Length != 2)
             {
-                Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
-                                 , script, "foreach");
+                Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX, script, "foreach");
             }
 
             ParsingScript forScript = script.GetTempScript(tokens[1], func);
@@ -387,22 +386,10 @@ namespace AliceScript.NameSpaces.Core
                 return Variable.EmptyInstance;
             }
 
-            if (arrayValue.Type == Variable.VarType.STRING)
+            Variable ProcessEach(Variable current)
             {
-                arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
-            }
-
-            int cycles = arrayValue.Count;
-            if (cycles == 0)
-            {
-                return Variable.EmptyInstance;
-            }
-
-            for (int i = 0; i < cycles; i++)
-            {
-                Variable current = arrayValue.GetValue(i);
-                current.Readonly = true;
                 // 代入式を逐次実行できるように隠し変数を作成
+                current.Readonly = true;
                 string forConstName = Constants.USER_CANT_USE_VARIABLE_PREFIX + "eachconst";
 
                 var body = new StringBuilder();
@@ -414,11 +401,68 @@ namespace AliceScript.NameSpaces.Core
 
                 ParsingScript mainScript = forScript.GetTempScript(body.ToString());
                 mainScript.Variables[forConstName] = new ValueFunction(current);
-                Variable result = mainScript.Process(true);
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                {
-                    return result;
-                }
+
+                return mainScript.Process(true);
+            }
+
+            switch (arrayValue.Type)
+            {
+                case Variable.VarType.ARRAY:
+                    {
+                        int cycles = arrayValue.Count;
+                        for (int i = 0; i < cycles; i++)
+                        {
+                            Variable result = ProcessEach(arrayValue.GetValue(i));
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                return result;
+                            }
+                        }
+                        break;
+                    }
+                case Variable.VarType.STRING:
+                    {
+                        foreach(char c in arrayValue.String)
+                        {
+                            Variable result = ProcessEach(new Variable(c.ToString()));
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                return result;
+                            }
+                        }
+                        break;
+                    }
+                case Variable.VarType.OBJECT:
+                    {
+                        EnumeratorObject enumerator = forScript.GetTempScript(tokens[1]+ ".GetEnumerator()").Process().Object as EnumeratorObject;
+                        if(enumerator is null)
+                        {
+                            Utils.ThrowErrorMsg("foreachでループできるオブジェクトはGetEnumeratorメソッドを実装する必要があります", Exceptions.INVALID_SYNTAX, script, "foreach");
+                        }
+                        IDisposable disposable = enumerator.Enumerator as IDisposable;
+                        while (enumerator.MoveNext())
+                        {
+                            Variable result = ProcessEach(new Variable(enumerator.Current));
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                if (disposable is not null)
+                                {
+                                    disposable.Dispose();
+                                }
+                                return result;
+                            }
+                        }
+                        if (disposable is not null)
+                        {
+                            disposable.Dispose();
+                        }
+                        break;
+                    }
+            }
+
+            if (arrayValue.Type == Variable.VarType.STRING)
+            {
+                arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
             }
             return Variable.EmptyInstance;
         }
