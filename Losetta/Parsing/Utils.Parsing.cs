@@ -548,7 +548,7 @@ namespace AliceScript
         public static bool SpaceNotNeeded(char next)
         {
             return next == Constants.SPACE || next == Constants.START_ARG ||
-                    next == Constants.START_GROUP || next == Constants.START_ARRAY ||
+                    next == Constants.START_GROUP || /*next == Constants.START_ARRAY ||*/
                     next == Constants.EMPTY;
         }
 

@@ -37,7 +37,7 @@ namespace AliceScript
         public const string IS = "is ";
         public const string IS_NOT = "is not ";
         public const string FOR_EACH = ":";
-        public const string FOR_IN = "in";
+        public const string FOR_IN = " in ";
         public const string INFINITY = "Infinity";
         public const string NEG_INFINITY = "-Infinity";
         public const string ISFINITE = "IsFinite";

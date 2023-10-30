@@ -262,11 +262,11 @@ namespace AliceScript.NameSpaces.Core
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable While(ParsingScript script)
         {
-            //int startWhileCondition = script.Pointer;
             bool stillValid = true;
             Variable result = Variable.EmptyInstance;
             string condExp = Utils.GetBodyBetween(script);
-            string loopBody = Utils.GetBodyBetween(script,Constants.START_GROUP,Constants.END_GROUP);
+            script.Forward();
+            string loopBody = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
 
             while (stillValid)
             {
@@ -369,8 +369,7 @@ namespace AliceScript.NameSpaces.Core
         {
             string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
             script.Forward();
-            //foreach(var in ary)の形式です
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
+            string bodyString = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
             string[] tokens = forString.Split(Constants.FOR_IN);
 
             if (tokens.Length != 2)
@@ -396,14 +395,11 @@ namespace AliceScript.NameSpaces.Core
             int cycles = arrayValue.Count;
             if (cycles == 0)
             {
-                script.SkipBlock();
                 return Variable.EmptyInstance;
             }
-            int startForCondition = script.Pointer;
 
             for (int i = 0; i < cycles; i++)
             {
-                script.Pointer = startForCondition;
                 Variable current = arrayValue.GetValue(i);
                 current.Readonly = true;
                 // 代入式を逐次実行できるように隠し変数を作成
@@ -414,20 +410,16 @@ namespace AliceScript.NameSpaces.Core
                 body.Append(Constants.ASSIGNMENT);
                 body.Append(forConstName);
                 body.Append(Constants.END_STATEMENT);
-                body.Append(Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true));
+                body.Append(bodyString);
 
                 ParsingScript mainScript = forScript.GetTempScript(body.ToString());
                 mainScript.Variables[forConstName] = new ValueFunction(current);
                 Variable result = mainScript.Process(true);
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
-                    script.Pointer = startForCondition;
-                    script.SkipBlock();
                     return result;
                 }
             }
-            script.Pointer = startForCondition;
-            script.SkipBlock();
             return Variable.EmptyInstance;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
