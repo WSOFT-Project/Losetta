@@ -10,7 +10,7 @@ namespace AliceScript.Parsing
     /// <summary>
     /// パース中のスクリプトを表します
     /// </summary>
-    [AliceObject(Name = "Script", DefaultState = AliceBindState.Disabled)]
+    [AliceObject(Name = "ParsingScript", DefaultState = AliceBindState.Disabled)]
     public class ParsingScript
     {
         private string m_data;          // スクリプト全体が含まれます
@@ -76,8 +76,6 @@ namespace AliceScript.Parsing
                 return s;
             }
         }
-
-
 
         /// <summary>
         /// 現在実行中あるいは最後に実行された関数
@@ -583,6 +581,7 @@ namespace AliceScript.Parsing
         /// </summary>
         /// <param name="name"></param>
         /// <param name="whenPossible">名前空間が存在しない場合に例外を発生させない場合にtrue</param>
+        [AliceFunction(State = AliceBindState.Enabled)]
         public void Using(string name, bool whenPossible = false)
         {
             name = name.ToLowerInvariant();
@@ -596,7 +595,11 @@ namespace AliceScript.Parsing
             }
 
         }
+
+        [AliceFunction(State = AliceBindState.Enabled)]
         public int Size() { return m_data.Length; }
+
+        [AliceFunction(State = AliceBindState.Enabled)]
         public bool StillValid() { return m_from < m_data.Length; }
 
         public void SetDone() { m_from = m_data.Length; }
@@ -1260,7 +1263,8 @@ namespace AliceScript.Parsing
         /// <param name="callFrom"></param>
         /// <param name="startIndex"></param>
         /// <returns></returns>
-        public ParsingScript GetTempScript(string str, FunctionBase callFrom = null, int startIndex = 0)
+        [AliceFunction(State = AliceBindState.Enabled)]
+        public ParsingScript GetTempScript(string str = null, FunctionBase callFrom = null, int startIndex = 0)
         {
             ParsingScript tempScript = new ParsingScript(str, startIndex)
             {
@@ -1292,11 +1296,13 @@ namespace AliceScript.Parsing
         /// <param name="callFrom"></param>
         /// <param name="startIndex"></param>
         /// <returns></returns>
+        [AliceFunction(State = AliceBindState.Enabled)]
         public ParsingScript GetChildScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
-            str = Utils.ConvertToScript(str, out _, out var def, out var settings);
+            str = Utils.ConvertToScript(str, out var char2Line, out var def, out var settings);
             var script = GetTempScript(str, callFrom, startIndex);
 
+            script.Char2Line = char2Line;
             script.Settings = settings;
             script.Defines = def;
 
