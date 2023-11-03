@@ -25,6 +25,7 @@ namespace AliceScript.CLI
                 if (argl == "-h" || argl == "-help" || argl == "?")
                 {
                     Files.Add("help");
+                    continue;
                 }
                 if (argl == "--arg" || argl == "--args")
                 {
