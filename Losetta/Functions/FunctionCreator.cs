@@ -60,6 +60,7 @@ namespace AliceScript.Functions
             /*string line = */
 
             ParsingScript nextData = new ParsingScript(script);
+            nextData.Pointer = script.Pointer;
             nextData.ParentScript = script;
 
             while (true)
@@ -69,17 +70,18 @@ namespace AliceScript.Functions
                 if (nextToken == Constants.REQUIRES)
                 {
                     body = $"Alice.Diagnostics.Assert({Utils.GetBodyBetween(nextData)});";
+                    script.Pointer = nextData.Pointer + 1;
                 }
                 else if(nextToken == Constants.ENSURES)
                 {
                     ensure = Utils.GetBodyBetween(nextData);
+                    script.Pointer = nextData.Pointer + 1;
                 }
                 else
                 {
                     break;
                 }
             }
-
             script.GetOriginalLine(out _);
 
             int parentOffset = script.Pointer;
@@ -101,7 +103,7 @@ namespace AliceScript.Functions
                 {
                     parentOffset += script.CurrentClass.ParentOffset;
                 }
-                body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+                body += Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
                 script.MoveForwardIf(Constants.END_GROUP);
             }
             body += ensure;
