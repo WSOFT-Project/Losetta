@@ -7,7 +7,10 @@ namespace AliceScript.NameSpaces
 
     public static class NameSpaceManager
     {
-        public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>(StringComparer.OrdinalIgnoreCase);
+        public static Dictionary<string, NameSpace> NameSpaces = new Dictionary<string, NameSpace>(StringComparer.OrdinalIgnoreCase)
+        {
+            {Constants.TOP_NAMESPACE,new NameSpace() }
+        };
         public static void Add(NameSpace space, string name = null)
         {
             if (name is null) { name = space.Name; }

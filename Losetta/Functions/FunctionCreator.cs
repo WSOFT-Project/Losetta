@@ -50,6 +50,7 @@ namespace AliceScript.Functions
 
             string[] args = Utils.GetFunctionSignature(script);
             string body = string.Empty;
+            string ensure = string.Empty;
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = Array.Empty<string>();
@@ -57,6 +58,28 @@ namespace AliceScript.Functions
 
             //script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
             /*string line = */
+
+            ParsingScript nextData = new ParsingScript(script);
+            nextData.ParentScript = script;
+
+            while (true)
+            {
+                string nextToken = Utils.GetNextToken(nextData, false, true);
+
+                if (nextToken == Constants.REQUIRES)
+                {
+                    body = $"Alice.Diagnostics.Assert({Utils.GetBodyBetween(nextData)});";
+                }
+                else if(nextToken == Constants.ENSURES)
+                {
+                    ensure = Utils.GetBodyBetween(nextData);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
             script.GetOriginalLine(out _);
 
             int parentOffset = script.Pointer;
@@ -65,7 +88,7 @@ namespace AliceScript.Functions
             {
                 if (mode == false)
                 {
-                    body = $"throw(\"このメソッドは実装されていません\",{(int)Exceptions.NOT_IMPLEMENTED});";
+                    body = $"Alice.throw(\"このメソッドは実装されていません\",{(int)Exceptions.NOT_IMPLEMENTED});";
                 }
                 else
                 {
@@ -81,6 +104,7 @@ namespace AliceScript.Functions
                 body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
                 script.MoveForwardIf(Constants.END_GROUP);
             }
+            body += ensure;
 
             CustomFunction customFunc = new CustomFunction(funcName, body, args, script, false, type_modifer, nullable);
             customFunc.ParentScript = script;

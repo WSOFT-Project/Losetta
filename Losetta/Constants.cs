@@ -99,6 +99,8 @@ namespace AliceScript
 
         public const string REF = "ref";
         public const string PARAMS = "params";
+        public const string REQUIRES = "requires";
+        public const string ENSURES = "ensures";
 
         public const string ADD = "add";
         public const string ADD_TO_HASH = "AddToHash";
