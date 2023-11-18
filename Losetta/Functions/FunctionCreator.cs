@@ -16,7 +16,7 @@ namespace AliceScript.Functions
 
             AccessModifier accessModifier = keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
             accessModifier = keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
-            accessModifier = keywords.Contains(Constants.INTERNAL) ? AccessModifier.INTERNAL : accessModifier;
+            accessModifier = keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
 
             bool isCommand = keywords.Contains(Constants.COMMAND);
             bool isExtension = keywords.Contains(Constants.EXTENSION);
@@ -55,9 +55,6 @@ namespace AliceScript.Functions
             {
                 args = Array.Empty<string>();
             }
-
-            //script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
-            /*string line = */
 
             ParsingScript nextData = new ParsingScript(script);
             nextData.Pointer = script.Pointer;
@@ -143,7 +140,6 @@ namespace AliceScript.Functions
             string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             DefineFunction(funcName, e.Script, Keywords);
         }
-
 
     }
 }

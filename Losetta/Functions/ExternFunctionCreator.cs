@@ -21,7 +21,7 @@ namespace AliceScript.Functions
             bool? mode = null;
             AccessModifier accessModifier = e.Keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
             accessModifier = e.Keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
-            accessModifier = e.Keywords.Contains(Constants.INTERNAL) ? AccessModifier.INTERNAL : accessModifier;
+            accessModifier = e.Keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
             bool isCommand = e.Keywords.Contains(Constants.COMMAND);
             bool isExtension = e.Keywords.Contains(Constants.EXTENSION);
             if (e.Keywords.Contains(Constants.OVERRIDE))

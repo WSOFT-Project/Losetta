@@ -233,7 +233,7 @@ namespace AliceScript
         // キーワード
         public const string PUBLIC = "public";
         public const string PRIVATE = "private";
-        public const string INTERNAL = "internal";
+        public const string PROTECTED = "protected";
         public const string VAR = "var";
         public const string CONST = "const";
         public const string VIRTUAL = "virtual";
@@ -253,7 +253,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, INTERNAL, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";

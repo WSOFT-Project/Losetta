@@ -245,9 +245,9 @@ namespace AliceScript.Functions
         /// </summary>
         PUBLIC = 1,
         /// <summary>
-        /// 名前空間の内部からのみアクセスできます
+        /// 同一名前空間の内部からのみアクセスできます
         /// </summary>
-        INTERNAL = 2
+        PROTECTED = 2
     }
     /// <summary>
     /// 関数を登録または登録解除する操作を提供します

@@ -725,7 +725,7 @@ namespace AliceScript.Functions
                 {
                     script.NameSpace.Functions[name] = function;
                 }
-                else if (accessModifier == AccessModifier.INTERNAL)
+                else if (accessModifier == AccessModifier.PROTECTED)
                 {
                     script.NameSpace.InternalFunctions[name] = function;
                 }

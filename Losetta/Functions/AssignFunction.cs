@@ -47,7 +47,7 @@ namespace AliceScript.Functions
             bool registConst = Keywords.Contains(Constants.CONST);
             AccessModifier accessModifier = Keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
             accessModifier = Keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
-            accessModifier = Keywords.Contains(Constants.INTERNAL) ? AccessModifier.INTERNAL : accessModifier;
+            accessModifier = Keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
             bool isReadOnly = Keywords.Contains(Constants.READONLY);
 
             script.MoveBackIfPrevious(Constants.END_ARG);

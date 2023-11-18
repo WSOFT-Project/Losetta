@@ -28,7 +28,7 @@ namespace AliceScript.Functions
                         //文字列型
                         string result = Item.Substring(1, Item.Length - 2);
                         //文字列補間
-                        result = result.Replace(Constants.QUOTE_IN_LITERAL,Constants.QUOTE);
+                        result = result.Replace(Constants.QUOTE_IN_LITERAL, Constants.QUOTE);
                         result = result.Replace(Constants.QUOTE1_IN_LITERAL, Constants.QUOTE1);
 
                         if (DetectionStringFormat)
@@ -125,11 +125,6 @@ namespace AliceScript.Functions
                             result = stb.ToString();
                         }
 
-                        if (dq)
-                        {
-                            //[\\]を\に置き換えます(装置制御1から[\]に置き換え)
-                            result = result.Replace("\u0011", "\\");
-                        }
                         if (DetectionUTF8_Literal)
                         {
                             //UTF-8リテラルの時はUTF-8バイナリを返す

@@ -1,6 +1,5 @@
 ﻿using AliceScript.Functions;
 using AliceScript.Objects;
-using System.Xml.Linq;
 
 namespace AliceScript.NameSpaces
 {
@@ -50,7 +49,7 @@ namespace AliceScript.NameSpaces
         }
         public static NameSpace Get(string name)
         {
-            return NameSpaces.TryGetValue(name.ToLowerInvariant(),out var value) ? value : null;
+            return NameSpaces.TryGetValue(name.ToLowerInvariant(), out var value) ? value : null;
         }
     }
     public class NameSpace
@@ -64,10 +63,10 @@ namespace AliceScript.NameSpaces
             Name = name;
         }
         public string Name { get; set; }
-        public Dictionary<string,FunctionBase> Functions = new Dictionary<string,FunctionBase>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, FunctionBase> Functions = new Dictionary<string, FunctionBase>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, FunctionBase> InternalFunctions = new Dictionary<string, FunctionBase>(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string> Enums = new Dictionary<string, string>();
-        public void Add(FunctionBase func,bool throwError = false,AccessModifier accessModifier = AccessModifier.PUBLIC)
+        public void Add(FunctionBase func, bool throwError = false, AccessModifier accessModifier = AccessModifier.PUBLIC)
         {
             func.RelatedNameSpace = Name;
             if (accessModifier == AccessModifier.PUBLIC)
@@ -85,7 +84,7 @@ namespace AliceScript.NameSpaces
                     throw new ScriptException("指定された名前はすでに使用されていて、オーバーライドできません", Exceptions.FUNCTION_IS_ALREADY_DEFINED);
                 }
             }
-            else
+            else if (accessModifier == AccessModifier.PROTECTED)
             {
                 if (!InternalFunctions.TryGetValue(func.Name, out var f) || f.IsVirtual)
                 {
@@ -124,7 +123,7 @@ namespace AliceScript.NameSpaces
         /// <param name="other">マージする名前空間</param>
         public void Merge(NameSpace other)
         {
-            Functions = Functions.Union(other.Functions).ToDictionary(x => x.Key , y => y.Value);
+            Functions = Functions.Union(other.Functions).ToDictionary(x => x.Key, y => y.Value);
         }
     }
 
