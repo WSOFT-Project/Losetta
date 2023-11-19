@@ -203,7 +203,7 @@ namespace AliceScript
         /// <summary>
         /// 変数・定数・関数名などの識別子がとるパターン
         /// </summary>
-        public static readonly Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
+        public static readonly Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\ufdd3\\ufdd4][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
 
         /// <summary>
         /// 複合代入式がとるパターン
@@ -229,6 +229,11 @@ namespace AliceScript
         /// インデックスの逆引きがとるパターン
         /// </summary>
         public static readonly Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
+
+        /// <summary>
+        /// return式がとるパターン
+        /// </summary>
+        public static readonly Regex RETURN_PATTERN = new Regex("return([\\s\\S]*?);",RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";

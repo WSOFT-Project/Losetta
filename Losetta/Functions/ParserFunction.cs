@@ -115,7 +115,7 @@ namespace AliceScript.Functions
             if (string.IsNullOrEmpty(item))
             {
                 string body = script.Prev == Constants.START_GROUP
-                    ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET)
+                    ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP)
                     : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, ";\0");
 
                 if (script.TryNext() == Constants.ARROW[0] && script.TryNext(2) == Constants.ARROW[1])

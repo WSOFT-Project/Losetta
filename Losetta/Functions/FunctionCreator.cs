@@ -66,13 +66,13 @@ namespace AliceScript.Functions
 
                 if (nextToken == Constants.REQUIRES)
                 {
-                    body = $"Alice.Diagnostics.Assert({Utils.GetBodyBetween(nextData)});";
-                    script.Pointer = nextData.Pointer + 1;
+                    body = $"Alice.Diagnostics.Assert({Utils.GetBodyBetween(nextData)},\"この呼び出しは、関数が表明した事前条件を満たしませんでした\");";
+                    script.Pointer = ++nextData.Pointer;
                 }
                 else if(nextToken == Constants.ENSURES)
                 {
                     ensure = Utils.GetBodyBetween(nextData);
-                    script.Pointer = nextData.Pointer + 1;
+                    script.Pointer = ++nextData.Pointer;
                 }
                 else
                 {
@@ -103,7 +103,11 @@ namespace AliceScript.Functions
                 body += Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
                 script.MoveForwardIf(Constants.END_GROUP);
             }
-            body += ensure;
+            if (ensure.Length > 0)
+            {
+                ensure = ensure.Replace("return","\ufdd4return");
+                body = Constants.RETURN_PATTERN.Replace(body, $"{{var \ufdd4return=$1;Alice.Diagnostics.Assert({ensure},\"この関数は、関数が表明した事後条件を満たしませんでした\");return \ufdd4return;}}");
+            }
 
             CustomFunction customFunc = new CustomFunction(funcName, body, args, script, false, type_modifer, nullable);
             customFunc.ParentScript = script;
