@@ -133,7 +133,7 @@ namespace AliceScript
         {
             NameSpace space = new NameSpace(Constants.TOP_API_NAMESPACE);
             space.Add(new ClassCreator());
-            space.Add(new FunctionCreator());
+            //space.Add(new FunctionCreator());
             space.Add(new EnumFunction());
             space.Add(new ArrayTypeFunction());
             space.Add(new ExternFunctionCreator());

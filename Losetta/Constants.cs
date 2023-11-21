@@ -78,7 +78,6 @@ namespace AliceScript
         public const string ELSE_IF = "elif";
         public const string FOR = "for";
         public const string FINALLY = "finally";
-        public const string FUNCTION = "function";
         public const string CLASS = "class";
         public const string ENUM = "enum";
         public const string IF = "if";
@@ -246,6 +245,7 @@ namespace AliceScript
         public const string COMMAND = "command";
         public const string READONLY = "readonly";
         public const string EXTENSION = "extension";
+        public const string FUNCTION = "function";
 
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, FUNCTION , VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";

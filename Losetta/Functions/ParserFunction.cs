@@ -35,7 +35,7 @@ namespace AliceScript.Functions
             {
                 keywords = new HashSet<string>();
             }
-            else if (keywords.Contains(Constants.OVERRIDE) || keywords.Contains(Constants.VIRTUAL))
+            else if (keywords.Contains(Constants.FUNCTION) || keywords.Contains(Constants.OVERRIDE) || keywords.Contains(Constants.VIRTUAL))
             {
                 // overrideやvirtualなど、関数定義時にしか使わないキーワードがあれば先に関数モードにする
                 m_impl = TryCustomFunction(item, script, keywords);
