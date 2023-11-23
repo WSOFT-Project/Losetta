@@ -85,14 +85,24 @@ namespace AliceScript.Functions
                 TypeObject reqType = new TypeObject();
                 if (options.Count > 0)
                 {
+                    int zure = 0;
                     parms = options.Contains(Constants.PARAMS);
                     refs = options.Contains(Constants.REF);
+                    if (parms)
+                    {
+                        zure++;
+                    }
+                    if (refs)
+                    {
+                        zure++;
+                    }
                     if (options.Contains(Constants.THIS))
                     {
+                        zure++;
                         m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
 
                     }
-                    if (!refs && options.Count > 1)
+                    if (options.Count > zure + 1)
                     {
                         Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
                         if (v is not null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
