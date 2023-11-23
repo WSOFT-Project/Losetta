@@ -98,9 +98,16 @@ namespace AliceScript.Functions
                     }
                     if (options.Contains(Constants.THIS))
                     {
-                        zure++;
-                        m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
+                        if (refs)
+                        {
+                            throw new ScriptException("拡張メソッドのレシーバにrefキーワードを使用することはできません", Exceptions.INVALID_KEYWORD_CONBINATION, script);
+                        }
+                        else
+                        {
+                            zure++;
+                            m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVALID_ARGUMENT_FUNCTION, script);
 
+                        }
                     }
                     if (options.Count > zure + 1)
                     {
@@ -234,7 +241,7 @@ namespace AliceScript.Functions
                     }
                     else if (namedParameters)
                     {
-                        throw new ScriptException("関数の引数と値 `" + m_name + "` は一対一で一致する必要があります。", Exceptions.INVAILD_ARGUMENT_FUNCTION);
+                        throw new ScriptException("関数の引数と値 `" + m_name + "` は一対一で一致する必要があります。", Exceptions.INVALID_ARGUMENT_FUNCTION);
                     }
                 }
             }
