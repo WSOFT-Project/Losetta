@@ -126,6 +126,13 @@ namespace AliceScript.NameSpaces
             }
             return min;
         }
+        public static double Math_Factorial(uint n)
+        {
+            if (n == 0)
+                return 1L;
+            return n * Math_Factorial(n - 1);
+        }
+
         #region 数学定数
         public static double Math_Tau => Math.Tau;
         public static double Math_PI => Math.PI;

@@ -161,7 +161,7 @@ namespace AliceScript
             {
                 if (args[i] is null)
                 {
-                    throw new ScriptException("関数 `" + functionName + "` の`" + i + "`番目の引数が不正です。", Exceptions.INVAILD_ARGUMENT_FUNCTION);
+                    throw new ScriptException("関数 `" + functionName + "` の`" + i + "`番目の引数が不正です。", Exceptions.INVALID_ARGUMENT_FUNCTION);
                 }
                 string name = args[i].CurrentAssign;
                 args[i].ParamName = string.IsNullOrWhiteSpace(name) ? realArgs[i] : name;
