@@ -308,6 +308,7 @@ namespace AliceScript.NameSpaces
             Process.StandardInput.WriteLine(input);
             Process.StandardInput.Flush();
         }
+        public int ExitCode => Process.ExitCode;
         public ProcessStartInfo ProcessStartInfo => Process.StartInfo;
     }
 }
