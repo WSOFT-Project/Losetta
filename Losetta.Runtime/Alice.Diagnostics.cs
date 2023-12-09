@@ -70,27 +70,13 @@ namespace AliceScript.NameSpaces
         }
         public static ProcessObject Exec(string fileName, bool waitForExit = true, bool useShell = false)
         {
-            var p = new Process();
-            p.StartInfo.FileName = fileName;
-            p.StartInfo.RedirectStandardInput = !useShell;
-            p.StartInfo.RedirectStandardOutput = !useShell;
-            p.StartInfo.UseShellExecute = useShell;
-
-            p.Start();
-
-            if (waitForExit)
-            {
-                p.WaitForExit();
-            }
-            return new ProcessObject()
-            {
-                Process = p
-            };
+            return Exec(fileName,string.Empty,waitForExit,useShell);
         }
         public static ProcessObject Exec(string fileName, string arguments, bool waitForExit = true, bool useShell = false)
         {
             var p = new Process();
             p.StartInfo.FileName = fileName;
+            p.StartInfo.Arguments = arguments;
             p.StartInfo.RedirectStandardInput = !useShell;
             p.StartInfo.RedirectStandardOutput = !useShell;
             p.StartInfo.UseShellExecute = useShell;

@@ -17,7 +17,7 @@ namespace AliceScript.CLI
             Program.CreateAliceDirectory(true);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Exec(ParsingScript script)
+        public static Variable ExecSh(ParsingScript script)
         {
             string file = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             file = file.Trim('"');
