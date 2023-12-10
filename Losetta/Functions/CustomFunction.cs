@@ -383,10 +383,6 @@ namespace AliceScript.Functions
             }
 
         }
-        internal HashSet<CustomFunction> Children
-        {
-            get; set;
-        }
         public Variable GetVariable(ParsingScript script, Variable current)
         {
             List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
@@ -398,21 +394,9 @@ namespace AliceScript.Functions
 
             script.MoveBackIf(Constants.START_GROUP);
             //これはメソッドで呼び出される。そのため[this]代入分として1を足す。
-            if (args.Count + m_defaultArgs.Count + 1 < m_args.Length)
-            {
-                throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count + 1) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script);
-            }
-
-            Variable result = ARun(args, script, null, current);
-            //このCustomFunctionに子があればそれも実行する
-            if (Children is not null)
-            {
-                foreach (CustomFunction child in Children)
-                {
-                    result = child.GetVariable(script, current);
-                }
-            }
-            return result;
+            return args.Count + m_defaultArgs.Count + 1 < m_args.Length
+                ? throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count + 1) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script)
+                : ARun(args, script, null, current);
         }
         public Variable ARun(List<Variable> args = null, ParsingScript script = null,
                             AliceScriptClass.ClassInstance instance = null, Variable current = null)
@@ -448,16 +432,6 @@ namespace AliceScript.Functions
             }
 
             result.IsReturn = false;
-
-
-            //このCustomFunctionに子があればそれも実行する
-            if (Children is not null)
-            {
-                foreach (CustomFunction child in Children)
-                {
-                    result = child.ARun(args, script, instance, current);
-                }
-            }
 
             return result;
         }

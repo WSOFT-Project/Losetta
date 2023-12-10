@@ -69,7 +69,7 @@ namespace AliceScript.Functions
                     body = $"Alice.Diagnostics.Assert({Utils.GetBodyBetween(nextData)},\"この呼び出しは、関数が表明した事前条件を満たしませんでした\");";
                     script.Pointer = ++nextData.Pointer;
                 }
-                else if(nextToken == Constants.ENSURES)
+                else if (nextToken == Constants.ENSURES)
                 {
                     ensure = Utils.GetBodyBetween(nextData);
                     script.Pointer = ++nextData.Pointer;
@@ -105,7 +105,7 @@ namespace AliceScript.Functions
             }
             if (ensure.Length > 0)
             {
-                ensure = ensure.Replace("return","\ufdd4return");
+                ensure = ensure.Replace("return", "\ufdd4return");
                 body = Constants.RETURN_PATTERN.Replace(body, $"{{readonly var \ufdd4return=$1;Alice.Diagnostics.Assert({ensure},\"この関数は、関数が表明した事後条件を満たしませんでした\");return \ufdd4return;}}");
             }
 

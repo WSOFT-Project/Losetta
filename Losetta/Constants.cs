@@ -109,7 +109,6 @@ namespace AliceScript
         public const string NAMESPACE = "Namespace";
         public const string OBJECT_PROPERTIES = "Properties";
         public const string OBJECT_TYPE = "Type";
-        public const string TO_STRING = "string";
 
         public const string LABEL_OPERATOR = ":";
         public const string GOTO = "goto";
@@ -232,7 +231,7 @@ namespace AliceScript
         /// <summary>
         /// return式がとるパターン
         /// </summary>
-        public static readonly Regex RETURN_PATTERN = new Regex("return([\\s\\S]*?);",RegexOptions.Compiled);
+        public static readonly Regex RETURN_PATTERN = new Regex("return([\\s\\S]*?);", RegexOptions.Compiled);
 
         // キーワード
         public const string PUBLIC = "public";
@@ -258,7 +257,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, FUNCTION , VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, FUNCTION, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";

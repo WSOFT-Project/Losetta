@@ -182,7 +182,7 @@ namespace AliceScript.CLI
                 Console.WriteLine(print);
             }
         }
-        
+
         private static void SplitByLast(string str, string sep, ref string a, ref string b)
         {
             int it = str.LastIndexOfAny(sep.ToCharArray());

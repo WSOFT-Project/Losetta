@@ -70,7 +70,7 @@ namespace AliceScript.NameSpaces
         }
         public static ProcessObject Exec(string fileName, bool waitForExit = true, bool useShell = false)
         {
-            return Exec(fileName,string.Empty,waitForExit,useShell);
+            return Exec(fileName, string.Empty, waitForExit, useShell);
         }
         public static ProcessObject Exec(string fileName, string arguments, bool waitForExit = true, bool useShell = false)
         {

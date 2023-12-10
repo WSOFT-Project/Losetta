@@ -468,28 +468,27 @@ namespace AliceScript.Functions
             }
 
             //関数として取得を続行
-            var pfx = GetFunction(name, script, true);
+            var pfx = GetFunction(name, script);
             if (pfx is not null)
             {
-                pfx.Keywords = keywords;
+                if (pfx is FunctionBase cf && !(cf.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE) || cf.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE)))
+                {
+                    //デリゲートとして返したい場合
+                    var f = new Variable(new DelegateObject(cf));
+                    f.Readonly = f.TypeChecked = true;
+                    return new ValueFunction(f);
+                }
             }
             return pfx;
         }
 
-        public static ParserFunction GetFunction(string name, ParsingScript script, bool toDelegate = false, bool wantMethod = false)
+        public static ParserFunction GetFunction(string name, ParsingScript script, bool wantMethod = false)
         {
             //TODO:関数の取得部分
             name = Constants.ConvertName(name);
             if (script.TryGetFunction(name, out ParserFunction impl) || s_functions.TryGetValue(name, out impl))
             {
-                if (toDelegate && impl is CustomFunction cf)
-                {
-                    //デリゲートとして返したい場合
-                    var f = new Variable(cf);
-                    f.Readonly = f.TypeChecked = true;
-                    return new ValueFunction(f);
-                }
-                else if (impl is FunctionBase fb)
+                if (impl is FunctionBase fb)
                 {
                     if (wantMethod && fb.IsMethod)
                     {
@@ -517,14 +516,7 @@ namespace AliceScript.Functions
             // 現在の名前空間を検索
             if (script.NameSpace is not null && (script.NameSpace.InternalFunctions.TryGetValue(name, out FunctionBase func) || script.NameSpace.Functions.TryGetValue(name, out func)))
             {
-                if (toDelegate && impl is CustomFunction cf)
-                {
-                    //デリゲートとして返したい場合
-                    var f = new Variable(cf);
-                    f.Readonly = f.TypeChecked = true;
-                    return new ValueFunction(f);
-                }
-                else if (wantMethod && func.IsMethod)
+                if (wantMethod && func.IsMethod)
                 {
                     return func.NewInstance();
                 }
@@ -538,14 +530,7 @@ namespace AliceScript.Functions
             func = GetFromNamespcaeName(name);
             if (func is not null)
             {
-                if (toDelegate && impl is CustomFunction cf)
-                {
-                    //デリゲートとして返したい場合
-                    var f = new Variable(cf);
-                    f.Readonly = f.TypeChecked = true;
-                    return new ValueFunction(f);
-                }
-                else if (wantMethod && func.IsMethod)
+                if (wantMethod && func.IsMethod)
                 {
                     return func.NewInstance();
                 }
@@ -559,14 +544,7 @@ namespace AliceScript.Functions
             func = GetFromUsingNamespace(name, script);
             if (func is not null)
             {
-                if (toDelegate && impl is CustomFunction cf)
-                {
-                    //デリゲートとして返したい場合
-                    var f = new Variable(cf);
-                    f.Readonly = f.TypeChecked = true;
-                    return new ValueFunction(f);
-                }
-                else if (wantMethod && func.IsMethod)
+                if (wantMethod && func.IsMethod)
                 {
                     return func.NewInstance();
                 }

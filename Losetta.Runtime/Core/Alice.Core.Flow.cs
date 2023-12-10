@@ -422,7 +422,7 @@ namespace AliceScript.NameSpaces.Core
                     }
                 case Variable.VarType.STRING:
                     {
-                        foreach(char c in arrayValue.String)
+                        foreach (char c in arrayValue.String)
                         {
                             Variable result = ProcessEach(new Variable(c.ToString()));
                             if (result.IsReturn || result.Type == Variable.VarType.BREAK)
@@ -434,12 +434,12 @@ namespace AliceScript.NameSpaces.Core
                     }
                 case Variable.VarType.OBJECT:
                     {
-                        EnumeratorObject enumerator = forScript.GetTempScript(tokens[1]+ ".GetEnumerator()").Process().Object as EnumeratorObject;
-                        if(enumerator is null)
+                        EnumeratorObject enumerator = forScript.GetTempScript(tokens[1] + ".GetEnumerator()").Process().Object as EnumeratorObject;
+                        if (enumerator is null)
                         {
                             Utils.ThrowErrorMsg("foreachでループできるオブジェクトはGetEnumeratorメソッドを実装する必要があります", Exceptions.INVALID_SYNTAX, script, "foreach");
                         }
-                        IDisposable disposable = enumerator.Enumerator as IDisposable;
+                        IDisposable disposable = enumerator.Enumerator;
                         while (enumerator.MoveNext())
                         {
                             Variable result = ProcessEach(new Variable(enumerator.Current));

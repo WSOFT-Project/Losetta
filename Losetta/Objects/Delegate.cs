@@ -18,25 +18,14 @@ namespace AliceScript.Objects
         {
             get
             {
-                FunctionBase r = null;
-                for (int i = 0; i < m_fucntions.Count; i++)
+                FunctionBase r = new FunctionBase();
+                r.Run += delegate (object sender, FunctionBaseEventArgs e)
                 {
-                    if (i == 0)
+                    foreach (var f in m_fucntions)
                     {
-                        r = m_fucntions[i];
-                        if (r is CustomFunction cf)
-                        {
-                            cf.Children = new HashSet<CustomFunction>();
-                        }
+                        f.Evaluate(e.Args, e.Script, e.ClassInstance);
                     }
-                    else
-                    {
-                        if (r is CustomFunction cf && m_fucntions[i] is CustomFunction cf2)
-                        {
-                            cf.Children.Add(cf2);
-                        }
-                    }
-                }
+                };
                 return r;
             }
             set
@@ -45,6 +34,7 @@ namespace AliceScript.Objects
                 m_fucntions.Add(value);
             }
         }
+
         public int Length => m_fucntions.Count;
         public string Name => m_fucntions.Count == 0 ? string.Empty : m_fucntions[0].Name;
         public DelegateObject()
@@ -73,7 +63,7 @@ namespace AliceScript.Objects
         }
         public bool Remove(DelegateObject d)
         {
-            foreach (CustomFunction c in d.Functions)
+            foreach (FunctionBase c in d.Functions)
             {
                 if (!Functions.Remove(c))
                 {
@@ -89,7 +79,7 @@ namespace AliceScript.Objects
         public bool Contains(DelegateObject d)
         {
             bool r = false;
-            foreach (CustomFunction cf in d.Functions)
+            foreach (FunctionBase cf in d.Functions)
             {
                 if (!m_fucntions.Contains(cf))
                 {
@@ -106,9 +96,9 @@ namespace AliceScript.Objects
         public Variable Invoke(List<Variable> args = null, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
         {
             Variable last_result = Variable.EmptyInstance;
-            foreach (CustomFunction func in m_fucntions)
+            foreach (FunctionBase func in m_fucntions)
             {
-                last_result = func.ARun(args, script, instance);
+                last_result = func.Evaluate(args, script, instance);
             }
             return last_result;
         }

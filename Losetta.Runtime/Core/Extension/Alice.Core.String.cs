@@ -148,7 +148,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadCenter(this string str, int totalWidth, bool padRight = false, bool truncate = false)
         {
-            return PadCenter(str, totalWidth, Constants.SPACE, padRight,truncate);
+            return PadCenter(str, totalWidth, Constants.SPACE, padRight, truncate);
         }
         public static string PadCenter(this string str, int totalWidth, char paddingChar, bool padRight = false, bool truncate = false)
         {

@@ -288,7 +288,7 @@ namespace AliceScript
                 Delegate = m;
                 return;
             }
-            if(o is IEnumerator<object> en)
+            if (o is IEnumerator<object> en)
             {
                 // キャスト毎にリセットされるためEnumeratorをEnumeratorObjectでボックス化する
                 var e = Utils.CreateBindObject(typeof(EnumeratorObject));
@@ -1432,7 +1432,7 @@ namespace AliceScript
             if (script.Prev == Constants.START_ARG)
             {
                 Variable value = Utils.GetItem(script);
-                return propName == Constants.TO_STRING
+                return propName == "string"
                     ? ConvertEnumToString(value)
                     : new Variable(m_enumMap is not null && m_enumMap.ContainsKey(value.AsInt()));
             }
@@ -1569,7 +1569,7 @@ namespace AliceScript
             }
             else if (script is not null)
             {
-                FunctionBase func = ParserFunction.GetFunction(propName, script, false, true) as FunctionBase;
+                FunctionBase func = ParserFunction.GetFunction(propName, script, true) as FunctionBase;
                 if (func is not null)
                 {
                     return func.Evaluate(script, this);
@@ -1760,12 +1760,12 @@ namespace AliceScript
 
         public virtual double Value
         {
-            get => m_value ?? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) ;
+            get => m_value ?? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL);
             set { m_value = value; Type = VarType.NUMBER; }
         }
         public virtual bool Bool
         {
-            get => m_bool ?? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL) ;
+            get => m_bool ?? throw new ScriptException("変数がnullです", Exceptions.VARIABLE_IS_NULL);
             set { m_bool = value; Type = VarType.BOOLEAN; }
         }
         public virtual string String

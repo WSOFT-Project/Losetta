@@ -513,14 +513,8 @@ namespace AliceScript.Parsing
 
         public NameSpace NameSpace
         {
-            get
-            {
-                return m_namespace ?? (!TopInFile && ParentScript is not null ? ParentScript.NameSpace : Interpreter.Instance.GlobalNameSpace);
-            }
-            set
-            {
-                m_namespace = value;
-            }
+            get => m_namespace ?? (!TopInFile && ParentScript is not null ? ParentScript.NameSpace : Interpreter.Instance.GlobalNameSpace);
+            set => m_namespace = value;
         }
 
         /// <summary>
@@ -929,7 +923,7 @@ namespace AliceScript.Parsing
         {
             bool isList;
             List<Variable> args = Utils.GetArgs(this,
-                                                start, end, (outList) => { isList = outList; }, callFrom,false);
+                                                start, end, (outList) => { isList = outList; }, callFrom, false);
             return args;
         }
         public int GoToNextStatement()
