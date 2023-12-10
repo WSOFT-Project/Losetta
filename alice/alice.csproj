@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
 	  
@@ -340,10 +340,10 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Reference Include="Losetta">
-	    <HintPath>..\Losetta.Runtime\bin\Release_Win_X64\net7.0\Losetta.dll</HintPath>
+	    <HintPath>..\Losetta.Runtime\bin\x64\Release_Win_X64\net8.0\Losetta.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Losetta.Runtime">
-	    <HintPath>..\Losetta.Runtime\bin\Release_Win_X64\net7.0\Losetta.Runtime.dll</HintPath>
+	    <HintPath>..\Losetta.Runtime\bin\x64\Release_Win_X64\net8.0\Losetta.Runtime.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 	<!-- ネイティブAOT向けの項目(終わり) -->
