@@ -27,7 +27,7 @@ namespace AliceScript
             // A variable, a function, or a number.
             Variable var = script.Execute(sep);
             //value = var.Clone();
-            if (script.ProcessingFunction != null && script.ProcessingFunction.Keywords != null && var != null)
+            if (script.ProcessingFunction is not null && script.ProcessingFunction.Keywords is not null && var is not null)
             {
                 var.Keywords = script.ProcessingFunction.Keywords;
             }
@@ -59,7 +59,7 @@ namespace AliceScript
             try
             {
                 value.Tuple = new VariableCollection();
-                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }, null));
+                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }, null, true));
             }
             finally
             {
@@ -174,10 +174,12 @@ namespace AliceScript
                 script.MoveForwardIf('}');
 
                 int parentOffset = script.Pointer +
-                    (script.CurrentClass != null ? script.CurrentClass.ParentOffset : 0);
-                customFunc = new CustomFunction(funcName, body, args, script);
-                customFunc.ParentScript = script;
-                customFunc.ParentOffset = parentOffset;
+                    (script.CurrentClass is not null ? script.CurrentClass.ParentOffset : 0);
+                customFunc = new CustomFunction(funcName, body, args, script)
+                {
+                    ParentScript = script,
+                    ParentOffset = parentOffset
+                };
 
             }
             return customFunc;
@@ -186,11 +188,11 @@ namespace AliceScript
         private static void SetPropertyFromStr(string token, Variable result, ParsingScript script,
             string funcName, CustomFunction customFunc)
         {
-            if (string.IsNullOrWhiteSpace(token) || (token[0] == '"' && token[token.Length - 1] != '"'))
+            if (string.IsNullOrWhiteSpace(token) || (token[0] == '"' && token[^1] != '"'))
             {
                 Utils.ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
             }
-            if (customFunc != null)
+            if (customFunc is not null)
             {
                 if (funcName == "set")
                 {
@@ -316,13 +318,13 @@ namespace AliceScript
                 switch (currentChar)
                 {
                     case Constants.QUOTE1:
-                        if (!inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                        if (!inQuotes2)
                         {
                             inQuotes = inQuotes1 = !inQuotes1;
                         }
                         break;
                     case Constants.QUOTE:
-                        if (!inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                        if (!inQuotes1)
                         {
                             inQuotes = inQuotes2 = !inQuotes2;
                         }
@@ -356,7 +358,7 @@ namespace AliceScript
             }
         }
         public static List<Variable> GetArgs(ParsingScript script,
-            char start, char end, Action<bool> outList, FunctionBase callFrom)
+            char start, char end, Action<bool> outList, FunctionBase callFrom, bool arrayMode)
         {
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
@@ -370,21 +372,35 @@ namespace AliceScript
 
             if (script.Current != start && script.TryPrev() != start &&
                (script.Current == ' ' || script.TryPrev() == ' '))
-            { // Allow functions with space separated arguments
+            { // 引数がスペースで区切られている場合
                 start = ' ';
                 end = Constants.END_STATEMENT;
             }
 
 #pragma warning disable 219
-            string body = Utils.GetBodyBetween(tempScript, start, end);
+            string body = Utils.GetBodyBetween(tempScript, start, end, "\0", false);
 #pragma warning restore 219
-            // After the statement above tempScript.Parent will point to the last
-            // character belonging to the body between start and end characters. 
+            // 本文の最後の文字まで移動
 
             while (script.Pointer < tempScript.Pointer)
             {
+                bool spread = false;
+                // スプレッド構文かどうかを判定
+                if (arrayMode && script.Current == Constants.SPREAD[0] && script.Next == Constants.SPREAD[1] && script.NextNext == Constants.SPREAD[2] && script.TryNext(3) != Constants.SPREAD[2])
+                {
+                    spread = true;
+                    script.Forward(3);
+                }
                 Variable item = Utils.GetItem(script, false);
-                args.Add(item);
+                if (spread)
+                {
+                    // スプレッド構文なら展開
+                    args.AddRange(item.Tuple);
+                }
+                else
+                {
+                    args.Add(item);
+                }
                 if (script.Pointer < tempScript.Pointer)
                 {
                     script.MoveForwardIf(Constants.END_GROUP);
@@ -398,13 +414,11 @@ namespace AliceScript
 
             if (script.Pointer <= tempScript.Pointer)
             {
-                // Eat closing parenthesis, if there is one, but only if it closes
-                // the current argument list, not one after it. 
+                // 閉じかっこがあるなら、そのかっこ分前に進める
                 script.MoveForwardIf(Constants.END_ARG, end);
             }
 
             script.MoveForwardIf(Constants.SPACE);
-            //script.MoveForwardIf(Constants.SPACE, Constants.END_STATEMENT);
             outList(isList);
             return args;
         }
@@ -493,7 +507,7 @@ namespace AliceScript
         {
             if (script.Current != ':')
             {
-                return new string[0];
+                return Array.Empty<string>();
             }
             script.Forward();
 
@@ -511,7 +525,6 @@ namespace AliceScript
 
             return args;
         }
-
 
 
         public static bool EndsWithFunction(string buffer, HashSet<string> functions)
@@ -532,11 +545,10 @@ namespace AliceScript
 
             return false;
         }
-
         public static bool SpaceNotNeeded(char next)
         {
             return next == Constants.SPACE || next == Constants.START_ARG ||
-                    next == Constants.START_GROUP || next == Constants.START_ARRAY ||
+                    next == Constants.START_GROUP || /*next == Constants.START_ARRAY ||*/
                     next == Constants.EMPTY;
         }
 
@@ -553,9 +565,17 @@ namespace AliceScript
 
             string str = sb.ToString();
             char last = str.Length < 1 ? Constants.EMPTY : str.Last();
-            return (char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next)) ? true : EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
+            return ((char.IsLetterOrDigit(last) || Constants.TOKEN_END.Contains(last)) && (char.IsLetterOrDigit(next) || Constants.TOKEN_START.Contains(next))) || EndsWithFunction(str, Constants.FUNCT_WITH_SPACE_ONCE);
         }
 
+        public static bool IsIgnoreCharEvenIfString(char ch)
+        {
+            return '\ufdd0' <= ch && ch <= '\ufddf';
+        }
+        public static bool IsIgnoreChar(char ch)
+        {
+            return Constants.IGNORE_CHARS.Contains(ch) || char.IsControl(ch) || char.GetUnicodeCategory(ch).HasFlag(System.Globalization.UnicodeCategory.Format);
+        }
 
         public static string ConvertToScript(string source, out Dictionary<int, int> char2Line, out HashSet<string> defines, out ParsingScript.ScriptSettings settings, string filename = "")
         {
@@ -612,11 +632,6 @@ namespace AliceScript
 
             StringBuilder lastToken = new StringBuilder();
 
-            // Remove these two lines for quality time debugging in case the user has special
-            // spaces with code 160. See https://en.wikipedia.org/wiki/Non-breaking_space
-            char extraSpace = Convert.ToChar(160);
-            source = source.Replace(extraSpace, ' ');
-
             for (int i = 0; i < source.Length; i++)
             {
                 char ch = source[i];
@@ -659,6 +674,19 @@ namespace AliceScript
                     continue;
                 }
 
+                if (IsIgnoreChar(ch))
+                {
+                    if (inQuotes)
+                    {
+                        sb.Append(ch);
+                    }
+                    continue;
+                }
+                if (IsIgnoreCharEvenIfString(ch))
+                {
+                    continue;
+                }
+
                 switch (ch)
                 {
                     case '/':
@@ -680,13 +708,13 @@ namespace AliceScript
                     case '*':
                         if (!inQuotes && inComments && next == '/')
                         {
-                            i++; // skip next character
+                            i++;
                             inComments = false;
                             continue;
                         }
                         break;
                     case '\'':
-                        if (!inComments && (!inIf || If) && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                        if (!inComments && (!inIf || If) && !inQuotes2)
                         {
                             ch = '"';
                             inQuotes = inQuotes1 = !inQuotes1;
@@ -701,7 +729,7 @@ namespace AliceScript
                     case '„':
                     case '"':
                         ch = '"';
-                        if (!inComments && (!inIf || If) && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                        if (!inComments && (!inIf || If) && !inQuotes1)
                         {
                             inQuotes = inQuotes2 = !inQuotes2;
                             if (inQuotes && prev == '"' && lineNumberQuote == 0)
@@ -714,37 +742,6 @@ namespace AliceScript
                             sb.Append('\\');
                         }
                         break;
-                    case Constants.SPACE:
-                        if (inQuotes)
-                        {
-                            sb.Append(ch);
-                        }
-                        else if (inPragmaCommand)
-                        {
-                            inPragmaCommand = false;
-                            inPragmaArgs = true;
-                        }
-                        else
-                        {
-                            bool keepSpace = KeepSpace(sb, next);
-                            bool usedSpace = spaceOK;
-                            spaceOK = keepSpace ||
-                                 (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK);
-                            if (spaceOK || KeepSpaceOnce(sb, next))
-                            {
-                                sb.Append(ch);
-                            }
-                            spaceOK = spaceOK || (usedSpace && prev == Constants.NEXT_ARG);
-                        }
-                        continue;
-                    case '\t':
-                    case '\r':
-                        if (inQuotes)
-                        {
-                            sb.Append(ch);
-                        }
-
-                        continue;
                     case Constants.START_ARG:
                         if (!inQuotes && !inComments && (!inIf || If))
                         {
@@ -818,10 +815,111 @@ namespace AliceScript
                             inPragmaArgs = false;
                         }
                         break;
+                    case '\\':
+                        {
+                            if (inQuotes2)
+                            {
+                                i++;
+                                switch (next)
+                                {
+                                    case '0':
+                                        {
+                                            sb.Append('\u0000');
+                                            continue;
+                                        }
+                                    case 'a':
+                                        {
+                                            sb.Append('\u0007');
+                                            continue;
+                                        }
+                                    case 'b':
+                                        {
+                                            sb.Append('\u0008');
+                                            continue;
+                                        }
+                                    case 'e':
+                                        {
+                                            sb.Append('\u001B');
+                                            continue;
+                                        }
+                                    case 'f':
+                                        {
+                                            sb.Append('\u000C');
+                                            continue;
+                                        }
+                                    case 'n':
+                                        {
+                                            sb.Append('\u000A');
+                                            continue;
+                                        }
+                                    case 'r':
+                                        {
+                                            sb.Append('\u000D');
+                                            continue;
+                                        }
+                                    case 't':
+                                        {
+                                            sb.Append('\u0009');
+                                            continue;
+                                        }
+                                    case 'v':
+                                        {
+                                            sb.Append('\u000B');
+                                            continue;
+                                        }
+                                    case '\\':
+                                        {
+                                            sb.Append('\\');
+                                            continue;
+                                        }
+                                    case Constants.QUOTE:
+                                        {
+                                            sb.Append(Constants.QUOTE_IN_LITERAL);
+                                            continue;
+                                        }
+                                    case Constants.QUOTE1:
+                                        {
+                                            sb.Append(Constants.QUOTE1_IN_LITERAL);
+                                            continue;
+                                        }
+                                    default:
+                                        {
+                                            throw new ScriptException("認識できないエスケープ文字です", Exceptions.UNKNOWN_ESCAPE_CHAR);
+                                        }
+                                }
+                            }
+                            break;
+                        }
                     default:
                         break;
                 }
-                if (!inComments && (!inIf || If) && !inPragma)
+
+                // 文字がスペースの場合
+                if (char.IsWhiteSpace(ch))
+                {
+                    if (inQuotes)
+                    {
+                        sb.Append(ch);
+                    }
+                    else if (inPragmaCommand)
+                    {
+                        inPragmaCommand = false;
+                        inPragmaArgs = true;
+                    }
+                    else
+                    {
+                        bool keepSpace = KeepSpace(sb, next);
+                        bool usedSpace = spaceOK;
+                        spaceOK = keepSpace ||
+                             (prev != Constants.EMPTY && prev != Constants.NEXT_ARG && spaceOK);
+                        if (spaceOK || KeepSpaceOnce(sb, next))
+                        {
+                            sb.Append(Constants.SPACE);
+                        }
+                        spaceOK = spaceOK || (usedSpace && prev == Constants.NEXT_ARG);
+                    }
+                }
+                else if (!inComments && (!inIf || If) && !inPragma)
                 {
                     sb.Append(ch);
                     lastToken.Append(ch);
@@ -944,7 +1042,7 @@ namespace AliceScript
                             }
                         case Constants.LIBRARY_IMPORT:
                             {
-                                sb.Append('.');
+                                sb.Append(Constants.USER_CANT_USE_FUNCTION_PREFIX);
                                 sb.Append(Constants.LIBRARY_IMPORT);
                                 sb.Append(Constants.START_ARG);
                                 sb.Append(pragmaArgs);
@@ -954,7 +1052,7 @@ namespace AliceScript
                             }
                         case Constants.NET_IMPORT:
                             {
-                                sb.Append('.');
+                                sb.Append(Constants.USER_CANT_USE_FUNCTION_PREFIX);
                                 sb.Append(Constants.NET_IMPORT);
                                 sb.Append(Constants.START_ARG);
                                 sb.Append(pragmaArgs);
@@ -1003,7 +1101,7 @@ namespace AliceScript
 
         private static string ConvertUnicodeLiteral(string input)
         {
-            if (input.Contains("\\", StringComparison.Ordinal) && (input.Contains("u", StringComparison.OrdinalIgnoreCase) || input.Contains("x", StringComparison.Ordinal)))
+            if (input.Contains('\\', StringComparison.Ordinal) && (input.Contains('u', StringComparison.OrdinalIgnoreCase) || input.Contains('x', StringComparison.Ordinal)))
             {
                 //UTF-16文字コードの置き換え
                 foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
@@ -1067,11 +1165,11 @@ namespace AliceScript
 
                 char ch = script.Current;
                 checkBraces = !inQuotes;
-                if (ch == Constants.QUOTE && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                if (ch == Constants.QUOTE && !inQuotes1)
                 {
                     inQuotes = inQuotes2 = !inQuotes2;
                 }
-                if (ch == Constants.QUOTE1 && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                if (ch == Constants.QUOTE1 && !inQuotes2)
                 {
                     inQuotes = inQuotes1 = !inQuotes1;
                 }
@@ -1135,11 +1233,11 @@ namespace AliceScript
                 if (close != Constants.QUOTE)
                 {
                     checkBraces = !inQuotes;
-                    if (ch == Constants.QUOTE && !inQuotes1 && (prev != '\\' || prevprev == '\\'))
+                    if (ch == Constants.QUOTE)
                     {
                         inQuotes = inQuotes2 = !inQuotes2;
                     }
-                    if (ch == Constants.QUOTE1 && !inQuotes2 && (prev != '\\' || prevprev == '\\'))
+                    if (ch == Constants.QUOTE1 && !inQuotes2)
                     {
                         inQuotes = inQuotes1 = !inQuotes1;
                     }

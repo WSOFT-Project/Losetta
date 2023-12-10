@@ -1,5 +1,4 @@
-﻿using AliceScript.Binding;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace AliceScript.Functions
 {
@@ -20,7 +19,9 @@ namespace AliceScript.Functions
             Utils.CheckLegalName(funcName);
 
             bool? mode = null;
-            bool isGlobal = e.Keywords.Contains(Constants.PUBLIC);
+            AccessModifier accessModifier = e.Keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
+            accessModifier = e.Keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
+            accessModifier = e.Keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
             bool isCommand = e.Keywords.Contains(Constants.COMMAND);
             bool isExtension = e.Keywords.Contains(Constants.EXTENSION);
             if (e.Keywords.Contains(Constants.OVERRIDE))
@@ -60,12 +61,12 @@ namespace AliceScript.Functions
             }
             else if (prevfunc is NetImportFunction libInfo)
             {
-                if (libInfo.Class == null)
+                if (libInfo.Class is null)
                 {
                     throw new ScriptException("メソッドが存在する適切なクラスが見つかりませんでした", Exceptions.OBJECT_DOESNT_EXIST);
                 }
                 MethodInfo method = libInfo.Class.GetMethod(funcName, Constants.InvokeStringToType(args.ToArray()));
-                if (libInfo.Class == null)
+                if (libInfo.Class is null)
                 {
                     throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.COULDNT_FIND_VARIABLE);
                 }
@@ -78,13 +79,13 @@ namespace AliceScript.Functions
 
             funcName = Constants.ConvertName(funcName);
 
-            if (mode != null)
+            if (mode is not null)
             {
                 func.IsVirtual = true;
             }
             if (!FunctionExists(funcName, e.Script, out _) || (mode == true && FunctionIsVirtual(funcName, e.Script)))
             {
-                FunctionBaseManager.Add(func, funcName, e.Script, isGlobal);
+                FunctionBaseManager.Add(func, funcName, e.Script, accessModifier);
             }
             else
             {
@@ -96,15 +97,30 @@ namespace AliceScript.Functions
     {
         public NetImportFunction()
         {
-            Name = "." + Constants.NET_IMPORT;
+            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.NET_IMPORT;
+            MinimumArgCounts = 1;
             Run += PInvokeFlagFunction_Run;
         }
 
         private void PInvokeFlagFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            string locate = Utils.GetSafeString(e.Args, 1, null);
-            string typeName = Utils.GetSafeString(e.Args, 0) + (locate == null ? string.Empty : "," + locate);
-            Class = Type.GetType(typeName, false, true);
+            string asmName = Utils.GetSafeString(e.Args, 1, null);
+            string asmLocate = Utils.GetSafeString(e.Args, 2, null);
+            string typeName = e.Args[0].AsString();
+
+            if (!string.IsNullOrEmpty(asmName))
+            {
+                typeName += $",{asmName}";
+            }
+            if (string.IsNullOrEmpty(asmLocate))
+            {
+                Class = Type.GetType(typeName, false, true);
+            }
+            else
+            {
+                var asm = Assembly.LoadFrom(asmLocate);
+                Class = asm.GetType(typeName);
+            }
         }
         public Type Class { get; set; }
     }
@@ -112,7 +128,7 @@ namespace AliceScript.Functions
     {
         public LibImportFunction()
         {
-            Name = "." + Constants.LIBRARY_IMPORT;
+            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.LIBRARY_IMPORT;
             Run += PInvokeFlagFunction_Run;
         }
 

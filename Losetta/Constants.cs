@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
@@ -27,11 +28,16 @@ namespace AliceScript
         public const char TERNARY_OPERATOR = '?';
         public const char DOLLER = '$';
 
+        public const char QUOTE_IN_LITERAL = '\ufdd2';
+        public const char QUOTE1_IN_LITERAL = '\ufdd1';
+        public const char USER_CANT_USE_FUNCTION_PREFIX = '\ufdd3';
+        public const char USER_CANT_USE_VARIABLE_PREFIX = '\ufdd4';
+
         public const string AS = "as ";
         public const string IS = "is ";
         public const string IS_NOT = "is not ";
         public const string FOR_EACH = ":";
-        public const string FOR_IN = "in";
+        public const string FOR_IN = " in ";
         public const string INFINITY = "Infinity";
         public const string NEG_INFINITY = "-Infinity";
         public const string ISFINITE = "IsFinite";
@@ -58,6 +64,7 @@ namespace AliceScript
         public const string EXPONENTIATION = "**";
         public const string LEFT_SHIFT = "<<";
         public const string RIGHT_SHIFT = ">>";
+        public const string SPREAD = "...";
 
         public const string BREAK = "break";
         public const string CASE = "case";
@@ -71,7 +78,6 @@ namespace AliceScript
         public const string ELSE_IF = "elif";
         public const string FOR = "for";
         public const string FINALLY = "finally";
-        public const string FUNCTION = "function";
         public const string CLASS = "class";
         public const string ENUM = "enum";
         public const string IF = "if";
@@ -92,6 +98,8 @@ namespace AliceScript
 
         public const string REF = "ref";
         public const string PARAMS = "params";
+        public const string REQUIRES = "requires";
+        public const string ENSURES = "ensures";
 
         public const string ADD = "add";
         public const string ADD_TO_HASH = "AddToHash";
@@ -101,7 +109,6 @@ namespace AliceScript
         public const string NAMESPACE = "Namespace";
         public const string OBJECT_PROPERTIES = "Properties";
         public const string OBJECT_TYPE = "Type";
-        public const string TO_STRING = "string";
 
         public const string LABEL_OPERATOR = ":";
         public const string GOTO = "goto";
@@ -112,7 +119,7 @@ namespace AliceScript
         /// </summary>
         public const string LANGUAGE = "AliceScript";
 
-        public static readonly Version VERSION = new Version(3,0);
+        public static readonly Version VERSION = new Version(3, 0);
 
         public const string UTF8_LITERAL_PREFIX = "u8";
 
@@ -172,17 +179,29 @@ namespace AliceScript
         public static readonly string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
         /// <summary>
+        /// ソースコード上では無視される文字
+        /// </summary>
+        public const string IGNORE_CHARS = "\t\r";
+
+        /// <summary>
         /// パース中の言語構造が所属する名前空間
         /// </summary>
-        public static readonly string PARSING_NAMESPACE = TOP_NAMESPACE + ".Parsing";
+        public static readonly string PARSING_NAMESPACE = TOP_API_NAMESPACE + ".Parsing";
 
-        //最上位の名前空間
-        public const string TOP_NAMESPACE = "Alice";
+        /// <summary>
+        /// グローバルの名前空間名
+        /// </summary>
+        public const string TOP_NAMESPACE = ":Global:";
+
+        /// <summary>
+        /// APIが使用する最上位の名前空間
+        /// </summary>
+        public const string TOP_API_NAMESPACE = "Alice";
 
         /// <summary>
         /// 変数・定数・関数名などの識別子がとるパターン
         /// </summary>
-        public static readonly Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
+        public static readonly Regex IDENTIFIER_PATTERN = new Regex("^[\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\ufdd3\\ufdd4][\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Nd}\\p{Cf}\\.]*$", RegexOptions.Compiled);
 
         /// <summary>
         /// 複合代入式がとるパターン
@@ -209,8 +228,15 @@ namespace AliceScript
         /// </summary>
         public static readonly Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
 
+        /// <summary>
+        /// return式がとるパターン
+        /// </summary>
+        public static readonly Regex RETURN_PATTERN = new Regex("return([\\s\\S]*?);", RegexOptions.Compiled);
+
         // キーワード
         public const string PUBLIC = "public";
+        public const string PRIVATE = "private";
+        public const string PROTECTED = "protected";
         public const string VAR = "var";
         public const string CONST = "const";
         public const string VIRTUAL = "virtual";
@@ -218,6 +244,7 @@ namespace AliceScript
         public const string COMMAND = "command";
         public const string READONLY = "readonly";
         public const string EXTENSION = "extension";
+        public const string FUNCTION = "function";
 
 
         /// <summary>
@@ -230,7 +257,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, VAR, CONST, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, FUNCTION, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";
@@ -422,6 +449,10 @@ namespace AliceScript
         }
         public static Type InvokeStringToType(string typeStr)
         {
+            if (typeStr.EndsWith("[]", StringComparison.OrdinalIgnoreCase))
+            {
+                return InvokeStringToType(typeStr.Substring(0, typeStr.Length - 2)).MakeArrayType();
+            }
             switch (typeStr.ToUpperInvariant())
             {
                 case "VOID":
@@ -432,9 +463,10 @@ namespace AliceScript
                 case "INTPTR":
                     return typeof(nint);
                 case "UINTPTR":
-                    return typeof(UIntPtr);
+                    return typeof(nuint);
                 case "INT8":
                 case "SCHAR":
+                case "SBYTE":
                     return typeof(sbyte);
                 case "UCHAR":
                 case "CHAR":
@@ -453,6 +485,7 @@ namespace AliceScript
                 case "LONG32":
                 case "LONG":
                     return typeof(int);
+                case "UINT":
                 case "UINT32":
                 case "ULONG32":
                 case "ULONG":
@@ -468,14 +501,16 @@ namespace AliceScript
                     return typeof(ulong);
                 case "BOOL":
                     return typeof(bool);
-                case "LPSTR":
                 case "LPTSTR":
                 case "LPCSTR":
                 case "LPCTSTR":
                 case "LPCWSTR":
-                case "LPWSTR":
                 case "STRING":
                     return typeof(string);
+                case "LPSTR":
+                case "LPWSTR":
+                case "STRINGBUILDER":
+                    return typeof(StringBuilder);
                 case "FLOAT":
                 case "SINGLE":
                     return typeof(float);

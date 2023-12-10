@@ -41,7 +41,6 @@ namespace AliceScript.CLI
             RunLoop();
         }
 
-        private static bool mainfile = false;
         internal static void ThrowErrorManager_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (!Program.allow_throw)
@@ -56,7 +55,7 @@ namespace AliceScript.CLI
             }
             if (Program.IsDebugMode)
             {
-                if (e.Script != null)
+                if (e.Script is not null)
                 {
                     if (e.Script.StackTrace.Count > 0)
                     {
@@ -96,7 +95,7 @@ namespace AliceScript.CLI
                                 Console.WriteLine();
                                 Console.Write("評価する式>>>>");
                                 string code = Console.ReadLine();
-                                Console.WriteLine(e.Script.GetTempScript(code).Process());
+                                Console.WriteLine(e.Script.GetChildScript(code).Process());
                                 goto PauseInput;
                             }
                     }
@@ -127,14 +126,14 @@ namespace AliceScript.CLI
             {
                 dic.Add(s, script.Variables[s]);
             }
-            if (script.ParentScript != null)
+            if (script.ParentScript is not null)
             {
                 AddDictionaryScriptVariables(script.ParentScript, ref dic);
             }
         }
         public static void DumpLocalVariables(ParsingScript script)
         {
-            if (script == null) { return; }
+            if (script is null) { return; }
             DumpLocalVariables(script.ParentScript);
             Dictionary<string, ParserFunction> dic = new Dictionary<string, ParserFunction>();
             AddDictionaryScriptVariables(script, ref dic);
@@ -183,58 +182,7 @@ namespace AliceScript.CLI
                 Console.WriteLine(print);
             }
         }
-        public static void DumpGlobalVariables()
-        {
-            Dictionary<string, ParserFunction> dic = ParserFunction.s_variables;
-            if (dic.Count <= 0)
-            {
-                return;
-            }
-            List<string> names = new List<string>();
-            List<string> types = new List<string>();
-            List<string> contents = new List<string>();
-            int namemax = 4;
-            int typemax = 4;
-            int contentmax = 7;
-            names.Add("Name");
-            types.Add("Type");
-            contents.Add("Content");
-            foreach (string s in dic.Keys)
-            {
-                try
-                {
-                    if (dic[s] is ValueFunction vf)
-                    {
-                        names.Add(s);
-                        if (s.Length > namemax)
-                        {
-                            namemax = s.Length;
-                        }
-                        string type = vf.Value.Type.ToString();
-                        types.Add(type);
-                        if (type.Length > typemax)
-                        {
-                            typemax = type.Length;
-                        }
-                        string content = vf.Value.AsString();
-                        contents.Add(content);
-                        if (content.Length > contentmax)
-                        {
-                            contentmax = content.Length;
-                        }
-                    }
-                }
-                catch { }
-            }
-            for (int i = 0; i < names.Count; i++)
-            {
-                string print = "|Global|";
-                print += Centering(names[i], namemax + 2) + "|";
-                print += Centering(types[i], typemax + 2) + "|";
-                print += Centering(contents[i], contentmax + 2) + "|";
-                Console.WriteLine(print);
-            }
-        }
+
         private static void SplitByLast(string str, string sep, ref string a, ref string b)
         {
             int it = str.LastIndexOfAny(sep.ToCharArray());
@@ -319,7 +267,7 @@ namespace AliceScript.CLI
                     continue;
                 }
 
-                if (commands.Count == 0 || !commands[commands.Count - 1].Equals(script))
+                if (commands.Count == 0 || !commands[^1].Equals(script))
                 {
                     commands.Add(script);
                 }
@@ -435,24 +383,17 @@ namespace AliceScript.CLI
                 {
                     result = System.Threading.Tasks.Task.Run(() =>
                   Interpreter.Instance.ProcessFileAsync(filename, true)).Result;
-                    //Interpreter.Instance.ProcessFile(filename, true)).Result;
                 }
                 else
                 {
-                    //Interpreter.Instance.ProcessAsync(script, filename)).Result;
-                    CurrentScript = CurrentScript == null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
+                    CurrentScript = CurrentScript is null ? Alice.GetScript(script, filename, true) : CurrentScript.GetChildScript(script);
                     result = CurrentScript.Process();
                 }
             }
 #if !DEBUG_THROW
-            catch (Exception)
+            catch (Exception exc)
             {
-                ///TODO:補足されなかった例外にエラー番号振る。
-                /*
-                errorMsg ="補足されなかった例外:"+ (exc.InnerException != null ? exc.InnerException.Message : exc.Message);
-                ParserFunction.InvalidateStacksAfterLevel(0);
-                */
-
+                ParsingScript.GetTopLevelScript().OnThrowError(exc);
             }
 #endif
 
@@ -463,7 +404,7 @@ namespace AliceScript.CLI
                 {
                     Console.WriteLine(output);
                 }
-                else if (result != null)
+                else if (result is not null)
                 {
                     output = result.AsString();
                     if (!string.IsNullOrWhiteSpace(output))

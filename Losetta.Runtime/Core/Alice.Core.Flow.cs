@@ -3,6 +3,7 @@ using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Collections;
+using System.Text;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -103,7 +104,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 result = script.ProcessBlock();
 
-                if (result != null && (result.IsReturn ||
+                if (result is not null && (result.IsReturn ||
                     result.Type == Variable.VarType.BREAK ||
                     result.Type == Variable.VarType.CONTINUE))
                 {
@@ -171,7 +172,7 @@ namespace AliceScript.NameSpaces.Core
                 }
 
             }
-            if (result == null)
+            if (result is null)
             {
                 result = Variable.EmptyInstance;
             }
@@ -261,31 +262,26 @@ namespace AliceScript.NameSpaces.Core
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable While(ParsingScript script)
         {
-            int startWhileCondition = script.Pointer;
             bool stillValid = true;
             Variable result = Variable.EmptyInstance;
+            string condExp = Utils.GetBodyBetween(script);
+            script.Forward();
+            string loopBody = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
 
             while (stillValid)
             {
-                script.Pointer = startWhileCondition;
-
-                //int startSkipOnBreakChar = from;
-                Variable condResult = script.Execute(Constants.END_ARG_ARRAY);
-                stillValid = condResult.AsBool();
+                stillValid = script.GetTempScript(condExp).Process().Bool;
                 if (!stillValid)
                 {
                     break;
                 }
-                result = script.ProcessBlock();
+                result = script.GetTempScript(loopBody).Process();
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
-                    script.Pointer = startWhileCondition;
-                    break;
+                    return result;
                 }
             }
 
-            // 条件はもうtrueではないので、ブロックをスキップ
-            script.SkipBlock();
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
@@ -346,7 +342,7 @@ namespace AliceScript.NameSpaces.Core
             while (stillValid)
             {
                 Variable condResult = condScript.Execute(null, 0); condScript.Tag = "COND";
-                if (condResult == null)
+                if (condResult is null)
                 {
                     condResult = Variable.EmptyInstance;
                 }
@@ -373,73 +369,101 @@ namespace AliceScript.NameSpaces.Core
         {
             string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
             script.Forward();
-            //foreach(var in ary)の形式です
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-            var tokens = forString.Split(' ');
+            string bodyString = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+            string[] tokens = forString.Split(Constants.FOR_IN);
 
-            bool registVar = false;
-            if (tokens[0].Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
+            if (tokens.Length != 2)
             {
-                tokens = tokens.Skip(1).ToArray();
-                forString = forString.Substring(3);
-                registVar = true;
-            }
-            var sep = tokens.Length > 2 ? tokens[1] : "";
-            string varName = tokens[0];
-            //AliceScript925からforeach(var : ary)またはforeach(var of ary)の形は使用できなくなりました。同じ方法をとるとき、複数の方法が存在するのは好ましくありません。
-
-            if (sep != Constants.FOR_IN)
-            {
-                int index = forString.IndexOf(Constants.FOR_EACH);
-                if (index <= 0 || index == forString.Length - 1)
-                {
-                    Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX
-                                     , script, "foreach");
-                }
-                varName = forString.Substring(0, index);
+                Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX, script, "foreach");
             }
 
-            ParsingScript forScript = script.GetTempScript(forString, func, varName.Length + sep.Length + 1);
+            ParsingScript forScript = script.GetTempScript(tokens[1], func);
 
             Variable arrayValue = Utils.GetItem(forScript);
 
-            if (arrayValue == null)
+            if (arrayValue is null)
             {
                 return Variable.EmptyInstance;
+            }
+
+            Variable ProcessEach(Variable current)
+            {
+                // 代入式を逐次実行できるように隠し変数を作成
+                current.Readonly = true;
+                string forConstName = Constants.USER_CANT_USE_VARIABLE_PREFIX + "eachconst";
+
+                var body = new StringBuilder();
+                body.Append(tokens[0].Trim());
+                body.Append(Constants.ASSIGNMENT);
+                body.Append(forConstName);
+                body.Append(Constants.END_STATEMENT);
+                body.Append(bodyString);
+
+                ParsingScript mainScript = forScript.GetTempScript(body.ToString());
+                mainScript.Variables[forConstName] = new ValueFunction(current);
+
+                return mainScript.Process(true);
+            }
+
+            switch (arrayValue.Type)
+            {
+                case Variable.VarType.ARRAY:
+                    {
+                        int cycles = arrayValue.Count;
+                        for (int i = 0; i < cycles; i++)
+                        {
+                            Variable result = ProcessEach(arrayValue.GetValue(i));
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                return result;
+                            }
+                        }
+                        break;
+                    }
+                case Variable.VarType.STRING:
+                    {
+                        foreach (char c in arrayValue.String)
+                        {
+                            Variable result = ProcessEach(new Variable(c.ToString()));
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                return result;
+                            }
+                        }
+                        break;
+                    }
+                case Variable.VarType.OBJECT:
+                    {
+                        EnumeratorObject enumerator = forScript.GetTempScript(tokens[1] + ".GetEnumerator()").Process().Object as EnumeratorObject;
+                        if (enumerator is null)
+                        {
+                            Utils.ThrowErrorMsg("foreachでループできるオブジェクトはGetEnumeratorメソッドを実装する必要があります", Exceptions.INVALID_SYNTAX, script, "foreach");
+                        }
+                        IDisposable disposable = enumerator.Enumerator;
+                        while (enumerator.MoveNext())
+                        {
+                            Variable result = ProcessEach(new Variable(enumerator.Current));
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                if (disposable is not null)
+                                {
+                                    disposable.Dispose();
+                                }
+                                return result;
+                            }
+                        }
+                        if (disposable is not null)
+                        {
+                            disposable.Dispose();
+                        }
+                        break;
+                    }
             }
 
             if (arrayValue.Type == Variable.VarType.STRING)
             {
                 arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
             }
-
-            int cycles = arrayValue.Count;
-            if (cycles == 0)
-            {
-                script.SkipBlock();
-                return Variable.EmptyInstance;
-            }
-            int startForCondition = script.Pointer;
-
-            for (int i = 0; i < cycles; i++)
-            {
-                script.Pointer = startForCondition;
-                Variable current = arrayValue.GetValue(i);
-
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
-                ParsingScript mainScript = script.GetTempScript(body);
-                ParserFunction.AddGlobalOrLocalVariable(varName,
-                               new ValueFunction(current), mainScript, false, registVar, false);
-                Variable result = mainScript.Process(true);
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                {
-                    script.Pointer = startForCondition;
-                    script.SkipBlock();
-                    return result;
-                }
-            }
-            script.Pointer = startForCondition;
-            script.SkipBlock();
             return Variable.EmptyInstance;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
@@ -457,7 +481,7 @@ namespace AliceScript.NameSpaces.Core
         {
             var labelName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
 
-            if (script.AllLabels == null || script.LabelToFile == null |
+            if (script.AllLabels is null || script.LabelToFile is null |
                !script.AllLabels.TryGetValue(script.FunctionName, out Dictionary<string, int> labels))
             {
                 Utils.ThrowErrorMsg("次のラベルは関数内に存在しません [" + script.FunctionName + "]", Exceptions.COULDNT_FIND_LABEL_IN_FUNCTION,
@@ -494,48 +518,50 @@ namespace AliceScript.NameSpaces.Core
             return;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static void GoSub(ParsingScript script, BindFunction func)
+        public static void NameSpace(ParsingScript script)
         {
-            Goto(script, func);
-        }
-        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable New(ParsingScript script, BindFunction func)
-        {
-            if (script.Prev == Constants.START_ARG)
+            string spaceName = Utils.GetToken(script, Constants.TOKEN_SEPARATION).ToLowerInvariant();
+
+            if (script.Current == Constants.START_GROUP)
             {
-                //new関数として動作
-                List<Variable> args = script.GetFunctionArgs(func);
-                if (args.Count > 0 && args[0].Object is TypeObject type)
+                // 名前空間ブロック
+                ParsingScript block = script.GetBlock();
+
+                if (NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space))
                 {
-                    var arg = new List<Variable>();
-                    if (args.Count > 1)
-                    {
-                        arg = args.Skip(1).ToList();
-                    }
-                    return new Variable(type.Activate(arg, script));
+                    block.NameSpace = space;
                 }
+                else
+                {
+                    space = new NameSpace();
+                    space.Name = spaceName;
+                    block.NameSpace = space;
+                    NameSpaceManager.Add(space);
+                }
+
+                block.Process();
             }
             else
             {
-                //new式として動作
-                string className = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
-
-                className = Constants.ConvertName(className);
-                script.MoveForwardIf(Constants.START_ARG);
-                List<Variable> args = script.GetFunctionArgs(func);
-
-                ObjectBase csClass = AliceScriptClass.GetClass(className, script) as ObjectBase;
-                if (csClass != null)
+                // スコープ名前空間
+                if (NameSpaceManager.NameSpaces.TryGetValue(spaceName, out var space))
                 {
-                    return csClass.GetImplementation(args, script);
+                    script.NameSpace = space;
                 }
-
-                AliceScriptClass.ClassInstance instance = new
-                    AliceScriptClass.ClassInstance(script.CurrentAssign, className, args, script);
-
-                return new Variable(instance);
+                else
+                {
+                    space = new NameSpace();
+                    space.Name = spaceName;
+                    script.NameSpace = space;
+                    NameSpaceManager.Add(space);
+                }
             }
-            return Variable.EmptyInstance;
+
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static void GoSub(ParsingScript script, BindFunction func)
+        {
+            Goto(script, func);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Default(ParsingScript script)
@@ -573,7 +599,6 @@ namespace AliceScript.NameSpaces.Core
         public static Variable Try(ParsingScript script, BindFunction func)
         {
             int startTryCondition = script.Pointer - 1;
-            int currentStackLevel = ParserFunction.GetCurrentStackLevel();
 
             Variable result = null;
 
@@ -627,7 +652,7 @@ namespace AliceScript.NameSpaces.Core
 
             }
 
-            bool handled = catches.Count > 0 || final_body != null;
+            bool handled = catches.Count > 0 || final_body is not null;
             if (!handled)
             {
                 throw new ScriptException("tryブロックには1つ以上catchまたはfinallyブロックが必要です。", Exceptions.TRY_BLOCK_MISSING_HANDLERS, script);
@@ -638,10 +663,10 @@ namespace AliceScript.NameSpaces.Core
                 foreach (var data in catches)
                 {
                     ValueFunction excMsgFunc = new ValueFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
-                    if (data.Filter != null)
+                    if (data.Filter is not null)
                     {
                         ParsingScript filterScript = script.ParentScript.GetTempScript(data.Filter, func);
-                        if (data.ExceptionName != null)
+                        if (data.ExceptionName is not null)
                         {
                             filterScript.Variables.Add(data.ExceptionName, excMsgFunc);
                         }
@@ -654,7 +679,7 @@ namespace AliceScript.NameSpaces.Core
                     }
 
                     ParsingScript catchScript = script.ParentScript.GetTempScript(data.Body);
-                    if (data.ExceptionName != null)
+                    if (data.ExceptionName is not null)
                     {
                         catchScript.Variables.Add(data.ExceptionName, excMsgFunc);
                     }
@@ -662,7 +687,7 @@ namespace AliceScript.NameSpaces.Core
                     e.Handled = true;
                     break;
                 }
-                if (final_body != null)
+                if (final_body is not null)
                 {
                     ParsingScript finallyScript = script.GetTempScript(final_body);
                     finallyScript.Process();
@@ -672,7 +697,7 @@ namespace AliceScript.NameSpaces.Core
 
             result = mainScript.Process();
 
-            if (final_body != null)
+            if (final_body is not null)
             {
                 ParsingScript finallyScript = script.GetTempScript(final_body);
                 finallyScript.Process();
@@ -701,7 +726,7 @@ namespace AliceScript.NameSpaces.Core
 
             int parentOffset = script.Pointer;
 
-            if (script.CurrentClass != null)
+            if (script.CurrentClass is not null)
             {
                 parentOffset += script.CurrentClass.ParentOffset;
             }

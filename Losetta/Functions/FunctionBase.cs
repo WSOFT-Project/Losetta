@@ -38,7 +38,7 @@ namespace AliceScript.Functions
         /// <summary>
         /// この関数を拡張メソッドとして呼び出し可能な場合はTrue、それ以外の場合はfalse。このプロパティは読み取り専用です。
         /// </summary>
-        public bool IsMethod => RequestType != null;
+        public bool IsMethod => RequestType is not null;
 
         /// <summary>
         /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができる
@@ -57,7 +57,7 @@ namespace AliceScript.Functions
             ex.Args = args ?? new List<Variable>();
             ex.UseObjectResult = false;
             ex.ObjectResult = null;
-            if (script != null)
+            if (script is not null)
             {
                 ex.OriginalScript = script.OriginalScript;
             }
@@ -66,7 +66,7 @@ namespace AliceScript.Functions
             ex.Keywords = Keywords;
             ex.ClassInstance = instance;
             Run?.Invoke(script, ex);
-            if (ex.Return == null)
+            if (ex.Return is null)
             {
                 ex.Return = Variable.EmptyInstance;
             }
@@ -116,7 +116,7 @@ namespace AliceScript.Functions
         /// <exception cref="ScriptException">この拡張メソッドが使用できない場合はエラー</exception>
         public Variable Evaluate(ParsingScript script, Variable currentVariable)
         {
-            if (currentVariable == null)
+            if (currentVariable is null)
             {
                 return Variable.EmptyInstance;
             }
@@ -174,6 +174,7 @@ namespace AliceScript.Functions
         }
 
         public string[] RealArgs { get; internal set; }
+        public AccessModifier AccessModifier { get; set; }
         public FunctionBase()
         {
             MinimumArgCounts = 0;
@@ -231,6 +232,24 @@ namespace AliceScript.Functions
         VIRTUAL = 5
     }
     /// <summary>
+    /// 関数に使用されるアクセス修飾子を表します
+    /// </summary>
+    public enum AccessModifier
+    {
+        /// <summary>
+        /// スコープの範囲内からのみアクセスできます
+        /// </summary>
+        PRIVATE = 0,
+        /// <summary>
+        /// 名前空間の外部からもアクセスできます
+        /// </summary>
+        PUBLIC = 1,
+        /// <summary>
+        /// 同一名前空間の内部からのみアクセスできます
+        /// </summary>
+        PROTECTED = 2
+    }
+    /// <summary>
     /// 関数を登録または登録解除する操作を提供します
     /// </summary>
     public static class FunctionBaseManager
@@ -241,12 +260,12 @@ namespace AliceScript.Functions
         /// <param name="func">登録される関数</param>
         /// <param name="name">登録される関数の名前(この項目を省略するとfunc.Nameが使用されます)</param>
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
-        /// <param name="isGlobal">常にグローバルに登録する場合はtrue、それ以外の場合はfalse</param>
+        /// <param name="accessModifier">関数のアクセス修飾子</param>
         /// <param name="byPassCheck">識別子のチェックをバイパスする場合はtrue、それ以外の場合はfalse</param>
-        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, bool isGlobal = false, bool byPassCheck = false)
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, AccessModifier accessModifier = AccessModifier.PRIVATE, bool byPassCheck = false)
         {
-
             string fname = func.Name;
+            func.AccessModifier = accessModifier;
             if (!string.IsNullOrEmpty(name))
             {
                 fname = name;
@@ -255,11 +274,15 @@ namespace AliceScript.Functions
             {
                 Utils.CheckLegalName(fname);
             }
-            if (script == null || isGlobal)
+            script ??= ParsingScript.GetTopLevelScript(script);
+            if (accessModifier == AccessModifier.PRIVATE)
             {
-                script = ParsingScript.GetTopLevelScript(script);
+                ParserFunction.RegisterScriptFunction(fname, func, script);
             }
-            ParserFunction.RegisterScriptFunction(fname, func, script);
+            else
+            {
+                script.NameSpace.Add(func, true, accessModifier);
+            }
             if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
             {
                 Constants.FUNCT_WITH_SPACE_ONCE.Add(fname);
@@ -290,7 +313,7 @@ namespace AliceScript.Functions
             {
                 fname = name;
             }
-            if (script == null)
+            if (script is null)
             {
                 ParserFunction.UnregisterFunction(fname);
                 if (func.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))

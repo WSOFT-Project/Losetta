@@ -1,5 +1,6 @@
 ﻿using AliceScript.Binding;
 using System.Runtime.Versioning;
+using System.Text;
 
 namespace AliceScript.NameSpaces
 {
@@ -91,6 +92,16 @@ namespace AliceScript.NameSpaces
         {
             get => Console.WindowWidth;
             set => Console.WindowWidth = value;
+        }
+        public static string Console_InputEncoding
+        {
+            get => Console.InputEncoding.EncodingName;
+            set => Console.InputEncoding = Encoding.GetEncoding(value);
+        }
+        public static string Console_OutputEncoding
+        {
+            get => Console.OutputEncoding.EncodingName;
+            set => Console.OutputEncoding = Encoding.GetEncoding(value);
         }
 
         public static int Console_LargestWindowHeight => Console.LargestWindowHeight;

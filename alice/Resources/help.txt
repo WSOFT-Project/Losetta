@@ -1,0 +1,17 @@
+print("AliceScript言語で記述されたプログラムを実行します。");
+print();
+print("使用法：alice [ファイル名] [オプション] [-e 式] [--args パラメータ]");
+print();
+print("  [ファイル名]           ファイルを実行");
+print();
+print("  -d                     デバッグモードを有効化");
+print("  -print=off             標準出力を無効化");
+print("  -throw=off             例外のハンドルを無効化");
+print("  -runtime=nano          ランタイムを最小モードで初期化");
+print("  -run                   ファイルをスクリプトとして実行");
+print("  -run -mainfile         ファイルをスクリプトとしてメインファイルで実行");
+print();
+print("  -e,-execute,-evaluate  後続の式を評価");
+print("  --arg,--args           後続の引数をすべてAliceScriptで使う");
+print();
+print("AliceScriptについて詳しく知るには、https://docs.wsoft.ws/products/alice を参照してください。");
