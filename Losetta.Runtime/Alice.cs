@@ -10,8 +10,8 @@ namespace AliceScript.NameSpaces
         public static void Init()
         {
             NameSpaceManager.Add(typeof(Core.CoreFunctions));
-            NameSpace space = new NameSpace(Constants.TOP_NAMESPACE);
-            space.Add(new ExceptionObject());
+            NameSpace space = new NameSpace(Constants.TOP_API_NAMESPACE);
+            space.Add<ExceptionObject>();
             NameSpaceManager.Add(space);
         }
     }
@@ -101,7 +101,7 @@ namespace AliceScript.NameSpaces
                         }
                         else
                         {
-                            if (args != null && args[mn] != null)
+                            if (args is not null && args[mn] is not null)
                             {
                                 text = text.Replace(match.Value, args[mn].AsString());
                             }

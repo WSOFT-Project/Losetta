@@ -20,31 +20,16 @@ namespace AliceScript.Functions
             {
                 if (StringMode)
                 {
-                    bool sq = Item[0] == Constants.QUOTE1 && Item[Item.Length - 1] == Constants.QUOTE1;
-                    bool dq = Item[0] == Constants.QUOTE && Item[Item.Length - 1] == Constants.QUOTE;
+                    bool sq = Item[0] == Constants.QUOTE1 && Item[^1] == Constants.QUOTE1;
+                    bool dq = Item[0] == Constants.QUOTE && Item[^1] == Constants.QUOTE;
                     Name = "StringLiteral";
                     if (dq || sq)
                     {
                         //文字列型
                         string result = Item.Substring(1, Item.Length - 2);
                         //文字列補間
-
-                        result = result.Replace("\\'", "'");
-                        //ダブルクォーテーションで囲まれている場合、より多くのエスケープ文字を認識
-                        if (dq)
-                        {
-                            //[\\]は一時的に0x0011(装置制御1)に割り当て
-                            result = result.Replace("\\\\", "\u0011");
-                            result = result.Replace("\\\"", "\"");
-                            result = result.Replace("\\n", "\n");
-                            result = result.Replace("\\0", "\0");
-                            result = result.Replace("\\a", "\a");
-                            result = result.Replace("\\b", "\b");
-                            result = result.Replace("\\f", "\f");
-                            result = result.Replace("\\r", "\r");
-                            result = result.Replace("\\t", "\t");
-                            result = result.Replace("\\v", "\v");
-                        }
+                        result = result.Replace(Constants.QUOTE_IN_LITERAL, Constants.QUOTE);
+                        result = result.Replace(Constants.QUOTE1_IN_LITERAL, Constants.QUOTE1);
 
                         if (DetectionStringFormat)
                         {
@@ -90,10 +75,7 @@ namespace AliceScript.Functions
                                                 string code = nowBlack.ToString();
                                                 ParsingScript tempScript = e.Script.GetTempScript(code);
                                                 var rrr = tempScript.Process();
-                                                if (rrr == null)
-                                                {
-                                                    rrr = Variable.EmptyInstance;
-                                                }
+                                                rrr ??= Variable.EmptyInstance;
                                                 stb.Append(rrr.AsString());
                                                 nowBlack.Clear();
                                             }
@@ -143,11 +125,6 @@ namespace AliceScript.Functions
                             result = stb.ToString();
                         }
 
-                        if (dq)
-                        {
-                            //[\\]を\に置き換えます(装置制御1から[\]に置き換え)
-                            result = result.Replace("\u0011", "\\");
-                        }
                         if (DetectionUTF8_Literal)
                         {
                             //UTF-8リテラルの時はUTF-8バイナリを返す

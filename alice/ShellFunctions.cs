@@ -11,14 +11,13 @@ namespace AliceScript.CLI
         public static void Dump(ParsingScript script)
         {
             Shell.DumpLocalVariables(script);
-            Shell.DumpGlobalVariables();
         }
         public static void Init()
         {
             Program.CreateAliceDirectory(true);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Exec(ParsingScript script)
+        public static Variable ExecSh(ParsingScript script)
         {
             string file = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             file = file.Trim('"');

@@ -103,7 +103,7 @@ namespace AliceScript.Extra
                 }
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
-                if (xml.SelectSingleNode("package/" + path) != null)
+                if (xml.SelectSingleNode("package/" + path) is not null)
                 {
                     string str = xml.SelectSingleNode("package/" + path).InnerText;
                     return str;
@@ -136,7 +136,7 @@ namespace AliceScript.Extra
                 }
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
-                if (xml.SelectSingleNode("package/" + path) != null)
+                if (xml.SelectSingleNode("package/" + path) is not null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
                     return ContainsAttribute(node, name) ? ((XmlElement)node).GetAttribute(name) : defaultText;
@@ -166,7 +166,7 @@ namespace AliceScript.Extra
                 }
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
-                if (xml.SelectSingleNode("package/" + path) != null)
+                if (xml.SelectSingleNode("package/" + path) is not null)
                 {
                     var node = xml.SelectSingleNode("package/" + path);
                     return ContainsAttribute(node, name);
@@ -196,7 +196,7 @@ namespace AliceScript.Extra
 
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
-                return xml.SelectSingleNode("package/" + path) != null;
+                return xml.SelectSingleNode("package/" + path) is not null;
             }
             catch { return false; }
         }
@@ -221,7 +221,7 @@ namespace AliceScript.Extra
 
             xml.LoadXml(xmlText);
 
-            if (xml.SelectSingleNode("package/" + path) != null)
+            if (xml.SelectSingleNode("package/" + path) is not null)
             {
                 xml.SelectSingleNode("package/" + path).InnerText = SecurityElement.Escape(value); xmlText = xml.OuterXml; WritedEventArgs ws = new WritedEventArgs();
                 ws.Path = path;
@@ -242,7 +242,7 @@ namespace AliceScript.Extra
 
                 nownode = nownode.SelectSingleNode(node);
 
-                if (nownode == null)
+                if (nownode is null)
                 {
 
                     oldnode.AppendChild(xml.CreateElement(node));

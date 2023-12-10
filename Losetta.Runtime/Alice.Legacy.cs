@@ -42,7 +42,7 @@ namespace AliceScript.NameSpaces
             char[] sep = sepStr.ToCharArray();
 
             var function = ParserFunction.GetVariable(varName, e.Script);
-            Variable mapVar = function != null ? function.GetValue(e.Script) :
+            Variable mapVar = function is not null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
             for (int counter = fromLine; counter < lines.Tuple.Count; counter++)
@@ -81,7 +81,7 @@ namespace AliceScript.NameSpaces
             string hash = Utils.GetSafeString(e.Args, 2);
 
             var function = ParserFunction.GetVariable(varName, e.Script);
-            Variable mapVar = function != null ? function.GetValue(e.Script) :
+            Variable mapVar = function is not null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
             mapVar.AddVariableToHash(hash, toAdd);
@@ -184,7 +184,7 @@ namespace AliceScript.NameSpaces
             for (int i = fromCol; i < tuple.Count; i++)
             {
                 Variable current = tuple[i];
-                if (current.Tuple == null || current.Tuple.Count <= col)
+                if (current.Tuple is null || current.Tuple.Count <= col)
                 {
                     throw new ArgumentException(m_name + ": Index [" + col + "] doesn't exist in column " +
                                                 i + "/" + (tuple.Count - 1));

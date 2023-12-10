@@ -60,7 +60,6 @@ namespace AliceScript.NameSpaces
                         }
                 }
             }
-
             public enum AlicePackageObjectPropertyMode
             {
                 Manifest
@@ -108,7 +107,7 @@ namespace AliceScript.NameSpaces
             private void AlicePackageObjectConstractor_Run(object sender, FunctionBaseEventArgs e)
             {
                 var m = AlicePackage.GetManifest(e.Args[0].AsString());
-                if (m != null)
+                if (m is not null)
                 {
                     e.Return = new Variable(new PackageManifestObject(m));
                 }

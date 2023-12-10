@@ -31,7 +31,7 @@
         public static Variable UseExistingEnum(string enumName)
         {
             Type enumType = GetEnumType(enumName);
-            if (enumType == null || !enumType.IsEnum)
+            if (enumType is null || !enumType.IsEnum)
             {
                 return Variable.EmptyInstance;
             }
@@ -55,7 +55,7 @@
             Type enumType = null;
             int index = 0;
             string typeName = "";
-            while (enumType == null && index < tokens.Length)
+            while (enumType is null && index < tokens.Length)
             {
                 if (!string.IsNullOrWhiteSpace(typeName))
                 {
@@ -66,12 +66,12 @@
                 index++;
             }
 
-            for (int i = index; i < tokens.Length && enumType != null; i++)
+            for (int i = index; i < tokens.Length && enumType is not null; i++)
             {
                 enumType = enumType.GetNestedType(tokens[i]);
             }
 
-            return enumType == null || !enumType.IsEnum ? null : enumType;
+            return enumType is null || !enumType.IsEnum ? null : enumType;
         }
 
         public static Type GetType(string typeName)
@@ -80,7 +80,7 @@
             foreach (var assembly in assemblies)
             {
                 var type = assembly.GetType(typeName, false, true);
-                if (type != null)
+                if (type is not null)
                 {
                     return type;
                 }

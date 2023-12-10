@@ -45,14 +45,17 @@ namespace AliceScript.NameSpaces
         {
             return double.IsNaN(x);
         }
+
         public static bool Math_IsInfinity(double x)
         {
             return double.IsInfinity(x);
         }
+
         public static bool Math_IsPositiveInfinity(double x)
         {
             return double.IsPositiveInfinity(x);
         }
+
         public static bool Math_IsNegativeInfinity(double x)
         {
             return double.IsNegativeInfinity(x);
@@ -123,6 +126,11 @@ namespace AliceScript.NameSpaces
             }
             return min;
         }
+        public static double Math_Factorial(uint n)
+        {
+            return n == 0 ? 1L : n * Math_Factorial(n - 1);
+        }
+
         #region 数学定数
         public static double Math_Tau => Math.Tau;
         public static double Math_PI => Math.PI;
@@ -139,18 +147,21 @@ namespace AliceScript.NameSpaces
         public static double Math_MinValue => double.MinValue;
         #endregion
         #region 端数処理
-        public static double Math_Round(double x)
+        public static double Math_Round(double x, bool? roudingMode = null)
         {
-            return Math.Round(x);
+            MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero : MidpointRounding.ToZero : MidpointRounding.ToEven;
+            return Math.Round(x, mode);
         }
-        public static double Math_Round(double x, int digits)
+        public static double Math_Round(double x, int digits, bool? roudingMode = null)
         {
-            return Math.Round(x, digits);
+            MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero : MidpointRounding.ToZero : MidpointRounding.ToEven;
+            return Math.Round(x, digits, mode);
         }
         public static double Math_Truncate(double x)
         {
             return Math.Truncate(x);
         }
+
         public static double Math_Floor(double x)
         {
             return Math.Floor(x);
@@ -171,10 +182,12 @@ namespace AliceScript.NameSpaces
         {
             return Math.Sin(x);
         }
+
         public static double Math_cos(double x)
         {
             return Math.Cos(x);
         }
+
         public static double Math_tan(double x)
         {
             return Math.Tan(x);
@@ -203,10 +216,12 @@ namespace AliceScript.NameSpaces
         {
             return Math.Sinh(x);
         }
+
         public static double Math_Consh(double x)
         {
             return Math.Cosh(x);
         }
+
         public static double Math_Tanh(double x)
         {
             return Math.Tanh(x);
@@ -226,6 +241,23 @@ namespace AliceScript.NameSpaces
             return Math.Atanh(x);
         }
         #endregion
+        #region 対数関数
+        public static double Math_Log(double a)
+        {
+            return Math.Log(a);
+        }
+
+        public static double Math_Log(double a, double baseNum)
+        {
+            return Math.Log(a, baseNum);
+        }
+        #endregion
+
+
+        public static double Math_ReciprocalEstimate(double a)
+        {
+            return Math.ReciprocalEstimate(a);
+        }
     }
 
 }

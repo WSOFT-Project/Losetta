@@ -31,7 +31,7 @@ namespace AliceScript.Objects
             foreach (string baseClass in baseClasses)
             {
                 var bc = GetClass(baseClass, script);
-                if (bc == null)
+                if (bc is null)
                 {
                     throw new ScriptException(" `" + className + "` の基底クラス `" + baseClass + "` が見つかりませんでした。", Exceptions.COULDNT_FIND_CLASS);
                 }
@@ -116,11 +116,6 @@ namespace AliceScript.Objects
             {
                 return theClass;
             }
-            var cls = GetFromNS(name, script);
-            if (cls != null)
-            {
-                return cls;
-            }
 
             //ちょっとでも高速化（ここのロジックは時間がかかる）
             if (name.Contains('.', StringComparison.Ordinal))
@@ -139,29 +134,16 @@ namespace AliceScript.Objects
                 //完全修飾名で関数を検索
                 if (!string.IsNullOrEmpty(namespacename))
                 {
-                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Classes.Where((x) => name.EndsWith(x.Name.ToLowerInvariant(), StringComparison.Ordinal)).FirstOrDefault();
-                    if (cfc != null)
+                    var cfc = NameSpaceManager.NameSpaces.Where(x => x.Key.Equals(namespacename, StringComparison.OrdinalIgnoreCase)).FirstOrDefault().Value.Functions.Where((x) => name.EndsWith(x.Key.ToLowerInvariant(), StringComparison.Ordinal) && x.Value is ValueFunction v && v.Value.Object is ObjectBase).FirstOrDefault().Value;
+                    if (cfc is not null)
                     {
-                        return cfc;
+                        return (cfc as ValueFunction).Value.Object as ObjectBase;
                     }
                 }
             }
 
             return null;
         }
-        private static AliceScriptClass GetFromNS(string name, ParsingScript script)
-        {
-            foreach (NameSpace ns in script.UsingNamespaces)
-            {
-                var fc = ns.Classes.Where((x) => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                if (fc != null)
-                {
-                    return fc;
-                }
-            }
-            return script.ParentScript != null ? GetFromNS(name, script.ParentScript) : null;
-        }
-
         private static Dictionary<string, AliceScriptClass> s_allClasses =
             new Dictionary<string, AliceScriptClass>();
         private Dictionary<int, CustomFunction> m_constructors =
@@ -185,7 +167,7 @@ namespace AliceScript.Objects
             {
                 InstanceName = instanceName;
                 m_cscsClass = GetClass(className, script);
-                if (m_cscsClass == null)
+                if (m_cscsClass is null)
                 {
                     throw new ScriptException("基底クラス `" + className + "` が見つかりませんでした。", Exceptions.COULDNT_FIND_CLASS);
                 }
@@ -241,7 +223,7 @@ namespace AliceScript.Objects
                 {
                     return null;
                 }
-                if (args == null)
+                if (args is null)
                 {
                     return Variable.EmptyInstance;
                 }
@@ -321,7 +303,7 @@ namespace AliceScript.Objects
             tempScript.DisableBreakpoints = true;
 
             while (tempScript.Pointer < body.Length - 1 &&
-                  (result == null || !result.IsReturn))
+                  (result is null || !result.IsReturn))
             {
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();

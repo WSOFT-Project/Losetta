@@ -188,7 +188,7 @@ namespace AliceScript.NameSpaces
 
         public static string[] Env_CommandLineArgs()
         {
-            return Runtime.Args == null ? Environment.GetCommandLineArgs() : Runtime.Args.ToArray();
+            return Runtime.Args is null ? Environment.GetCommandLineArgs() : Runtime.Args.ToArray();
         }
 
         public static void env_Exit(int exitCode)

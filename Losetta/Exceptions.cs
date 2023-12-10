@@ -65,11 +65,11 @@
         /// <summary>
         /// 無効な引数です
         /// </summary>
-        INVAILD_ARGUMENT = 0x00d,
+        INVALID_ARGUMENT = 0x00d,
         /// <summary>
         /// 関数内の引数が不完全です
         /// </summary>
-        INVAILD_ARGUMENT_FUNCTION = 0x00e,
+        INVALID_ARGUMENT_FUNCTION = 0x00e,
         /// <summary>
         /// 配列が必要です
         /// </summary>
@@ -277,6 +277,18 @@
         /// <summary>
         /// 不明なエスケープ文字です
         /// </summary>
-        UNKNOWN_ESCAPE_CHAR = 0x04b
+        UNKNOWN_ESCAPE_CHAR = 0x04b,
+        /// <summary>
+        /// アサーションが失敗しました
+        /// </summary>
+        ASSERTION_ERROR = 0x04c,
+        /// <summary>
+        /// 識別子間があいまいです
+        /// </summary>
+        AMBIGUOUS_IDENTIFIER = 0x04d,
+        /// <summary>
+        /// 無効なキーワードの組み合わせです
+        /// </summary>
+        INVALID_KEYWORD_CONBINATION = 0x04e
     }
 }

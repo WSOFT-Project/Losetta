@@ -28,7 +28,7 @@
                         // アセンブリ内のすべての型について、プラグインとして有効か調べる
                         if (type.IsClass && type.IsPublic && !type.IsAbstract)
                         {
-                            if (type.GetInterface(iPluginName) != null)
+                            if (type.GetInterface(iPluginName) is not null)
                             {
                                 if (!Loadeds.Contains(asm.GetHashCode()))
                                 {

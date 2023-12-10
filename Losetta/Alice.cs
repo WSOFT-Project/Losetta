@@ -113,6 +113,15 @@ namespace AliceScript
             NameSpaces.NameSpaceManager.Add(typeof(T), name);
         }
         /// <summary>
+        /// クラスをAliceScriptで使用できるように登録します
+        /// </summary>
+        /// <typeparam name="T">登録するクラス</typeparam>
+        /// <param name="name">登録する名前空間の名前。nullにすると自動選択されます。</param>
+        public static void RegisterObject<T>(string name = null)
+        {
+            NameSpaces.NameSpaceManager.AddObj(typeof(T), name);
+        }
+        /// <summary>
         /// プログラムが終了を求めているときに発生するイベントです
         /// </summary>
         public static event Exiting Exiting;
@@ -152,7 +161,13 @@ namespace AliceScript
                 return asm.GetName().Version;
             }
         }
+        /// <summary>
+        /// このインタプリタの名前
+        /// </summary>
         public static string ImplementationName => Interpreter.Instance.Name;
+        /// <summary>
+        /// このインタプリタへのファイルパス
+        /// </summary>
         public static string ImplementationLocation => AppContext.BaseDirectory;
         /// <summary>
         /// このAliceScriptが実行されているアプリケーションの名前
@@ -162,7 +177,15 @@ namespace AliceScript
             get; set;
         }
     }
+    /// <summary>
+    /// スクリプトによって終了されようとしている場合に呼び出されるデリゲート
+    /// </summary>
+    /// <param name="sender">イベントの発生元</param>
+    /// <param name="e">スクリプトの終了に関する情報</param>
     public delegate void Exiting(object sender, ExitingEventArgs e);
+    /// <summary>
+    /// スクリプトによって終了されようとしているとき、情報を表すオブジェクト
+    /// </summary>
     public class ExitingEventArgs : EventArgs
     {
         /// <summary>

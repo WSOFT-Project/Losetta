@@ -56,6 +56,10 @@ namespace AliceScript.NameSpaces
             }
             return result.ToArray();
         }
+        public static bool Like(this string str, string pattern)
+        {
+            return new Regex(Regex_FromWildCard(pattern)).IsMatch(str);
+        }
         public static string ReplaceAll(this string input, string pattern, string replacement)
         {
             return Regex.Replace(input, pattern, replacement);

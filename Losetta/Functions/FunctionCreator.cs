@@ -13,7 +13,11 @@ namespace AliceScript.Functions
         internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords)
         {
             bool? mode = null;
-            bool isGlobal = keywords.Contains(Constants.PUBLIC);
+
+            AccessModifier accessModifier = keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
+            accessModifier = keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
+            accessModifier = keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
+
             bool isCommand = keywords.Contains(Constants.COMMAND);
             bool isExtension = keywords.Contains(Constants.EXTENSION);
             if (keywords.Contains(Constants.OVERRIDE))
@@ -46,13 +50,35 @@ namespace AliceScript.Functions
 
             string[] args = Utils.GetFunctionSignature(script);
             string body = string.Empty;
+            string ensure = string.Empty;
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))
             {
                 args = Array.Empty<string>();
             }
 
-            //script.MoveForwardIf(Constants.START_GROUP, Constants.SPACE);
-            /*string line = */
+            ParsingScript nextData = new ParsingScript(script);
+            nextData.Pointer = script.Pointer;
+            nextData.ParentScript = script;
+
+            while (true)
+            {
+                string nextToken = Utils.GetNextToken(nextData, false, true);
+
+                if (nextToken == Constants.REQUIRES)
+                {
+                    body = $"Alice.Diagnostics.Assert({Utils.GetBodyBetween(nextData)},\"この呼び出しは、関数が表明した事前条件を満たしませんでした\");";
+                    script.Pointer = ++nextData.Pointer;
+                }
+                else if (nextToken == Constants.ENSURES)
+                {
+                    ensure = Utils.GetBodyBetween(nextData);
+                    script.Pointer = ++nextData.Pointer;
+                }
+                else
+                {
+                    break;
+                }
+            }
             script.GetOriginalLine(out _);
 
             int parentOffset = script.Pointer;
@@ -61,7 +87,7 @@ namespace AliceScript.Functions
             {
                 if (mode == false)
                 {
-                    body = $"throw(\"このメソッドは実装されていません\",{(int)Exceptions.NOT_IMPLEMENTED});";
+                    body = $"Alice.throw(\"このメソッドは実装されていません\",{(int)Exceptions.NOT_IMPLEMENTED});";
                 }
                 else
                 {
@@ -70,12 +96,17 @@ namespace AliceScript.Functions
             }
             else
             {
-                if (script.CurrentClass != null)
+                if (script.CurrentClass is not null)
                 {
                     parentOffset += script.CurrentClass.ParentOffset;
                 }
-                body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
+                body += Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP);
                 script.MoveForwardIf(Constants.END_GROUP);
+            }
+            if (ensure.Length > 0)
+            {
+                ensure = ensure.Replace("return", "\ufdd4return");
+                body = Constants.RETURN_PATTERN.Replace(body, $"{{readonly var \ufdd4return=$1;Alice.Diagnostics.Assert({ensure},\"この関数は、関数が表明した事後条件を満たしませんでした\");return \ufdd4return;}}");
             }
 
             CustomFunction customFunc = new CustomFunction(funcName, body, args, script, false, type_modifer, nullable);
@@ -86,11 +117,11 @@ namespace AliceScript.Functions
             {
                 customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
             }
-            if (mode != null)
+            if (mode is not null)
             {
                 customFunc.IsVirtual = true;
             }
-            if (script.CurrentClass != null)
+            if (script.CurrentClass is not null)
             {
                 script.CurrentClass.AddMethod(funcName, args, customFunc);
             }
@@ -98,7 +129,7 @@ namespace AliceScript.Functions
             {
                 if (!FunctionExists(funcName, script, out _) || (mode == true && FunctionIsVirtual(funcName, script)))
                 {
-                    FunctionBaseManager.Add(customFunc, funcName, script, isGlobal);
+                    FunctionBaseManager.Add(customFunc, funcName, script, accessModifier);
                 }
                 else
                 {
@@ -113,7 +144,6 @@ namespace AliceScript.Functions
             string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
             DefineFunction(funcName, e.Script, Keywords);
         }
-
 
     }
 }

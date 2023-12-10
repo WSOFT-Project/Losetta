@@ -85,17 +85,34 @@ namespace AliceScript.Functions
                 TypeObject reqType = new TypeObject();
                 if (options.Count > 0)
                 {
+                    int zure = 0;
                     parms = options.Contains(Constants.PARAMS);
                     refs = options.Contains(Constants.REF);
+                    if (parms)
+                    {
+                        zure++;
+                    }
+                    if (refs)
+                    {
+                        zure++;
+                    }
                     if (options.Contains(Constants.THIS))
                     {
-                        m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVAILD_ARGUMENT_FUNCTION, script);
+                        if (refs)
+                        {
+                            throw new ScriptException("拡張メソッドのレシーバにrefキーワードを使用することはできません", Exceptions.INVALID_KEYWORD_CONBINATION, script);
+                        }
+                        else
+                        {
+                            zure++;
+                            m_this = m_this == -1 ? i : throw new ScriptException("this修飾子は一つのメソッドに一つのみ設定可能です", Exceptions.INVALID_ARGUMENT_FUNCTION, script);
 
+                        }
                     }
-                    if (!refs && options.Count > 1)
+                    if (options.Count > zure + 1)
                     {
                         Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
-                        if (v != null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
+                        if (v is not null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
                         {
                             reqType = to;
                         }
@@ -159,11 +176,11 @@ namespace AliceScript.Functions
         {
             Utils.ExtractParameterNames(e.Args, m_name, e.Script);
 
-            if (m_args == null)
+            if (m_args is null)
             {
                 m_args = Array.Empty<string>();
             }
-            if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable != null ? 1 : 0) < m_args.Length)
+            if (e.Args.Count + m_defaultArgs.Count + (e.CurentVariable is not null ? 1 : 0) < m_args.Length)
             {
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
@@ -184,15 +201,15 @@ namespace AliceScript.Functions
         private void RegisterArguments(List<Variable> args,
                                       List<KeyValuePair<string, Variable>> args2 = null, Variable current = null, ParsingScript script = null)
         {
-            if (args == null)
+            if (args is null)
             {
                 args = new List<Variable>();
             }
-            if (m_this != -1 && current != null)
+            if (m_this != -1 && current is not null)
             {
                 args.Insert(m_this, current);
             }
-            if (m_args == null)
+            if (m_args is null)
             {
                 m_args = new List<string>().ToArray();
             }
@@ -209,7 +226,7 @@ namespace AliceScript.Functions
                 else
                 {
 
-                    if (arg != null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
+                    if (arg is not null && ArgMap.TryGetValue(arg.CurrentAssign, out argIndex))
                     {
                         namedParameters = true;
                         if (i != argIndex)
@@ -224,7 +241,7 @@ namespace AliceScript.Functions
                     }
                     else if (namedParameters)
                     {
-                        throw new ScriptException("関数の引数と値 `" + m_name + "` は一対一で一致する必要があります。", Exceptions.INVAILD_ARGUMENT_FUNCTION);
+                        throw new ScriptException("関数の引数と値 `" + m_name + "` は一対一で一致する必要があります。", Exceptions.INVALID_ARGUMENT_FUNCTION);
                     }
                 }
             }
@@ -266,7 +283,7 @@ namespace AliceScript.Functions
                 args.Add(m_defaultArgs[defIndex]);
             }
 
-            if (args2 != null)
+            if (args2 is not null)
             {
                 foreach (var entry in args2)
                 {
@@ -351,7 +368,7 @@ namespace AliceScript.Functions
                 script.Variables[args[i].ParamName] = arg;
             }
 
-            if (NamespaceData != null)
+            if (NamespaceData is not null)
             {
                 var vars = NamespaceData.Variables;
                 string prefix = NamespaceData.Name + ".";
@@ -366,10 +383,6 @@ namespace AliceScript.Functions
             }
 
         }
-        internal HashSet<CustomFunction> Children
-        {
-            get; set;
-        }
         public Variable GetVariable(ParsingScript script, Variable current)
         {
             List<Variable> args = Constants.FUNCT_WITH_SPACE.Contains(m_name) ?
@@ -381,21 +394,9 @@ namespace AliceScript.Functions
 
             script.MoveBackIf(Constants.START_GROUP);
             //これはメソッドで呼び出される。そのため[this]代入分として1を足す。
-            if (args.Count + m_defaultArgs.Count + 1 < m_args.Length)
-            {
-                throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count + 1) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script);
-            }
-
-            Variable result = ARun(args, script, null, current);
-            //このCustomFunctionに子があればそれも実行する
-            if (Children != null)
-            {
-                foreach (CustomFunction child in Children)
-                {
-                    result = child.GetVariable(script, current);
-                }
-            }
-            return result;
+            return args.Count + m_defaultArgs.Count + 1 < m_args.Length
+                ? throw new ScriptException("この関数は、最大で" + (args.Count + m_defaultArgs.Count + 1) + "個の引数を受け取ることができますが、" + m_args.Length + "個の引数が渡されました", Exceptions.TOO_MANY_ARGUREMENTS, script)
+                : ARun(args, script, null, current);
         }
         public Variable ARun(List<Variable> args = null, ParsingScript script = null,
                             AliceScriptClass.ClassInstance instance = null, Variable current = null)
@@ -405,42 +406,32 @@ namespace AliceScript.Functions
             ParsingScript tempScript = Utils.GetTempScript(m_body, m_parentScript,
                                                            m_parentScript, m_parentOffset, instance);
             tempScript.Filename = m_parentScript.Filename;
-            if (script != null)
+            if (script is not null)
             {
                 tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.m_stacktrace);
                 tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
             }
             tempScript.Tag = m_tag;
             //tempScript.Variables = m_VarMap;
-            List<KeyValuePair<string, Variable>> args2 = instance == null ? null : instance.GetPropList();
+            List<KeyValuePair<string, Variable>> args2 = instance is null ? null : instance.GetPropList();
             // ひとまず引数をローカルに追加
             RegisterArguments(args, args2, current, tempScript);
 
             // さて実行
 
             while (tempScript.Pointer < m_body.Length &&
-                  (result == null || !result.IsReturn))
+                  (result is null || !result.IsReturn))
             {
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();
             }
 
-            if (result == null || (!result.IsReturn && !m_forceReturn))
+            if (result is null || (!result.IsReturn && !m_forceReturn))
             {
                 result = Variable.EmptyInstance;
             }
 
             result.IsReturn = false;
-
-
-            //このCustomFunctionに子があればそれも実行する
-            if (Children != null)
-            {
-                foreach (CustomFunction child in Children)
-                {
-                    result = child.ARun(args, script, instance, current);
-                }
-            }
 
             return result;
         }

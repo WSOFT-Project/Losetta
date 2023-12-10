@@ -2,7 +2,6 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Linq;
 
 namespace AliceScript.Packaging
 {
@@ -96,12 +95,12 @@ namespace AliceScript.Packaging
         }
         internal static void LoadArchive(ZipArchive a, string filename = "", bool callFromScript = false)
         {
-            if (a == null)
+            if (a is null)
             {
                 throw new ScriptException("パッケージを展開できません", Exceptions.BAD_PACKAGE);
             }
             ZipArchiveEntry e = a.GetEntry(Constants.PACKAGE_MANIFEST_FILENAME);
-            if (e == null)
+            if (e is null)
             {
                 throw new ScriptException("パッケージ設定ファイル:[" + Constants.PACKAGE_MANIFEST_FILENAME + "]が見つかりません", Exceptions.BAD_PACKAGE);
             }
@@ -111,21 +110,21 @@ namespace AliceScript.Packaging
                 AlicePackage package = new AlicePackage();
                 package.archive = a;
                 string xml = GetEntryScript(e, Constants.PACKAGE_MANIFEST_FILENAME);
-                if (xml == null)
+                if (xml is null)
                 {
                     return;
                 }
                 package.Manifest = GetManifest(xml);
-                if (package.Manifest != null)
+                if (package.Manifest is not null)
                 {
-                    if (package.Manifest.Target != null)
+                    if (package.Manifest.Target is not null)
                     {
                         if (!package.Manifest.Target.Contains(Interpreter.Instance.Name))
                         {
                             throw new ScriptException("そのパッケージをこのインタプリタで実行することはできません", Exceptions.NOT_COMPATIBLE_PACKAGES);
                         }
                     }
-                    if (package.Manifest.TargetApp != null)
+                    if (package.Manifest.TargetApp is not null)
                     {
                         if (!package.Manifest.TargetApp.Contains(Alice.AppName))
                         {
@@ -136,7 +135,7 @@ namespace AliceScript.Packaging
                     if (!package.Manifest.UseInlineScript)
                     {
                         ZipArchiveEntry entry = a.GetEntry(srcname);
-                        package.Manifest.Script = entry == null
+                        package.Manifest.Script = entry is null
                             ? throw new ScriptException("エントリポイント:[" + srcname + "]が見つかりません", Exceptions.BAD_PACKAGE)
                             : GetEntryScript(entry, srcname);
                     }
@@ -152,11 +151,11 @@ namespace AliceScript.Packaging
         public Variable ExecuteEntry(string filename)
         {
             string script = GetEntryScript(archive.GetEntry(filename), filename);
-            return script == null ? Variable.EmptyInstance : Interpreter.Instance.Process(script, "main.alice", true, null, this);
+            return script is null ? Variable.EmptyInstance : Interpreter.Instance.Process(script, "main.alice", true, null, this);
         }
         public bool ExistsEntry(string filename)
         {
-            return archive.GetEntry(filename) != null;
+            return archive.GetEntry(filename) is not null;
         }
         public byte[] GetEntryData(string filename)
         {
@@ -170,7 +169,7 @@ namespace AliceScript.Packaging
         {
             try
             {
-                if (e == null)
+                if (e is null)
                 {
                     throw new ScriptException("パッケージ内のファイル[" + filename + "]が見つかりません", Exceptions.FILE_NOT_FOUND);
                 }
@@ -240,7 +239,7 @@ namespace AliceScript.Packaging
             byte[] buffer = new byte[4096];
             byte[] data = File.ReadAllBytes(filepath);
 
-            if (controlCode == null)
+            if (controlCode is null)
             {
                 controlCode = new byte[16];
             }

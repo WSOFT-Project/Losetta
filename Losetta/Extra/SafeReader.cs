@@ -23,12 +23,10 @@ namespace AliceScript.Extra
                 throw new FileNotFoundException(null, filename);
             }
 
-            using (FileReader reader = new FileReader(file))
-            {
-                CharCode c = reader.Read(file);
-                charcode = c.Name;
-                return reader.Text;
-            }
+            using FileReader reader = new FileReader(file);
+            CharCode c = reader.Read(file);
+            charcode = c.Name;
+            return reader.Text;
         }
         /// <summary>
         /// ReadJEncを使用して、バイト配列から文字列を取得します
@@ -38,12 +36,10 @@ namespace AliceScript.Extra
         /// <returns>データ内の文字列</returns>
         public static string ReadAllText(byte[] data, out string charcode)
         {
-            using (FileReader reader = new FileReader(data))
-            {
-                CharCode c = reader.Read(data);
-                charcode = c.Name;
-                return reader.Text;
-            }
+            using FileReader reader = new FileReader(data);
+            CharCode c = reader.Read(data);
+            charcode = c.Name;
+            return reader.Text;
         }
     }
     /// <summary>
@@ -199,7 +195,7 @@ namespace AliceScript.Extra
         /// <summary>このファイル文字コード種類のEncodingオブジェクトを取得します。</summary>
         internal Encoding GetEncoding()
         {
-            if (Encoding == null)
+            if (Encoding is null)
             {   // Encodingオブジェクトがまだ用意されていなければ初期化する
                 Encoding =
                     CodePage > 0 ? Encoding.GetEncoding(CodePage, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback)
@@ -215,10 +211,10 @@ namespace AliceScript.Extra
         internal virtual string GetString(byte[] bytes, int len)
         {
             Encoding enc = GetEncoding();
-            if (enc == null) { return null; }
+            if (enc is null) { return null; }
             try
             {   // BOMサイズを把握し、BOMを除いた部分を文字列として取り出す
-                int bomBytes = Bytes == null ? 0 : Bytes.Length;
+                int bomBytes = Bytes is null ? 0 : Bytes.Length;
                 return enc.GetString(bytes, bomBytes, len - bomBytes);
             }
             catch (DecoderFallbackException)
@@ -243,7 +239,7 @@ namespace AliceScript.Extra
             foreach (CharCode c in arr)
             {   // 読み込み済バイト配列内容をもとにファイル種類の一致を確認
                 byte[] bom = c.Bytes;
-                int i = bom != null ? bom.Length : int.MaxValue; // BOM・マジックナンバー末尾から調べる
+                int i = bom is not null ? bom.Length : int.MaxValue; // BOM・マジックナンバー末尾から調べる
                 if (read < i) { continue; } // そもそもファイルサイズが小さい場合は不一致
                 do
                 {   // 全バイト一致ならその文字コードとみなす
@@ -436,7 +432,7 @@ namespace AliceScript.Extra
                     {   // 一定サイズ以上の大きいファイルなら、BOM/マジックナンバー判定に必要な先頭バイトを読み込み、判断
                         Length = stream.Read(Bytes, 0, FileType.GetBinaryType_LEASTREADSIZE);
                         c = GetPreamble(filesize);
-                        if (c == null || c is CharCode.Text)
+                        if (c is null || c is CharCode.Text)
                         {   // 残りの読みこみ（ただし非テキストと確定した場合は省略）
                             Length += stream.Read(Bytes, Length, (int)filesize - Length);
                         }
@@ -449,9 +445,9 @@ namespace AliceScript.Extra
                 }
                 if (c is CharCode.Text)
                 {   // BOMありテキストなら文字列を取り出す（取り出せなかったら非テキスト扱い）
-                    if ((text = c.GetString(Bytes, Length)) == null) { c = null; }
+                    if ((text = c.GetString(Bytes, Length)) is null) { c = null; }
                 }
-                else if (c == null)
+                else if (c is null)
                 {   // ファイル文字コード種類不明なら、全バイト走査して文字コード確定
                     c = ReadJEnc.GetEncoding(Bytes, Length, out text);
                 }
@@ -481,7 +477,7 @@ namespace AliceScript.Extra
                     {   // 一定サイズ以上の大きいファイルなら、BOM/マジックナンバー判定に必要な先頭バイトを読み込み、判断
                         Length = stream.Read(Bytes, 0, FileType.GetBinaryType_LEASTREADSIZE);
                         c = GetPreamble(filesize);
-                        if (c == null || c is CharCode.Text)
+                        if (c is null || c is CharCode.Text)
                         {   // 残りの読みこみ（ただし非テキストと確定した場合は省略）
                             Length += stream.Read(Bytes, Length, (int)filesize - Length);
                         }
@@ -494,9 +490,9 @@ namespace AliceScript.Extra
                 }
                 if (c is CharCode.Text)
                 {   // BOMありテキストなら文字列を取り出す（取り出せなかったら非テキスト扱い）
-                    if ((text = c.GetString(Bytes, Length)) == null) { c = null; }
+                    if ((text = c.GetString(Bytes, Length)) is null) { c = null; }
                 }
-                else if (c == null)
+                else if (c is null)
                 {   // ファイル文字コード種類不明なら、全バイト走査して文字コード確定
                     c = ReadJEnc.GetEncoding(Bytes, Length, out text);
                 }
@@ -526,9 +522,9 @@ namespace AliceScript.Extra
             // 【0】ファイル先頭バイトからUTF文字コード（BOMつきUTF）を判定
             CharCode ret = CharCode.GetPreamble(Bytes, Length);
             // BOMテキストファイルと判定できず＆ファイル先頭にバイナリファイル特徴の0x00が登場している場合、追加チェック
-            if (ret == null && Array.IndexOf<byte>(Bytes, 0x00, 0, Length) >= 0)
+            if (ret is null && Array.IndexOf<byte>(Bytes, 0x00, 0, Length) >= 0)
             {   // UTF16Nの可能性がなければバイナリファイルとみなす
-                if (ReadJEnc.SeemsUTF16N(Bytes, (int)len) == null)
+                if (ReadJEnc.SeemsUTF16N(Bytes, (int)len) is null)
                 {   // ■バイナリ確定（マジックナンバーからファイル種類を決定）
                     return FileType.GetBinaryType(Bytes, Length);
                 }
@@ -800,7 +796,7 @@ namespace AliceScript.Extra
                 if (b1 <= BINARY)
                 {   // バイナリ文字検出：先頭２バイトでの検出ならUTF16Nの可能性をチェック、否ならバイナリ確定
                     CharCode ret = asciiEndPos < 2 ? SeemsUTF16N(bytes, len) : null;
-                    if (ret != null && (text = ret.GetString(bytes, len)) != null)
+                    if (ret is not null && (text = ret.GetString(bytes, len)) is not null)
                     {   // UTF16Nデコード成功：非テキスト文字混入チェック
                         int i;
                         for (i = -3; i <= BINARY; i++)
@@ -817,29 +813,29 @@ namespace AliceScript.Extra
                 }
                 if (b1 == 0x1B)
                 {   // エスケープシーケンス判定(エスケープコード内容を読み飛ばす)
-                    if (escapeSequenceChecker == null) { escapeSequenceChecker = new JIS(bytes, len, asciiEndPos); }
+                    if (escapeSequenceChecker is null) { escapeSequenceChecker = new JIS(bytes, len, asciiEndPos); }
                     asciiEndPos += escapeSequenceChecker.GetEncoding(asciiEndPos);
                 }
                 // 次の文字へ
                 if (++asciiEndPos >= len)
                 {   // 全文字チェック完了：非ASCII文字未検出、JISもしくはASCII
-                    if (escapeSequenceChecker != null)
+                    if (escapeSequenceChecker is not null)
                     {   // エスケープシーケンスに基づく文字コードが取得できるか確認
                         CharCode ret = escapeSequenceChecker.GetEncoding(out text);
-                        if (ret != null)
+                        if (ret is not null)
                         {   // ■エスケープシーケンスに基づく文字コードで確定
                             return ret;
                         }
                     }
                     else if (JIS.hasSOSI(bytes, len))
                     {   // SO,SIによるエスケープを検出した場合は、半角カナJISの可能性を判定
-                        if (escapeSequenceChecker == null && (text = CharCode.JIS50222.GetString(bytes, len)) != null)
+                        if (escapeSequenceChecker is null && (text = CharCode.JIS50222.GetString(bytes, len)) is not null)
                         {   // ■エスケープシーケンスなし、半角カナSOSIのみを使用したJISで確定
                             return CharCode.JIS50222;
                         }
                     }
                     // ■ASCII確定（ただしデコード失敗時はバイナリ）
-                    return (text = CharCode.ASCII.GetString(bytes, len)) != null ? CharCode.ASCII : null;
+                    return (text = CharCode.ASCII.GetString(bytes, len)) is not null ? CharCode.ASCII : null;
                 }
                 b1 = bytes[asciiEndPos];
             }
@@ -848,7 +844,7 @@ namespace AliceScript.Extra
             byte b2;
             int cp1252Score = 0; // いずれも、可能性が否定されたらint.MinValueが設定される
             int utfScore = 0;
-            int eucScore = EUC == null ? int.MinValue : 0; // EUC検出対象なしなら最初からチェック対象外
+            int eucScore = EUC is null ? int.MinValue : 0; // EUC検出対象なしなら最初からチェック対象外
             int sjisScore = 0;
             bool existsEUC0x8F = false; // EUC補助漢字を見つけたらtrueを設定
             uint NODEF = this.NODEF; // パフォーマンス改善のためローカル変数におろす
@@ -861,7 +857,7 @@ namespace AliceScript.Extra
                     utfScore = int.MinValue;
                     eucScore = int.MinValue;
                     sjisScore = int.MinValue;
-                    if (escapeSequenceChecker == null || cp1252Pos++ >= len || (b1 = bytes[cp1252Pos]) < 0x21 || b1 >= DEL)
+                    if (escapeSequenceChecker is null || cp1252Pos++ >= len || (b1 = bytes[cp1252Pos]) < 0x21 || b1 >= DEL)
                     {   // JISエスケープ未出現 or ファイル末尾で2バイト目なし or 2バイト目が0x21-0x7E範囲外ならJISの可能性も否定
                         text = null;
                         return null; // ■バイナリ確定
@@ -979,7 +975,7 @@ namespace AliceScript.Extra
                     }
                     if (b1 == 0x1B)
                     {   // エスケープシーケンス判定(エスケープコード内容を読み飛ばす)
-                        if (escapeSequenceChecker == null) { escapeSequenceChecker = new JIS(bytes, len, cp1252Pos); }
+                        if (escapeSequenceChecker is null) { escapeSequenceChecker = new JIS(bytes, len, cp1252Pos); }
                         cp1252Pos += escapeSequenceChecker.GetEncoding(cp1252Pos);
                     }
                     cp1252Pos++;
@@ -993,32 +989,32 @@ namespace AliceScript.Extra
             }
 
             // 【4】ポイントに応じ文字コードを決定（実際にそのエンコーディングで読み出し成功すればOKとみなす）
-            if (escapeSequenceChecker != null)
+            if (escapeSequenceChecker is not null)
             {   // JIS系可能性高：エスケープシーケンスに基づく文字コードが取得できるか確認
                 CharCode ret = escapeSequenceChecker.GetEncoding(out text);
-                if (ret != null) { return ret; } // ■エスケープシーケンスに基づく文字コードで確定
+                if (ret is not null) { return ret; } // ■エスケープシーケンスに基づく文字コードで確定
             }
             if (eucScore > 0 && eucScore > sjisScore && eucScore > utfScore)
             {   // EUC可能性高
                 if (cp1252Score > eucScore)
                 {   // ただし可能性が高ければCP1252系を先にチェック
-                    if ((text = CP125X.GetString(bytes, len)) != null) { return CP125X; } // ■CP1252系で読みこみ成功
+                    if ((text = CP125X.GetString(bytes, len)) is not null) { return CP125X; } // ■CP1252系で読みこみ成功
                 }
-                if (existsEUC0x8F && (text = CharCode.EUCH.GetString(bytes, len)) != null) { return CharCode.EUCH; }// ■EUC補助漢字読みこみ成功
-                if ((text = EUC.GetString(bytes, len)) != null) { return EUC; } // ■EUCで読みこみ成功
+                if (existsEUC0x8F && (text = CharCode.EUCH.GetString(bytes, len)) is not null) { return CharCode.EUCH; }// ■EUC補助漢字読みこみ成功
+                if ((text = EUC.GetString(bytes, len)) is not null) { return EUC; } // ■EUCで読みこみ成功
             }
             if (utfScore > 0 && utfScore >= sjisScore)
             {   // UTF可能性高
-                if ((text = CharCode.UTF8N.GetString(bytes, len)) != null) { return CharCode.UTF8N; } // ■UTF-8Nで読みこみ成功
+                if ((text = CharCode.UTF8N.GetString(bytes, len)) is not null) { return CharCode.UTF8N; } // ■UTF-8Nで読みこみ成功
             }
             if (sjisScore >= 0)
             {   // SJISなどの各国語指定に合致したなら、そのコードでの読み出しを試みる(ただし可能性が高ければCP1252系を先にチェック)
-                if (cp1252Score > sjisScore && (text = CP125X.GetString(bytes, len)) != null) { return CP125X; } // ■CP1252系で読みこみ成功
-                if ((text = CharCode.GetString(bytes, len)) != null) { return CharCode; } // ■各国語文字コードで読みこみ成功
+                if (cp1252Score > sjisScore && (text = CP125X.GetString(bytes, len)) is not null) { return CP125X; } // ■CP1252系で読みこみ成功
+                if ((text = CharCode.GetString(bytes, len)) is not null) { return CharCode; } // ■各国語文字コードで読みこみ成功
             }
             if (cp1252Score > 0)
             {   // CP1252系の可能性のみ残っているのでチェック
-                if ((text = CP125X.GetString(bytes, len)) != null) { return CP125X; } // ■CP1252系で読みこみ成功
+                if ((text = CP125X.GetString(bytes, len)) is not null) { return CP125X; } // ■CP1252系で読みこみ成功
             }
             // ■いずれにも該当しなかった場合は、バイナリファイル扱いとする
             text = null;
@@ -1174,7 +1170,7 @@ namespace AliceScript.Extra
                 if (ISOKR && hasSOSI(bytes, len))
                 {   // ■KSエスケープシーケンスあり、ISO-2022-KRで確定(半角カナJISではない)
                     text = CharCode.ISOKR.GetString(bytes, len);
-                    return text != null ? CharCode.ISOKR : null;
+                    return text is not null ? CharCode.ISOKR : null;
                 }
                 if (c <= 0)
                 {   // JIS評価値がマイナスないしゼロならばJISではないと判断
@@ -1185,7 +1181,7 @@ namespace AliceScript.Extra
                 if (JISH)
                 {   // 補助漢字のエスケープシーケンスあり、補助漢字を考慮してデコードする
                     text = CharCode.JISH.GetString(bytes, len);
-                    if (text != null)
+                    if (text is not null)
                     {   // ■デコード成功ならJISH確定
                         return CharCode.JISH;
                     }
@@ -1193,7 +1189,7 @@ namespace AliceScript.Extra
                 else
                 {   // 補助漢字なしJISとしてデコードする
                     text = CharCode.JIS.GetString(bytes, len);
-                    if (text != null)
+                    if (text is not null)
                     {   // ■デコード成功なら、カナのSO/SI切り替えがあればCP50222、なければCP50221とみなす。
                         // (なお、CP50221/CP50222どちらを使ってもデコード結果は同一となる)
                         return hasSOSI(bytes, len) ? CharCode.JIS50222 : CharCode.JIS;

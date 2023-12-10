@@ -38,13 +38,12 @@ namespace AliceScript
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new Interpreter();
-                }
+                instance ??= new Interpreter();
                 return instance;
             }
         }
+
+        public NameSpace GlobalNameSpace => NameSpaceManager.Get(Constants.TOP_NAMESPACE);
 
         public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
@@ -68,7 +67,7 @@ namespace AliceScript
         public string ReadInput()
         {
             var handler = OnInput;
-            if (handler != null)
+            if (handler is not null)
             {
                 var args = new ReadInputEventArgs();
                 handler(this, args);
@@ -83,7 +82,7 @@ namespace AliceScript
         public void AppendOutput(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnOutput;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -93,7 +92,7 @@ namespace AliceScript
         public void AppendDebug(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnDebug;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -104,7 +103,7 @@ namespace AliceScript
         public bool AppendData(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnData;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -132,19 +131,18 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
-            NameSpaceManager.Add(new NameSpace(Constants.TOP_NAMESPACE));
+            NameSpace space = new NameSpace(Constants.TOP_API_NAMESPACE);
+            space.Add(new ClassCreator());
+            space.Add(new EnumFunction());
+            space.Add(new ArrayTypeFunction());
+            space.Add(new ExternFunctionCreator());
+            space.Add(new LibImportFunction());
+            space.Add(new NetImportFunction());
 
-            FunctionBaseManager.Add(new ClassCreator());
-            FunctionBaseManager.Add(new FunctionCreator());
-            FunctionBaseManager.Add(new EnumFunction());
-            FunctionBaseManager.Add(new ArrayTypeFunction());
-            FunctionBaseManager.Add(new ExternFunctionCreator());
-            FunctionBaseManager.Add(new LibImportFunction(), "", null, true, true);
-            FunctionBaseManager.Add(new NetImportFunction(), "", null, true, true);
+            NameSpaceManager.Add(space);
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }
-
 
         public void RegisterActions()
         {
@@ -271,12 +269,14 @@ namespace AliceScript
                 return null;
             }
 
-            ParsingScript toParse = new ParsingScript(data, 0, char2Line);
-            toParse.TopInFile = true;
-            toParse.Settings = setting;
-            toParse.Defines = def;
-            toParse.OriginalScript = script;
-            toParse.Filename = filename;
+            ParsingScript toParse = new ParsingScript(data, 0, char2Line)
+            {
+                TopInFile = true,
+                Settings = setting,
+                Defines = def,
+                OriginalScript = script,
+                Filename = filename
+            };
 
             if (mainFile)
             {

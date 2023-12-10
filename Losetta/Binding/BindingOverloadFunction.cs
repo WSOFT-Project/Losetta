@@ -23,7 +23,10 @@ namespace AliceScript.Binding
         public ParameterInfo[] TrueParameters { get; set; }
         public Action<object[]> VoidFunc { get; set; }
         public Func<object[], object> ObjFunc { get; set; }
+        public Action<object, object[]> InstanceVoidFunc { get; set; }
+        public Func<object, object[], object> InstanceObjFunc { get; set; }
         public bool IsVoidFunc { get; set; }
+        public bool IsInstanceFunc { get; set; }
         public bool IsMethod { get; set; }
 
         public int CompareTo(BindingOverloadFunction other)
@@ -59,7 +62,7 @@ namespace AliceScript.Binding
             bool inParams = false;
             Type paramType = null;
 
-            if (!HasParams && e.Args.Count + (parent.IsMethod && e.CurentVariable != null ? 1 : 0) > TrueParameters.Length)
+            if (!HasParams && e.Args.Count + (parent.IsMethod && e.CurentVariable is not null ? 1 : 0) > TrueParameters.Length)
             {
                 //入力の引数の方が多い場合かつparamsではない場合
                 return false;
@@ -68,7 +71,6 @@ namespace AliceScript.Binding
             int diff = 0;//TrueParametersとargsのインデックスのずれ
             for (i = 0; i < TrueParameters.Length; i++)
             {
-
                 paramType = TrueParameters[i].ParameterType;
 
                 if (paramType == typeof(FunctionBaseEventArgs))
@@ -107,7 +109,7 @@ namespace AliceScript.Binding
                     parametors.Add(this);
                     continue;
                 }
-                if (i == 0 && IsMethod && e.CurentVariable != null)
+                if (i == 0 && IsMethod && e.CurentVariable is not null)
                 {
                     diff++;
                     if (e.CurentVariable.TryConvertTo(paramType, out var r))
@@ -145,7 +147,7 @@ namespace AliceScript.Binding
                 }
 
                 var item = e.Args[i - diff];
-                if (item == null)
+                if (item is null)
                 {
                     if (inParams)
                     {
@@ -179,7 +181,7 @@ namespace AliceScript.Binding
                 if (inParams)
                 {
                     var item = e.Args[i - diff];
-                    if (item == null)
+                    if (item is null)
                     {
                         if (inParams)
                         {
