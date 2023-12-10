@@ -65,11 +65,11 @@
         /// <summary>
         /// 無効な引数です
         /// </summary>
-        INVAILD_ARGUMENT = 0x00d,
+        INVALID_ARGUMENT = 0x00d,
         /// <summary>
         /// 関数内の引数が不完全です
         /// </summary>
-        INVAILD_ARGUMENT_FUNCTION = 0x00e,
+        INVALID_ARGUMENT_FUNCTION = 0x00e,
         /// <summary>
         /// 配列が必要です
         /// </summary>
@@ -171,9 +171,9 @@
         /// </summary>
         COULDNT_ASSIGN_THIS_PROPERTY = 0x02c,
         /// <summary>
-        /// プロパティは読み取り専用です
+        /// 読み取り専用の値には代入できません
         /// </summary>
-        PROPERTY_IS_READ_ONLY = 0x02f,
+        CANT_ASSIGN_TO_READ_ONLY = 0x02f,
         /// <summary>
         /// 値を混合して取得/設定することはできません
         /// </summary>
@@ -222,10 +222,6 @@
         /// 互換性のないパッケージです
         /// </summary>
         NOT_COMPATIBLE_PACKAGES = 0x03c,
-        /// <summary>
-        /// 定数に値を代入することはできません
-        /// </summary>
-        CANT_ASSIGN_VALUE_TO_CONSTANT = 0x03d,
         /// <summary>
         /// 変数はすでに定義されています
         /// </summary>
@@ -277,6 +273,22 @@
         /// <summary>
         /// caseまたはdefaultブロックにbreakがありません。
         /// </summary>
-        CASE_BLOCK_MISSING_BREAK = 0x04a
+        CASE_BLOCK_MISSING_BREAK = 0x04a,
+        /// <summary>
+        /// 不明なエスケープ文字です
+        /// </summary>
+        UNKNOWN_ESCAPE_CHAR = 0x04b,
+        /// <summary>
+        /// アサーションが失敗しました
+        /// </summary>
+        ASSERTION_ERROR = 0x04c,
+        /// <summary>
+        /// 識別子間があいまいです
+        /// </summary>
+        AMBIGUOUS_IDENTIFIER = 0x04d,
+        /// <summary>
+        /// 無効なキーワードの組み合わせです
+        /// </summary>
+        INVALID_KEYWORD_CONBINATION = 0x04e
     }
 }

@@ -11,7 +11,10 @@ namespace AliceScript
         {
             Init();
         }
-
+        /// <summary>
+        /// Alice.Environmentで使用するコマンドライン引数
+        /// </summary>
+        public static List<string> Args { get; set; }
         /// <summary>
         /// Alice.Runtimeで使用できるすべてのAPIを読み込みます
         /// </summary>
@@ -29,6 +32,8 @@ namespace AliceScript
             Alice_Security.Init();
             Alice_Packaging.Init();
             Alice_Environment.Init();
+            Alice_Reflection.Init();
+            Alice_Interop.Init();
             Alice_Legacy.Init();
         }
         /// <summary>

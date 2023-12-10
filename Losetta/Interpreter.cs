@@ -1,4 +1,9 @@
-﻿using AliceScript.Interop;
+﻿using AliceScript.Functions;
+using AliceScript.Interop;
+using AliceScript.NameSpaces;
+using AliceScript.Objects;
+using AliceScript.Packaging;
+using AliceScript.Parsing;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
@@ -33,13 +38,12 @@ namespace AliceScript
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new Interpreter();
-                }
+                instance ??= new Interpreter();
                 return instance;
             }
         }
+
+        public NameSpace GlobalNameSpace => NameSpaceManager.Get(Constants.TOP_NAMESPACE);
 
         public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
@@ -63,7 +67,7 @@ namespace AliceScript
         public string ReadInput()
         {
             var handler = OnInput;
-            if (handler != null)
+            if (handler is not null)
             {
                 var args = new ReadInputEventArgs();
                 handler(this, args);
@@ -78,7 +82,7 @@ namespace AliceScript
         public void AppendOutput(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnOutput;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -88,7 +92,7 @@ namespace AliceScript
         public void AppendDebug(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnDebug;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -99,7 +103,7 @@ namespace AliceScript
         public bool AppendData(string text, bool newLine = false)
         {
             EventHandler<OutputAvailableEventArgs> handler = OnData;
-            if (handler != null)
+            if (handler is not null)
             {
                 OutputAvailableEventArgs args = new OutputAvailableEventArgs(text +
                                      (newLine ? Environment.NewLine : string.Empty));
@@ -127,30 +131,24 @@ namespace AliceScript
 
         public void RegisterFunctions()
         {
-            NameSpaceManerger.Add(new NameSpace(Constants.TOP_NAMESPACE));
+            NameSpace space = new NameSpace(Constants.TOP_API_NAMESPACE);
+            space.Add(new ClassCreator());
+            space.Add(new EnumFunction());
+            space.Add(new ArrayTypeFunction());
+            space.Add(new ExternFunctionCreator());
+            space.Add(new LibImportFunction());
+            space.Add(new NetImportFunction());
 
-            FunctionBaseManerger.Add(new ClassCreator());
-            FunctionBaseManerger.Add(new FunctionCreator());
-            FunctionBaseManerger.Add(new EnumFunction());
-            FunctionBaseManerger.Add(new ArrayTypeFunction());
+            NameSpaceManager.Add(space);
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
-            ParserFunction.AddAction(Constants.POINTER, new PointerFunction());
-            ParserFunction.AddAction(Constants.POINTER_REF, new PointerReferenceFunction());
         }
-
 
         public void RegisterActions()
         {
             ParserFunction.AddAction(Constants.ASSIGNMENT, new AssignFunction());
             ParserFunction.AddAction(Constants.INCREMENT, new IncrementDecrementFunction());
             ParserFunction.AddAction(Constants.DECREMENT, new IncrementDecrementFunction());
-
-
-            for (int i = 0; i < Constants.OPER_ACTIONS.Length; i++)
-            {
-                ParserFunction.AddAction(Constants.OPER_ACTIONS[i], new OperatorAssignFunction());
-            }
         }
 
         public Variable ProcessFile(string filename, bool mainFile = false)
@@ -271,12 +269,14 @@ namespace AliceScript
                 return null;
             }
 
-            ParsingScript toParse = new ParsingScript(data, 0, char2Line);
-            toParse.TopInFile = true;
-            toParse.Settings = setting;
-            toParse.Defines = def;
-            toParse.OriginalScript = script;
-            toParse.Filename = filename;
+            ParsingScript toParse = new ParsingScript(data, 0, char2Line)
+            {
+                TopInFile = true,
+                Settings = setting,
+                Defines = def,
+                OriginalScript = script,
+                Filename = filename
+            };
 
             if (mainFile)
             {
@@ -293,11 +293,6 @@ namespace AliceScript
 
             return result;
         }
-
-        //AliceScript925からNWhileは実装されなくなりました。否定条件のループはwhile(!bool)を使用するべきです
-
-
-
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using AliceScript.Binding;
+using System.Diagnostics;
 using System.Text;
 
 namespace AliceScript.NameSpaces
@@ -7,640 +8,307 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            try
-            {
-                //名前空間のメインエントリポイントです。
-                NameSpace space = new NameSpace("Alice.Diagnostics");
+            Alice.RegisterFunctions<DiagnosticsFunctions>();
 
-                space.Add(new Process_GetProcessFunc());
-                space.Add(new Process_GetProcessFunc(true));
+            NameSpace space = new NameSpace("Alice.Diagnostics");
 
-                space.Add(new StopWatchObject());
-                space.Add(new ProcessObject());
-                space.Add(new ProcessStartInfoObject());
-                space.Add(new Process_StartFunc());
+            space.Add<Stopwatch>();
+            space.Add<ProcessObject>();
 
-                space.Add(new Debug_PrintFunction());
-                space.Add(new Debug_PrintFunction(true));
-                space.Add(new Debug_PrintFunction(true, true));
-                space.Add(new Debug_PrintFunction(false, true));
-                space.Add(new Debug_IndentFunction());
-                space.Add(new Debug_IndentFunction(true));
-                space.Add(new Debug_IndentLevelFunction());
+            space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
 
-                space.Add("ProcessWindowStyle", "System.Diagnostics.ProcessWindowStyle");
-
-                NameSpaceManerger.Add(space);
-            }
-            catch { }
+            NameSpaceManager.Add(space);
         }
     }
-    internal sealed class Debug_IndentFunction : FunctionBase
+    [AliceNameSpace(Name = "Alice.Diagnostics")]
+    internal sealed class DiagnosticsFunctions
     {
-        public Debug_IndentFunction(bool unindent = false)
+        #region プロセス操作
+        public static ProcessObject[] Process_GetProcessesByName(string name)
         {
-            m_UnIndent = unindent;
-            Name = m_UnIndent ? "Debug_Unindent" : "Debug_Indent";
-            Run += Debug_IndentFunction_Run;
+            Process[] ps = Process.GetProcessesByName(name);
+            List<ProcessObject> pss = new List<ProcessObject>();
+            foreach (Process p in ps)
+            {
+                ProcessObject po = new ProcessObject();
+                po.Process = p;
+                pss.Add(po);
+            }
+            return pss.ToArray();
         }
-
-        private void Debug_IndentFunction_Run(object sender, FunctionBaseEventArgs e)
+        public static ProcessObject[] Process_GetProcessesByName(string name, string machineName)
         {
-            if (m_UnIndent && IndentLevel > 0)
+            Process[] ps = Process.GetProcessesByName(name, machineName);
+            List<ProcessObject> pss = new List<ProcessObject>();
+            foreach (Process p in ps)
+            {
+                ProcessObject po = new ProcessObject();
+                po.Process = p;
+                pss.Add(po);
+            }
+            return pss.ToArray();
+        }
+        public static ProcessObject Process_GetProcessById(int id)
+        {
+            ProcessObject po = new ProcessObject();
+            po.Process = Process.GetProcessById(id);
+            return po;
+        }
+        public static ProcessObject Process_GetProcessById(int id, string machineName)
+        {
+            ProcessObject po = new ProcessObject();
+            po.Process = Process.GetProcessById(id, machineName);
+            return po;
+        }
+        public static ProcessObject Process_Start(string path, string arguments = "")
+        {
+            var po = new ProcessObject
+            {
+                Process = Process.Start(path, arguments)
+            };
+            return po;
+        }
+        public static ProcessObject Exec(string fileName, bool waitForExit = true, bool useShell = false)
+        {
+            return Exec(fileName, string.Empty, waitForExit, useShell);
+        }
+        public static ProcessObject Exec(string fileName, string arguments, bool waitForExit = true, bool useShell = false)
+        {
+            var p = new Process();
+            p.StartInfo.FileName = fileName;
+            p.StartInfo.Arguments = arguments;
+            p.StartInfo.RedirectStandardInput = !useShell;
+            p.StartInfo.RedirectStandardOutput = !useShell;
+            p.StartInfo.UseShellExecute = useShell;
+
+            p.Start();
+
+            if (waitForExit)
+            {
+                p.WaitForExit();
+            }
+            return new ProcessObject()
+            {
+                Process = p
+            };
+        }
+        #endregion
+        #region デバッグ機能
+        public static int IndentLevel = 0;
+        public static void Debug_Indent()
+        {
+            IndentLevel++;
+        }
+        public static void Debug_Unindent()
+        {
+            if (IndentLevel > 0)
             {
                 IndentLevel--;
             }
-            else if (!m_UnIndent)
-            {
-                IndentLevel++;
-            }
         }
-        public static int IndentLevel = 0;
-        private bool m_UnIndent = false;
-    }
-
-    internal sealed class Debug_IndentLevelFunction : FunctionBase
-    {
-        public Debug_IndentLevelFunction()
+        public static int Debug_IndentLevel()
         {
-            Name = "Debug_IndentLevel";
-            Run += Debug_IndentLevelFunction_Run;
+            return IndentLevel;
         }
-
-        private void Debug_IndentLevelFunction_Run(object sender, FunctionBaseEventArgs e)
+        public static int Debug_IndentLevel(int level)
         {
-            if (e.Args.Count > 0 && e.Args[0].Type == Variable.VarType.NUMBER)
-            {
-                Debug_IndentFunction.IndentLevel = e.Args[0].AsInt();
-            }
-            e.Return = new Variable(Debug_IndentFunction.IndentLevel);
+            IndentLevel = level;
+            return IndentLevel;
         }
-    }
-
-    internal sealed class Debug_PrintFunction : FunctionBase
-    {
-        public Debug_PrintFunction(bool iswrite = false, bool isif = false)
+        public static void Debug_Print()
         {
-            string name = "Debug_";
-            if (iswrite)
-            {
-                name += "Write";
-            }
-            else
-            {
-                name += "Print";
-            }
-            if (isif)
-            {
-                name += "If";
-            }
-            MinimumArgCounts = isif ? 2 : 1;
-            m_isIf = isif;
-            m_isWrite = iswrite;
-            Name = name;
-            Run += PrintFunction_Run;
+            AddDebugOutput(string.Empty, true);
         }
-        private bool m_isIf = false;
-        private bool m_isWrite = false;
-        private void PrintFunction_Run(object sender, FunctionBaseEventArgs e)
+        public static void Debug_Print(string text)
         {
-            if (!m_isIf || e.Args[0].AsBool())
+            AddDebugOutput(text, true);
+        }
+        public static void Debug_Print(string format, Variable[] items)
+        {
+            AddDebugOutput(StringFormatFunction.Format(format, items), true);
+        }
+        public static void Debug_PrintIf(bool condition)
+        {
+            if (condition)
             {
-                int countnum = 0;
-                if (m_isIf) { countnum++; }
-                if (e.Args.Count == countnum)
-                {
-                    AddDebugOutput(string.Empty, e.Script, !m_isWrite);
-                }
-                else if (e.Args.Count == countnum + 1)
-                {
-                    AddDebugOutput(e.Args[countnum].AsString(), e.Script, !m_isWrite);
-                }
-                else
-                {
-                    string format = e.Args[countnum].AsString();
-                    for (int i = 0; i < countnum + 1; i++)
-                    {
-                        e.Args.RemoveAt(0);
-                    }
-                    AddDebugOutput(StringFormatFunction.Format(format, e.Args), e.Script, !m_isWrite);
-                }
+                AddDebugOutput(string.Empty, true);
             }
         }
-
-        public static void AddDebugOutput(string text, ParsingScript script = null,
+        public static void Debug_PrintIf(bool condition, string text)
+        {
+            if (condition)
+            {
+                AddDebugOutput(text, true);
+            }
+        }
+        public static void Debug_PrintIf(bool condition, string format, Variable[] items)
+        {
+            if (condition)
+            {
+                AddDebugOutput(StringFormatFunction.Format(format, items), true);
+            }
+        }
+        public static void Debug_Write()
+        {
+            AddDebugOutput(string.Empty, false);
+        }
+        public static void Debug_Write(string text)
+        {
+            AddDebugOutput(text, false);
+        }
+        public static void Debug_Write(string format, Variable[] items)
+        {
+            AddDebugOutput(StringFormatFunction.Format(format, items), false);
+        }
+        public static void Debug_WriteIf(bool condition)
+        {
+            if (condition)
+            {
+                AddDebugOutput(string.Empty, false);
+            }
+        }
+        public static void Debug_WriteIf(bool condition, string text)
+        {
+            if (condition)
+            {
+                AddDebugOutput(text, false);
+            }
+        }
+        public static void Debug_WriteIf(bool condition, string format, Variable[] items)
+        {
+            if (condition)
+            {
+                AddDebugOutput(StringFormatFunction.Format(format, items), false);
+            }
+        }
+        public static void AddDebugOutput(string text,
                                      bool addLine = true, bool addSpace = true, string start = "", string indent = "    ")
         {
             var indents = new StringBuilder();
-            for (int i = 0; i < Debug_IndentFunction.IndentLevel; i++)
+            for (int i = 0; i < IndentLevel; i++)
             {
                 indents.Append(indent);
             }
             string output = indents + text + (addLine ? Environment.NewLine : string.Empty);
             Interpreter.Instance.AppendDebug(output);
         }
-    }
-
-    internal sealed class Process_StartFunc : FunctionBase
-    {
-        public Process_StartFunc()
+        #endregion
+        #region アサーション関連
+        public static void Assert(bool condition)
         {
-            Name = "Process_Start";
-            MinimumArgCounts = 1;
-            Run += Process_StartFunc_Run;
-        }
-
-        private void Process_StartFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            var po = new ProcessObject();
-            po.Process = Process.Start(e.Args[0].AsString(), Utils.GetSafeString(e.Args, 1));
-            e.Return = new Variable(po);
-        }
-    }
-
-    internal sealed class Process_GetProcessFunc : FunctionBase
-    {
-        public Process_GetProcessFunc(bool byname = false)
-        {
-            m_ByName = byname;
-            Name = m_ByName ? "Process_GetProcessesByName" : "Process_GetProcessById";
-            MinimumArgCounts = 1;
-            Run += Process_GetProcessFunc_Run;
-        }
-
-        private void Process_GetProcessFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (m_ByName)
+            if (!condition)
             {
-                Process[] ps = Process.GetProcessesByName(e.Args[0].AsString());
-                Variable v = new Variable(Variable.VarType.ARRAY);
-                foreach (Process p in ps)
-                {
-                    ProcessObject po = new ProcessObject();
-                    po.Process = p;
-                    v.Tuple.Add(new Variable(po));
-                }
-                e.Return = v;
-            }
-            else
-            {
-                ProcessObject po = new ProcessObject();
-                po.Process = Process.GetProcessById(e.Args[0].AsInt());
-                e.Return = new Variable(po);
+                throw new ScriptException("アサーションが失敗しました", Exceptions.ASSERTION_ERROR);
             }
         }
-
-        private bool m_ByName = false;
+        public static void Assert(bool condition, string message)
+        {
+            if (!condition)
+            {
+                throw new ScriptException(message, Exceptions.ASSERTION_ERROR);
+            }
+        }
+        public static void AssertEqual(Variable expected, Variable actual)
+        {
+            if (!expected.Equals(actual))
+            {
+                throw new ScriptException("アサーションが失敗しました", Exceptions.ASSERTION_ERROR);
+            }
+        }
+        public static void AssertEqual(Variable expected, Variable actual, string message)
+        {
+            if (!expected.Equals(actual))
+            {
+                throw new ScriptException(message, Exceptions.ASSERTION_ERROR);
+            }
+        }
+        #endregion
     }
 
-    internal sealed class ProcessObject : ObjectBase
+    [AliceObject(Name = "Process")]
+    internal sealed class ProcessObject
     {
-        public ProcessObject()
-        {
-            Name = "Process";
 
-            AddProperty(new StartInfoProperty(this));
-
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.CloseMainWindow, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Kill, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Reflesh, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.Start, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.WaitForExit, this));
-            AddFunction(new ProcessFunction(ProcessFunction.ProcessFunctionMode.WaitForInputIdle, this));
-
-
-        }
         internal Process Process = new Process();
 
-        private class StartInfoProperty : PropertyBase
+        public void Close()
         {
-            public StartInfoProperty(ProcessObject host)
-            {
-                Host = host;
-                Name = "StartInfo";
-                HandleEvents = true;
-                Getting += StartInfoProperty_Getting;
-                Setting += StartInfoProperty_Setting;
-            }
-
-            private void StartInfoProperty_Setting(object sender, PropertyBaseEventArgs e)
-            {
-                if (Host.Process != null)
-                {
-                    Host.Process.StartInfo = ((ProcessStartInfoObject)e.Value.Object).ps;
-                }
-            }
-
-            private void StartInfoProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                if (Host.Process != null)
-                {
-                    ProcessStartInfoObject psio = new ProcessStartInfoObject();
-                    psio.ps = Host.Process.StartInfo;
-                    e.Value = new Variable(psio);
-                }
-            }
-
-            private ProcessObject Host;
+            Process.Close();
         }
 
-        private class ProcessFunction : FunctionBase
+        public void CloseMainWindow()
         {
-            internal enum ProcessFunctionMode
-            {
-                Start, Kill, WaitForExit, Reflesh, WaitForInputIdle, CloseMainWindow
-            }
-            public ProcessFunction(ProcessFunctionMode mode, ProcessObject host)
-            {
-                Mode = mode;
-                Host = host;
-                Name = Mode.ToString();
-                Run += ProcessFunction_Run;
-            }
-
-            private ProcessObject Host;
-            private void ProcessFunction_Run(object sender, FunctionBaseEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case ProcessFunctionMode.Start:
-                        {
-                            Host.Process.Start();
-                            break;
-                        }
-                    case ProcessFunctionMode.Kill:
-                        {
-                            Host.Process.Kill();
-                            break;
-                        }
-                    case ProcessFunctionMode.Reflesh:
-                        {
-                            Host.Process.Refresh();
-                            break;
-                        }
-                    case ProcessFunctionMode.WaitForExit:
-                        {
-                            Host.Process.WaitForExit();
-                            break;
-                        }
-                    case ProcessFunctionMode.WaitForInputIdle:
-                        {
-                            Host.Process.WaitForInputIdle();
-                            break;
-                        }
-                    case ProcessFunctionMode.CloseMainWindow:
-                        {
-                            Host.Process.CloseMainWindow();
-                            break;
-                        }
-                }
-            }
-
-            private ProcessFunctionMode Mode;
-        }
-    }
-
-    internal sealed class ProcessStartInfoObject : ObjectBase
-    {
-        public ProcessStartInfoObject()
-        {
-            Name = "ProcessStartInfo";
-
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Arguments, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.CreateNoWindow, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.ErrorDialog, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.FileName, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.LoadUserProfile, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardError, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardInput, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.RedirectStandardOutput, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.UseShellExecute, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.Verb, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.WindowStyle, this));
-            AddProperty(new InfoProperty(InfoProperty.InfoPropertyMode.WorkingDirectory, this));
-        }
-        internal ProcessStartInfo ps = new ProcessStartInfo();
-
-        private class InfoProperty : PropertyBase
-        {
-            internal enum InfoPropertyMode
-            {
-                Arguments, CreateNoWindow, ErrorDialog, FileName, LoadUserProfile, RedirectStandardError, RedirectStandardInput, RedirectStandardOutput, UseShellExecute, Verb, WindowStyle, WorkingDirectory
-            }
-            public InfoProperty(InfoPropertyMode mode, ProcessStartInfoObject host)
-            {
-                Mode = mode;
-                Host = host;
-                Name = Mode.ToString();
-                HandleEvents = true;
-                Getting += InfoProperty_Getting;
-                Setting += InfoProperty_Setting;
-            }
-            private ProcessStartInfoObject Host;
-            private void InfoProperty_Setting(object sender, PropertyBaseEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case InfoPropertyMode.Arguments:
-                        {
-                            Host.ps.Arguments = e.Value.AsString();
-                            break;
-                        }
-                    case InfoPropertyMode.CreateNoWindow:
-                        {
-                            Host.ps.CreateNoWindow = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.ErrorDialog:
-                        {
-                            Host.ps.ErrorDialog = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.FileName:
-                        {
-                            Host.ps.FileName = e.Value.AsString();
-                            break;
-                        }
-                    case InfoPropertyMode.LoadUserProfile:
-                        {
-                            Host.ps.LoadUserProfile = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardError:
-                        {
-                            Host.ps.RedirectStandardError = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardInput:
-                        {
-                            Host.ps.RedirectStandardInput = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardOutput:
-                        {
-                            Host.ps.RedirectStandardOutput = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.UseShellExecute:
-                        {
-                            Host.ps.UseShellExecute = e.Value.AsBool();
-                            break;
-                        }
-                    case InfoPropertyMode.Verb:
-                        {
-                            Host.ps.Verb = e.Value.AsString();
-                            break;
-                        }
-                    case InfoPropertyMode.WindowStyle:
-                        {
-                            Host.ps.WindowStyle = (ProcessWindowStyle)e.Value.AsInt();
-                            break;
-                        }
-                    case InfoPropertyMode.WorkingDirectory:
-                        {
-                            Host.ps.WorkingDirectory = e.Value.AsString();
-                            break;
-                        }
-                }
-            }
-
-
-
-            private void InfoProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case InfoPropertyMode.Arguments:
-                        {
-                            e.Value = new Variable(Host.ps.Arguments);
-                            break;
-                        }
-                    case InfoPropertyMode.CreateNoWindow:
-                        {
-                            e.Value = new Variable(Host.ps.CreateNoWindow);
-                            break;
-                        }
-                    case InfoPropertyMode.ErrorDialog:
-                        {
-                            e.Value = new Variable(Host.ps.ErrorDialog);
-                            break;
-                        }
-                    case InfoPropertyMode.FileName:
-                        {
-                            e.Value = new Variable(Host.ps.FileName);
-                            break;
-                        }
-                    case InfoPropertyMode.LoadUserProfile:
-                        {
-                            e.Value = new Variable(Host.ps.LoadUserProfile);
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardError:
-                        {
-                            e.Value = new Variable(Host.ps.RedirectStandardError);
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardInput:
-                        {
-                            e.Value = new Variable(Host.ps.RedirectStandardInput);
-                            break;
-                        }
-                    case InfoPropertyMode.RedirectStandardOutput:
-                        {
-                            e.Value = new Variable(Host.ps.RedirectStandardOutput);
-                            break;
-                        }
-                    case InfoPropertyMode.UseShellExecute:
-                        {
-                            e.Value = new Variable(Host.ps.UseShellExecute);
-                            break;
-                        }
-                    case InfoPropertyMode.Verb:
-                        {
-                            e.Value = new Variable(Host.ps.Verb);
-                            break;
-                        }
-                    case InfoPropertyMode.WindowStyle:
-                        {
-                            e.Value = new Variable((int)Host.ps.WindowStyle);
-                            break;
-                        }
-                    case InfoPropertyMode.WorkingDirectory:
-                        {
-                            e.Value = new Variable(Host.ps.WorkingDirectory);
-                            break;
-                        }
-                }
-            }
-
-            private InfoPropertyMode Mode;
+            Process.CloseMainWindow();
         }
 
-
-
-    }
-
-    internal sealed class StopWatchObject : ObjectBase
-    {
-        public StopWatchObject()
+        public void Kill()
         {
-            Name = "stopwatch";
-            AddFunction(new STWOFunc(this, 0), "start");
-            AddFunction(new STWOFunc(this, 1), "stop");
-            AddFunction(new STWOFunc(this, 2), "reset");
-            AddFunction(new STWOFunc(this, 3), "restart");
-            AddProperty(new ElapsedProperty(stopwatch));
-            AddProperty(new ElapsedMillisecondsProperty(stopwatch));
-            AddProperty(new ElapsedTicksProperty(stopwatch));
-            AddProperty(new FrequencyProperty(stopwatch));
-            AddProperty(new IsHighResolutionProperty(stopwatch));
-            AddProperty(new IsRunningProperty(stopwatch));
+            Process.Kill();
         }
 
-
-        private Stopwatch stopwatch = new Stopwatch();
-
-        private class ElapsedProperty : PropertyBase
+        public void Kill(bool entireProcessTree)
         {
-            public ElapsedProperty(Stopwatch stopwatch)
-            {
-                Name = "elapsed";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += ElapsedProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.Elapsed);
-            }
+            Process.Kill(entireProcessTree);
         }
 
-        private class ElapsedMillisecondsProperty : PropertyBase
+        public void Reflesh()
         {
-            public ElapsedMillisecondsProperty(Stopwatch stopwatch)
-            {
-                Name = "elapsedmilliseconds";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += ElapsedProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.ElapsedMilliseconds);
-            }
+            Process.Refresh();
         }
 
-        private class ElapsedTicksProperty : PropertyBase
+        public void Start()
         {
-            public ElapsedTicksProperty(Stopwatch stopwatch)
-            {
-                Name = "elapsedticks";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += ElapsedProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void ElapsedProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.ElapsedTicks);
-            }
+            Process.Start();
         }
 
-        private class IsRunningProperty : PropertyBase
+        public void WaitForExit()
         {
-            public IsRunningProperty(Stopwatch stopwatch)
-            {
-                Name = "isrunning";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += IsRunningProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.IsRunning);
-            }
+            Process.WaitForExit();
         }
 
-        private class IsHighResolutionProperty : PropertyBase
+        public void WaitForExit(int milliseconds)
         {
-            public IsHighResolutionProperty(Stopwatch stopwatch)
-            {
-                Name = "ishighresolution";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += IsRunningProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.IsHighResolution);
-            }
+            Process.WaitForInputIdle(milliseconds);
         }
 
-        private class FrequencyProperty : PropertyBase
+        public void WaitForInputIdle()
         {
-            public FrequencyProperty(Stopwatch stopwatch)
-            {
-                Name = "frequency";
-                CanSet = false;
-                Stopwatch = stopwatch;
-                HandleEvents = true;
-                Getting += IsRunningProperty_Getting;
-            }
-            private Stopwatch Stopwatch;
-            private void IsRunningProperty_Getting(object sender, PropertyBaseEventArgs e)
-            {
-                e.Value = new Variable(Stopwatch.Frequency);
-            }
+            Process.WaitForExit();
         }
 
-        private class STWOFunc : FunctionBase
+        public void WaitFWaitForInputIdleorExit(int milliseconds)
         {
-            public STWOFunc(StopWatchObject sto, int mode)
-            {
-                Host = sto;
-                Mode = mode;
-                Run += STWOFunc_Run;
-            }
-
-            private void STWOFunc_Run(object sender, FunctionBaseEventArgs e)
-            {
-                switch (Mode)
-                {
-                    case 0:
-                        {
-                            Host.stopwatch.Start();
-                            break;
-                        }
-                    case 1:
-                        {
-                            Host.stopwatch.Stop();
-                            break;
-                        }
-                    case 2:
-                        {
-                            Host.stopwatch.Reset();
-                            break;
-                        }
-                    case 3:
-                        {
-                            Host.stopwatch.Restart();
-                            break;
-                        }
-                }
-            }
-
-            private StopWatchObject Host;
-            private int Mode = 0;
+            Process.WaitForInputIdle(milliseconds);
         }
+        public string Read()
+        {
+            StringBuilder sb = new StringBuilder();
+            while (Process.StandardOutput.Peek() >= 0)
+            {
+                sb.Append((char)Process.StandardOutput.Read());
+            }
 
+            return sb.ToString();
+        }
+        public string ReadToEnd()
+        {
+            return Process.StandardOutput.ReadToEnd();
+        }
+        public string ReadLine()
+        {
+            return Process.StandardOutput.ReadLine();
+        }
+        public void Write(string input)
+        {
+            Process.StandardInput.Write(input);
+            Process.StandardInput.Flush();
+        }
+        public void WriteLine(string input)
+        {
+            Process.StandardInput.WriteLine(input);
+            Process.StandardInput.Flush();
+        }
+        public int ExitCode => Process.ExitCode;
+        public ProcessStartInfo ProcessStartInfo => Process.StartInfo;
     }
 }

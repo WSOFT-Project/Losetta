@@ -64,8 +64,27 @@ int result = Alice.Execute<int>("2+3");
 ```
 
 ### Usage for Custom Functions
-All AliceScript functions inherit from the `FunctionBase` class.
-The following example defines a `MyFunction` function that has one argument and returns the first argument when called.
+In AliceScript, you can bind a C# function as is if it has only one function overload. The following example defines an AliceScript namespace called `MyFunctions` and a `Pow` method that returns a number squared when a single number is entered into it.
+
+```cs
+[AliceNameSpace]
+public static class MyFunctions
+{
+    public static double Pow(double x)
+    {
+        return x * x;
+    }
+}
+```
+
+In order to actually call the defined namespace and functions from AliceScript, a bind registration is required. The following example registers ``MyFunctions`` defined earlier.
+
+```cs
+Alice.RegisterFunctions<MyFunctions>();
+```
+
+Another way to define custom functions in AliceScript is to define a class that extends the `FunctionBase` class.
+The following example shows how to define a `MyFunction` function that has one argument and returns the first argument when called.
 
 ```cs
  public class MyFunction : FunctionBase

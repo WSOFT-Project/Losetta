@@ -61,6 +61,28 @@ namespace AliceScript.CLI.Properties {
         }
         
         /// <summary>
+        ///   print(&quot;AliceScript言語で記述されたプログラムを実行します。&quot;);
+        ///print();
+        ///print(&quot;使用法：alice [ファイル名] [オプション] [-e 式] [--args パラメータ]&quot;);
+        ///print();
+        ///print(&quot;  [ファイル名]           ファイルを実行&quot;);
+        ///print();
+        ///print(&quot;  -d                     デバッグモードを有効化&quot;);
+        ///print(&quot;  -print=off             標準出力を無効化&quot;);
+        ///print(&quot;  -throw=off             例外のハンドルを無効化&quot;);
+        ///print(&quot;  -runtime=nano          ランタイムを最小モードで初期化&quot;);
+        ///print(&quot;  -run                   ファイルをスクリプトとして実行&quot;);
+        ///print(&quot;  -run -mainfile         ファイルをスクリプトとしてメインファイルで実行&quot;);
+        ///print();
+        ///print(&quot;  -e,-execute,-eval [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string help {
+            get {
+                return ResourceManager.GetString("help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   using Alice.IO;
         ///using Alice.Net;
         ///using Alice.Console;
@@ -130,6 +152,8 @@ namespace AliceScript.CLI.Properties {
         /// <summary>
         ///   public using Alice.Shell;
         ///include(&quot;version&quot;);
+        ///print();
+        ///print(&quot;https://a.wsoft.ws/alice&quot;);
         ///print(); に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string shell {

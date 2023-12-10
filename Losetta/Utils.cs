@@ -1,10 +1,14 @@
-﻿using System.Globalization;
+﻿using AliceScript.Extra;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Parsing;
+using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace AliceScript
 {
-    public partial class Utils
+    public static partial class Utils
     {
         public static void CheckArgs(int args, int expected, string msg, bool exactMatch = false)
         {
@@ -19,33 +23,33 @@ namespace AliceScript
         /// 指定した変数が数値を表し、かつ特定範囲内にあるかどうかを確認し、条件を満たさない場合に例外を発生します。
         /// </summary>
         /// <param name="variable">確認する変数</param>
-        /// <param name="min">特定範囲の最小値</param>
-        /// <param name="max">特定範囲の最大値</param>
+        /// <param name="min">特定範囲より小さな値</param>
+        /// <param name="max">特定範囲より大きな値</param>
         /// <param name="needInteger">整数かつInt32の範囲内である必要がある場合はtrue。この値は省略できます。</param>
         /// <param name="script">確認元のスクリプト</param>
         public static void CheckNumInRange(Variable variable, bool needInteger = false, double? min = null, double? max = null, ParsingScript script = null)
         {
             CheckNumber(variable, script);
-            double trueMax = max == null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
-            double trueMin = max == null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
+            double trueMax = max is null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
+            double trueMin = max is null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
             bool type = !needInteger || variable.Value % 1 != 0.0;
             bool less = variable.Value < trueMin;
             bool over = variable.Value > trueMax;
             if (type || less || over)
             {
-                throw new ScriptException($"数値は {(min != null ? min + "以上" : string.Empty)} {(max != null ? max + "以下" : string.Empty)}の{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
+                throw new ScriptException($"数値は{(min is not null ? $" {min}以上かつ" : string.Empty)}{(max is not null ? $" {max}以下の" : string.Empty)}{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
             }
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
         {
-            if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || variable.Value != double.NaN))
+            if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || !double.IsNaN(variable.Value)))
             {
                 ThrowErrorMsg("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE, script);
             }
         }
         public static void CheckNotNull(string name, ParserFunction func, ParsingScript script)
         {
-            if (func == null)
+            if (func is null)
             {
                 string realName = Constants.GetRealName(name);
                 ThrowErrorMsg("次の変数または関数は存在しません [" + realName + "]", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
@@ -53,7 +57,7 @@ namespace AliceScript
         }
         public static bool CheckNotNull(object obj, string name, ParsingScript script)
         {
-            if (obj == null)
+            if (obj is null)
             {
                 string realName = Constants.GetRealName(name);
                 ThrowErrorMsg("次のオブジェクトは存在しません [" + realName + "]", Exceptions.OBJECT_DOESNT_EXIST, script);
@@ -73,19 +77,10 @@ namespace AliceScript
 
         public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script, string token = null)
         {
-            /*
-             * TODO:ThrowErrorMSGの引継ぎ等
-            string code     = script == null || string.IsNullOrWhiteSpace(script.OriginalScript) ? "" : script.OriginalScript;
-            int lineNumber  = script == null ? 0 : script.OriginalLineNumber;
-            string filename = script == null || string.IsNullOrWhiteSpace(script.Filename) ? "" : script.Filename;
-            int minLines    = script == null || script.OriginalLine.ToLower().Contains(token.ToLower()) ? 1 : 2;
-
-            ThrowErrorMsg(msg, code, lineNumber, filename, minLines);
-            */
             throw new ScriptException(msg, errorcode, script);
         }
 
-        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "", int minLines = 1)
+        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "")
         {
             string[] lines = script.Split('\n');
             lineNumber = lines.Length <= lineNumber ? -1 : lineNumber;
@@ -100,7 +95,7 @@ namespace AliceScript
 
 
             StringBuilder stack = new StringBuilder();
-            stack.AppendLine("" + currentLineNumber);
+            stack.AppendLine(currentLineNumber.ToString());
             stack.AppendLine(filename);
             stack.AppendLine(line);
             throw new ScriptException(msg + stack.ToString(), ecode);
@@ -112,17 +107,16 @@ namespace AliceScript
             ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
         }
 
-        public static void CheckLegalName(string name)
+        public static void CheckLegalName(string name, bool checkReserved = false)
         {
             if (string.IsNullOrEmpty(name))
             {
                 Utils.ThrowErrorMsg("識別子を空にすることはできません", Exceptions.ILLEGAL_IDENTIFIER, null, name);
             }
-            /*
-            if (Constants.CheckReserved(name))
+            if (checkReserved && Constants.CheckReserved(name))
             {
-                Utils.ThrowErrorMsg(name + "は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
-            }*/
+                Utils.ThrowErrorMsg($"識別子`{name}`は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
+            }
 
             if (!Constants.IDENTIFIER_PATTERN.IsMatch(name))
             {
@@ -130,23 +124,22 @@ namespace AliceScript
             }
         }
 
-        public static ParsingScript GetTempScript(string str, ParserFunction.StackLevel stackLevel, string name = "",
+        public static ParsingScript GetTempScript(string str,
             ParsingScript script = null, ParsingScript parentScript = null,
             int parentOffset = 0, AliceScriptClass.ClassInstance instance = null)
         {
             ParsingScript tempScript = new ParsingScript(str);
             tempScript.ScriptOffset = parentOffset;
-            if (parentScript != null)
+            if (parentScript is not null)
             {
                 tempScript.Char2Line = parentScript.Char2Line;
                 tempScript.Filename = parentScript.Filename;
                 tempScript.OriginalScript = parentScript.OriginalScript;
             }
             tempScript.ParentScript = script;
-            tempScript.InTryBlock = script == null ? false : script.InTryBlock;
             tempScript.ClassInstance = instance;
             tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
-            if (script != null)
+            if (script is not null)
             {
                 tempScript.Package = script.Package;
                 tempScript.Tag = script.Tag;
@@ -158,7 +151,7 @@ namespace AliceScript
         public static bool ExtractParameterNames(List<Variable> args, string functionName, ParsingScript script)
         {
             FunctionBase custFunc = ParserFunction.GetFunction(functionName, script) as FunctionBase;
-            if (custFunc == null)
+            if (custFunc is null)
             {
                 return false;
             }
@@ -166,9 +159,9 @@ namespace AliceScript
             var realArgs = custFunc.RealArgs;
             for (int i = 0; i < args.Count && i < realArgs.Length; i++)
             {
-                if (args[i] == null)
+                if (args[i] is null)
                 {
-                    throw new ScriptException("関数 `" + functionName + "` の`" + i + "`番目の引数が不正です。", Exceptions.INVAILD_ARGUMENT_FUNCTION);
+                    throw new ScriptException("関数 `" + functionName + "` の`" + i + "`番目の引数が不正です。", Exceptions.INVALID_ARGUMENT_FUNCTION);
                 }
                 string name = args[i].CurrentAssign;
                 args[i].ParamName = string.IsNullOrWhiteSpace(name) ? realArgs[i] : name;
@@ -187,16 +180,14 @@ namespace AliceScript
         /// <returns></returns>
         public static byte[] GetFileFromPackageOrLocal(string filename, bool fromPackage = false, ParsingScript script = null)
         {
-            if (script != null && script.Package != null && script.Package.ExistsEntry(filename))
-            {
-                return script.Package.GetEntryData(filename);
-            }
-            return fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
+            return script is not null && script.Package is not null && script.Package.ExistsEntry(filename)
+                ? script.Package.GetEntryData(filename)
+                : fromPackage || !File.Exists(filename) ? throw new FileNotFoundException(null, filename) : File.ReadAllBytes(filename);
         }
         public static string GetFileLines(string filename)
         {
-            string lines = SafeReader.ReadAllText(filename, out var v);
-            if (lines == null)
+            string lines = SafeReader.ReadAllText(filename, out _);
+            if (lines is null)
             {
                 lines = string.Empty;
             }
@@ -205,14 +196,14 @@ namespace AliceScript
         public static string GetFileLines(byte[] data)
         {
             string lines = SafeReader.ReadAllText(data, out _);
-            if (lines == null)
+            if (lines is null)
             {
                 lines = string.Empty;
             }
             return lines;
         }
 
-        public static GetVarFunction ExtractArrayElement(string token, ParsingScript script)
+        public static ValueFunction ExtractArrayElement(string token, ParsingScript script)
         {
             if (!token.Contains(Constants.START_ARRAY))
             {
@@ -221,7 +212,7 @@ namespace AliceScript
 
             ParsingScript tempScript = script.GetTempScript(token);
             Variable result = tempScript.Execute();
-            return new GetVarFunction(result);
+            return new ValueFunction(result);
         }
 
 
@@ -249,9 +240,9 @@ namespace AliceScript
         }
         public static double ConvertToDouble(object obj, ParsingScript script = null, bool throwError = true)
         {
-            string str = obj.ToString().ToLower();
+            string str = obj.ToString().ToLowerInvariant();
             if (!CanConvertToDouble(str, out double num) &&
-                script != null && str != Constants.END_ARRAY.ToString() && throwError)
+                script is not null && str != Constants.END_ARRAY.ToString() && throwError)
             {
                 ProcessErrorMsg(str, script);
             }
@@ -261,7 +252,7 @@ namespace AliceScript
         public static bool CanConvertToDouble(string str, out double num)
         {
             //文字列を小文字に置き換え
-            str = str.ToLower();
+            str = str.ToLowerInvariant();
             if (str.StartsWith("_", StringComparison.Ordinal) || str.EndsWith("_", StringComparison.Ordinal) || str.Contains("_.") || str.Contains("._"))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
@@ -276,7 +267,7 @@ namespace AliceScript
             {
                 if (str.StartsWith("0x", StringComparison.Ordinal))
                 {
-                    num = Convert.ToInt32(str.Substring(2), 16);
+                    num = int.Parse(str.AsSpan(2), NumberStyles.HexNumber);
                     return true;
                 }
                 else if (str.StartsWith("0o", StringComparison.Ordinal))
@@ -320,28 +311,6 @@ namespace AliceScript
 
         }
 
-        public static string ConvertUnicodeLiteral(string input)
-        {
-            if (input.Contains("\\"))
-            {
-                //UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'u')));
-                }
-                //可変長UTF-16文字コードの置き換え
-                foreach (Match match in Constants.UTF16_VARIABLE_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'x')));
-                }
-                //UTF-32文字コードの置き換え
-                foreach (Match match in Constants.UTF32_LITERAL.Matches(input))
-                {
-                    input = input.Replace(match.Value, ConvertUnicodeToChar(match.Value.TrimStart('\\', 'U'), false));
-                }
-            }
-            return input;
-        }
         private static string ConvertUnicodeToChar(string charCode, bool mode = true)
         {
             if (mode)
@@ -378,6 +347,12 @@ namespace AliceScript
             int index = data.IndexOf(".", StringComparison.Ordinal);
             return index < 0 || index >= data.Length - 1 ? 0 : data.Length - index - 1;
         }
+
+        public static Span<T> GetSpan<T>(List<T> list)
+        {
+            return CollectionsMarshal.AsSpan(list);
+        }
+
         public static string GetFileContents(byte[] data)
         {
             return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());

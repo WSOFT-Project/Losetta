@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using AliceScript.Binding;
+using System.Net;
 
 namespace AliceScript.NameSpaces
 {
@@ -6,225 +7,114 @@ namespace AliceScript.NameSpaces
     {
         public static void Init()
         {
-            try
-            {
-                wc = new WebClient();
-
-                NameSpace space = new NameSpace("Alice.Net");
-
-                space.Add(new web_urldecodeFunc());
-                space.Add(new web_urlencodeFunc());
-                space.Add(new web_htmldecodeFunc());
-                space.Add(new web_htmlencodeFunc());
-                space.Add(new web_upload_dataFunc());
-                space.Add(new web_upload_fileFunc());
-                space.Add(new web_upload_textFunc());
-                space.Add(new web_download_dataFunc());
-                space.Add(new web_download_fileFunc());
-                space.Add(new web_download_textFunc());
-                space.Add(new web_send_pingFunc());
-
-
-                NameSpaceManerger.Add(space);
-            }
-            catch { }
-        }
-        internal static WebClient wc;
-    }
-
-    internal sealed class web_upload_dataFunc : FunctionBase
-    {
-        public web_upload_dataFunc()
-        {
-            Name = "web_upload_data";
-            MinimumArgCounts = 2;
-            Run += Web_upload_data_Run;
-        }
-
-        private void Web_upload_data_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count == 2)
-            {
-                e.Return = new Variable(Alice_Net.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsByteArray()));
-            }
-            else if (e.Args.Count >= 3)
-            {
-                e.Return = new Variable(Alice_Net.wc.UploadData(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsByteArray()));
-            }
+            Alice.RegisterFunctions<WebFunctions>();
         }
     }
-
-    internal sealed class web_upload_fileFunc : FunctionBase
+    [AliceNameSpace(Name = "Alice.Net")]
+    internal sealed class WebFunctions
     {
-        public web_upload_fileFunc()
+        #region Webアップロード
+        public static byte[] Web_Upload_Data(string uri, byte[] data)
         {
-            Name = "web_upload_file";
-            MinimumArgCounts = 2;
-            Run += Web_upload_data_Run;
+            WebClient ??= new WebClient();
+            return WebClient.UploadData(uri, data);
         }
-
-        private void Web_upload_data_Run(object sender, FunctionBaseEventArgs e)
+        public static byte[] Web_Upload_File(string uri, string filename)
         {
-            if (e.Args.Count == 2)
-            {
-                e.Return = new Variable(Alice_Net.wc.UploadFile(e.Args[0].AsString(), e.Args[1].AsString()));
-            }
-            else if (e.Args.Count >= 3)
-            {
-                e.Return = new Variable(Alice_Net.wc.UploadFile(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString()));
-            }
+            WebClient ??= new WebClient();
+            return WebClient.UploadFile(uri, filename);
         }
-    }
-
-    internal sealed class web_upload_textFunc : FunctionBase
-    {
-        public web_upload_textFunc()
+        public static string Web_Upload_String(string uri, string text)
         {
-            Name = "web_upload_text";
-            MinimumArgCounts = 2;
-            Run += Web_upload_data_Run;
+            WebClient ??= new WebClient();
+            return WebClient.UploadString(uri, text);
         }
-
-        private void Web_upload_data_Run(object sender, FunctionBaseEventArgs e)
+        public static byte[] Web_Upload_Data(string uri, string method, byte[] data)
         {
-            if (e.Args.Count == 2)
-            {
-                e.Return = new Variable(Alice_Net.wc.UploadString(e.Args[0].AsString(), e.Args[1].AsString()));
-            }
-            else if (e.Args.Count >= 3)
-            {
-                e.Return = new Variable(Alice_Net.wc.UploadString(e.Args[0].AsString(), e.Args[1].AsString(), e.Args[2].AsString()));
-            }
+            WebClient ??= new WebClient();
+            return WebClient.UploadData(uri, method, data);
         }
-    }
-
-    internal sealed class web_download_dataFunc : FunctionBase
-    {
-        public web_download_dataFunc()
+        public static byte[] Web_Upload_File(string uri, string method, string filename)
         {
-            Name = "web_download_data";
-            MinimumArgCounts = 1;
-            Run += Web_download_data_Run;
+            WebClient ??= new WebClient();
+            return WebClient.UploadFile(uri, method, filename);
         }
-
-        private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
+        public static string Web_Upload_String(string uri, string method, string text)
         {
-            e.Return = new Variable(Alice_Net.wc.DownloadData(e.Args[0].AsString()));
+            WebClient ??= new WebClient();
+            return WebClient.UploadString(uri, method, text);
         }
-    }
-
-    internal sealed class web_download_fileFunc : FunctionBase
-    {
-        public web_download_fileFunc()
+        #endregion
+        #region Webダウンロード
+        public static byte[] Web_Download_Data(string uri)
         {
-            Name = "web_download_file";
-            MinimumArgCounts = 2;
-            Run += Web_download_data_Run;
+            WebClient ??= new WebClient();
+            return WebClient.DownloadData(uri);
         }
-
-        private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
+        public static void Web_Download_File(string uri, string filename)
         {
-            Alice_Net.wc.DownloadFile(e.Args[0].AsString(), e.Args[1].AsString());
+            WebClient ??= new WebClient();
+            WebClient.DownloadFile(uri, filename);
         }
-    }
-
-    internal sealed class web_download_textFunc : FunctionBase
-    {
-        public web_download_textFunc()
+        public static string Web_Download_Text(string uri)
         {
-            Name = "web_download_text";
-            MinimumArgCounts = 1;
-            Run += Web_download_data_Run;
+            WebClient ??= new WebClient();
+            return WebClient.DownloadString(uri);
         }
+        #endregion
 
-        private void Web_download_data_Run(object sender, FunctionBaseEventArgs e)
+        #region DNS解決
+        public static string Dns_GetHostName()
         {
-            e.Return = new Variable(Alice_Net.wc.DownloadString(e.Args[0].AsString()));
+            return Dns.GetHostName();
         }
-    }
-
-    internal sealed class web_htmldecodeFunc : FunctionBase
-    {
-        public web_htmldecodeFunc()
+        public static string Dns_GetHostName(string hostNameOrAddress)
         {
-            Name = "web_htmldecode";
-            MinimumArgCounts = 1;
-            Run += Web_htmldecodeFunc_Run;
+            var ip = Dns.GetHostEntry(hostNameOrAddress);
+            return ip.HostName;
         }
-
-        private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static IEnumerable<string> Dns_GetIPAdress(string hostNameOrAddress)
         {
-            e.Return = new Variable(WebUtility.HtmlDecode(e.Args[0].AsString()));
+            var ip = Dns.GetHostEntry(hostNameOrAddress);
+            return ip.AddressList.Select(x => x.ToString());
         }
-    }
-
-    internal sealed class web_htmlencodeFunc : FunctionBase
-    {
-        public web_htmlencodeFunc()
+        public static IEnumerable<string> Dns_GetAliases(string hostNameOrAddress)
         {
-            Name = "web_htmlencode";
-            MinimumArgCounts = 1;
-            Run += Web_htmldecodeFunc_Run;
+            var ip = Dns.GetHostEntry(hostNameOrAddress);
+            return ip.Aliases;
         }
+        #endregion
 
-        private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
+        #region エンコード・デコード
+        public static string Web_UrlDecode(string value)
         {
-            e.Return = new Variable(WebUtility.HtmlEncode(e.Args[0].AsString()));
+            return WebUtility.UrlDecode(value);
         }
-    }
-
-    internal sealed class web_urldecodeFunc : FunctionBase
-    {
-        public web_urldecodeFunc()
+        public static string Web_UrlEncode(string value)
         {
-            Name = "web_urldecode";
-            MinimumArgCounts = 1;
-            Run += Web_htmldecodeFunc_Run;
+            return WebUtility.UrlEncode(value);
         }
-
-        private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
+        public static string Web_HtmlDecode(string value)
         {
-            e.Return = new Variable(WebUtility.UrlDecode(e.Args[0].AsString()));
+            return WebUtility.HtmlDecode(value);
         }
-    }
-
-    internal sealed class web_urlencodeFunc : FunctionBase
-    {
-        public web_urlencodeFunc()
+        public static string Web_HtmlEncode(string value)
         {
-            Name = "web_urlencode";
-            MinimumArgCounts = 1;
-            Run += Web_htmldecodeFunc_Run;
+            return WebUtility.HtmlEncode(value);
         }
-
-        private void Web_htmldecodeFunc_Run(object sender, FunctionBaseEventArgs e)
+        #endregion
+        public static bool Web_Send_Ping(string host)
         {
-            e.Return = new Variable(WebUtility.UrlEncode(e.Args[0].AsString()));
+            using var p = new System.Net.NetworkInformation.Ping();
+            var reply = p.Send(host);
+            return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
         }
-    }
-
-    internal sealed class web_send_pingFunc : FunctionBase
-    {
-        public web_send_pingFunc()
+        public static bool Web_Send_Ping(string host, int timeout)
         {
-            Name = "web_send_ping";
-            MinimumArgCounts = 1;
-            Run += W_pingFunc_Run;
-
+            using var p = new System.Net.NetworkInformation.Ping();
+            var reply = p.Send(host, timeout);
+            return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
         }
-
-        private void W_pingFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            //Pingオブジェクトの作成
-            System.Net.NetworkInformation.Ping p =
-                new System.Net.NetworkInformation.Ping();
-
-            System.Net.NetworkInformation.PingReply reply = p.Send(e.Args[0].AsString(), Utils.GetSafeInt(e.Args, 1, 5000));
-
-            //結果を取得
-            e.Return = reply.Status == System.Net.NetworkInformation.IPStatus.Success ? Variable.True : Variable.False;
-
-            p.Dispose();
-        }
+        private static WebClient WebClient { get; set; }
     }
 }

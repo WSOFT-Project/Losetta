@@ -1,6 +1,6 @@
 # Losetta
 
-|English|[Japanese](README-ja.md)|
+|[English](README.md)|Japanese|
 |-|-|
 
 ![AliceScript](https://wsoft.ws/products/AliceScript.svg)
@@ -64,7 +64,26 @@ int result = Alice.Execute<int>("2+3");
 ```
 
 ### カスタム関数の使用
-AliceScriptの関数は、すべて`FunctionBase`クラスを継承しています。
+AliceScriptでは、関数のオーバーロードがひとつのみの場合、C#の関数をそのままバインドできます。次の例では、`MyFunctions`というAliceScriptの名前空間と、その中に数値をひとつ入力すると二乗した数を返す`Pow`メソッドを定義しています。
+
+```cs
+[AliceNameSpace]
+public static class MyFunctions
+{
+    public static double Pow(double x)
+    {
+        return x * x;
+    }
+}
+```
+
+定義した名前空間と関数を実際にAliceScriptから呼び出すためには、バインド登録が必要です。次の例では、先ほど定義した`MyFunctions`を登録します。
+
+```cs
+Alice.RegisterFunctions<MyFunctions>();
+```
+
+AliceScriptにカスタム関数を定義するもうひとつの方法は、`FunctionBase`クラスを継承したクラスを定義することです。
 次の例では、引数を1つもち、呼び出すと引数の1番目を返す`MyFunction`関数を定義する例です。
 
 ```cs
@@ -90,7 +109,7 @@ AliceScriptの関数は、すべて`FunctionBase`クラスを継承していま�
 定義した関数を実際にAliceScriptから呼び出すためには、登録が必要です。次の例では、先ほど定義した`MyFunction`を登録します。
 
 ```cs
-FunctionBaseManerger.Add(new MyFunction());
+FunctionBaseManager.Add(new MyFunction());
 ```
 
 使用可能なAPIは、[APIブラウザ](https://docs.wsoft.ws/products/alice/api/)で確認できます。

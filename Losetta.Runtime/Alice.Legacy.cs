@@ -1,4 +1,6 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Functions;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Legacy
     {
@@ -12,17 +14,16 @@
             space.Add(new SetPropertyFunction());
             space.Add(new GetPropertyFunction());
             space.Add(new GetPropertiesFunction());
-            space.Add(new GetAllKeysFunction()); ;
-            space.Add(new CancelFunction());
+            space.Add(new GetAllKeysFunction());
 
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
         }
     }
     internal sealed class AddVariablesToHashFunction : FunctionBase
     {
         public AddVariablesToHashFunction()
         {
-            Name = Constants.ADD_ALL_TO_HASH;
+            Name = "AddAllToHash";
             MinimumArgCounts = 3;
             Run += AddVariablesToHashFunction_Run;
         }
@@ -41,7 +42,7 @@
             char[] sep = sepStr.ToCharArray();
 
             var function = ParserFunction.GetVariable(varName, e.Script);
-            Variable mapVar = function != null ? function.GetValue(e.Script) :
+            Variable mapVar = function is not null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
             for (int counter = fromLine; counter < lines.Tuple.Count; counter++)
@@ -60,7 +61,7 @@
             }
 
             ParserFunction.AddGlobalOrLocalVariable(varName,
-                                              new GetVarFunction(mapVar), e.Script);
+                                              new ValueFunction(mapVar), e.Script);
         }
     }
 
@@ -80,7 +81,7 @@
             string hash = Utils.GetSafeString(e.Args, 2);
 
             var function = ParserFunction.GetVariable(varName, e.Script);
-            Variable mapVar = function != null ? function.GetValue(e.Script) :
+            Variable mapVar = function is not null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
             mapVar.AddVariableToHash(hash, toAdd);
@@ -95,7 +96,7 @@
             }
 
             ParserFunction.AddGlobalOrLocalVariable(varName,
-                                                new GetVarFunction(mapVar), e.Script);
+                                                new ValueFunction(mapVar), e.Script);
         }
     }
 
@@ -104,7 +105,7 @@
     {
         public GetPropertiesFunction()
         {
-            Name = Constants.GET_PROPERTIES;
+            Name = "GetProperties";
             MinimumArgCounts = 1;
             Run += GetPropertiesFunction_Run;
         }
@@ -157,38 +158,16 @@
             Variable result = baseValue.SetProperty(propName, propValue, e.Script);
 
             ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
-                                                    new GetVarFunction(baseValue), e.Script);
+                                                    new ValueFunction(baseValue), e.Script);
             e.Return = result;
         }
     }
-
-    internal sealed class CancelFunction : FunctionBase
-    {
-        public static bool Canceled { get; set; }
-
-        public CancelFunction()
-        {
-            Name = Constants.CANCEL;
-            Run += CancelFunction_Run;
-        }
-
-        private void CancelFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            Utils.CheckArgs(e.Args.Count, 0, m_name, true);
-
-            bool mode = Utils.GetSafeInt(e.Args, 0, 1) == 1;
-            Canceled = mode;
-            e.Return = new Variable(Canceled);
-        }
-
-    }
-
 
     internal sealed class GetColumnFunction : FunctionBase, IArrayFunction
     {
         public GetColumnFunction()
         {
-            Name = Constants.GET_COLUMN;
+            Name = "GetColumn";
             MinimumArgCounts = 2;
             Run += GetColumnFunction_Run;
         }
@@ -205,7 +184,7 @@
             for (int i = fromCol; i < tuple.Count; i++)
             {
                 Variable current = tuple[i];
-                if (current.Tuple == null || current.Tuple.Count <= col)
+                if (current.Tuple is null || current.Tuple.Count <= col)
                 {
                     throw new ArgumentException(m_name + ": Index [" + col + "] doesn't exist in column " +
                                                 i + "/" + (tuple.Count - 1));
@@ -222,7 +201,7 @@
     {
         public GetAllKeysFunction()
         {
-            Name = Constants.KEYS;
+            Name = "GetAllKeys";
             MinimumArgCounts = 1;
             Run += GetAllKeysFunction_Run;
         }
@@ -234,6 +213,4 @@
             e.Return = new Variable(results);
         }
     }
-
-
 }

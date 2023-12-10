@@ -1,17 +1,31 @@
-﻿namespace AliceScript.NameSpaces
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
+using AliceScript.Objects;
+using AliceScript.Packaging;
+
+namespace AliceScript.NameSpaces
 {
     public sealed class Alice_Packaging
     {
         public static void Init()
         {
+            Alice.RegisterFunctions<PackagingFunctions>();
+
             NameSpace space = new NameSpace("Alice.Packaging");
-
-            space.Add(new Package_CreateFromZipFileFunc());
-            space.Add(new Package_GetManifestFromXmlFunc());
-
             space.Add(new PackageManifestObject());
-
-            NameSpaceManerger.Add(space);
+            NameSpaceManager.Add(space);
+        }
+    }
+    [AliceNameSpace(Name = "Alice.Packaging")]
+    internal sealed class PackagingFunctions
+    {
+        public static void Package_CreateFromZipFile(string filepath, string outFilepath, byte[] controlCode = null, bool minify = false)
+        {
+            AlicePackage.CreateEncodingPackage(filepath, outFilepath, controlCode, minify);
+        }
+        public static PackageManifestObject Package_GetManifestFromXml(string xml)
+        {
+            return new PackageManifestObject(AlicePackage.GetManifest(xml));
         }
     }
     internal sealed class AlicePackageObject : ObjectBase
@@ -20,10 +34,10 @@
         {
             Package = package;
             Name = "AlicePackage";
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Manifest));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Manifest));
         }
         public AlicePackage Package { get; set; }
-        private class AlicePackageObjectProperty : PropertyBase
+        private class AlicePackageObjectProperty : ValueFunction
         {
             public AlicePackageObjectProperty(AlicePackageObject host, AlicePackageObjectPropertyMode mode)
             {
@@ -35,7 +49,7 @@
                 Getting += AlicePackageObjectProperty_Getting;
             }
 
-            private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void AlicePackageObjectProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {
@@ -46,7 +60,6 @@
                         }
                 }
             }
-
             public enum AlicePackageObjectPropertyMode
             {
                 Manifest
@@ -62,25 +75,25 @@
             Name = "PackageManifest";
             Manifest = manifest;
             Constructor = new AlicePackageObjectConstractor();
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
         }
         public PackageManifestObject()
         {
             Name = "PackageManifest";
             Constructor = new AlicePackageObjectConstractor();
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
-            AddProperty(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Name));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Version));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Description));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Publisher));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.ScriptPath));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.Script));
+            AddFunction(new AlicePackageObjectProperty(this, AlicePackageObjectProperty.AlicePackageObjectPropertyMode.UseInlineScript));
         }
         public PackageManifest Manifest { get; set; }
         private class AlicePackageObjectConstractor : FunctionBase
@@ -94,13 +107,13 @@
             private void AlicePackageObjectConstractor_Run(object sender, FunctionBaseEventArgs e)
             {
                 var m = AlicePackage.GetManifest(e.Args[0].AsString());
-                if (m != null)
+                if (m is not null)
                 {
                     e.Return = new Variable(new PackageManifestObject(m));
                 }
             }
         }
-        private class AlicePackageObjectProperty : PropertyBase
+        private class AlicePackageObjectProperty : ValueFunction
         {
             public AlicePackageObjectProperty(PackageManifestObject host, AlicePackageObjectPropertyMode mode)
             {
@@ -112,7 +125,7 @@
                 Getting += AlicePackageObjectProperty_Getting;
             }
 
-            private void AlicePackageObjectProperty_Getting(object sender, PropertyBaseEventArgs e)
+            private void AlicePackageObjectProperty_Getting(object sender, ValueFunctionEventArgs e)
             {
                 switch (Mode)
                 {
@@ -165,39 +178,6 @@
             }
             public AlicePackageObjectPropertyMode Mode { get; set; }
             public PackageManifestObject Host { get; set; }
-        }
-    }
-    internal sealed class Package_GetManifestFromXmlFunc : FunctionBase
-    {
-        public Package_GetManifestFromXmlFunc()
-        {
-            Name = "Package_GetManifestFromXml";
-            MinimumArgCounts = 1;
-            Run += Interpreter_GetManifestFromXmlFunc_Run;
-        }
-
-        private void Interpreter_GetManifestFromXmlFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            e.Return = new Variable(new PackageManifestObject(AlicePackage.GetManifest(e.Args[0].AsString())));
-        }
-    }
-    internal sealed class Package_CreateFromZipFileFunc : FunctionBase
-    {
-        public Package_CreateFromZipFileFunc()
-        {
-            Name = "Package_CreateFromZipFile";
-            MinimumArgCounts = 2;
-            Run += Package_CreateFromZipFileFunc_Run;
-        }
-
-        private void Package_CreateFromZipFileFunc_Run(object sender, FunctionBaseEventArgs e)
-        {
-            byte[] controlCode = null;
-            if (e.Args.Count > 2 && e.Args[2].Type == Variable.VarType.BYTES)
-            {
-                controlCode = e.Args[2].ByteArray;
-            }
-            AlicePackage.CreateEncodingPackage(e.Args[0].AsString(), e.Args[1].AsString(), controlCode);
         }
     }
 }

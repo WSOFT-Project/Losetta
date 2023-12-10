@@ -21,7 +21,12 @@ namespace AliceScript.CLI
             bool src = false;
             foreach (string arg in args)
             {
-                var argl = arg.ToLower();
+                var argl = arg.ToLowerInvariant();
+                if (argl == "-h" || argl == "-help" || argl == "?")
+                {
+                    Files.Add("help");
+                    continue;
+                }
                 if (argl == "--arg" || argl == "--args")
                 {
                     aarg = true;
@@ -57,14 +62,14 @@ namespace AliceScript.CLI
                                     {
                                         string v = m2.Value;
                                         v = v.TrimStart('-'); string[] vs = v.Split('=');
-                                        Values.Add(vs[0].ToLower(), vs[1]);
+                                        Values.Add(vs[0].ToLowerInvariant(), vs[1]);
                                     }
                                 }
                                 else
                                 {
                                     string v = m.Value;
                                     v = v.TrimStart('-');
-                                    Flags.Add(v.ToLower());
+                                    Flags.Add(v.ToLowerInvariant());
                                 }
                             }
                         }

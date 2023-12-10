@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using AliceScript.Functions;
+using AliceScript.Parsing;
+using System.Text;
 
 namespace AliceScript.CLI
 {
@@ -24,16 +26,12 @@ namespace AliceScript.CLI
         {
             ClearLine();
 
-
             //標準出力
             Interpreter.Instance.OnOutput += Print;
             //デバッグ出力
             Interpreter.Instance.OnDebug += Debug_Print;
-            //例外出力
-            ThrowErrorManerger.ThrowError += ThrowErrorManerger_ThrowError;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
-
             //REPLはデバッグモードに
             Program.IsDebugMode = true;
             if (File.Exists(filename))
@@ -43,8 +41,7 @@ namespace AliceScript.CLI
             RunLoop();
         }
 
-        private static bool mainfile = false;
-        internal static void ThrowErrorManerger_ThrowError(object sender, ThrowErrorEventArgs e)
+        internal static void ThrowErrorManager_ThrowError(object sender, ThrowErrorEventArgs e)
         {
             if (!Program.allow_throw)
             {
@@ -52,15 +49,13 @@ namespace AliceScript.CLI
             }
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(e.ErrorCode.ToString() + "(0x" + ((int)e.ErrorCode).ToString("x3") + ")" + (string.IsNullOrEmpty(e.Message) ? string.Empty : ": " + e.Message));
-            //sb.AppendLine("エラーコード: [0x" + ((int)e.ErrorCode).ToString("x3")+"] "+e.ErrorCode.ToString()+(string.IsNullOrEmpty(e.Source) ? string.Empty : " in "+e.Source));
-            //sb.AppendLine("説明: "+e.Message);
             if (!string.IsNullOrWhiteSpace(e.HelpLink))
             {
                 sb.AppendLine("詳細情報: " + e.HelpLink);
             }
             if (Program.IsDebugMode)
             {
-                if (e.Script != null)
+                if (e.Script is not null)
                 {
                     if (e.Script.StackTrace.Count > 0)
                     {
@@ -78,15 +73,13 @@ namespace AliceScript.CLI
             if (allow_throw)
             {
                 PrintColor(sb.ToString(), ConsoleColor.White, ConsoleColor.DarkRed);
-                //DumpLocalVariables(e.Script);
-                //DumpGlobalVariables();
                 if (Program.IsDebugMode)
                 {
-                    Console.Write("これを無視して処理を継続するにはEnterキーを、終了する場合はそれ以外のキーを入力してください...");
                 PauseInput:
+                    Console.Write("このエラーを無視して続行するには[C]を、終了する場合はそれ以外のキーを入力してください...");
                     switch (Console.ReadKey().Key)
                     {
-                        case ConsoleKey.Enter:
+                        case ConsoleKey.C:
                             {
                                 e.Handled = true;
                                 break;
@@ -95,6 +88,14 @@ namespace AliceScript.CLI
                             {
                                 Console.WriteLine();
                                 DumpLocalVariables(e.Script);
+                                goto PauseInput;
+                            }
+                        case ConsoleKey.W:
+                            {
+                                Console.WriteLine();
+                                Console.Write("評価する式>>>>");
+                                string code = Console.ReadLine();
+                                Console.WriteLine(e.Script.GetChildScript(code).Process());
                                 goto PauseInput;
                             }
                     }
@@ -125,14 +126,14 @@ namespace AliceScript.CLI
             {
                 dic.Add(s, script.Variables[s]);
             }
-            if (script.ParentScript != null)
+            if (script.ParentScript is not null)
             {
                 AddDictionaryScriptVariables(script.ParentScript, ref dic);
             }
         }
         public static void DumpLocalVariables(ParsingScript script)
         {
-            if (script == null) { return; }
+            if (script is null) { return; }
             DumpLocalVariables(script.ParentScript);
             Dictionary<string, ParserFunction> dic = new Dictionary<string, ParserFunction>();
             AddDictionaryScriptVariables(script, ref dic);
@@ -151,7 +152,7 @@ namespace AliceScript.CLI
             contents.Add("Content");
             foreach (string s in dic.Keys)
             {
-                if (dic[s] is GetVarFunction vf)
+                if (dic[s] is ValueFunction vf)
                 {
                     names.Add(s);
                     if (s.Length > namemax)
@@ -181,58 +182,7 @@ namespace AliceScript.CLI
                 Console.WriteLine(print);
             }
         }
-        public static void DumpGlobalVariables()
-        {
-            Dictionary<string, ParserFunction> dic = ParserFunction.s_variables;
-            if (dic.Count <= 0)
-            {
-                return;
-            }
-            List<string> names = new List<string>();
-            List<string> types = new List<string>();
-            List<string> contents = new List<string>();
-            int namemax = 4;
-            int typemax = 4;
-            int contentmax = 7;
-            names.Add("Name");
-            types.Add("Type");
-            contents.Add("Content");
-            foreach (string s in dic.Keys)
-            {
-                try
-                {
-                    if (dic[s] is GetVarFunction vf)
-                    {
-                        names.Add(s);
-                        if (s.Length > namemax)
-                        {
-                            namemax = s.Length;
-                        }
-                        string type = vf.Value.Type.ToString();
-                        types.Add(type);
-                        if (type.Length > typemax)
-                        {
-                            typemax = type.Length;
-                        }
-                        string content = vf.Value.AsString();
-                        contents.Add(content);
-                        if (content.Length > contentmax)
-                        {
-                            contentmax = content.Length;
-                        }
-                    }
-                }
-                catch { }
-            }
-            for (int i = 0; i < names.Count; i++)
-            {
-                string print = "|Global|";
-                print += Centering(names[i], namemax + 2) + "|";
-                print += Centering(types[i], typemax + 2) + "|";
-                print += Centering(contents[i], contentmax + 2) + "|";
-                Console.WriteLine(print);
-            }
-        }
+
         private static void SplitByLast(string str, string sep, ref string a, ref string b)
         {
             int it = str.LastIndexOfAny(sep.ToCharArray());
@@ -317,7 +267,7 @@ namespace AliceScript.CLI
                     continue;
                 }
 
-                if (commands.Count == 0 || !commands[commands.Count - 1].Equals(script))
+                if (commands.Count == 0 || !commands[^1].Equals(script))
                 {
                     commands.Add(script);
                 }
@@ -433,24 +383,17 @@ namespace AliceScript.CLI
                 {
                     result = System.Threading.Tasks.Task.Run(() =>
                   Interpreter.Instance.ProcessFileAsync(filename, true)).Result;
-                    //Interpreter.Instance.ProcessFile(filename, true)).Result;
                 }
                 else
                 {
-                    //Interpreter.Instance.ProcessAsync(script, filename)).Result;
-                    CurrentScript = CurrentScript == null ? Alice.GetScript(script, filename, true) : CurrentScript.GetTempScript(script);
+                    CurrentScript = CurrentScript is null ? Alice.GetScript(script, filename, true) : CurrentScript.GetChildScript(script);
                     result = CurrentScript.Process();
                 }
             }
 #if !DEBUG_THROW
-            catch (Exception)
+            catch (Exception exc)
             {
-                ///TODO:補足されなかった例外にエラー番号振る。
-                /*
-                errorMsg ="補足されなかった例外:"+ (exc.InnerException != null ? exc.InnerException.Message : exc.Message);
-                ParserFunction.InvalidateStacksAfterLevel(0);
-                */
-
+                ParsingScript.GetTopLevelScript().OnThrowError(exc);
             }
 #endif
 
@@ -461,7 +404,7 @@ namespace AliceScript.CLI
                 {
                     Console.WriteLine(output);
                 }
-                else if (result != null)
+                else if (result is not null)
                 {
                     output = result.AsString();
                     if (!string.IsNullOrWhiteSpace(output))
@@ -481,7 +424,7 @@ namespace AliceScript.CLI
         private static string GetPrompt()
         {
             string path = Directory.GetCurrentDirectory();
-            return string.Format("{0}>>", path);
+            return $"Alice {path}>>";
         }
 
         internal static void PrintColor(string output, ConsoleColor fgcolor, ConsoleColor? bgcolor = null)

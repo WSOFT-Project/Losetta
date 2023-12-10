@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using AliceScript.Packaging;
+using System.IO.Compression;
 using System.Text;
 
 namespace AliceScript.CLI
@@ -11,10 +12,8 @@ namespace AliceScript.CLI
         /// <param name="args"></param>
         private static void Main(string[] args)
         {
-
-
             ParsedArguments pa = new ParsedArguments(args);
-            AliceScript.NameSpaces.Env_CommandLineArgsFunc.Args = pa.Args;
+            AliceScript.Runtime.Args = pa.Args;
             CreateAliceDirectory(false);
             if (pa.Values.ContainsKey("print"))
             {
@@ -38,7 +37,7 @@ namespace AliceScript.CLI
                     throw_redirect_files.Add(pa.Values["throw"]);
                 }
             }
-            if (pa.Values.TryGetValue("runtime", out string v) && v.ToLower() == "disable")
+            if (pa.Values.TryGetValue("runtime", out string v) && v.ToLower() == "nano")
             {
                 //最小モードで初期化
                 Runtime.InitBasicAPI();
@@ -49,10 +48,16 @@ namespace AliceScript.CLI
                 Runtime.Init();
             }
             //ShellFunctions登録
-            ShellFunctions.Init();
+            Alice.RegisterFunctions<ShellFunctions>();
 
+            //例外出力
+            ThrowErrorManager.ThrowError += Shell.ThrowErrorManager_ThrowError;
+            //デバッグモードのフラグ
+            if (pa.Flags.Contains("d"))
+            {
+                Program.IsDebugMode = true;
+            }
 
-            ThrowErrorManerger.ThrowError += Shell.ThrowErrorManerger_ThrowError;
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
@@ -125,7 +130,6 @@ namespace AliceScript.CLI
             }
             else
             {
-                ThrowErrorManerger.ThrowError -= Shell.ThrowErrorManerger_ThrowError;
                 Interpreter.Instance.OnOutput -= Instance_OnOutput;
                 Shell.Do();
             }
@@ -188,6 +192,8 @@ namespace AliceScript.CLI
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "update"), Properties.Resources.update, Encoding.UTF8);
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "path"), Properties.Resources.path, Encoding.UTF8);
+
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "help"), Properties.Resources.help, Encoding.UTF8);
             }
         }
         internal static bool BuildPackage(string fn, string outfilename, int num = 1)
@@ -205,7 +211,7 @@ namespace AliceScript.CLI
                 }
                 Console.WriteLine(num + "> 検出: マニフェストファイル: " + manifestPath);
                 PackageManifest manifest = AlicePackage.GetManifest(File.ReadAllText(manifestPath));
-                if (manifest == null)
+                if (manifest is null)
                 {
                     Console.WriteLine(num + "> エラー: パッケージマニフェストファイルが正しい形式ではありません");
                     Console.WriteLine(num + "> パッケージ \"{0}\" のビルドが終了しました --失敗", Path.GetFileName(outfilename));
@@ -213,7 +219,7 @@ namespace AliceScript.CLI
                 }
                 string srcpath = manifest.UseInlineScript ? "マニフェストに埋め込み" : manifest.ScriptPath;
                 Console.WriteLine(num + "> パッケージ名: " + manifest.Name + " エントリポイント: " + srcpath);
-                string target = manifest.Target == null ? "Any" : ListToString(manifest.Target);
+                string target = manifest.Target is null ? "Any" : ListToString(manifest.Target);
                 Console.WriteLine(num + "> ターゲット: " + target);
                 string path = Path.GetTempFileName();
                 File.Delete(path);
