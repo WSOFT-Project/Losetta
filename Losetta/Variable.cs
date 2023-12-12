@@ -1206,7 +1206,7 @@ namespace AliceScript
                 case VarType.STRING:
                     return m_string;
                 case VarType.BYTES:
-                    return SafeReader.ReadAllText(m_byteArray, out _);
+                    return SafeReader.ReadAllText(m_byteArray, out _, out _);
                 case VarType.UNDEFINED:
                     return Constants.UNDEFINED;
                 case VarType.ENUM:

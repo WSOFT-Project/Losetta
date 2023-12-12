@@ -186,7 +186,7 @@ namespace AliceScript
         }
         public static string GetFileLines(string filename)
         {
-            string lines = SafeReader.ReadAllText(filename, out _);
+            string lines = SafeReader.ReadAllText(filename, out _, out _);
             if (lines is null)
             {
                 lines = string.Empty;
@@ -195,7 +195,7 @@ namespace AliceScript
         }
         public static string GetFileLines(byte[] data)
         {
-            string lines = SafeReader.ReadAllText(data, out _);
+            string lines = SafeReader.ReadAllText(data, out _,out _);
             if (lines is null)
             {
                 lines = string.Empty;

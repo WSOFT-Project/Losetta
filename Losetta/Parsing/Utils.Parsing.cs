@@ -989,7 +989,7 @@ namespace AliceScript
                             }
                         case Constants.INCLUDE:
                             {
-                                string str = SafeReader.ReadAllText(arg, out _);
+                                string str = SafeReader.ReadAllText(arg, out _, out _);
                                 str = ConvertToScript(str, out _, out var def, out var setting, Path.GetFileName(arg));
                                 foreach (var d in def)
                                 {

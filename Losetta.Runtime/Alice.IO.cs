@@ -55,7 +55,7 @@ namespace AliceScript.NameSpaces
         public static string File_Read_Text(ParsingScript script, string path, bool fromPackage = false)
         {
             var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
-            return SafeReader.ReadAllText(data, out _);
+            return SafeReader.ReadAllText(data, out _, out _);
         }
         public static string File_Read_Text(ParsingScript script, string path, string charcode, bool fromPackage = false)
         {
@@ -72,8 +72,14 @@ namespace AliceScript.NameSpaces
         public static string File_Read_CharCode(ParsingScript script, string path, bool fromPackage = false)
         {
             var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
-            SafeReader.ReadAllText(data, out string charcode);
+            SafeReader.ReadAllText(data, out string charcode,out _);
             return charcode;
+        }
+        public static int File_Read_CodePage(ParsingScript script, string path, bool fromPackage = false)
+        {
+            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
+            SafeReader.ReadAllText(data, out _, out int codePage);
+            return codePage;
         }
         public static byte[] File_Read_Data(ParsingScript script, string path, bool fromPackage = false)
         {

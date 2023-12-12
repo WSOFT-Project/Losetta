@@ -189,7 +189,7 @@ namespace AliceScript.Packaging
         }
         internal static string GetEntryScript(ZipArchiveEntry e, string filename)
         {
-            return SafeReader.ReadAllText(GetEntryToData(e, filename), out _);
+            return SafeReader.ReadAllText(GetEntryToData(e, filename), out _, out _);
         }
         internal static byte[] GetByteArrayFromStream(Stream sm)
         {
@@ -213,7 +213,7 @@ namespace AliceScript.Packaging
                         if (entry.Name.EndsWith(".alice", StringComparison.Ordinal))
                         {
                             Stream sw = entry.Open();
-                            string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _);
+                            string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _,out _);
                             int old = script.Length;
                             script = Utils.ConvertToScript(script, out _, out _, out _, entry.FullName);
                             byte[] script_data = Encoding.UTF8.GetBytes(script);
