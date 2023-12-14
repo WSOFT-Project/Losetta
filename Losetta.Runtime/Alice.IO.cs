@@ -113,6 +113,103 @@ namespace AliceScript.NameSpaces
         {
             File.AppendAllText(path, text, Encoding.GetEncoding(codePage));
         }
+        public static void File_Write_Encrypt(string path, byte data, string password)
+        {
+            int len;
+            byte[] buffer = new byte[4096];
+
+            using (MemoryStream outfs=new MemoryStream(data))
+            {
+                using (AesManaged aes = new AesManaged())
+                {
+                    aes.BlockSize = 128;              // BlockSize = 16bytes
+                    aes.KeySize = 128;                // KeySize = 16bytes
+                    aes.Mode = CipherMode.CBC;        // CBC mode
+                    aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+
+                    //入力されたパスワードをベースに擬似乱数を新たに生成
+                    Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, 16);
+                    byte[] salt = new byte[16]; // Rfc2898DeriveBytesが内部生成したなソルトを取得
+                    salt = deriveBytes.Salt;
+                    // 生成した擬似乱数から16バイト切り出したデータをパスワードにする
+                    byte[] bufferKey = deriveBytes.GetBytes(16);
+
+                    aes.Key = bufferKey;
+                    // IV ( Initilization Vector ) は、AesManagedにつくらせる
+                    aes.GenerateIV();
+
+                    //Encryption interface.
+                    ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                    using (CryptoStream cse = new CryptoStream(outfs, encryptor, CryptoStreamMode.Write))
+                    {
+                        outfs.Write(salt, 0, 16);     // salt をファイル先頭に埋め込む
+                        outfs.Write(aes.IV, 0, 16); // 次にIVもファイルに埋め込む
+                        using (DeflateStream ds = new DeflateStream(cse, CompressionMode.Compress)) //圧縮
+                        {
+                            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                            {
+                                while ((len = fs.Read(buffer, 0, 4096)) > 0)
+                                {
+                                    ds.Write(buffer, 0, len);
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+            }
+            return;
+        }
+        public static byte[] File_Read_Decrypt(string path, string password)
+        {
+            int len;
+            byte[] buffer = new byte[4096];
+
+            using (MemoryStream outfs = new MemoryStream())
+            {
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    using (AesManaged aes = new AesManaged())
+                    {
+                        aes.BlockSize = 128;              // BlockSize = 16bytes
+                        aes.KeySize = 128;                // KeySize = 16bytes
+                        aes.Mode = CipherMode.CBC;        // CBC mode
+                        aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+
+                        // salt
+                        byte[] salt = new byte[16];
+                        fs.Read(salt, 0, 16);
+
+                        // Initilization Vector
+                        byte[] iv = new byte[16];
+                        fs.Read(iv, 0, 16);
+                        aes.IV = iv;
+
+                        // ivをsaltにしてパスワードを擬似乱数に変換
+                        Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, salt);
+                        byte[] bufferKey = deriveBytes.GetBytes(16);    // 16バイトのsaltを切り出してパスワードに変換
+                        aes.Key = bufferKey;
+
+                        //Decryption interface.
+                        ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                        using (CryptoStream cse = new CryptoStream(fs, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (DeflateStream ds = new DeflateStream(cse, CompressionMode.Decompress))   //解凍
+                            {
+                                while ((len = ds.Read(buffer, 0, 4096)) > 0)
+                                {
+                                    outfs.Write(buffer, 0, len);
+                                }
+                            }
+                        }
+                    }
+                }
+                return outfs.ToArray();
+            }
+        }
         public static void File_Encrypt(string path, string outpath, string password)
         {
             int len;
