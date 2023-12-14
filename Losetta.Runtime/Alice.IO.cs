@@ -97,6 +97,10 @@ namespace AliceScript.NameSpaces
         {
             File.WriteAllText(path, text, Encoding.GetEncoding(charCode));
         }
+        public static void File_Write_Text(string path, string text, int codePage)
+        {
+            File.WriteAllText(path, text, Encoding.GetEncoding(codePage));
+        }
         public static void File_Append_Text(string path, string text)
         {
             File.AppendAllText(path, text);
@@ -104,6 +108,10 @@ namespace AliceScript.NameSpaces
         public static void File_Append_Text(string path, string text, string charCode)
         {
             File.AppendAllText(path, text, Encoding.GetEncoding(charCode));
+        }
+        public static void File_Append_Text(string path, string text, int codePage)
+        {
+            File.AppendAllText(path, text, Encoding.GetEncoding(codePage));
         }
         public static void File_Encrypt(string path, string outpath, string password)
         {
