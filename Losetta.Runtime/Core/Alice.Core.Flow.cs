@@ -445,11 +445,17 @@ namespace AliceScript.NameSpaces.Core
                             Variable result = ProcessEach(new Variable(enumerator.Current));
                             if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                             {
-                                disposable?.Dispose();
+                                if (disposable is not null)
+                                {
+                                    disposable.Dispose();
+                                }
                                 return result;
                             }
                         }
-                        disposable?.Dispose();
+                        if (disposable is not null)
+                        {
+                            disposable.Dispose();
+                        }
                         break;
                     }
             }

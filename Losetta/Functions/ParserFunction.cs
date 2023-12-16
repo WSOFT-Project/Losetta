@@ -303,7 +303,7 @@ namespace AliceScript.Functions
 
         private static bool ActionForUndefined(string action)
         {
-            return !string.IsNullOrWhiteSpace(action) && action.EndsWith('=') && action.Length > 1;
+            return !string.IsNullOrWhiteSpace(action) && action.EndsWith("=", StringComparison.Ordinal) && action.Length > 1;
         }
         public static ParserFunction GetLambdaFunction(ParsingScript script, string item, char ch, ref string action)
         {
@@ -312,7 +312,7 @@ namespace AliceScript.Functions
                 string[] args = Utils.GetFunctionSignature(script.GetTempScript(item), true);
                 if (args.Length > 0 && args[0].Trim() == Constants.DESTRUCTION.ToString())
                 {
-                    args = Array.Empty<string>();
+                    args = new string[] { };
                 }
 
                 script.MoveForwardIf(new char[] { Constants.END_ARG });
@@ -458,9 +458,9 @@ namespace AliceScript.Functions
             }
 
             //定数に存在するか確認
-            if (Constants.CONSTS.TryGetValue(name, out Variable value))
+            if (Constants.CONSTS.ContainsKey(name))
             {
-                return new ValueFunction(value);
+                return new ValueFunction(Constants.CONSTS[name]);
             }
 
             //関数として取得を続行
@@ -680,7 +680,7 @@ namespace AliceScript.Functions
                     newVar.TypeChecked = true;
                     if (type_modifer is not null)
                     {
-                        if (type_modifer.EndsWith('?'))
+                        if (type_modifer.EndsWith("?", StringComparison.Ordinal))
                         {
                             newVar.Nullable = true;
                             type_modifer = type_modifer.Substring(0, type_modifer.Length - 1);
@@ -764,12 +764,12 @@ namespace AliceScript.Functions
                     name = s_namespacePrefix + name;
                 }
             }
-            if (!s_functions.TryGetValue(name, out ParserFunction value) || (s_functions.ContainsKey(name) && value.IsVirtual))
+            if (!s_functions.ContainsKey(name) || (s_functions.ContainsKey(name) && s_functions[name].IsVirtual))
             {
                 //まだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 s_functions[name] = function;
                 function.isNative = isNative;
-                if (s_functions.TryGetValue(name, out ParserFunction value2) && value2.IsVirtual)
+                if (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)
                 {
                     //オーバーライドした関数にもVirtual属性を引き継ぐ
                     function.IsVirtual = true;

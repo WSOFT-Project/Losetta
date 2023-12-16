@@ -1012,7 +1012,7 @@ namespace AliceScript
                         case "if":
                             {
                                 inIf = true;
-                                if (arg.StartsWith('!'))
+                                if (arg.StartsWith("!", StringComparison.Ordinal))
                                 {
                                     If = !defines.Contains(arg.TrimStart('!'));
                                 }
