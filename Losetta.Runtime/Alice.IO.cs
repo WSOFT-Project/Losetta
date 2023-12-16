@@ -163,14 +163,17 @@ namespace AliceScript.NameSpaces
             }
             return;
         }
-        public static byte[] File_Read_Decrypt(string path, string password, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
+        public static byte[] File_Read_Decrypt(ParsingScript script, string path, string password, bool fromPackage = false, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
         {
             int len;
             byte[] buffer = new byte[4096];
 
             using (MemoryStream outfs = new MemoryStream())
             {
-                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                Stream fs = fromPackage && script.Package is not null && script.Package.ExistsEntry(path)
+                    ? new MemoryStream(script.Package.GetEntryData(path))
+                    : new FileStream(path, FileMode.Open, FileAccess.Read);
+                using (fs)
                 {
                     using (Aes aes = Aes.Create())
                     {
