@@ -157,7 +157,7 @@ namespace AliceScript.Functions
             return args;
         }
 
-        private FunctionBaseEventArgs InitializeFunctionEventArgs(ParsingScript script, Variable currentVariable, List<Variable> args)
+        private static FunctionBaseEventArgs InitializeFunctionEventArgs(ParsingScript script, Variable currentVariable, List<Variable> args)
         {
             FunctionBaseEventArgs functionEventArgs = new FunctionBaseEventArgs
             {

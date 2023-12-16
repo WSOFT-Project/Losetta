@@ -554,7 +554,7 @@ namespace AliceScript
 
         public static bool KeepSpace(StringBuilder sb, char next)
         {
-            return SpaceNotNeeded(next) ? false : EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
+            return !SpaceNotNeeded(next) && EndsWithFunction(sb.ToString(), Constants.FUNCT_WITH_SPACE);
         }
         public static bool KeepSpaceOnce(StringBuilder sb, char next)
         {
@@ -1012,7 +1012,7 @@ namespace AliceScript
                         case "if":
                             {
                                 inIf = true;
-                                if (arg.StartsWith("!", StringComparison.Ordinal))
+                                if (arg.StartsWith('!'))
                                 {
                                     If = !defines.Contains(arg.TrimStart('!'));
                                 }
