@@ -47,7 +47,13 @@ namespace AliceScript.Functions
             AccessModifier accessModifier = Keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
             accessModifier = Keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
             accessModifier = Keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
-            bool isReadOnly = Keywords.Contains(Constants.READONLY) || Keywords.Contains(Constants.CONST);
+            bool isReadOnly = Keywords.Contains(Constants.READONLY);
+
+            if (Keywords.Contains(Constants.CONST))
+            {
+                registVar = true;
+                isReadOnly = true;
+            }
 
             script.MoveBackIfPrevious(Constants.END_ARG);
             varValue.TrySetAsMap();
