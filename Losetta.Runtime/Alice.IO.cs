@@ -318,6 +318,15 @@ namespace AliceScript.NameSpaces
         {
             Directory.CreateDirectory(path);
         }
+        public static string Directory_Current()
+        {
+            return Directory.GetCurrentDirectory();
+        }
+        public static string Directory_Current(string path)
+        {
+            Directory.SetCurrentDirectory(path);
+            return Directory.GetCurrentDirectory();
+        }
         public static void Directory_Create_SymbolicLink(string path, string pathToTarget)
         {
             Directory.CreateSymbolicLink(path, pathToTarget);
@@ -617,25 +626,6 @@ namespace AliceScript.NameSpaces
                 }
                 return outfs.GetBuffer();
             }
-        }
-    }
-
-    internal sealed class directory_currentdirectoryFunc : FunctionBase
-    {
-        public directory_currentdirectoryFunc()
-        {
-            Name = "directory_current";
-            MinimumArgCounts = 0;
-            Run += File_exists_Run;
-        }
-
-        private void File_exists_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count > 0)
-            {
-                Directory.SetCurrentDirectory(e.Args[0].AsString());
-            }
-            e.Return = new Variable(e.Script.PWD);
         }
     }
 
