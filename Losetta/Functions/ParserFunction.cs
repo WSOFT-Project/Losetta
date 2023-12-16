@@ -458,10 +458,6 @@ namespace AliceScript.Functions
             }
 
             //定数に存在するか確認
-            if (script is not null && script.TryGetConst(name, out impl) && impl is not null)
-            {
-                return impl.NewInstance();
-            }
             if (Constants.CONSTS.ContainsKey(name))
             {
                 return new ValueFunction(Constants.CONSTS[name]);
