@@ -212,7 +212,7 @@ namespace AliceScript.NameSpaces
                 return outfs.ToArray();
             }
         }
-        public static void File_Encrypt(string path, string outpath, string password, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
+        public static void File_Encrypt(string path, string outpath, string password)
         {
             int len;
             byte[] buffer = new byte[4096];
@@ -221,18 +221,17 @@ namespace AliceScript.NameSpaces
             {
                 using (Aes aes = Aes.Create())
                 {
-                    int keyBytes = keySize / 8;
                     aes.BlockSize = 128;              // BlockSize = 16bytes
-                    aes.KeySize = keySize;                // KeySize = keySize / 8 bytes
+                    aes.KeySize = 128;                // KeySize = 16bytes
                     aes.Mode = CipherMode.CBC;        // CBC mode
                     aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
 
                     //入力されたパスワードをベースに擬似乱数を新たに生成
-                    Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, 16, iterations, useSHA512 ? HashAlgorithmName.SHA512 : HashAlgorithmName.SHA256);
+                    Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, 16);
                     byte[] salt = new byte[16]; // Rfc2898DeriveBytesが内部生成したなソルトを取得
                     salt = deriveBytes.Salt;
                     // 生成した擬似乱数から16バイト切り出したデータをパスワードにする
-                    byte[] bufferKey = deriveBytes.GetBytes(keyBytes);
+                    byte[] bufferKey = deriveBytes.GetBytes(16);
 
                     aes.Key = bufferKey;
                     // IV ( Initilization Vector ) は、AesManagedにつくらせる
@@ -262,7 +261,7 @@ namespace AliceScript.NameSpaces
             }
             return;
         }
-        public static void File_Decrypt(string path, string outpath, string password, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
+        public static void File_Decrypt(string path, string outpath, string password)
         {
             int len;
             byte[] buffer = new byte[4096];
@@ -273,9 +272,8 @@ namespace AliceScript.NameSpaces
                 {
                     using (Aes aes = Aes.Create())
                     {
-                        int keyBytes = keySize / 8;
                         aes.BlockSize = 128;              // BlockSize = 16bytes
-                        aes.KeySize = keySize;                // KeySize = keySize / 8 bytes
+                        aes.KeySize = 128;                // KeySize = 16bytes
                         aes.Mode = CipherMode.CBC;        // CBC mode
                         aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
 
@@ -289,8 +287,8 @@ namespace AliceScript.NameSpaces
                         aes.IV = iv;
 
                         // ivをsaltにしてパスワードを擬似乱数に変換
-                        Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, salt, iterations, useSHA512 ? HashAlgorithmName.SHA512 : HashAlgorithmName.SHA256);
-                        byte[] bufferKey = deriveBytes.GetBytes(keyBytes);    // 16バイトのsaltを切り出してパスワードに変換
+                        Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, salt);
+                        byte[] bufferKey = deriveBytes.GetBytes(16);    // 16バイトのsaltを切り出してパスワードに変換
                         aes.Key = bufferKey;
 
                         //Decryption interface.
