@@ -253,7 +253,7 @@ namespace AliceScript
         {
             //文字列を小文字に置き換え
             str = str.ToLowerInvariant();
-            if (str.StartsWith("_", StringComparison.Ordinal) || str.EndsWith("_", StringComparison.Ordinal) || str.Contains("_.") || str.Contains("._"))
+            if (str.StartsWith('_') || str.EndsWith('_') || str.Contains("_.") || str.Contains("._"))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
@@ -344,7 +344,7 @@ namespace AliceScript
                 return min;
             }
 
-            int index = data.IndexOf(".", StringComparison.Ordinal);
+            int index = data.IndexOf('.');
             return index < 0 || index >= data.Length - 1 ? 0 : data.Length - index - 1;
         }
 
