@@ -211,17 +211,17 @@ namespace AliceScript
         /// <summary>
         /// UTF16表現がとるパターン
         /// </summary>
-        public static readonly Regex UTF16_LITERAL = new Regex(@"\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
+        public static readonly Regex UTF16_LITERAL = new Regex(@"[^\\]\\u[0-9a-fA-F]{4}", RegexOptions.Compiled);
 
         /// <summary>
         /// 可変長UTF16表現がとるパターン
         /// </summary>
-        public static readonly Regex UTF16_VARIABLE_LITERAL = new Regex(@"\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
+        public static readonly Regex UTF16_VARIABLE_LITERAL = new Regex(@"[^\\]\\x[0-9a-fA-F]{1,4}", RegexOptions.Compiled);
 
         /// <summary>
         /// UTF32表現がとるパターン
         /// </summary>
-        public static readonly Regex UTF32_LITERAL = new Regex(@"\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
+        public static readonly Regex UTF32_LITERAL = new Regex(@"[^\\]\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
 
         /// <summary>
         /// インデックスの逆引きがとるパターン
