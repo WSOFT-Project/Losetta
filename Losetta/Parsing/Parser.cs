@@ -18,11 +18,6 @@ namespace AliceScript.Parsing
         /// <exception cref="ScriptException">スクリプトを解析できない場合に発生する例外</exception>
         public static Variable AliceScript(ParsingScript script, char[] to)
         {
-            var eis = System.Text.Encoding.GetEncodings();
-            foreach (System.Text.EncodingInfo ei in eis)
-            {
-                Console.WriteLine("{0}\t{1}\t{2}", ei.DisplayName, ei.CodePage, ei.Name);
-            }
             // まず、式をトークンごとに分割してVariableにする
             List<Variable> listToMerge = Split(script, to);
 
