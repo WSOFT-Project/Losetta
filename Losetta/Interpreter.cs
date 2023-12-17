@@ -122,7 +122,7 @@ namespace AliceScript
 
             m_bHasBeenInitialized = true; // このメソッドは一度のみ呼び出すことができます
 
-
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             RegisterFunctions();
             RegisterActions();
 

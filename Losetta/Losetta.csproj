@@ -168,6 +168,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Update="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
