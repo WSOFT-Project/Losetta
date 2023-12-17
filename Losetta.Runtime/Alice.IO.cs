@@ -1,6 +1,5 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Extra;
-using AliceScript.Functions;
 using AliceScript.Parsing;
 using System.IO.Compression;
 using System.Security.Cryptography;
@@ -54,31 +53,52 @@ namespace AliceScript.NameSpaces
         }
         public static string File_Read_Text(ParsingScript script, string path, bool fromPackage = false)
         {
-            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
-            return SafeReader.ReadAllText(data, out _, out _);
+            // 一旦パッケージから取得してみる
+            byte[] data = script?.Package?.GetEntryData(path);
+            return data is null ? SafeReader.ReadAllText(path, out _, out _) : SafeReader.ReadAllText(data, out _, out _);
         }
-        public static string File_Read_Text(ParsingScript script, string path, string charcode, bool fromPackage = false)
+        public static string File_Read_Text(ParsingScript script, string path, string charCode, bool fromPackage = false)
         {
-            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
-            Encoding encode = Encoding.GetEncoding(charcode);
-            return encode.GetString(data);
+            Encoding encode = Encoding.GetEncoding(charCode);
+            // 一旦パッケージから取得してみる
+            byte[] data = script?.Package?.GetEntryData(path);
+            return data is null ? File.ReadAllText(path, encode) : encode.GetString(data);
         }
-        public static string File_Read_Text(ParsingScript script, string path, int charcode, bool fromPackage = false)
+        public static string File_Read_Text(ParsingScript script, string path, int codePage, bool fromPackage = false)
         {
-            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
-            Encoding encode = Encoding.GetEncoding(charcode);
-            return encode.GetString(data);
+            Encoding encode = Encoding.GetEncoding(codePage);
+            // 一旦パッケージから取得してみる
+            byte[] data = script?.Package?.GetEntryData(path);
+            return data is null ? File.ReadAllText(path, encode) : encode.GetString(data);
         }
         public static string File_Read_CharCode(ParsingScript script, string path, bool fromPackage = false)
         {
-            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
-            SafeReader.ReadAllText(data, out string charcode, out _);
-            return charcode;
+            string charCode;
+            // 一旦パッケージから取得してみる
+            byte[] data = script?.Package?.GetEntryData(path);
+            if (data is null)
+            {
+                SafeReader.ReadAllText(path, out charCode, out _);
+            }
+            else
+            {
+                SafeReader.ReadAllText(data, out charCode, out _);
+            }
+            return charCode;
         }
         public static int File_Read_CodePage(ParsingScript script, string path, bool fromPackage = false)
         {
-            var data = Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
-            SafeReader.ReadAllText(data, out _, out int codePage);
+            int codePage;
+            // 一旦パッケージから取得してみる
+            byte[] data = script?.Package?.GetEntryData(path);
+            if (data is null)
+            {
+                SafeReader.ReadAllText(path, out _, out codePage);
+            }
+            else
+            {
+                SafeReader.ReadAllText(data, out _, out codePage);
+            }
             return codePage;
         }
         public static byte[] File_Read_Data(ParsingScript script, string path, bool fromPackage = false)

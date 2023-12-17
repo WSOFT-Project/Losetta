@@ -150,8 +150,7 @@ namespace AliceScript
 
         public static bool ExtractParameterNames(List<Variable> args, string functionName, ParsingScript script)
         {
-            FunctionBase custFunc = ParserFunction.GetFunction(functionName, script) as FunctionBase;
-            if (custFunc is null)
+            if (ParserFunction.GetFunction(functionName, script) is not FunctionBase custFunc)
             {
                 return false;
             }
@@ -168,7 +167,6 @@ namespace AliceScript
             }
             return true;
         }
-
 
 
         /// <summary>
@@ -195,7 +193,7 @@ namespace AliceScript
         }
         public static string GetFileLines(byte[] data)
         {
-            string lines = SafeReader.ReadAllText(data, out _,out _);
+            string lines = SafeReader.ReadAllText(data, out _, out _);
             if (lines is null)
             {
                 lines = string.Empty;
@@ -253,7 +251,7 @@ namespace AliceScript
         {
             //文字列を小文字に置き換え
             str = str.ToLowerInvariant();
-            if (str.StartsWith("_", StringComparison.Ordinal) || str.EndsWith("_", StringComparison.Ordinal) || str.Contains("_.") || str.Contains("._"))
+            if (str.StartsWith('_') || str.EndsWith('_') || str.Contains("_.") || str.Contains("._"))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
@@ -327,11 +325,14 @@ namespace AliceScript
             }
 
         }
+
+        private static readonly char[] separator = new char[] { ',', ':' };
+
         public static int GetNumberOfDigits(string data, int itemNumber = -1)
         {
             if (itemNumber >= 0)
             {
-                string[] vals = data.Split(new char[] { ',', ':' });
+                string[] vals = data.Split(separator);
                 if (vals.Length <= itemNumber)
                 {
                     return 0;
@@ -344,7 +345,7 @@ namespace AliceScript
                 return min;
             }
 
-            int index = data.IndexOf(".", StringComparison.Ordinal);
+            int index = data.IndexOf('.');
             return index < 0 || index >= data.Length - 1 ? 0 : data.Length - index - 1;
         }
 

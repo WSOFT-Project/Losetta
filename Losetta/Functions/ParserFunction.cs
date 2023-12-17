@@ -802,7 +802,7 @@ namespace AliceScript.Functions
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
         {
             name = Constants.ConvertName(name);
-            return script is not null && script.Functions.Remove(name) || s_functions.Remove(name);
+            return (script is not null && script.Functions.Remove(name)) || s_functions.Remove(name);
         }
         public static bool UnregisterFunction(string name)
         {

@@ -17,7 +17,7 @@ namespace AliceScript.Extra
         /// <exception cref="FileNotFoundException">指定されたファイルが存在しません</exception>
         public static string ReadAllText(string filename, out string charCode, out int codePage)
         {
-            if (string.IsNullOrEmpty(filename)) { charCode = "";codePage = -1; return string.Empty; }
+            if (string.IsNullOrEmpty(filename)) { charCode = ""; codePage = -1; return string.Empty; }
             FileInfo file = new FileInfo(filename);
             if (!file.Exists)
             {

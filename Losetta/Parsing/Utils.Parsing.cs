@@ -1107,19 +1107,19 @@ namespace AliceScript
                 foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
                 {
                     string result = match.Value;
-                    input = input.Replace(result,(result[0] == '\\' ? null : result[0])+ ConvertUnicodeToChar(result.Substring(result.IndexOf('u')+1),false));
+                    input = input.Replace(result, (result[0] == '\\' ? null : result[0]) + ConvertUnicodeToChar(result.Substring(result.IndexOf('u') + 1), false));
                 }
                 //可変長UTF-16文字コードの置き換え
                 foreach (Match match in Constants.UTF16_VARIABLE_LITERAL.Matches(input))
                 {
                     string result = match.Value;
-                    input = input.Replace(result, (result[0] == '\\' ? null : result[0]) + ConvertUnicodeToChar(result.Substring(result.IndexOf('x') + 1),true));
+                    input = input.Replace(result, (result[0] == '\\' ? null : result[0]) + ConvertUnicodeToChar(result.Substring(result.IndexOf('x') + 1), true));
                 }
                 //UTF-32文字コードの置き換え
                 foreach (Match match in Constants.UTF32_LITERAL.Matches(input))
                 {
                     string result = match.Value;
-                    input = input.Replace(result, (result[0] == '\\' ? null : result[0]) + ConvertUnicodeToChar(result.Substring(result.IndexOf('U') + 1),false));
+                    input = input.Replace(result, (result[0] == '\\' ? null : result[0]) + ConvertUnicodeToChar(result.Substring(result.IndexOf('U') + 1), false));
                 }
             }
             return input;

@@ -16,11 +16,11 @@ namespace AliceScript.NameSpaces
         #region バイト配列暗号化
         public static byte[] Data_Encrypt(byte[] data, string password, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
         {
-            return FileEncrypter.Encrypt(data, password, keySize,iterations,useSHA512);
+            return FileEncrypter.Encrypt(data, password, keySize, iterations, useSHA512);
         }
         public static byte[] Data_Decrypt(byte[] data, string password, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
         {
-            return FileEncrypter.Decrypt(data, password,keySize,iterations,useSHA512);
+            return FileEncrypter.Decrypt(data, password, keySize, iterations, useSHA512);
         }
         #endregion
 

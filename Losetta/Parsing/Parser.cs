@@ -104,7 +104,7 @@ namespace AliceScript.Parsing
 
                 // このトークンに対応する関数を取得する
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || !(fb is LiteralFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || fb is not LiteralFunction))
                 {
                     script.ProcessingFunction = fb;//現在処理中としてマーク
                     if (fb is AttributeFunction af)
@@ -170,7 +170,7 @@ namespace AliceScript.Parsing
                 // recursively call AliceScript(). This will happen if extracted
                 // item is a function or if the next item is starting with a START_ARG '('.
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || !(fb is LiteralFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || fb is not LiteralFunction))
                 {
                     script.ProcessingFunction = fb;
                 }
