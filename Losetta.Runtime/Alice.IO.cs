@@ -146,7 +146,7 @@ namespace AliceScript.NameSpaces
                     aes.BlockSize = 128;              // BlockSize = 16bytes
                     aes.KeySize = keySize;                // KeySize = keySize / 8 bytes
                     aes.Mode = CipherMode.CBC;        // CBC mode
-                    aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+                    aes.Padding = PaddingMode.ISO10126;    // Padding mode is "ISO10126".
 
                     //入力されたパスワードをベースに擬似乱数を新たに生成
                     Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, 16, iterations, useSHA512 ? HashAlgorithmName.SHA512 : HashAlgorithmName.SHA256);
@@ -201,7 +201,7 @@ namespace AliceScript.NameSpaces
                         aes.BlockSize = 128;              // BlockSize = 16bytes
                         aes.KeySize = keySize;                // KeySize = keySize / 8 bytes
                         aes.Mode = CipherMode.CBC;        // CBC mode
-                        aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+                        aes.Padding = PaddingMode.ISO10126;    // Padding mode is "ISO10126".
 
                         // salt
                         byte[] salt = new byte[16];
@@ -561,7 +561,7 @@ namespace AliceScript.NameSpaces
                     aes.BlockSize = 128;              // BlockSize = 16bytes
                     aes.KeySize = keySize;                // KeySize = keySize / 8 bytes
                     aes.Mode = CipherMode.CBC;        // CBC mode
-                    aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+                    aes.Padding = PaddingMode.ISO10126;    // Padding mode is "ISO10126".
 
                     //入力されたパスワードをベースに擬似乱数を新たに生成
                     Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, 16, iterations, useSHA512 ? HashAlgorithmName.SHA512 : HashAlgorithmName.SHA256);
@@ -589,13 +589,13 @@ namespace AliceScript.NameSpaces
                                 {
                                     ds.Write(buffer, 0, len);
                                 }
-                                return fs.GetBuffer();
                             }
                         }
 
                     }
 
                 }
+                return outfs.GetBuffer();
             }
         }
 
@@ -613,7 +613,7 @@ namespace AliceScript.NameSpaces
                         aes.BlockSize = 128;              // BlockSize = 16bytes
                         aes.KeySize = keySize;                // KeySize = keySize / 8 bytes
                         aes.Mode = CipherMode.CBC;        // CBC mode
-                        aes.Padding = PaddingMode.PKCS7;    // Padding mode is "PKCS7".
+                        aes.Padding = PaddingMode.ISO10126;    // Padding mode is "ISO10126".
 
                         // salt
                         byte[] salt = new byte[16];
