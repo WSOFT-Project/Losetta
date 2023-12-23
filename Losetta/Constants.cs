@@ -407,6 +407,7 @@ namespace AliceScript
                 case Variable.VarType.BOOLEAN: return "BOOLEAN";
                 case Variable.VarType.BYTES: return "BYTES";
                 case Variable.VarType.UNDEFINED: return "UNDEFINED";
+                case Variable.VarType.VOID: return "VOID";
                 default: return "NONE";
             }
         }
@@ -438,7 +439,8 @@ namespace AliceScript
                 case "CONTINUE": type = Variable.VarType.CONTINUE; break;
                 case "DELEGATE": type = Variable.VarType.DELEGATE; break;
                 case "VARIABLE": type = Variable.VarType.VARIABLE; break;
-                default: type = Variable.VarType.NONE; return false;
+                case "VOID": type = Variable.VarType.VOID;break;
+                default: type = Variable.VarType.VARIABLE; return false;
             }
             return true;
         }

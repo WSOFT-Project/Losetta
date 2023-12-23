@@ -18,7 +18,7 @@ namespace AliceScript.Functions
             m_returnType = returnType;
             Run += CustomFunction_Run;
 
-            if (m_returnType == Variable.VarType.NONE)
+            if (m_returnType == Variable.VarType.VOID)
             {
                 m_nullable = true;
             }
@@ -185,14 +185,18 @@ namespace AliceScript.Functions
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(e.Args, e.Script, e.ClassInstance, e.CurentVariable);
+            if (m_nullable && m_returnType != Variable.VarType.VOID && result.IsNull())
+            {
+                // nullをとる場合は妥当なnull許容型に置き換える
+                result.Type = m_returnType;
+            }
             if (m_nullable)
             {
                 result.Nullable = true;
             }
-            if (!(result.Type == Variable.VarType.VARIABLE && result.IsNull()) && (m_nullable || (!m_nullable && result.Nullable)) && !result.Type.HasFlag(m_returnType))
-            // if ((!m_nullable && result.Nullable) && !result.Type.HasFlag(m_returnType))
+            if((m_returnType != Variable.VarType.VARIABLE && (!result.Type.HasFlag(m_returnType) || (!m_nullable && result.Nullable))) || (m_returnType == Variable.VarType.VOID && result.Type != Variable.VarType.VOID))
             {
-                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(m_nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
+                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.Nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
             e.Return = result;
         }
@@ -259,7 +263,7 @@ namespace AliceScript.Functions
                 {
                     for (int i = 0; i < args.Count; i++)
                     {
-                        if (args[i].Type == Variable.VarType.NONE ||
+                        if (args[i].Type == Variable.VarType.VOID ||
                            (!string.IsNullOrWhiteSpace(args[i].CurrentAssign) &&
                             args[i].CurrentAssign != m_args[i]))
                         {
@@ -390,7 +394,7 @@ namespace AliceScript.Functions
 
             if (result is null || (!result.IsReturn && !m_forceReturn))
             {
-                result = Variable.EmptyInstance;
+                result = new Variable(Variable.VarType.VOID);
             }
 
             result.IsReturn = false;
