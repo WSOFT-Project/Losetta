@@ -3,6 +3,7 @@ using AliceScript.Functions;
 using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Packaging;
+using AliceScript.PreProcessing;
 using System.Text;
 
 namespace AliceScript.Parsing
@@ -1263,7 +1264,7 @@ namespace AliceScript.Parsing
         [AliceFunction(State = AliceBindState.Enabled)]
         public ParsingScript GetChildScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
-            str = Utils.ConvertToScript(str, out var char2Line, out var def, out var settings);
+            str = PreProcessor.ConvertToScript(str, out var char2Line, out var def, out var settings);
             var script = GetTempScript(str, callFrom, startIndex);
 
             script.Char2Line = char2Line;
@@ -1277,7 +1278,7 @@ namespace AliceScript.Parsing
             if (EnableInclude)
             {
                 string includeFile = GetIncludeFileLine(filename, out string pathname, out bool isPackageFile);
-                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out _, out var setting, pathname);
+                var includeScript = PreProcessor.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out _, out var setting, pathname);
                 ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line)
                 {
                     TopInFile = true,

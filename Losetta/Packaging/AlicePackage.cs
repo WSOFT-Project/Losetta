@@ -1,4 +1,5 @@
 ﻿using AliceScript.Extra;
+using AliceScript.PreProcessing;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -219,7 +220,7 @@ namespace AliceScript.Packaging
                             Stream sw = entry.Open();
                             string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _, out _);
                             int old = script.Length;
-                            script = Utils.ConvertToScript(script, out _, out _, out _, entry.FullName);
+                            script = PreProcessor.ConvertToScript(script, out _, out _, out _, entry.FullName);
                             byte[] script_data = Encoding.UTF8.GetBytes(script);
                             string fn = entry.FullName;
                             sw.Close();

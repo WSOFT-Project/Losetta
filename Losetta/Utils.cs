@@ -4,12 +4,19 @@ using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace AliceScript
 {
     public static partial class Utils
     {
+        /// <summary>
+        /// 引数の個数を確認し、不足していれば例外を発生させます
+        /// </summary>
+        /// <param name="args">実際の引数の個数</param>
+        /// <param name="expected">必要な引数の個数</param>
+        /// <param name="msg">関数名</param>
+        /// <param name="exactMatch">ぴったり同じである必要がある場合はtrue</param>
+        /// <exception cref="ScriptException">引数が不足している場合に発生する例外</exception>
         public static void CheckArgs(int args, int expected, string msg, bool exactMatch = false)
         {
             if (args < expected || (exactMatch && args != expected))
@@ -80,32 +87,6 @@ namespace AliceScript
             throw new ScriptException(msg, errorcode, script);
         }
 
-        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "")
-        {
-            string[] lines = script.Split('\n');
-            lineNumber = lines.Length <= lineNumber ? -1 : lineNumber;
-            System.Diagnostics.Debug.WriteLine(msg);
-            if (lineNumber < 0)
-            {
-                throw new ParsingException(msg);
-            }
-
-            var currentLineNumber = lineNumber;
-            var line = lines[lineNumber].Trim();
-
-
-            StringBuilder stack = new StringBuilder();
-            stack.AppendLine(currentLineNumber.ToString());
-            stack.AppendLine(filename);
-            stack.AppendLine(line);
-            throw new ScriptException(msg + stack.ToString(), ecode);
-        }
-
-        private static void ThrowErrorMsg(string msg, string code, Exceptions ecode, int level, int lineStart, int lineEnd, string filename)
-        {
-            var lineNumber = level > 0 ? lineStart : lineEnd;
-            ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
-        }
 
         public static void CheckLegalName(string name, bool checkReserved = false)
         {
@@ -309,22 +290,6 @@ namespace AliceScript
 
         }
 
-        private static string ConvertUnicodeToChar(string charCode, bool mode = true)
-        {
-            if (mode)
-            {
-                int charCode16 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                char c = Convert.ToChar(charCode16);  // 数値(文字コード) -> 文字
-                return c.ToString();
-            }
-            else
-            {
-                //UTF-32モード
-                int charCode32 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                return char.ConvertFromUtf32(charCode32);
-            }
-
-        }
 
         private static readonly char[] separator = new char[] { ',', ':' };
 
@@ -372,12 +337,8 @@ namespace AliceScript
 
         public static string GetDirectoryName(string path)
         {
-            return string.IsNullOrWhiteSpace(path) ? GetCurrentDirectory() : Path.GetDirectoryName(path);
+            return string.IsNullOrWhiteSpace(path) ? Directory.GetCurrentDirectory() : Path.GetDirectoryName(path);
         }
 
-        public static string GetCurrentDirectory()
-        {
-            return Directory.GetCurrentDirectory();
-        }
     }
 }
