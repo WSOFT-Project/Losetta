@@ -353,7 +353,7 @@ namespace AliceScript
             }
             if (Readonly)
             {
-                throw new ScriptException("readonly属性を持つ変数には、代入できません", Exceptions.CANT_ASSIGN_TO_READ_ONLY);
+                throw new ScriptException("定数またはreadonly属性を持つ変数には代入できません", Exceptions.CANT_ASSIGN_TO_READ_ONLY);
             }
             if (v.IsNull())
             {
@@ -1206,7 +1206,7 @@ namespace AliceScript
                 case VarType.STRING:
                     return m_string;
                 case VarType.BYTES:
-                    return SafeReader.ReadAllText(m_byteArray, out _);
+                    return SafeReader.ReadAllText(m_byteArray, out _, out _);
                 case VarType.UNDEFINED:
                     return Constants.UNDEFINED;
                 case VarType.ENUM:
