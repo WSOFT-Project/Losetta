@@ -20,6 +20,7 @@ namespace AliceScript.NameSpaces.Core
         {
             Thread.SpinWait(iterations);
         }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
         public static void Exit()
         {
             Alice.OnExiting();

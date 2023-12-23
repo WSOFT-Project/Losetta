@@ -1,4 +1,5 @@
 ﻿using AliceScript.Extra;
+using AliceScript.PreProcessing;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -157,39 +158,43 @@ namespace AliceScript.Packaging
         {
             return archive.GetEntry(filename) is not null;
         }
-        public byte[] GetEntryData(string filename)
+        public byte[] GetEntryData(string filename, bool throwError = true)
         {
-            return GetEntryToData(archive.GetEntry(filename), filename);
+            return GetEntryToData(archive.GetEntry(filename), filename, throwError);
         }
         public string GetEntryText(string filename)
         {
             return GetEntryScript(archive.GetEntry(filename), filename);
         }
-        internal static byte[] GetEntryToData(ZipArchiveEntry e, string filename)
+        internal static byte[] GetEntryToData(ZipArchiveEntry e, string filename, bool throwError = true)
         {
             try
             {
                 if (e is null)
                 {
-                    throw new ScriptException("パッケージ内のファイル[" + filename + "]が見つかりません", Exceptions.FILE_NOT_FOUND);
+                    return throwError ? throw new ScriptException("パッケージ内のファイル[" + filename + "]が見つかりません", Exceptions.FILE_NOT_FOUND) : null;
                 }
-                var stream = e.Open();
-                byte[] bytes;
-                using (var ms = new MemoryStream())
+                using (var stream = e.Open())
                 {
-                    stream.CopyTo(ms);
-                    bytes = ms.ToArray();
-                    return bytes;
+                    byte[] bytes;
+                    using (var ms = new MemoryStream())
+                    {
+                        stream.CopyTo(ms);
+                        bytes = ms.ToArray();
+                        return bytes;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                throw new ScriptException("パッケージ内のファイル[" + filename + "]を読み込めません。詳細:" + ex.Message, Exceptions.BAD_PACKAGE);
+                return throwError
+                    ? throw new ScriptException("パッケージ内のファイル[" + filename + "]を読み込めません。詳細:" + ex.Message, Exceptions.BAD_PACKAGE)
+                    : null;
             }
         }
         internal static string GetEntryScript(ZipArchiveEntry e, string filename)
         {
-            return SafeReader.ReadAllText(GetEntryToData(e, filename), out _);
+            return SafeReader.ReadAllText(GetEntryToData(e, filename), out _, out _);
         }
         internal static byte[] GetByteArrayFromStream(Stream sm)
         {
@@ -213,9 +218,9 @@ namespace AliceScript.Packaging
                         if (entry.Name.EndsWith(".alice", StringComparison.Ordinal))
                         {
                             Stream sw = entry.Open();
-                            string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _);
+                            string script = SafeReader.ReadAllText(GetByteArrayFromStream(sw), out _, out _);
                             int old = script.Length;
-                            script = Utils.ConvertToScript(script, out _, out _, out _, entry.FullName);
+                            script = PreProcessor.ConvertToScript(script, out _, out _, out _, entry.FullName);
                             byte[] script_data = Encoding.UTF8.GetBytes(script);
                             string fn = entry.FullName;
                             sw.Close();
@@ -353,7 +358,6 @@ namespace AliceScript.Packaging
                 }
                 try
                 {
-                    new ZipArchive(outfs);
                     LoadArchive(new ZipArchive(outfs), filename, callFromScript);
                 }
                 catch

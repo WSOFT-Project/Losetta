@@ -44,11 +44,16 @@ namespace AliceScript.Functions
             }
 
             bool registVar = type_modifer is not null;
-            bool registConst = Keywords.Contains(Constants.CONST);
             AccessModifier accessModifier = Keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
             accessModifier = Keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
             accessModifier = Keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
             bool isReadOnly = Keywords.Contains(Constants.READONLY);
+
+            if (Keywords.Contains(Constants.CONST))
+            {
+                registVar = true;
+                isReadOnly = true;
+            }
 
             script.MoveBackIfPrevious(Constants.END_ARG);
             varValue.TrySetAsMap();
@@ -58,83 +63,34 @@ namespace AliceScript.Functions
                 Utils.ThrowErrorMsg("[" + script.Rest + "]は無効なトークンです", Exceptions.INVALID_TOKEN,
                                     script, m_name);
             }
-            if (registConst)
+            // First try processing as an object (with a dot notation):
+            Variable result = ProcessObject(m_name, script, varValue);
+            if (result is not null)
             {
-                Utils.CheckLegalName(m_name);
-                //定数定義
-                if (!FunctionExists(m_name, script, out var func))
-                {
-                    // Check if the variable to be set has the form of x[a][b]...,
-                    // meaning that this is an array element.
-                    List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (name) => { m_name = name; }, this);
-                    m_name = Constants.ConvertName(m_name);
-                    if (arrayIndices.Count == 0)
-                    {
-                        if (isGlobal)
-                        {
-                            ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new ValueFunction(varValue));
-                        }
-                        else
-                        {
-                            baseScript.Consts.Add(m_name, new ValueFunction(varValue));
-                        }
-                        Variable retVar = varValue.DeepClone();
-                        retVar.CurrentAssign = m_name;
-                        return retVar;
-                    }
-
-                    Variable array;
-
-                    ParserFunction pf = ParserFunction.GetVariable(m_name, script, false, Keywords);
-                    array = pf is not null ? pf.GetValue(script) : new Variable();
-
-                    ExtendArray(array, arrayIndices, 0, varValue);
-                    if (isGlobal)
-                    {
-                        ParsingScript.GetTopLevelScript(baseScript).Consts.Add(m_name, new ValueFunction(varValue));
-                    }
-                    else
-                    {
-                        baseScript.Consts.Add(m_name, new ValueFunction(varValue));
-                    }
-                    return array;
-                }
-                else
-                {
-                    throw new ScriptException("定数に値を代入することはできません", Exceptions.CANT_ASSIGN_TO_READ_ONLY, script);
-                }
+                return result;
             }
-            else
+
+            // 設定する変数が x[a][b]... のような形式かどうかをチェックする
+            // つまり、配列添え字演算子が書いてあるかどうかを確認
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (name) => { m_name = name; }, this);
+
+            if (arrayIndices.Count == 0)
             {
-                // First try processing as an object (with a dot notation):
-                Variable result = ProcessObject(m_name, script, varValue);
-                if (result is not null)
-                {
-                    return result;
-                }
-
-                // 設定する変数が x[a][b]... のような形式かどうかをチェックする
-                // つまり、配列添え字演算子が書いてあるかどうかを確認
-                List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (name) => { m_name = name; }, this);
-
-                if (arrayIndices.Count == 0)
-                {
-                    ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
-                    Variable retVar = varValue.DeepClone();
-                    retVar.CurrentAssign = m_name;
-                    return retVar;
-                }
-
-                Variable array;
-
-                ParserFunction pf = ParserFunction.GetVariable(m_name, baseScript);
-                array = pf is not null ? pf.GetValue(script) : new Variable();
-
-                ExtendArray(array, arrayIndices, 0, varValue);
-
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
-                return array;
+                ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
+                Variable retVar = varValue.DeepClone();
+                retVar.CurrentAssign = m_name;
+                return retVar;
             }
+
+            Variable array;
+
+            ParserFunction pf = ParserFunction.GetVariable(m_name, baseScript);
+            array = pf is not null ? pf.GetValue(script) : new Variable();
+
+            ExtendArray(array, arrayIndices, 0, varValue);
+
+            ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
+            return array;
         }
         internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)
         {

@@ -11,12 +11,13 @@ namespace AliceScript.Extra
         /// ReadJEncを使用して、ファイルから文字列を取得します。
         /// </summary>
         /// <param name="filename">取得するファイル名</param>
-        /// <param name="charcode">判定された文字コード</param>
+        /// <param name="charCode">判定された文字コード</param>
+        /// <param name="codePage">判定された文字コードの番号</param>
         /// <returns>ファイル内の文字列</returns>
         /// <exception cref="FileNotFoundException">指定されたファイルが存在しません</exception>
-        public static string ReadAllText(string filename, out string charcode)
+        public static string ReadAllText(string filename, out string charCode, out int codePage)
         {
-            if (string.IsNullOrEmpty(filename)) { charcode = ""; return string.Empty; }
+            if (string.IsNullOrEmpty(filename)) { charCode = ""; codePage = -1; return string.Empty; }
             FileInfo file = new FileInfo(filename);
             if (!file.Exists)
             {
@@ -25,20 +26,23 @@ namespace AliceScript.Extra
 
             using FileReader reader = new FileReader(file);
             CharCode c = reader.Read(file);
-            charcode = c.Name;
+            codePage = c.CodePage;
+            charCode = c.Name;
             return reader.Text;
         }
         /// <summary>
         /// ReadJEncを使用して、バイト配列から文字列を取得します
         /// </summary>
         /// <param name="data">取得するデータ</param>
-        /// <param name="charcode">判定された文字コード</param>
+        /// <param name="charCode">判定された文字コード</param>
+        /// <param name="codePage">判定された文字コードの番号</param>
         /// <returns>データ内の文字列</returns>
-        public static string ReadAllText(byte[] data, out string charcode)
+        public static string ReadAllText(byte[] data, out string charCode, out int codePage)
         {
             using FileReader reader = new FileReader(data);
             CharCode c = reader.Read(data);
-            charcode = c.Name;
+            codePage = c.CodePage;
+            charCode = c.Name;
             return reader.Text;
         }
     }

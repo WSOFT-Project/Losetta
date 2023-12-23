@@ -4,6 +4,7 @@ using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
+using AliceScript.PreProcessing;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
@@ -122,7 +123,7 @@ namespace AliceScript
 
             m_bHasBeenInitialized = true; // このメソッドは一度のみ呼び出すことができます
 
-
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             RegisterFunctions();
             RegisterActions();
 
@@ -217,7 +218,7 @@ namespace AliceScript
         }
         public ParsingScript GetScript(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
+            string data = PreProcessor.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 data = ";";
@@ -239,7 +240,7 @@ namespace AliceScript
         }
         public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
         {
-            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
+            string data = PreProcessor.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;
@@ -263,7 +264,7 @@ namespace AliceScript
         }
         public async Task<Variable> ProcessAsync(string script, string filename = "", bool mainFile = false)
         {
-            string data = Utils.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
+            string data = PreProcessor.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
             {
                 return null;

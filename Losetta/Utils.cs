@@ -4,12 +4,19 @@ using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace AliceScript
 {
     public static partial class Utils
     {
+        /// <summary>
+        /// 引数の個数を確認し、不足していれば例外を発生させます
+        /// </summary>
+        /// <param name="args">実際の引数の個数</param>
+        /// <param name="expected">必要な引数の個数</param>
+        /// <param name="msg">関数名</param>
+        /// <param name="exactMatch">ぴったり同じである必要がある場合はtrue</param>
+        /// <exception cref="ScriptException">引数が不足している場合に発生する例外</exception>
         public static void CheckArgs(int args, int expected, string msg, bool exactMatch = false)
         {
             if (args < expected || (exactMatch && args != expected))
@@ -80,32 +87,6 @@ namespace AliceScript
             throw new ScriptException(msg, errorcode, script);
         }
 
-        private static void ThrowErrorMsg(string msg, string script, Exceptions ecode, int lineNumber, string filename = "")
-        {
-            string[] lines = script.Split('\n');
-            lineNumber = lines.Length <= lineNumber ? -1 : lineNumber;
-            System.Diagnostics.Debug.WriteLine(msg);
-            if (lineNumber < 0)
-            {
-                throw new ParsingException(msg);
-            }
-
-            var currentLineNumber = lineNumber;
-            var line = lines[lineNumber].Trim();
-
-
-            StringBuilder stack = new StringBuilder();
-            stack.AppendLine(currentLineNumber.ToString());
-            stack.AppendLine(filename);
-            stack.AppendLine(line);
-            throw new ScriptException(msg + stack.ToString(), ecode);
-        }
-
-        private static void ThrowErrorMsg(string msg, string code, Exceptions ecode, int level, int lineStart, int lineEnd, string filename)
-        {
-            var lineNumber = level > 0 ? lineStart : lineEnd;
-            ThrowErrorMsg(msg, code, ecode, lineNumber, filename);
-        }
 
         public static void CheckLegalName(string name, bool checkReserved = false)
         {
@@ -150,8 +131,7 @@ namespace AliceScript
 
         public static bool ExtractParameterNames(List<Variable> args, string functionName, ParsingScript script)
         {
-            FunctionBase custFunc = ParserFunction.GetFunction(functionName, script) as FunctionBase;
-            if (custFunc is null)
+            if (ParserFunction.GetFunction(functionName, script) is not FunctionBase custFunc)
             {
                 return false;
             }
@@ -170,7 +150,6 @@ namespace AliceScript
         }
 
 
-
         /// <summary>
         /// 現在のパッケージまたはローカルからファイルを取得します
         /// </summary>
@@ -186,7 +165,7 @@ namespace AliceScript
         }
         public static string GetFileLines(string filename)
         {
-            string lines = SafeReader.ReadAllText(filename, out _);
+            string lines = SafeReader.ReadAllText(filename, out _, out _);
             if (lines is null)
             {
                 lines = string.Empty;
@@ -195,7 +174,7 @@ namespace AliceScript
         }
         public static string GetFileLines(byte[] data)
         {
-            string lines = SafeReader.ReadAllText(data, out _);
+            string lines = SafeReader.ReadAllText(data, out _, out _);
             if (lines is null)
             {
                 lines = string.Empty;
@@ -253,7 +232,7 @@ namespace AliceScript
         {
             //文字列を小文字に置き換え
             str = str.ToLowerInvariant();
-            if (str.StartsWith("_", StringComparison.Ordinal) || str.EndsWith("_", StringComparison.Ordinal) || str.Contains("_.") || str.Contains("._"))
+            if (str.StartsWith('_') || str.EndsWith('_') || str.Contains("_.") || str.Contains("._"))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
@@ -311,27 +290,14 @@ namespace AliceScript
 
         }
 
-        private static string ConvertUnicodeToChar(string charCode, bool mode = true)
-        {
-            if (mode)
-            {
-                int charCode16 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                char c = Convert.ToChar(charCode16);  // 数値(文字コード) -> 文字
-                return c.ToString();
-            }
-            else
-            {
-                //UTF-32モード
-                int charCode32 = Convert.ToInt32(charCode, 16);  // 16進数文字列 -> 数値
-                return char.ConvertFromUtf32(charCode32);
-            }
 
-        }
+        private static readonly char[] separator = new char[] { ',', ':' };
+
         public static int GetNumberOfDigits(string data, int itemNumber = -1)
         {
             if (itemNumber >= 0)
             {
-                string[] vals = data.Split(new char[] { ',', ':' });
+                string[] vals = data.Split(separator);
                 if (vals.Length <= itemNumber)
                 {
                     return 0;
@@ -344,7 +310,7 @@ namespace AliceScript
                 return min;
             }
 
-            int index = data.IndexOf(".", StringComparison.Ordinal);
+            int index = data.IndexOf('.');
             return index < 0 || index >= data.Length - 1 ? 0 : data.Length - index - 1;
         }
 
@@ -371,12 +337,8 @@ namespace AliceScript
 
         public static string GetDirectoryName(string path)
         {
-            return string.IsNullOrWhiteSpace(path) ? GetCurrentDirectory() : Path.GetDirectoryName(path);
+            return string.IsNullOrWhiteSpace(path) ? Directory.GetCurrentDirectory() : Path.GetDirectoryName(path);
         }
 
-        public static string GetCurrentDirectory()
-        {
-            return Directory.GetCurrentDirectory();
-        }
     }
 }
