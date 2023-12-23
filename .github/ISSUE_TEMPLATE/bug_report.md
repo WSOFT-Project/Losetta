@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report a bug in Losetta or  SAIM.
-title: ''
+title: "[BUG]:Name of bug"
 labels: bug
 assignees: ''
 

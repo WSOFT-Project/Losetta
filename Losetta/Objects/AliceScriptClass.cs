@@ -1,6 +1,7 @@
 ﻿using AliceScript.Functions;
 using AliceScript.NameSpaces;
 using AliceScript.Parsing;
+using AliceScript.PreProcessing;
 
 namespace AliceScript.Objects
 {
@@ -293,7 +294,7 @@ namespace AliceScript.Objects
                                                      Constants.END_GROUP);
             e.Script.MoveForwardIf(Constants.END_GROUP);
 
-            string body = Utils.ConvertToScript(scriptExpr, out _, out var def, out var settings);
+            string body = PreProcessor.ConvertToScript(scriptExpr, out _, out var def, out var settings);
 
             Variable result = null;
             ParsingScript tempScript = e.Script.GetTempScript(body);

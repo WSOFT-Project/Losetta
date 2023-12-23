@@ -303,7 +303,7 @@ namespace AliceScript.Functions
 
         private static bool ActionForUndefined(string action)
         {
-            return !string.IsNullOrWhiteSpace(action) && action.EndsWith("=", StringComparison.Ordinal) && action.Length > 1;
+            return !string.IsNullOrWhiteSpace(action) && action.EndsWith('=') && action.Length > 1;
         }
         public static ParserFunction GetLambdaFunction(ParsingScript script, string item, char ch, ref string action)
         {
@@ -312,7 +312,7 @@ namespace AliceScript.Functions
                 string[] args = Utils.GetFunctionSignature(script.GetTempScript(item), true);
                 if (args.Length > 0 && args[0].Trim() == Constants.DESTRUCTION.ToString())
                 {
-                    args = new string[] { };
+                    args = Array.Empty<string>();
                 }
 
                 script.MoveForwardIf(new char[] { Constants.END_ARG });
@@ -458,13 +458,9 @@ namespace AliceScript.Functions
             }
 
             //定数に存在するか確認
-            if (script is not null && script.TryGetConst(name, out impl) && impl is not null)
+            if (Constants.CONSTS.TryGetValue(name, out Variable value))
             {
-                return impl.NewInstance();
-            }
-            if (Constants.CONSTS.ContainsKey(name))
-            {
-                return new ValueFunction(Constants.CONSTS[name]);
+                return new ValueFunction(value);
             }
 
             //関数として取得を続行
@@ -684,7 +680,7 @@ namespace AliceScript.Functions
                     newVar.TypeChecked = true;
                     if (type_modifer is not null)
                     {
-                        if (type_modifer.EndsWith("?", StringComparison.Ordinal))
+                        if (type_modifer.EndsWith('?'))
                         {
                             newVar.Nullable = true;
                             type_modifer = type_modifer.Substring(0, type_modifer.Length - 1);
@@ -759,21 +755,12 @@ namespace AliceScript.Functions
             name = Constants.ConvertName(name);
             function.Name = Constants.GetRealName(name);
 
-            if (!string.IsNullOrWhiteSpace(s_namespace))
-            {
-                if (s_namespaces.TryGetValue(s_namespace, out StackLevel level) &&
-                   function is CustomFunction)
-                {
-                    ((CustomFunction)function).NamespaceData = level;
-                    name = s_namespacePrefix + name;
-                }
-            }
-            if (!s_functions.ContainsKey(name) || (s_functions.ContainsKey(name) && s_functions[name].IsVirtual))
+            if (!s_functions.TryGetValue(name, out ParserFunction value) || (s_functions.ContainsKey(name) && value.IsVirtual))
             {
                 //まだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
                 s_functions[name] = function;
                 function.isNative = isNative;
-                if (s_functions.ContainsKey(name) && s_functions[name].IsVirtual)
+                if (s_functions.TryGetValue(name, out ParserFunction value2) && value2.IsVirtual)
                 {
                     //オーバーライドした関数にもVirtual属性を引き継ぐ
                     function.IsVirtual = true;
@@ -806,7 +793,7 @@ namespace AliceScript.Functions
         public static bool UnregisterScriptFunction(string name, ParsingScript script)
         {
             name = Constants.ConvertName(name);
-            return script is not null && script.Functions.Remove(name) ? true : s_functions.Remove(name);
+            return (script is not null && script.Functions.Remove(name)) || s_functions.Remove(name);
         }
         public static bool UnregisterFunction(string name)
         {

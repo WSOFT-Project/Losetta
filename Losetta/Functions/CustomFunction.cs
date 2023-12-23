@@ -145,7 +145,7 @@ namespace AliceScript.Functions
                         if (parms)
                         {
                             parmsindex = i;
-                            argName = argName.Substring(Constants.PARAMS.Length);
+                            //argName = argName.Substring(Constants.PARAMS.Length);
                             argName = argName.Trim();
                         }
                         if (parms && refs)
@@ -312,6 +312,7 @@ namespace AliceScript.Functions
                     arg.Name = m_args[i];
                     //m_VarMap[m_args[i]] = arg;
                     script.Variables[m_args[i]] = arg;
+                    i = maxSize;
                 }
                 else
                 {
@@ -339,49 +340,10 @@ namespace AliceScript.Functions
                     script.Variables[m_args[i]] = arg;
                 }
             }
-            for (int i = m_args.Length; i < args.Count; i++)
+            if (parmsindex < 0 && m_args.Length < args.Count)
             {
-                Variable val;
-
-                bool refd = args[i].Keywords.Contains(Constants.REF);
-                if (m_refMap.Contains(i))
-                {
-                    val = refd
-                        ? args[i]
-                        : throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
-                }
-                else
-                {
-                    if (refd)
-                    {
-                        throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD, script);
-                    }
-                    val = new Variable();
-                    val.Assign(args[i]);
-                }
-                var arg = new ValueFunction(val);
-                if (i + 1 > m_args.Length)
-                {
-                    throw new ScriptException($"関数 `{m_name}`は、{m_args.Length}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);
-                }
-                arg.Name = m_args[i];
-                script.Variables[args[i].ParamName] = arg;
+                throw new ScriptException($"関数 `{m_name}`は、{m_args.Length}個よりも多く引数を持つことができません", Exceptions.TOO_MANY_ARGUREMENTS, script);
             }
-
-            if (NamespaceData is not null)
-            {
-                var vars = NamespaceData.Variables;
-                string prefix = NamespaceData.Name + ".";
-                foreach (KeyValuePair<string, ParserFunction> elem in vars)
-                {
-                    string key = elem.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ?
-                        elem.Key.Substring(prefix.Length) : elem.Key;
-
-                    //m_VarMap[key] = elem.Value;
-                    script.Variables[key] = elem.Value;
-                }
-            }
-
         }
         public Variable GetVariable(ParsingScript script, Variable current)
         {
@@ -459,7 +421,6 @@ namespace AliceScript.Functions
         /// </summary>
         public int ArgumentCount => m_args.Length;
 
-        public StackLevel NamespaceData { get; set; }
         public TypeObject MethodRequestType => IsMethod && m_typArgMap.Count >= m_this ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;

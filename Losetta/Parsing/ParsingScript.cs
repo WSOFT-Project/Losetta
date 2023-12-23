@@ -3,6 +3,7 @@ using AliceScript.Functions;
 using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Packaging;
+using AliceScript.PreProcessing;
 using System.Text;
 
 namespace AliceScript.Parsing
@@ -28,7 +29,6 @@ namespace AliceScript.Parsing
         private ScriptSettings m_settings = new ScriptSettings();//このスクリプトの設定
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
-        private Dictionary<string, ParserFunction> m_consts = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された定数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private HashSet<string> m_namespaces = new HashSet<string>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
@@ -153,14 +153,6 @@ namespace AliceScript.Parsing
         {
             get => m_functions;
             set => m_functions = value;
-        }
-        /// <summary>
-        /// 現在のスクリプト内で定義された定数
-        /// </summary>
-        public Dictionary<string, ParserFunction> Consts
-        {
-            get => m_consts;
-            set => m_consts = value;
         }
         /// <summary>
         /// このスクリプトで例外が発生したときに通知するイベントです
@@ -646,27 +638,6 @@ namespace AliceScript.Parsing
             return false;
         }
         /// <summary>
-        /// このスクリプトから定数を取得します。取得できない場合は親スクリプトも試みます。
-        /// </summary>
-        /// <param name="name">変数名</param>
-        /// <param name="function">取得した定数</param>
-        /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
-        public bool TryGetConst(string name, out ParserFunction function)
-        {
-            if (Consts.TryGetValue(name, out function))
-            {
-                return true;
-            }
-            else
-            {
-                if (ParentScript is not null && ParentScript.TryGetConst(name, out function))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        /// <summary>
         /// このスクリプトから関数を取得します。取得できない場合は親スクリプトも試みます。
         /// </summary>
         /// <param name="name">関数名</param>
@@ -692,7 +663,7 @@ namespace AliceScript.Parsing
         /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
         public bool TryGetLocal(string name, out ParserFunction function)
         {
-            return TryGetVariable(name, out function) || TryGetConst(name, out function) || TryGetFunction(name, out function);
+            return TryGetVariable(name, out function) || TryGetFunction(name, out function);
         }
         public bool StartsWith(string str, bool caseSensitive = true)
         {
@@ -1293,7 +1264,7 @@ namespace AliceScript.Parsing
         [AliceFunction(State = AliceBindState.Enabled)]
         public ParsingScript GetChildScript(string str, FunctionBase callFrom = null, int startIndex = 0)
         {
-            str = Utils.ConvertToScript(str, out var char2Line, out var def, out var settings);
+            str = PreProcessor.ConvertToScript(str, out var char2Line, out var def, out var settings);
             var script = GetTempScript(str, callFrom, startIndex);
 
             script.Char2Line = char2Line;
@@ -1307,7 +1278,7 @@ namespace AliceScript.Parsing
             if (EnableInclude)
             {
                 string includeFile = GetIncludeFileLine(filename, out string pathname, out bool isPackageFile);
-                var includeScript = Utils.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out _, out var setting, pathname);
+                var includeScript = PreProcessor.ConvertToScript(includeFile, out Dictionary<int, int> char2Line, out _, out var setting, pathname);
                 ParsingScript tempScript = new ParsingScript(includeScript, 0, char2Line)
                 {
                     TopInFile = true,
