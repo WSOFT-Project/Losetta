@@ -755,15 +755,6 @@ namespace AliceScript.Functions
             name = Constants.ConvertName(name);
             function.Name = Constants.GetRealName(name);
 
-            if (!string.IsNullOrWhiteSpace(s_namespace))
-            {
-                if (s_namespaces.TryGetValue(s_namespace, out StackLevel level) &&
-                   function is CustomFunction)
-                {
-                    ((CustomFunction)function).NamespaceData = level;
-                    name = s_namespacePrefix + name;
-                }
-            }
             if (!s_functions.TryGetValue(name, out ParserFunction value) || (s_functions.ContainsKey(name) && value.IsVirtual))
             {
                 //まだ登録されていないか、すでに登録されていて、オーバーライド可能な場合
