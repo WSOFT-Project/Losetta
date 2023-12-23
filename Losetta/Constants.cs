@@ -243,7 +243,7 @@ namespace AliceScript
         public const string OVERRIDE = "override";
         public const string COMMAND = "command";
         public const string READONLY = "readonly";
-        public const string EXTENSION = "extension";
+        public const string EXTENSION = "extonly";
         public const string FUNCTION = "function";
 
 
