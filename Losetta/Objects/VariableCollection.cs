@@ -18,7 +18,7 @@ namespace AliceScript.Objects
         /// <returns>追加できればTrue、それ以外の場合はFalse。</returns>
         private bool CanAdd(Variable item)
         {
-            if (Type is not null && Type.Type == Variable.VarType.NONE && item is not null)
+            if (Type is not null && Type.Type == Variable.VarType.VOID && item is not null)
             {
                 if (Type.Type != item.Type)
                 {
