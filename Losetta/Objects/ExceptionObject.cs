@@ -12,12 +12,23 @@ namespace AliceScript.Objects
         public string Message { get; set; }
         public string HelpLink { get; set; }
         public string Source { get; set; }
-        public Exceptions ErrorCode { get; set; }
+        public Exceptions Error { get; set; }
+        public int ErrorCode
+        {
+            get
+            {
+                return (int)Error;
+            }
+            set
+            {
+                Error = (Exceptions)value;
+            }
+        }
         public ParsingScript MainScript { get; set; }
         public ExceptionObject(string message, Exceptions errorcode, ParsingScript mainScript, string source = null, string helplink = null)
         {
             Message = message;
-            ErrorCode = errorcode;
+            Error = errorcode;
             MainScript = mainScript;
             Source = source;
             HelpLink = helplink;
@@ -25,7 +36,7 @@ namespace AliceScript.Objects
         public ExceptionObject() { }
         public override string ToString()
         {
-            return ErrorCode.ToString() + "(0x" + ((int)ErrorCode).ToString("x3") + ")" + (string.IsNullOrWhiteSpace(Message) ? string.Empty : ": " + Message);
+            return ErrorCode.ToString() + "(0x" + Error.ToString("x3") + ")" + (string.IsNullOrWhiteSpace(Message) ? string.Empty : ": " + Message);
         }
     }
 }

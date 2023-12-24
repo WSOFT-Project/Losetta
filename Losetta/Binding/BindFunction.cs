@@ -11,6 +11,9 @@ namespace AliceScript.Binding
     /// </summary>
     public class BindFunction : FunctionBase
     {
+        /// <summary>
+        /// BindFunctionを初期化します
+        /// </summary>
         public BindFunction()
         {
             Run += BindFunction_Run;
@@ -55,7 +58,7 @@ namespace AliceScript.Binding
         }
 
         /// <summary>
-        /// メソッドからBindFunctionを生成
+        /// メソッドからBindFunctionを生成します
         /// </summary>
         /// <param name="methodInfos">同じメソッド名のオーバーロード</param>
         /// <param name="needBind">このメソッドをバインドするには属性が必要</param>
@@ -157,6 +160,12 @@ namespace AliceScript.Binding
 
             return func.Overloads.Count > 0 ? func : null;
         }
+        /// <summary>
+        /// コンストラクタからBindFunctionを生成します
+        /// </summary>
+        /// <param name="constructors">同じクラスのコンストラクタ</param>
+        /// <param name="needBind">このメソッドをバインドするには属性が必要</param>
+        /// <returns>生成されたFunctionBase</returns>
         internal static BindFunction CreateBindConstructor(ConstructorInfo[] constructors, bool needBind)
         {
             var func = new BindFunction();
