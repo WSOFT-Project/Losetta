@@ -3,6 +3,9 @@ using AliceScript.Parsing;
 
 namespace AliceScript.Functions
 {
+    /// <summary>
+    /// AliceScriptで使用できる関数を表します
+    /// </summary>
     public class FunctionBase : ParserFunction
     {
 
@@ -61,7 +64,7 @@ namespace AliceScript.Functions
             {
                 ex.OriginalScript = script.OriginalScript;
             }
-            ex.Return = Variable.EmptyInstance;
+            ex.Return = new Variable(Variable.VarType.VOID);
             ex.Script = script;
             ex.Keywords = Keywords;
             ex.ClassInstance = instance;
@@ -340,7 +343,15 @@ namespace AliceScript.Functions
         /// </summary>
         public static List<string> Functions => new List<string>(ParserFunction.s_functions.Keys);
     }
+    /// <summary>
+    /// FunctionBaseがイベントを伝えるためのハンドラ
+    /// </summary>
+    /// <param name="sender">送り主のオブジェクト</param>
+    /// <param name="e">イベントの情報</param>
     public delegate void FunctionBaseEventHandler(object sender, FunctionBaseEventArgs e);
+    /// <summary>
+    /// 関数の呼び出し時の情報を提供します
+    /// </summary>
     public class FunctionBaseEventArgs : EventArgs
     {
         /// <summary>
@@ -359,13 +370,17 @@ namespace AliceScript.Functions
         public List<Variable> Args { get; set; }
 
         /// <summary>
-        /// [使用されていません]
+        /// ObjectResultを使用する場合はTrue、それ以外の場合はfalse
+        /// 今後は、ObjectResulではなく関数バインドを使用してください
         /// </summary>
+        [Obsolete("関数バインドを使用してください")]
         public bool UseObjectResult { get; set; }
 
         /// <summary>
-        /// [使用されていません]
+        /// オブジェクトをそのまま戻り値として返す場合に使用するプロパティ
+        /// 今後は、ObjectResulではなく関数バインドを使用してください
         /// </summary>
+        [Obsolete("関数バインドを使用してください")]
         public object ObjectResult { get; set; }
 
         /// <summary>
@@ -382,7 +397,9 @@ namespace AliceScript.Functions
         /// この関数の呼び出し時に同時に指定されたキーワードを表します
         /// </summary>
         public HashSet<string> Keywords { get; set; }
-
+        /// <summary>
+        /// 呼び出し元が所属するクラスのインスタンス
+        /// </summary>
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
     }
 

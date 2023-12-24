@@ -213,7 +213,7 @@ namespace AliceScript.NameSpaces.Core
                     //スタート地点に帰ってブロックを終わらせる
                     script.Pointer = startPointer;
                     script.SkipBlock();
-                    if (needBreak && result.Type != Variable.VarType.BREAK && !result.IsReturn)
+                    if (needBreak && result.Type != Variable.VarType.BREAK && !result.IsReturn && result.Type != Variable.VarType.CONTINUE)
                     {
                         throw new ScriptException("defaultブロックはbreakまたはreturnで抜ける必要があります", Exceptions.CASE_BLOCK_MISSING_BREAK);
                     }
@@ -235,12 +235,18 @@ namespace AliceScript.NameSpaces.Core
                         nextTrue = false;
                         caseDone = true;
                         result = script.ProcessBlock();
+                        if (result.Type == Variable.VarType.BREAK || result.IsReturn || result.Type == Variable.VarType.CONTINUE)
+                        {
+                            script.SkipBlock();
+                            script.Forward();
+                            break;
+                        }
                         if (!fallThrough)
                         {
                             //スタート地点に帰ってブロックを終わらせる
                             script.Pointer = startPointer;
                             script.SkipBlock();
-                            if (needBreak && result.Type != Variable.VarType.BREAK && !result.IsReturn)
+                            if (needBreak && result.Type != Variable.VarType.BREAK && !result.IsReturn && result.Type != Variable.VarType.CONTINUE)
                             {
                                 throw new ScriptException("caseブロックはbreakまたはreturnで抜ける必要があります", Exceptions.CASE_BLOCK_MISSING_BREAK);
                             }
@@ -280,6 +286,10 @@ namespace AliceScript.NameSpaces.Core
                 {
                     return result;
                 }
+                if (result.Type == Variable.VarType.CONTINUE)
+                {
+                    continue;
+                }
             }
 
             return result;
@@ -300,6 +310,10 @@ namespace AliceScript.NameSpaces.Core
                 {
                     script.Pointer = startDoCondition;
                     break;
+                }
+                if (result.Type == Variable.VarType.CONTINUE)
+                {
+                    continue;
                 }
                 script.Forward(Constants.WHILE.Length + 1);
                 Variable condResult = script.Execute(Constants.END_ARG_ARRAY);
@@ -356,6 +370,10 @@ namespace AliceScript.NameSpaces.Core
                 if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                 {
                     return result;
+                }
+                if (result.Type == Variable.VarType.CONTINUE)
+                {
+                    continue;
                 }
                 loopScript.Execute(null, 0);
             }
@@ -417,6 +435,10 @@ namespace AliceScript.NameSpaces.Core
                             {
                                 return result;
                             }
+                            if (result.Type == Variable.VarType.CONTINUE)
+                            {
+                                continue;
+                            }
                         }
                         break;
                     }
@@ -428,6 +450,10 @@ namespace AliceScript.NameSpaces.Core
                             if (result.IsReturn || result.Type == Variable.VarType.BREAK)
                             {
                                 return result;
+                            }
+                            if (result.Type == Variable.VarType.CONTINUE)
+                            {
+                                continue;
                             }
                         }
                         break;
@@ -447,6 +473,10 @@ namespace AliceScript.NameSpaces.Core
                             {
                                 disposable?.Dispose();
                                 return result;
+                            }
+                            if (result.Type == Variable.VarType.CONTINUE)
+                            {
+                                continue;
                             }
                         }
                         disposable?.Dispose();
