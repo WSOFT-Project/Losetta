@@ -439,7 +439,7 @@ namespace AliceScript
                 case "CONTINUE": type = Variable.VarType.CONTINUE; break;
                 case "DELEGATE": type = Variable.VarType.DELEGATE; break;
                 case "VARIABLE": type = Variable.VarType.VARIABLE; break;
-                case "VOID": type = Variable.VarType.VOID;break;
+                case "VOID": type = Variable.VarType.VOID; break;
                 default: type = Variable.VarType.VARIABLE; return false;
             }
             return true;

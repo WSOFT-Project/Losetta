@@ -15,14 +15,8 @@ namespace AliceScript.Objects
         public Exceptions Error { get; set; }
         public int ErrorCode
         {
-            get
-            {
-                return (int)Error;
-            }
-            set
-            {
-                Error = (Exceptions)value;
-            }
+            get => (int)Error;
+            set => Error = (Exceptions)value;
         }
         public ParsingScript MainScript { get; set; }
         public ExceptionObject(string message, Exceptions errorcode, ParsingScript mainScript, string source = null, string helplink = null)

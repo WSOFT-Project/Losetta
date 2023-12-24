@@ -371,7 +371,7 @@ namespace AliceScript.NameSpaces.Core
                 {
                     return result;
                 }
-                if(result.Type == Variable.VarType.CONTINUE)
+                if (result.Type == Variable.VarType.CONTINUE)
                 {
                     continue;
                 }

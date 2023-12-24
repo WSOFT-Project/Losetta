@@ -194,7 +194,7 @@ namespace AliceScript.Functions
             {
                 result.Nullable = true;
             }
-            if((m_returnType != Variable.VarType.VARIABLE && (!result.Type.HasFlag(m_returnType) || (!m_nullable && result.Nullable))) || (m_returnType == Variable.VarType.VOID && result.Type != Variable.VarType.VOID))
+            if ((m_returnType != Variable.VarType.VARIABLE && (!result.Type.HasFlag(m_returnType) || (!m_nullable && result.Nullable))) || (m_returnType == Variable.VarType.VOID && result.Type != Variable.VarType.VOID))
             {
                 throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.Nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
