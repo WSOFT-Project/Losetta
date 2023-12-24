@@ -280,7 +280,7 @@ namespace AliceScript
                         break;
                 }
             }
-            if (result.Type == Variable.VarType.NONE)
+            if (result.Type == Variable.VarType.VOID)
             {
                 result.Type = Variable.VarType.CUSTOM;
             }

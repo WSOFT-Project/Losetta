@@ -17,7 +17,7 @@ namespace AliceScript
         public enum VarType
         {
             VARIABLE = 0,
-            NONE = 1,
+            VOID = 1,
             UNDEFINED = 2,
             NUMBER = 4,
             CHAR = 8,
@@ -394,7 +394,7 @@ namespace AliceScript
             switch (Type)
             {
                 case VarType.VARIABLE:
-                case VarType.NONE: return true;
+                case VarType.VOID: return true;
                 default: return false;
                 case VarType.ARRAY:
                     return Tuple is null;
@@ -816,7 +816,7 @@ namespace AliceScript
             }
             if (obj is Variable item)
             {
-                if (item.Type == VarType.NONE)
+                if (item.Type == VarType.VOID)
                 {
                     return IsNull();
                 }
@@ -1197,6 +1197,10 @@ namespace AliceScript
                                        bool sameLine = true,
                                        int maxCount = -1)
         {
+            if (IsNull())
+            {
+                return string.Empty;
+            }
             switch (Type)
             {
                 case VarType.BOOLEAN:
@@ -1330,7 +1334,7 @@ namespace AliceScript
         }
 
         public int Count => Type == VarType.ARRAY ? m_tuple.Count :
-                       Type == VarType.NONE ? 0 : 1;
+                       Type == VarType.VOID ? 0 : 1;
 
 
         public Variable SetProperty(string propName, Variable value, ParsingScript script, string baseName = "")

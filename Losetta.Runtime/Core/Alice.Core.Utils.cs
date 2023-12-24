@@ -94,7 +94,7 @@ namespace AliceScript.NameSpaces.Core
         public static void Throw(ParsingScript script, ExceptionObject exception)
         {
             var s = exception.MainScript ?? script;
-            throw new ScriptException(exception.Message, exception.ErrorCode, s);
+            throw new ScriptException(exception.Message, exception.Error, s);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
         public static void Throw(ParsingScript script, string message, int errorCode)
@@ -175,7 +175,7 @@ namespace AliceScript.NameSpaces.Core
             script.SetDone();
             if (result is null)
             {
-                result = Variable.EmptyInstance;
+                result = new Variable(Variable.VarType.VOID);
             }
             result.IsReturn = true;
 
