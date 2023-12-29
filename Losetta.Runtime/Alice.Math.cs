@@ -128,7 +128,22 @@ namespace AliceScript.NameSpaces
         }
         public static double Math_Factorial(uint n)
         {
-            return n == 0 ? 1L : n * Math_Factorial(n - 1);
+            // これ以上の階乗は正の無限を返す
+            const int MAX_INPUT = 170;
+
+            if (n > MAX_INPUT)
+            {
+                return double.PositiveInfinity;
+            }
+
+            double factorial = 1;
+
+            for (int i = 1; i <= n; i++)
+            {
+                factorial *= i;
+            }
+
+            return factorial;
         }
 
         #region 数学定数
