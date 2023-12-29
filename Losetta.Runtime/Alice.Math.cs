@@ -13,9 +13,9 @@ namespace AliceScript.NameSpaces
     [AliceNameSpace(Name = "Alice.Math")]
     internal static class MathFunctions
     {
-        public static bool Math_IsPrime(long x)
+        public static bool Math_IsPrime(double x)
         {
-            if (x < 2)
+            if (x < 2 || double.IsNaN(x) || double.IsInfinity(x))
             {
                 return false;
             }
