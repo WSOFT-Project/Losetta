@@ -181,7 +181,7 @@ namespace AliceScript.NameSpaces
                 AddDebugOutput(StringFormatFunction.Format(format, items), false);
             }
         }
-        public static void AddDebugOutput(string text,
+        internal static void AddDebugOutput(string text,
                                      bool addLine = true, bool addSpace = true, string start = "", string indent = "    ")
         {
             var indents = new StringBuilder();
