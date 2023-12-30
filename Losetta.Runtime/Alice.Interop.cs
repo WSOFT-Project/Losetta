@@ -43,7 +43,7 @@ namespace AliceScript.NameSpaces
         }
         public static DelegateObject Interop_GetInvoker(string procName, string libraryName, string returnType, string[] parameterTypes, string entryPoint = null, bool? useUnicode = null)
         {
-            BindFunction func = Utils.CreateExternBindFunction(procName, libraryName, returnType, parameterTypes, libraryName, useUnicode);
+            BindFunction func = Utils.CreateExternBindFunction(procName, libraryName, returnType, parameterTypes, entryPoint, useUnicode);
             return new DelegateObject(func);
         }
     }
