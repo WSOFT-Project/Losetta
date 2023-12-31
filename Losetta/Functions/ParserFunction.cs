@@ -317,12 +317,17 @@ namespace AliceScript.Functions
 
                 script.MoveForwardIf(new char[] { Constants.END_ARG });
 
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
-
-                if (body.StartsWith(Constants.ARROW))
+                // アロー演算子が残ってる場合はスキップ
+                if (script.Current == Constants.ARROW[0] && script.Next == Constants.ARROW[1])
                 {
-                    body = body.Substring(Constants.ARROW.Length);
+                    script.Forward(2);
                 }
+
+                // ステートメント形式のラムダなら波かっこ内を取得し、それ以外なら丸かっこ内を取得
+                string body = script.Current == Constants.START_GROUP
+                    ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP)
+                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
+
 
                 int parentOffset = script.Pointer;
                 if (script.CurrentClass is not null)
