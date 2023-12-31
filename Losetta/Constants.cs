@@ -176,7 +176,6 @@ namespace AliceScript
         public static readonly char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
         public static readonly string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
         public static readonly char[] TOKENS_SEPARATION = ",;)".ToCharArray();
-        public static readonly string TOKENS_SEPARATION_WITHOUT_BRACKET = ",;\0";
 
         /// <summary>
         /// ソースコード上では無視される文字

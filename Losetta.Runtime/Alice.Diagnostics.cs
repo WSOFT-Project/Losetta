@@ -94,26 +94,17 @@ namespace AliceScript.NameSpaces
         }
         #endregion
         #region デバッグ機能
-        public static int IndentLevel = 0;
+        public static int Debug_IndentLevel { get; set; }
         public static void Debug_Indent()
         {
-            IndentLevel++;
+            Debug_IndentLevel++;
         }
         public static void Debug_Unindent()
         {
-            if (IndentLevel > 0)
+            if (Debug_IndentLevel > 0)
             {
-                IndentLevel--;
+                Debug_IndentLevel--;
             }
-        }
-        public static int Debug_IndentLevel()
-        {
-            return IndentLevel;
-        }
-        public static int Debug_IndentLevel(int level)
-        {
-            IndentLevel = level;
-            return IndentLevel;
         }
         public static void Debug_Print()
         {
@@ -181,11 +172,11 @@ namespace AliceScript.NameSpaces
                 AddDebugOutput(StringFormatFunction.Format(format, items), false);
             }
         }
-        public static void AddDebugOutput(string text,
+        internal static void AddDebugOutput(string text,
                                      bool addLine = true, bool addSpace = true, string start = "", string indent = "    ")
         {
             var indents = new StringBuilder();
-            for (int i = 0; i < IndentLevel; i++)
+            for (int i = 0; i < Debug_IndentLevel; i++)
             {
                 indents.Append(indent);
             }
