@@ -3,5 +3,8 @@
 	<Application>
 		<Assembly Name="Losetta" Dynamic="Required All"></Assembly>
 		<Assembly Name="Losetta.Runtime" Dynamic="Required All"></Assembly>
+		<Assembly Name="System.Runtime">
+			<Type Name="System.Diagnostics.Stopwatch" Dynamic="Required All" />
+		</Assembly>
 	</Application>
 </Directives>
