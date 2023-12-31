@@ -317,7 +317,7 @@ namespace AliceScript.Functions
 
                 script.MoveForwardIf(new char[] { Constants.END_ARG });
 
-                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_WITHOUT_BRACKET);
+                string body = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
 
                 if (body.StartsWith(Constants.ARROW))
                 {
