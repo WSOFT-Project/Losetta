@@ -699,9 +699,13 @@ namespace AliceScript.Functions
                     newVar.Nullable = true;
                 }
                 newVar.Assign(function.Value);
-                if (type_inference && type_modifer == Constants.VAR && !newVar.IsNull())
+                if (type_inference && type_modifer == Constants.VAR)
                 {
-                    newVar.Nullable = false;
+                    newVar.TypeChecked = true;
+                    if (!newVar.IsNull())
+                    {
+                        newVar.Nullable = false;
+                    }
                 }
                 newVar.Readonly = isReadOnly;
                 function = value;
