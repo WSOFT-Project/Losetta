@@ -59,7 +59,6 @@ namespace AliceScript.PreProcessing
             bool inComments = false;
             bool simpleComments = false;
             char prev = Constants.EMPTY;
-            char prevprev = Constants.EMPTY;
 
             int levelCurly = 0;
             int levelBrackets = 0;
@@ -509,9 +508,9 @@ namespace AliceScript.PreProcessing
 
                     pragmaCommand.Clear();
                     pragmaArgs.Clear();
+                    i--;
                 }
 
-                prevprev = prev;
                 prev = ch;
             }
 
@@ -541,7 +540,7 @@ namespace AliceScript.PreProcessing
                     ThrowSyntaxError(curlyErrorMsg, source, Exceptions.UNBALANCED_CURLY_BRACES, levelCurly, lineNumberCurly, lineNumber, filename);
                 }
             }
-            return sb.ToString().Trim();
+            return sb.ToString();
         }
         private static void ThrowSyntaxError(string msg, string code, Exceptions ecode, int level, int lineStart, int lineEnd, string filename)
         {
@@ -573,7 +572,7 @@ namespace AliceScript.PreProcessing
         /// <returns>Unicode文字を含む文字列</returns>
         private static string ConvertUnicodeLiteral(string input)
         {
-            if (input.Contains('\\', StringComparison.Ordinal) && (input.Contains('u', StringComparison.OrdinalIgnoreCase) || input.Contains('x', StringComparison.Ordinal)))
+            if (input.Contains("\\u", StringComparison.OrdinalIgnoreCase) || input.Contains("\\x", StringComparison.Ordinal))
             {
                 //UTF-16文字コードの置き換え
                 foreach (Match match in Constants.UTF16_LITERAL.Matches(input))
