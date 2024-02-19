@@ -262,12 +262,6 @@ namespace AliceScript.Parsing
             {
                 switch (preop)
                 {
-                    case PreOperetors.Minus:
-                        {
-                            // -マークがついている場合は数値がマイナス
-                            current.Value = current.Value * -1;
-                            break;
-                        }
                     case PreOperetors.Increment:
                         {
                             current.Value++;
@@ -276,6 +270,11 @@ namespace AliceScript.Parsing
                     case PreOperetors.Decrement:
                         {
                             current.Value--;
+                            break;
+                        }
+                    case PreOperetors.Minus:
+                        {
+                            current.Value = -current.Value;
                             break;
                         }
                 }
@@ -348,6 +347,7 @@ namespace AliceScript.Parsing
             {
                 script.Forward(action.Length - 1);
             }
+
 
             if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
             {
@@ -460,7 +460,7 @@ namespace AliceScript.Parsing
                 return true;
             }
             // プラスまたはマイナスはトークン区切りの直後またはプラスマイナスの直後のときのみトークンとしてあつかう
-            if (item.Length < 2 && (ch == '-' || ch == '+') && (prev == '+' || prev == '-' || Constants.TOKEN_SEPARATION.Contains(prev)))
+            if (item.Length < 2 && (ch == '-' || ch == '+') && (prev == '+' || prev == '-' || prev == '\0' || Constants.TOKEN_SEPARATION.Contains(prev)))
             {
                 return true;
             }
