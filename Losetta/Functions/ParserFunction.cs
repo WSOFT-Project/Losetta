@@ -697,7 +697,7 @@ namespace AliceScript.Functions
                 {
                     Variable newVar = Variable.EmptyInstance;
                     newVar.Parent = script;
-                    if (type_modifer != null)
+                    if (type_modifer is not null)
                     {
                         newVar.TypeChecked = true;
                         if (type_modifer.EndsWith("?", StringComparison.Ordinal))
@@ -713,7 +713,7 @@ namespace AliceScript.Functions
                         newVar.Nullable = true;
                     }
                     newVar.Assign(v2.Value);
-                    if (type_inference && type_modifer == Constants.VAR)
+                    if (type_inference && type_modifer is null)
                     {
                         newVar.TypeChecked = true;
                     }
