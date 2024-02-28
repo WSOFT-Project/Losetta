@@ -1,4 +1,8 @@
-﻿using System.Security;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace AliceScript.Extra

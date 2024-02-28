@@ -1,5 +1,7 @@
 ﻿using AliceScript.Functions;
 using AliceScript.Parsing;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace AliceScript.Objects
 {

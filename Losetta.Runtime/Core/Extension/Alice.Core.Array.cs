@@ -2,6 +2,8 @@
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AliceScript.NameSpaces.Core
 {
@@ -113,7 +115,26 @@ namespace AliceScript.NameSpaces.Core
         }
         public static IEnumerable<Variable> SkipLast(this VariableCollection ary, int count)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return ary.Tuple.SkipLast(count);
+#else
+            // LINQが使えない場合は自分で実装したやつを使う
+            if(count <= 0)
+            {
+                return ary;
+            }
+            // 実際に欲しいIEnumratableの先頭からの長さ
+            int wantCount = ary.Count - count;
+
+            // 何も残らない場合は空のリストを返しておく
+            if(wantCount <= 0)
+            {
+                return new List<Variable>();
+            }
+
+            // 後はTakeするだけ
+            return ary.Take(wantCount);
+#endif
         }
         public static IEnumerable<Variable> SkipWhile(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {

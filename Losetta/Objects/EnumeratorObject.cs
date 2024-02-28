@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using System.Collections.Generic;
 
 namespace AliceScript.Objects
 {

@@ -1,4 +1,6 @@
 ﻿using AliceScript.Binding;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -239,7 +241,11 @@ namespace AliceScript.NameSpaces
 
         public void Kill(bool entireProcessTree)
         {
+#if NETCOREAPP3_0_OR_GREATER
             Process.Kill(entireProcessTree);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
 
         public void Reflesh()

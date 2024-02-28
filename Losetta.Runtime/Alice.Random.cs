@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using System;
 using System.Security.Cryptography;
 
 namespace AliceScript.NameSpaces
@@ -41,21 +42,33 @@ namespace AliceScript.NameSpaces
         #region 暗号学的乱数生成
         public static int Random_Int()
         {
+#if NETCOREAPP3_0_OR_GREATER
             return RandomNumberGenerator.GetInt32(int.MaxValue);
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static int Random_Int(int max)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return RandomNumberGenerator.GetInt32(max);
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static int Random_Int(int min, int max)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return RandomNumberGenerator.GetInt32(min, max);
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static byte[] Random_Bytes(int length)
         {
             return RandomNumberGenerator.GetBytes(length);
         }
-        #endregion
+#endregion
         #region GUID生成
         public static string Guid_New_Text()
         {

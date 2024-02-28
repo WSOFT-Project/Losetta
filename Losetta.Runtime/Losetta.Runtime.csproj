@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-    <Version>0.10.4</Version>
+    <Version>0.10.5</Version>
     <Company>WSOFT</Company>
     <Product>Losetta</Product>
     <Title>Alice.Runtime</Title>

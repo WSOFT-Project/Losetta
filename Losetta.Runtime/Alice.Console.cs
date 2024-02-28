@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using System;
 using System.Runtime.Versioning;
 using System.Text;
 

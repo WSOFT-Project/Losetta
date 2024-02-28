@@ -2,6 +2,7 @@
 using AliceScript.Functions;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
+using System.IO;
 
 namespace AliceScript.CLI
 {
