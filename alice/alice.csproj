@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
+
     <Nullable>disable</Nullable>
 	  
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
@@ -29,6 +31,16 @@
 	  <PackageTags>scripting;scripting-language;scripting-engine;cli;repl;</PackageTags>
 	  <PackageOutputPath>bin\packages</PackageOutputPath>
 	  <AnalysisLevel>latest-recommended</AnalysisLevel>
+
+	  <!-- ネイティブAOT向けの項目 -->
+	  <PublishAot>true</PublishAot>
+	  <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+	  <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
+	  <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
+	  <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+	  <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+	  <IlcDisableUnhandledExceptionExperience>false</IlcDisableUnhandledExceptionExperience>
+	  <!-- ネイティブAOT向けの項目(終わり) -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -303,11 +315,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Losetta.Runtime\Losetta.Runtime.csproj" />
-    <ProjectReference Include="..\Losetta\Losetta.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -328,5 +335,19 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+	<!-- ネイティブAOT向けの項目 -->
+	<ItemGroup>
+		<RdXmlFile Include="rd.xml" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="Losetta">
+	    <HintPath>..\Losetta.Runtime\bin\x64\Release_Win_X64\net8.0\Losetta.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Losetta.Runtime">
+	    <HintPath>..\Losetta.Runtime\bin\x64\Release_Win_X64\net8.0\Losetta.Runtime.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+	<!-- ネイティブAOT向けの項目(終わり) -->
 
 </Project>

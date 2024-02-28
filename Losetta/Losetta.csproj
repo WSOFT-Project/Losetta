@@ -1,8 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
+
 		<Nullable>disable</Nullable>
 		<ApplicationIcon>alice_logo.ico</ApplicationIcon>
 		<Version>0.10.5</Version>
@@ -26,8 +28,19 @@
 		<PackageOutputPath>bin\packages</PackageOutputPath>
 		<AnalysisLevel>latest</AnalysisLevel>
 		<RootNamespace>AliceScript</RootNamespace>
+
+		<!-- ネイティブAOT向けの項目 -->
+		<PublishAot>true</PublishAot>
+		<IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+		<RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
+		<IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
+		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+		<IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+		<IlcDisableUnhandledExceptionExperience>false</IlcDisableUnhandledExceptionExperience>
+		<!-- ネイティブAOT向けの項目(終わり) -->
 	</PropertyGroup>
 
+	
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">
 		<Optimize>True</Optimize>
 	</PropertyGroup>
