@@ -3,6 +3,7 @@ using AliceScript.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 using System.Text;
 
 namespace AliceScript.NameSpaces.Core
@@ -338,6 +339,12 @@ namespace AliceScript.NameSpaces.Core
         public static int Length(this string str)
         {
             return str.Length;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static int LengthInTextElements(this string str)
+        {
+            var info = new StringInfo(str);
+            return info.LengthInTextElements;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Size(this string str)

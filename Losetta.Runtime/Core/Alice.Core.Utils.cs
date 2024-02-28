@@ -138,7 +138,7 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static void Import(ParsingScript script, string filePath, bool fromPackage)
+        public static void Import(ParsingScript script, string filePath, bool fromPackage = false)
         {
             if (script.EnableImport)
             {
