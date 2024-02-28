@@ -1,6 +1,7 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
 using AliceScript.Parsing;
+using System.Collections.Generic;
 
 namespace AliceScript.NameSpaces
 {

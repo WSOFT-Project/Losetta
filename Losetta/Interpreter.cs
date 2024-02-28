@@ -5,9 +5,14 @@ using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
 using AliceScript.PreProcessing;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AliceScript
 {

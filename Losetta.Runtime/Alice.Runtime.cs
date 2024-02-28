@@ -1,5 +1,6 @@
 ﻿using AliceScript.Interop;
 using AliceScript.NameSpaces;
+using System.Collections.Generic;
 
 namespace AliceScript
 {

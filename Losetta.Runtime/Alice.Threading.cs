@@ -1,6 +1,10 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AliceScript.NameSpaces
 {

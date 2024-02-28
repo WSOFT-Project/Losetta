@@ -1,4 +1,8 @@
-﻿namespace AliceScript.Interop
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace AliceScript.Interop
 {
     public static class NetLibraryLoader
     {

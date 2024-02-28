@@ -1,5 +1,8 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Globalization;
 using System.Text;
 
@@ -109,11 +112,24 @@ namespace AliceScript.NameSpaces.Core
         }
         public static bool Contains(this string str, string value, bool ignoreCase)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return str.Contains(value, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
+#else
+            if (ignoreCase)
+            {
+                str = str.ToUpper();
+                value = value.ToUpper();
+            }
+            return str.Contains(value);
+#endif
         }
         public static bool Contains(this string str, string value, bool ignoreCase, bool considerCulture)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return str.Contains(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static string ToUpper(this string str)
         {
@@ -153,12 +169,21 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadCenter(this string str, int totalWidth, char paddingChar, bool padRight = false, bool truncate = false)
         {
-            long length = (totalWidth - str.Length) / 2;
-            long surplus = totalWidth - str.Length - length;
+            int length = (totalWidth - str.Length) / 2;
+            int surplus = totalWidth - str.Length - length;
             if (padRight)
             {
+#if NET47_OR_GREATER || NETCOREAPP2_0_OR_GREATER
                 // 割り切れないとき右寄せ指定の場合はスワップ
                 (length, surplus) = (surplus, length);
+#else
+                // 割り切れないとき右寄せ指定の場合はスワップ(タプルが使えない時は昔ながらのやり方で)
+                {
+                    var tmp = length;
+                    length = surplus;
+                    surplus = tmp;
+                }
+#endif
             }
             var sb = new StringBuilder();
             for (int i = 0; i < length; i++)
@@ -168,7 +193,12 @@ namespace AliceScript.NameSpaces.Core
             if (truncate && str.Length > totalWidth)
             {
                 // 文字列がtotalWidthより長い場合は切り詰め
+#if NETCOREAPP2_1_OR_GREATER
                 sb.Append(str.AsSpan().Slice(0, totalWidth));
+#else
+                // Spanが使えない時は無理しない
+                sb.Append(str.Substring(0,totalWidth));
+#endif
             }
             else
             {
@@ -210,11 +240,19 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string Replace(this string str, string oldvalue, string newValue, bool ignoreCase)
         {
+#if NETCOREAPP2_0_OR_GREATER
             return str.Replace(oldvalue, newValue, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static string Replace(this string str, string oldvalue, string newValue, bool ignoreCase, bool considerCulture)
         {
+#if NETCOREAPP2_0_OR_GREATER
             return str.Replace(oldvalue, newValue, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static string ReplaceLineEndings(this string str)
         {
@@ -241,12 +279,12 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string[] SplitLines(this string str)
         {
-            Span<string> result = str.Split('\n').AsSpan();
+            var result = str.Split('\n');
             for (int i = 0; i < result.Length; i++)
             {
                 result[i] = result[i].Trim('\r');
             }
-            return result.ToArray();
+            return result;
         }
         public static string Substring(this string str, int startIndex)
         {

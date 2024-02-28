@@ -4,7 +4,12 @@ using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.PreProcessing;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AliceScript.Parsing
 {

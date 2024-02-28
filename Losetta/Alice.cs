@@ -1,4 +1,6 @@
 ﻿using AliceScript.Parsing;
+using System;
+using System.Threading.Tasks;
 
 namespace AliceScript
 {

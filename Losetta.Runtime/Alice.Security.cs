@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 
 namespace AliceScript.NameSpaces
@@ -25,25 +26,58 @@ namespace AliceScript.NameSpaces
         #endregion
 
         #region ハッシュ関数
+#if !NET5_0_OR_GREATER
+        // もし必要な場合はハッシュアルゴリズムをキャッシュしておく
+        private static HashAlgorithm MD5Algorithm { get; set; }
+        private static HashAlgorithm SHA1Algorithm { get; set; }
+        private static HashAlgorithm SHA256Algorithm { get; set; }
+        private static HashAlgorithm SHA384Algorithm { get; set; }
+        private static HashAlgorithm SHA512Algorithm { get; set; }
+#endif
         public static byte[] MD5_GetHash(byte[] data)
         {
+#if NET5_0_OR_GREATER
             return MD5.HashData(data);
+#else 
+            MD5Algorithm = MD5Algorithm ?? MD5.Create();
+            return MD5Algorithm.ComputeHash(data);
+#endif
         }
         public static byte[] SHA1_GetHash(byte[] data)
         {
+#if NET5_0_OR_GREATER
             return SHA1.HashData(data);
+#else 
+            SHA1Algorithm = SHA1Algorithm ?? SHA1.Create();
+            return SHA1Algorithm.ComputeHash(data);
+#endif
         }
         public static byte[] SHA256_GetHash(byte[] data)
         {
+#if NET5_0_OR_GREATER
             return SHA256.HashData(data);
+#else 
+            SHA256Algorithm = SHA256Algorithm ?? SHA256.Create();
+            return SHA256Algorithm.ComputeHash(data);
+#endif
         }
         public static byte[] SHA384_GetHash(byte[] data)
         {
+#if NET5_0_OR_GREATER
             return SHA384.HashData(data);
+#else 
+            SHA384Algorithm = SHA384Algorithm ?? SHA384.Create();
+            return SHA384Algorithm.ComputeHash(data);
+#endif
         }
         public static byte[] SHA512_GetHash(byte[] data)
         {
+#if NET5_0_OR_GREATER
             return SHA512.HashData(data);
+#else 
+            SHA512Algorithm = SHA512Algorithm ?? SHA512.Create();
+            return SHA512Algorithm.ComputeHash(data);
+#endif
         }
         #endregion
 
@@ -132,11 +166,21 @@ namespace AliceScript.NameSpaces
             }
             return bytesSalt;
         }
+#if !NETCOREAPP2_1_OR_GREATER
+        private static RandomNumberGenerator RandomNumberGenerator { get; set; }
+#endif
         internal static byte[] GetSalt(int size)
         {
+#if NETCOREAPP2_1_OR_GREATER
             var bytes = new byte[size];
             RandomNumberGenerator.Fill(bytes);
             return bytes;
+#else
+            RandomNumberGenerator = RandomNumberGenerator ?? RandomNumberGenerator.Create();
+            var bytes = new byte[size];
+            RandomNumberGenerator.GetBytes(bytes);
+            return bytes;
+#endif
         }
     }
 }
