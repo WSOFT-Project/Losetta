@@ -1,6 +1,9 @@
 ﻿using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AliceScript.Functions
 {

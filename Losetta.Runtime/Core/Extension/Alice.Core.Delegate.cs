@@ -2,6 +2,8 @@
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AliceScript.NameSpaces.Core
 {

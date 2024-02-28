@@ -1,6 +1,9 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Extra;
 using AliceScript.Parsing;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,7 +32,11 @@ namespace AliceScript.NameSpaces
         }
         public static void File_Move(string from, string to, bool overwrite)
         {
+#if NETCOREAPP3_0_OR_GREATER
             File.Move(from, to, overwrite);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static void File_Copy(string from, string to)
         {
@@ -349,7 +356,11 @@ namespace AliceScript.NameSpaces
         }
         public static void Directory_Create_SymbolicLink(string path, string pathToTarget)
         {
+#if NET6_0
             Directory.CreateSymbolicLink(path, pathToTarget);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static void Directory_Delete(string path)
         {
@@ -461,7 +472,7 @@ namespace AliceScript.NameSpaces
         }
         public static bool Path_EndsInDirectorySeparator(string path)
         {
-            return Path.EndsInDirectorySeparator(path);
+            return path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar);
         }
         public static string Path_Get_DirectoryName(string path)
         {
@@ -485,7 +496,11 @@ namespace AliceScript.NameSpaces
         }
         public static string Path_Get_RelativePath(string to, string path)
         {
+#if NETCOREAPP2_0_OR_GREATER
             return Path.GetRelativePath(to, path);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static string Path_Get_PathRoot(string path)
         {
@@ -509,7 +524,11 @@ namespace AliceScript.NameSpaces
         }
         public static bool Path_IsPathFullyQualified(string path)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return Path.IsPathFullyQualified(path);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static bool Path_IsPathRooted(string path)
         {
@@ -517,7 +536,11 @@ namespace AliceScript.NameSpaces
         }
         public static string Path_TrimEndingDirectorySeparator(string path)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return Path.TrimEndingDirectorySeparator(path);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static string Path_Combine(params string[] paths)
         {
@@ -525,7 +548,11 @@ namespace AliceScript.NameSpaces
         }
         public static string Path_Join(params string[] paths)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return Path.Join(paths);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         #endregion
         #region ZIPファイル操作

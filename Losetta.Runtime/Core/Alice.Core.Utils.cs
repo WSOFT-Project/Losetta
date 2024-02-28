@@ -3,6 +3,9 @@ using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Packaging;
 using AliceScript.Parsing;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace AliceScript.NameSpaces.Core
 {
