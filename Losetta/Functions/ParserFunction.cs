@@ -1,6 +1,9 @@
 ﻿using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AliceScript.Functions
 {
@@ -699,9 +702,13 @@ namespace AliceScript.Functions
                     newVar.Nullable = true;
                 }
                 newVar.Assign(function.Value);
-                if (type_inference && type_modifer == Constants.VAR && !newVar.IsNull())
+                if (type_inference && type_modifer == Constants.VAR)
                 {
-                    newVar.Nullable = false;
+                    newVar.TypeChecked = true;
+                    if (!newVar.IsNull())
+                    {
+                        newVar.Nullable = false;
+                    }
                 }
                 newVar.Readonly = isReadOnly;
                 function = value;

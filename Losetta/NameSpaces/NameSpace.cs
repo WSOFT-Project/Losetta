@@ -1,5 +1,8 @@
 ﻿using AliceScript.Functions;
 using AliceScript.Objects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AliceScript.NameSpaces
 {

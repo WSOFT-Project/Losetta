@@ -1,4 +1,6 @@
-﻿namespace AliceScript.Packaging
+﻿using System.Collections.Generic;
+
+namespace AliceScript.Packaging
 {
     /// <summary>
     /// AlicePackageの設定

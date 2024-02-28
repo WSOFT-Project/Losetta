@@ -1,4 +1,7 @@
-﻿namespace AliceScript.Functions
+﻿using System;
+using System.Collections.Generic;
+
+namespace AliceScript.Functions
 {
     internal sealed class EnumFunction : FunctionBase
     {

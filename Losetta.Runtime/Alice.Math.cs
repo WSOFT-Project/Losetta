@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using System;
 
 namespace AliceScript.NameSpaces
 {
@@ -62,15 +63,27 @@ namespace AliceScript.NameSpaces
         }
         public static bool Math_IsFinite(double x)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return double.IsFinite(x);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static bool Math_IsNormal(double x)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return double.IsNormal(x);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static bool Math_IsSubnormal(double x)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return double.IsSubnormal(x);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static double Math_Pow(double x, double y)
         {
@@ -86,11 +99,18 @@ namespace AliceScript.NameSpaces
         }
         public static double Math_Clamp(double x, double min, double max)
         {
-            return Math.Clamp(x, min, max);
+            return double.IsNaN(x) ? double.NaN : x < min ? min : max < x ? max : x;
         }
         public static double Math_CopySign(double x, double y)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return Math.CopySign(x, y);
+
+#else
+                int sign = Math.Sign(y);
+                sign = sign == 0 ? 1 : sign;
+                return Math.Abs(x) * sign;
+#endif
         }
         public static double Math_Exp(double x)
         {
@@ -98,7 +118,11 @@ namespace AliceScript.NameSpaces
         }
         public static double Math_FusedMultiplyAdd(double x, double y, double z)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return Math.FusedMultiplyAdd(x, y, z);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static double Math_Sqrt(double x)
         {
@@ -106,7 +130,11 @@ namespace AliceScript.NameSpaces
         }
         public static double Math_Cbrt(double x)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return Math.Cbrt(x);
+#else
+            return Math.Pow(x,1/3);
+#endif
         }
         public static double Math_Max(params double[] nums)
         {
@@ -147,9 +175,9 @@ namespace AliceScript.NameSpaces
         }
 
         #region 数学定数
-        public static double Math_Tau => Math.Tau;
-        public static double Math_PI => Math.PI;
-        public static double Math_E => Math.E;
+        public static double Math_Tau => 6.2831853071795862;
+        public static double Math_PI => 3.1415926535897931;
+        public static double Math_E => 2.7182818284590451;
 
         public static double Math_Infinity => double.PositiveInfinity;
         public static double Math_NegativeInfinity => double.NegativeInfinity;
@@ -164,12 +192,20 @@ namespace AliceScript.NameSpaces
         #region 端数処理
         public static double Math_Round(double x, bool? roudingMode = null)
         {
+#if NETCOREAPP3_0_OR_GREATER
             MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero : MidpointRounding.ToZero : MidpointRounding.ToEven;
+#else
+            MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero :  throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED) : MidpointRounding.ToEven;
+#endif
             return Math.Round(x, mode);
         }
         public static double Math_Round(double x, int digits, bool? roudingMode = null)
         {
+#if NETCOREAPP3_0_OR_GREATER
             MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero : MidpointRounding.ToZero : MidpointRounding.ToEven;
+#else
+            MidpointRounding mode = roudingMode.HasValue ? roudingMode.Value ? MidpointRounding.AwayFromZero :  throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED) : MidpointRounding.ToEven;
+#endif
             return Math.Round(x, digits, mode);
         }
         public static double Math_Truncate(double x)
@@ -185,11 +221,19 @@ namespace AliceScript.NameSpaces
         #region ビット加減算
         public static double Math_BitIncrement(double x)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return Math.BitIncrement(x);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static double Math_BitDecrement(double x)
         {
+#if NETCOREAPP3_0_OR_GREATER
             return Math.BitDecrement(x);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         #endregion
         #region 三角関数
@@ -245,15 +289,33 @@ namespace AliceScript.NameSpaces
         #region 逆双曲線関数
         public static double Math_Asinh(double x)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return Math.Asinh(x);
+#else
+            return Math.Log(x + Math.Sqrt(x * x + 1));
+#endif
         }
         public static double Math_Acosh(double x)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return Math.Acosh(x);
+#else
+            return x < 1.0 || double.IsNaN(x)
+                ? double.NaN
+                : Math.Log(x + Math.Sqrt((x * x) - 1));
+#endif
         }
         public static double Math_Atanh(double x)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return Math.Atanh(x);
+#else
+            if(Math.Abs(x) > 1 || double.IsNaN(x))
+            {
+                return double.NaN;
+            }
+            return 0.5 * Math.Log((1 + x) / (1 - x));
+#endif
         }
         #endregion
         #region 対数関数
@@ -271,7 +333,11 @@ namespace AliceScript.NameSpaces
 
         public static double Math_ReciprocalEstimate(double a)
         {
+#if NET6_0_OR_GREATER
             return Math.ReciprocalEstimate(a);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
     }
 
