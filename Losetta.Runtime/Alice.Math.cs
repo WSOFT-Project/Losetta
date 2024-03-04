@@ -85,6 +85,20 @@ namespace AliceScript.NameSpaces
                 throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
+        public static bool Math_IsRelativelyClose(double x, double y, double tolerance = 1E-9)
+        {
+            // IEEEによると非数はどの値とも等しくない
+            if(double.IsNaN(x) || double.IsNaN(y))
+            {
+                return false;
+            }
+            // IEEEによると無限値と等しいのは同符号の無限値のみ
+            if(double.IsInfinity(x) || double.IsInfinity(y))
+            {
+                return x == y;
+            }
+            return true;
+        }
         public static double Math_Pow(double x, double y)
         {
             return Math.Pow(x, y);
