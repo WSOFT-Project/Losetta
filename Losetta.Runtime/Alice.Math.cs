@@ -85,19 +85,61 @@ namespace AliceScript.NameSpaces
                 throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
+        /// <summary>
+        /// 相対的にxとyが互いに近い場合trueを、それ以外の場合はfalseを返します
+        /// </summary>
+        /// <param name="x">比較する一方の値</param>
+        /// <param name="y">比較するもう一方の値</param>
+        /// <param name="tolerance">絶対値の大きいほうの値に対する許容される最大誤差
+        /// (例えば、5%の場合は0.05)</param>
+        /// <returns>相対的にxとyが互いに近い場合true、それ以外の場合はfalse</returns>
+        /// <exception cref="ArgumentException">引数`tolerance`は0以上である必要があります</exception>
         public static bool Math_IsRelativelyClose(double x, double y, double tolerance = 1E-9)
         {
+            if (0 > tolerance)
+            {
+                throw new ArgumentException("引数`tolerance`は0以上である必要があります");
+            }
             // IEEEによると非数はどの値とも等しくない
-            if(double.IsNaN(x) || double.IsNaN(y))
+            if (double.IsNaN(x) || double.IsNaN(y))
             {
                 return false;
             }
             // IEEEによると無限値と等しいのは同符号の無限値のみ
-            if(double.IsInfinity(x) || double.IsInfinity(y))
+            if (double.IsInfinity(x) || double.IsInfinity(y))
             {
                 return x == y;
             }
-            return true;
+            // 絶対値が大きいほうのtolearance倍の差であれば2値は近いとみなす
+            return Math.Max(Math.Abs(x), Math.Abs(y)) * tolerance >= Math.Abs(x - y);
+        }
+
+        /// <summary>
+        /// xとyが互いに近い場合trueを、それ以外の場合はfalseを返します
+        /// </summary>
+        /// <param name="x">比較する一方の値</param>
+        /// <param name="y">比較するもう一方の値</param>
+        /// <param name="toabsolutely">許容される最大の誤差(絶対値)</param>
+        /// <returns>相対的にxとyが互いに近い場合true、それ以外の場合はfalse</returns>
+        /// <exception cref="ArgumentException">引数`toabsolutely`は0以上である必要があります</exception>
+        public static bool Math_IsAbsolutelyClose(double x, double y, double toabsolutely)
+        {
+            if (0 > toabsolutely)
+            {
+                throw new ArgumentException("引数`toabsolutely`は0以上である必要があります");
+            }
+            // IEEEによると非数はどの値とも等しくない
+            if (double.IsNaN(x) || double.IsNaN(y))
+            {
+                return false;
+            }
+            // IEEEによると無限値と等しいのは同符号の無限値のみ
+            if (double.IsInfinity(x) || double.IsInfinity(y))
+            {
+                return x == y;
+            }
+            // 大きいほうのtolearance倍の差であれば2値は近いとみなす
+            return toabsolutely >= Math.Abs(x - y);
         }
         public static double Math_Pow(double x, double y)
         {

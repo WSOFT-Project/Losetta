@@ -993,6 +993,11 @@ namespace AliceScript.Parsing
                         OnThrowError(argumentNullExc, "そのパラメーターはnullをとることができません", Exceptions.VARIABLE_IS_NULL, argumentNullExc.Source);
                         return;
                     }
+                case ArgumentException argumentExc:
+                    {
+                        OnThrowError(argumentExc, argumentExc.Message, Exceptions.INVALID_ARGUMENT, argumentExc.Source);
+                        return;
+                    }
                 case NullReferenceException nullReferenceExc:
                     {
                         OnThrowError(nullReferenceExc, "nullの値を参照しようとしました", Exceptions.VARIABLE_IS_NULL, nullReferenceExc.Source);
