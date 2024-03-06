@@ -23,7 +23,12 @@ namespace AliceScript.NameSpaces
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static long Env_TickCount64()
         {
+#if NETCOREAPP3_0_OR_GREATER
             return Environment.TickCount64;
+#else
+
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static int Env_ProcessorCount()
@@ -86,7 +91,7 @@ namespace AliceScript.NameSpaces
         {
             return Environment.OSVersion.VersionString;
         }
-        #endregion
+#endregion
 
         #region プロセスの情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
@@ -97,12 +102,22 @@ namespace AliceScript.NameSpaces
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static int Env_ProcessId()
         {
+#if NET5_0_OR_GREATER
+
             return Environment.ProcessId;
+#else
+            return System.Diagnostics.Process.GetCurrentProcess().Id;
+#endif
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static string Env_ProcessPath()
         {
+#if NET6_0_OR_GREATER
+
             return Environment.ProcessPath;
+#else
+            return System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+#endif
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
         public static bool Env_UserInteractive()

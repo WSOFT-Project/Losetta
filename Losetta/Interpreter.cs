@@ -128,7 +128,9 @@ namespace AliceScript
 
             m_bHasBeenInitialized = true; // このメソッドは一度のみ呼び出すことができます
 
+#if NETCOREAPP
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
             RegisterFunctions();
             RegisterActions();
 

@@ -40,6 +40,10 @@ namespace AliceScript.NameSpaces
         }
         #endregion
         #region 暗号学的乱数生成
+#if !NET6_0_OR_GREATER
+        // もし必要ならRNGCryptoServiceProviderをキャッシュする
+        private static RNGCryptoServiceProvider randomNumberGenerator { get; set; }
+#endif
         public static int Random_Int()
         {
 #if NETCOREAPP3_0_OR_GREATER
@@ -66,7 +70,18 @@ namespace AliceScript.NameSpaces
         }
         public static byte[] Random_Bytes(int length)
         {
+#if NET6_0_OR_GREATER
             return RandomNumberGenerator.GetBytes(length);
+#else
+            
+            byte[] bs = new byte[length];
+            if (randomNumberGenerator == null)
+            {
+                randomNumberGenerator = new RNGCryptoServiceProvider();
+            }
+            randomNumberGenerator.GetBytes(bs);
+            return bs;
+#endif
         }
 #endregion
         #region GUID生成
