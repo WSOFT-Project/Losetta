@@ -66,7 +66,7 @@ namespace AliceScript.Functions
             {
                 ex.OriginalScript = script.OriginalScript;
             }
-            ex.Return = new Variable(Variable.VarType.VOID);
+            ex.Return = Variable.Void;
             ex.Script = script;
             ex.Keywords = Keywords;
             ex.ClassInstance = instance;

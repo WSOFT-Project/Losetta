@@ -1876,8 +1876,15 @@ namespace AliceScript
             get
             {
                 var v = new Variable();
-                v.AssignNull();//念のためnullにする
+                //v.AssignNull();//念のためnullにする
                 return v;
+            }
+        }
+        public static Variable Void
+        {
+            get
+            {
+                return new Variable(Variable.VarType.VOID);
             }
         }
         public static Variable Undefined = new Variable(VarType.UNDEFINED);

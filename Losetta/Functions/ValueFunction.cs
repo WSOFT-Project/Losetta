@@ -175,6 +175,10 @@ namespace AliceScript.Functions
         private bool m_CanSet = true;
         public Variable GetValue(Variable parent = null)
         {
+            if (m_value.Type == Variable.VarType.VOID)
+            {
+                throw new ScriptException("Void型の値を使用することはできません", Exceptions.INVALID_SYNTAX);
+            }
             if (HandleEvents)
             {
                 ValueFunctionEventArgs e = new ValueFunctionEventArgs();

@@ -17,8 +17,7 @@ namespace AliceScript.NameSpaces.Core
         /// </summary>
         /// <param name="script">このブロックがあるスクリプト</param>
         /// <param name="items">読み取り専用にしたい変数</param>
-        /// <returns>本文の実行結果</returns>
-        public static Variable Readonly(ParsingScript script, params Variable[] items)
+        public static void Readonly(ParsingScript script, params Variable[] items)
         {
             BitArray beforeStates = new BitArray(items.Length);
 
@@ -28,31 +27,24 @@ namespace AliceScript.NameSpaces.Core
                 items[i].Readonly = true;
             }
 
-            Variable result = script.ProcessBlock();
+            script.ProcessBlock();
 
             for (int i = 0; i < items.Length; i++)//実行後に元に戻す
             {
                 items[i].Readonly = beforeStates[i];
             }
-
-            return result;
         }
         /// <summary>
         /// このブロック内で、指定された変数への排他的なアクセスを保証します
         /// </summary>
         /// <param name="script">このブロックがあるスクリプト</param>
         /// <param name="item">排他的ロックを行いたい変数</param>
-        /// <returns>本文の実行結果</returns>
-        public static Variable Lock(ParsingScript script, Variable item)
+        public static void Lock(ParsingScript script, Variable item)
         {
-            Variable result;
-
             lock (item)
             {
-                result = script.ProcessBlock();
+                script.ProcessBlock();
             }
-
-            return result;
         }
 
         /// <summary>
@@ -98,8 +90,7 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="script">このブロックがあるスクリプト</param>
         /// <param name="func">この関数がバインドされるFunctionBase</param>
         /// <param name="condition">本文を実行するかどうかを決める条件</param>
-        /// <returns>本文の実行結果</returns>
-        public static Variable If(ParsingScript script, BindFunction func, bool condition)
+        public static void If(ParsingScript script, BindFunction func, bool condition)
         {
             Variable result = Variable.EmptyInstance;
 
@@ -179,8 +170,6 @@ namespace AliceScript.NameSpaces.Core
             {
                 result = Variable.EmptyInstance;
             }
-
-            return result;
         }
         /// <summary>
         /// 指定した値に一致する文を実行します

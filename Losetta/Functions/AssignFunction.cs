@@ -31,7 +31,7 @@ namespace AliceScript.Functions
             }
             if (varValue is null)
             {
-                return Variable.EmptyInstance;
+                return Variable.Void;
             }
 
             string type_modifer = null;
@@ -69,7 +69,7 @@ namespace AliceScript.Functions
             Variable result = ProcessObject(m_name, script, varValue);
             if (result is not null)
             {
-                return result;
+                return Variable.Void;
             }
 
             // 設定する変数が x[a][b]... のような形式かどうかをチェックする
@@ -81,7 +81,7 @@ namespace AliceScript.Functions
                 ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
                 Variable retVar = varValue.DeepClone();
                 retVar.CurrentAssign = m_name;
-                return retVar;
+                return Variable.Void;
             }
 
             Variable array;
@@ -92,7 +92,7 @@ namespace AliceScript.Functions
             ExtendArray(array, arrayIndices, 0, varValue);
 
             ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
-            return array;
+            return Variable.Void;
         }
         internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)
         {
