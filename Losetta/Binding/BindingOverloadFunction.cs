@@ -141,7 +141,7 @@ namespace AliceScript.Binding
                     }
                 }
 
-                if (HasParams && i == TrueParameters.Length - 1 && paramType.IsArray && e.Args[i - diff]?.Type != Variable.VarType.ARRAY)
+                if (HasParams && i == TrueParameters.Length - 1 && paramType.IsArray && e.Args[i - diff].Type != Variable.VarType.ARRAY)
                 {
                     //この引数が最後の場合で、それがparamsの場合かつ、配列として渡されていない場合
                     paramType = paramType.GetElementType();
