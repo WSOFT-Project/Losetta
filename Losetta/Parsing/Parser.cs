@@ -733,9 +733,9 @@ namespace AliceScript.Parsing
                 case ">=":
                     return new Variable(leftCell.Value >= rightCell.Value);
                 case Constants.LEFT_SHIFT:
-                    return new Variable(leftCell.AsInt() << rightCell.AsInt());
+                    return new Variable(leftCell.AsLong() << rightCell.AsInt());
                 case Constants.RIGHT_SHIFT:
-                    return new Variable(leftCell.AsInt() >> rightCell.AsInt());
+                    return new Variable(leftCell.AsLong() >> rightCell.AsInt());
                 case "&":
                     return new Variable((int)leftCell.Value & (int)rightCell.Value);
                 case "^":
