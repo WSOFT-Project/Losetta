@@ -60,51 +60,78 @@ namespace AliceScript.NameSpaces
         }
         public static string File_Read_Text(ParsingScript script, string path, bool fromPackage = false)
         {
-            // 一旦パッケージから取得してみる
-            byte[] data = script?.Package?.GetEntryData(path);
-            return data is null ? SafeReader.ReadAllText(path, out _, out _) : SafeReader.ReadAllText(data, out _, out _);
+            if (fromPackage)
+            {
+                byte[] data = script?.Package?.GetEntryData(path);
+                if (data == null)
+                {
+                    throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
+                }
+                return SafeReader.ReadAllText(data, out _, out _);
+            }
+            return SafeReader.ReadAllText(path, out _, out _);
         }
         public static string File_Read_Text(ParsingScript script, string path, string charCode, bool fromPackage = false)
         {
             Encoding encode = Encoding.GetEncoding(charCode);
-            // 一旦パッケージから取得してみる
-            byte[] data = script?.Package?.GetEntryData(path);
-            return data is null ? File.ReadAllText(path, encode) : encode.GetString(data);
+            if (fromPackage)
+            {
+                byte[] data = script?.Package?.GetEntryData(path);
+                if (data == null)
+                {
+                    throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
+                }
+                return encode.GetString(data);
+            }
+            return File.ReadAllText(path, encode);
         }
         public static string File_Read_Text(ParsingScript script, string path, int codePage, bool fromPackage = false)
         {
             Encoding encode = Encoding.GetEncoding(codePage);
-            // 一旦パッケージから取得してみる
-            byte[] data = script?.Package?.GetEntryData(path);
-            return data is null ? File.ReadAllText(path, encode) : encode.GetString(data);
+            if (fromPackage)
+            {
+                byte[] data = script?.Package?.GetEntryData(path);
+                if (data == null)
+                {
+                    throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
+                }
+                return encode.GetString(data);
+            }
+            return File.ReadAllText(path, encode);
         }
         public static string File_Read_CharCode(ParsingScript script, string path, bool fromPackage = false)
         {
             string charCode;
-            // 一旦パッケージから取得してみる
-            byte[] data = script?.Package?.GetEntryData(path);
-            if (data is null)
+            if (fromPackage)
             {
-                SafeReader.ReadAllText(path, out charCode, out _);
+                byte[] data = script?.Package?.GetEntryData(path);
+                if (data == null)
+                {
+                    throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
+                }
+                SafeReader.ReadAllText(data, out charCode, out _);
             }
             else
             {
-                SafeReader.ReadAllText(data, out charCode, out _);
+                SafeReader.ReadAllText(path, out charCode, out _);
             }
             return charCode;
         }
         public static int File_Read_CodePage(ParsingScript script, string path, bool fromPackage = false)
         {
             int codePage;
-            // 一旦パッケージから取得してみる
-            byte[] data = script?.Package?.GetEntryData(path);
-            if (data is null)
+            if (fromPackage)
             {
-                SafeReader.ReadAllText(path, out _, out codePage);
+                byte[] data = script?.Package?.GetEntryData(path);
+                if (data == null)
+                {
+                    throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
+                }
+                SafeReader.ReadAllText(data, out _, out codePage);
             }
             else
             {
-                SafeReader.ReadAllText(data, out _, out codePage);
+                SafeReader.ReadAllText(path, out _, out codePage);
             }
             return codePage;
         }
@@ -453,7 +480,7 @@ namespace AliceScript.NameSpaces
             {
                 try
                 {
-                    string str = File.ReadAllText(file);
+                    string str = SafeReader.ReadAllText(file, out _, out _);
                     if (textPattern.IsMatch(str))
                     {
                         result.Add(str);
