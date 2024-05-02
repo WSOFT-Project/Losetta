@@ -36,6 +36,7 @@ namespace AliceScript.Parsing
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private HashSet<string> m_namespaces = new HashSet<string>();
+        private HashSet<AttributeFunction> m_attributeFuncs = new HashSet<AttributeFunction>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
 
@@ -89,7 +90,11 @@ namespace AliceScript.Parsing
         /// <summary>
         /// ひとつ前に実行した関数
         /// </summary>
-        public AttributeFunction AttributeFunction { get; set; }
+        public HashSet<AttributeFunction> AttributeFunctions
+        {
+            get => m_attributeFuncs;
+            set => m_attributeFuncs = value;
+        }
 
         /// <summary>
         /// このスクリプトでusingされた名前空間の一覧

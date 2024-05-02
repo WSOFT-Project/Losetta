@@ -108,15 +108,25 @@ namespace AliceScript.Parsing
 
                 // このトークンに対応する関数を取得する
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
+                bool nextClear = false;
                 if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || fb is not LiteralFunction))
                 {
                     script.ProcessingFunction = fb;//現在処理中としてマーク
                     if (fb is AttributeFunction af)
                     {
-                        script.AttributeFunction = af;
+                        script.AttributeFunctions.Add(af);
+                    }
+                    else if(script.AttributeFunctions.Count > 0)
+                    {
+                        nextClear = true;
                     }
                 }
                 Variable current = func.GetValue(script);//関数を呼び出し
+                if (nextClear)
+                {
+                    script.AttributeFunctions.Clear();
+                    nextClear = false;
+                }
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {
                     return listToMerge;

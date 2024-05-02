@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 
 namespace AliceScript.Functions
@@ -52,32 +53,36 @@ namespace AliceScript.Functions
                 args = Array.Empty<string>();
             }
 
-            var prevfunc = e.Script.AttributeFunction;
+            LibImportFunction info = e.Script.AttributeFunctions.OfType<LibImportFunction>().FirstOrDefault();
 
             FunctionBase func;
 
-            if (prevfunc is LibImportFunction info)
+            if (info is not null)
             {
                 func = Utils.CreateExternBindFunction(funcName, info.LibraryName, returnType, args.ToArray(), info.EntryPoint, info.UseUnicode);
             }
-            else if (prevfunc is NetImportFunction libInfo)
-            {
-                if (libInfo.Class is null)
-                {
-                    throw new ScriptException("メソッドが存在する適切なクラスが見つかりませんでした", Exceptions.OBJECT_DOESNT_EXIST);
-                }
-                MethodInfo method = libInfo.Class.GetMethod(funcName, Constants.InvokeStringToType(args.ToArray()));
-                if (libInfo.Class is null)
-                {
-                    throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.COULDNT_FIND_VARIABLE);
-                }
-                func = Utils.CreateBindFunction(method);
-            }
             else
             {
-                throw new ScriptException("外部定義関数は、#libimportか#libimportと併用することでのみ使用できます", Exceptions.NONE);
-            }
+                NetImportFunction libInfo = e.Script.AttributeFunctions.OfType<NetImportFunction>().FirstOrDefault();
+                if (libInfo is not null)
+                {
+                    if (libInfo.Class is null)
+                    {
+                        throw new ScriptException("メソッドが存在する適切なクラスが見つかりませんでした", Exceptions.OBJECT_DOESNT_EXIST);
+                    }
+                    MethodInfo method = libInfo.Class.GetMethod(funcName, Constants.InvokeStringToType(args.ToArray()));
+                    if (libInfo.Class is null)
+                    {
+                        throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.COULDNT_FIND_VARIABLE);
+                    }
+                    func = Utils.CreateBindFunction(method);
+                }
+                else
+                {
+                    throw new ScriptException("外部定義関数は、#libimportか#netimportと併用することでのみ使用できます", Exceptions.NONE);
+                }
 
+            }
             funcName = Constants.ConvertName(funcName);
 
             if (mode is not null)
