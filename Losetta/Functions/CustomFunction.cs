@@ -396,7 +396,7 @@ namespace AliceScript.Functions
 
             if (result is null || (!result.IsReturn && !m_forceReturn))
             {
-                result = Variable.Void;
+                result = new Variable(Variable.VarType.VOID);
             }
 
             result.IsReturn = false;

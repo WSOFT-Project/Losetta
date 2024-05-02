@@ -178,7 +178,7 @@ namespace AliceScript.NameSpaces.Core
             script.SetDone();
             if (result is null)
             {
-                result = Variable.Void;
+                result = new Variable(Variable.VarType.VOID);
             }
             result.IsReturn = true;
 

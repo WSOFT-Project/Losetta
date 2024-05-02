@@ -18,41 +18,31 @@ namespace AliceScript
             bool inQuotes = script.Current == Constants.QUOTE;
             bool inQuotes1 = script.Current == Constants.QUOTE1;
 
-            Variable var;
-
             bool isList = script.Current == Constants.START_GROUP || script.Current == Constants.START_ARRAY;
             if (isList)
             {
-                var = ProcessArrayMap(script);
-            }
-            else
-            {
-                var sep = script.ProcessingList ? Constants.NEXT_OR_END_ARRAY_EXT : Constants.NEXT_OR_END_ARRAY;
-                // A variable, a function, or a number.
-                var = script.Execute(sep);
-                //value = var.Clone();
-                if (script.ProcessingFunction is not null && script.ProcessingFunction.Keywords is not null && var is not null)
-                {
-                    var.Keywords = script.ProcessingFunction.Keywords;
-                }
-                if (inQuotes)
-                {
-                    script.MoveForwardIf(Constants.QUOTE);
-                }
-                else if (inQuotes1)
-                {
-                    script.MoveForwardIf(Constants.QUOTE1);
-                }
-                if (eatLast)
-                {
-                    script.MoveForwardIf(Constants.END_ARG, Constants.SPACE);
-                }
+                return ProcessArrayMap(script);
             }
 
-
-            if (var is not null && var.Type == Variable.VarType.VOID)
+            var sep = script.ProcessingList ? Constants.NEXT_OR_END_ARRAY_EXT : Constants.NEXT_OR_END_ARRAY;
+            // A variable, a function, or a number.
+            Variable var = script.Execute(sep);
+            //value = var.Clone();
+            if (script.ProcessingFunction is not null && script.ProcessingFunction.Keywords is not null && var is not null)
             {
-                throw new ScriptException("`文`を式中に含めることはできません", Exceptions.INVALID_SYNTAX);
+                var.Keywords = script.ProcessingFunction.Keywords;
+            }
+            if (inQuotes)
+            {
+                script.MoveForwardIf(Constants.QUOTE);
+            }
+            else if (inQuotes1)
+            {
+                script.MoveForwardIf(Constants.QUOTE1);
+            }
+            if (eatLast)
+            {
+                script.MoveForwardIf(Constants.END_ARG, Constants.SPACE);
             }
             return var;
         }

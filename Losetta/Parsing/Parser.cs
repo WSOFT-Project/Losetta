@@ -733,9 +733,9 @@ namespace AliceScript.Parsing
                 case ">=":
                     return new Variable(leftCell.Value >= rightCell.Value);
                 case Constants.LEFT_SHIFT:
-                    return new Variable(leftCell.AsInt() << rightCell.AsInt());
+                    return new Variable(leftCell.AsLong() << rightCell.AsInt());
                 case Constants.RIGHT_SHIFT:
-                    return new Variable(leftCell.AsInt() >> rightCell.AsInt());
+                    return new Variable(leftCell.AsLong() >> rightCell.AsInt());
                 case "&":
                     return new Variable((int)leftCell.Value & (int)rightCell.Value);
                 case "^":
@@ -928,25 +928,28 @@ namespace AliceScript.Parsing
         {
             switch (action)
             {
-                case "**":
                 case "++":
-                case "--": return 11;
+                case "--": return 14;
+                case "**": return 13;
                 case "%":
                 case "*":
-                case "/": return 10;
+                case "/": return 12;
                 case "+":
-                case "-": return 9;
+                case "-": return 11;
+                case Constants.LEFT_SHIFT:
+                case Constants.RIGHT_SHIFT: return 10;
                 case "<":
                 case ">":
                 case ">=":
-                case "<=": return 8;
+                case "<=": return 9;
                 case "==":
-                case "!=": return 7;
-                case "&": return 6;
+                case "!=": return 8;
+                case "&": return 7;
+                case "^": return 6;
                 case "|": return 5;
-                case "^": return 4;
-                case "&&": return 2;
-                case "||": return 2;
+                case "&&": return 4;
+                case "||": return 3;
+                case "??": return 2;
                 case "=": return 1;
                 default: return 0;// NULL action has priority 0.
             }

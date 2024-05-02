@@ -1,5 +1,5 @@
 ﻿using AliceScript.Binding;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
@@ -28,12 +28,7 @@ namespace AliceScript.NameSpaces
         }
         public static string[] Regex_Matches(string input, string pattern)
         {
-            var result = new List<string>();
-            foreach (Match m in Regex.Matches(input, pattern))
-            {
-                result.Add(m.Value);
-            }
-            return result.ToArray();
+            return Regex.Matches(input,pattern).Select(m=>m.Value).ToArray();
         }
         public static string Regex_Replace(string input, string pattern, string replacement)
         {
@@ -49,13 +44,7 @@ namespace AliceScript.NameSpaces
         }
         public static string[] Matches(this string input, string pattern)
         {
-            var mc = Regex.Matches(input, pattern);
-            List<string> result = new List<string>();
-            foreach (Match m in mc)
-            {
-                result.Add(m.Value);
-            }
-            return result.ToArray();
+            return Regex.Matches(input,pattern).Select(m=>m.Value).ToArray();
         }
         public static bool Like(this string str, string pattern)
         {
@@ -70,7 +59,7 @@ namespace AliceScript.NameSpaces
             var reg = new Regex(pattern);
             return reg.Replace(input, replacement, 1);
         }
-        public static string Regex_FromWildCard(string wildCard)
+        private static string Regex_FromWildCard(string wildCard)
         {
             wildCard = Regex.Escape(wildCard);
             wildCard = wildCard.Replace("\\*", ".*");
