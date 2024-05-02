@@ -93,19 +93,19 @@ namespace AliceScript.NameSpaces
         /// <param name="tolerance">絶対値の大きいほうの値に対する許容される最大誤差
         /// (例えば、5%の場合は0.05)</param>
         /// <returns>相対的にxとyが互いに近い場合true、それ以外の場合はfalse</returns>
-        /// <exception cref="ArgumentException">引数`tolerance`は0以上である必要があります</exception>
+        /// <exception cref="ArgumentException">引数`tolerance`は0より大きい値である必要があります</exception>
         public static bool Math_IsRelativelyClose(double x, double y, double tolerance = 1E-9)
         {
             if (0 > tolerance)
             {
-                throw new ArgumentException("引数`tolerance`は0以上である必要があります");
+                throw new ArgumentException("引数`tolerance`は0より大きい値である必要があります");
             }
-            // IEEEによると非数はどの値とも等しくない
+            // IEEEによると非数はどの値とも近くない
             if (double.IsNaN(x) || double.IsNaN(y))
             {
                 return false;
             }
-            // IEEEによると無限値と等しいのは同符号の無限値のみ
+            // 無限値と近いのは同符号の無限値のみ
             if (double.IsInfinity(x) || double.IsInfinity(y))
             {
                 return x == y;
@@ -121,19 +121,19 @@ namespace AliceScript.NameSpaces
         /// <param name="y">比較するもう一方の値</param>
         /// <param name="toabsolutely">許容される最大の誤差(絶対値)</param>
         /// <returns>相対的にxとyが互いに近い場合true、それ以外の場合はfalse</returns>
-        /// <exception cref="ArgumentException">引数`toabsolutely`は0以上である必要があります</exception>
+        /// <exception cref="ArgumentException">引数`toabsolutely`は0より大きい値である必要があります</exception>
         public static bool Math_IsAbsolutelyClose(double x, double y, double toabsolutely)
         {
             if (0 > toabsolutely)
             {
-                throw new ArgumentException("引数`toabsolutely`は0以上である必要があります");
+                throw new ArgumentException("引数`toabsolutely`は0より大きい値である必要があります");
             }
-            // IEEEによると非数はどの値とも等しくない
+            // IEEEによると非数はどの値とも近くない
             if (double.IsNaN(x) || double.IsNaN(y))
             {
                 return false;
             }
-            // IEEEによると無限値と等しいのは同符号の無限値のみ
+            // 無限値と近いのは同符号の無限値のみ
             if (double.IsInfinity(x) || double.IsInfinity(y))
             {
                 return x == y;
