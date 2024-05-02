@@ -690,15 +690,15 @@ namespace AliceScript.NameSpaces
         {
             return Path.GetFileName(path);
         }
-        public static string Path_Get_FileName(string path, bool containExtension)
+        public static string Path_Get_FileName(string path, bool withoutExtension)
         {
-            if(containExtension)
+            if(withoutExtension)
             {
-                return Path.GetFileName(path);
+                return Path.GetFileNameWithoutExtension(path);
             }
             else
             {
-                return Path.GetFileNameWithoutExtension(path);
+                return Path.GetFileName(path);
             }
         }
         public static string Path_Get_FileNameWithoutExtension(string path)
