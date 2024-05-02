@@ -41,7 +41,9 @@ namespace AliceScript.Binding
                         }
                 }
             }
-            return Variable.False;
+            Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + action + "]", Exceptions.INVALID_OPERAND,
+                 script, action);
+            return Variable.EmptyInstance;
         }
         public override bool Equals(ObjectBase other)
         {

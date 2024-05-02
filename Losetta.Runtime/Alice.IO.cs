@@ -167,6 +167,87 @@ namespace AliceScript.NameSpaces
         {
             File.AppendAllText(path, text, Encoding.GetEncoding(codePage));
         }
+        public static long File_Get_Length(string path)
+        {
+            return new FileInfo(path).Length;
+        }
+        public static DateTime File_Get_CreationTime(string path)
+        {
+            return File.GetCreationTime(path);
+        }
+        public static DateTime File_Get_CreationTime(string path, bool getByUTC)
+        {
+            return getByUTC ? File.GetCreationTimeUtc(path) : File.GetCreationTime(path);
+        }
+        public static DateTime File_Get_LastAccessTime(string path)
+        {
+            return File.GetLastAccessTime(path);
+        }
+        public static DateTime File_Get_LastAccessTime(string path, bool getByUTC)
+        {
+            return getByUTC ? File.GetLastAccessTimeUtc(path) : File.GetLastAccessTime(path);
+        }
+        public static DateTime File_Get_LastWriteTime(string path)
+        {
+            return File.GetLastWriteTime(path);
+        }
+        public static DateTime File_Get_LastWriteTime(string path, bool getByUTC)
+        {
+            return getByUTC ? File.GetLastWriteTimeUtc(path) : File.GetLastWriteTime(path);
+        }
+        public static string File_Get_LinkTarget(string path, bool getFinalTarget)
+        {
+#if NET6_0_OR_GREATER
+            return File.ResolveLinkTarget(path, getFinalTarget).FullName;
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
+        }
+        public static void File_Set_CreationTime(string path, DateTime creationTime)
+        {
+            File.SetCreationTime(path, creationTime);
+        }
+        public static void File_Set_CreationTime(string path, DateTime creationTime, bool setByUTC)
+        {
+            if (setByUTC)
+            {
+                File.SetCreationTimeUtc(path, creationTime);
+            }
+            else
+            {
+                File.SetCreationTime(path, creationTime);
+            }
+        }
+        public static void File_Set_LastAccessTime(string path, DateTime accessTime)
+        {
+            File.SetLastAccessTime(path, accessTime);
+        }
+        public static void File_Set_LastAccessTime(string path, DateTime accessTime, bool setByUTC)
+        {
+            if (setByUTC)
+            {
+                File.SetLastAccessTimeUtc(path, accessTime);
+            }
+            else
+            {
+                File.SetLastAccessTime(path, accessTime);
+            }
+        }
+        public static void File_Set_LastWriteTime(string path, DateTime writeTime)
+        {
+            File.SetLastWriteTime(path, writeTime);
+        }
+        public static void File_Set_LastWriteTime(string path, DateTime accessTime, bool setByUTC)
+        {
+            if (setByUTC)
+            {
+                File.SetLastWriteTimeUtc(path, accessTime);
+            }
+            else
+            {
+                File.SetLastWriteTime(path, accessTime);
+            }
+        }
         public static void File_Write_Encrypt(string path, byte[] data, string password, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
         {
             int len;
@@ -366,7 +447,7 @@ namespace AliceScript.NameSpaces
             }
             return;
         }
-        #endregion
+#endregion
         #region ディレクトリ操作
         public static void Directory_Create(string path)
         {
@@ -436,6 +517,102 @@ namespace AliceScript.NameSpaces
         public static string[] Directory_GetLogicalDrives()
         {
             return Directory.GetLogicalDrives();
+        }
+        public static long Directory_Get_Length(string path)
+        {
+            return GetDirectoryLength(new DirectoryInfo(path));
+        }
+        private static long GetDirectoryLength(DirectoryInfo dirInfo)
+        {
+            long length = 0;
+
+            foreach(FileInfo file in dirInfo.GetFiles())
+            {
+                length += file.Length;
+            }
+            foreach(DirectoryInfo dir in dirInfo.GetDirectories())
+            {
+                length += GetDirectoryLength(dir);
+            }
+
+            return length;
+        }
+        public static DateTime Directory_Get_CreationTime(string path)
+        {
+            return Directory.GetCreationTime(path);
+        }
+        public static DateTime Directory_Get_CreationTime(string path, bool getByUTC)
+        {
+            return getByUTC ? Directory.GetCreationTimeUtc(path) : Directory.GetCreationTime(path);
+        }
+        public static DateTime Directory_Get_LastAccessTime(string path)
+        {
+            return Directory.GetLastAccessTime(path);
+        }
+        public static DateTime Directory_Get_LastAccessTime(string path, bool getByUTC)
+        {
+            return getByUTC ? Directory.GetLastAccessTimeUtc(path) : Directory.GetLastAccessTime(path);
+        }
+        public static DateTime Directory_Get_LastWriteTime(string path)
+        {
+            return Directory.GetLastWriteTime(path);
+        }
+        public static DateTime Directory_Get_LastWriteTime(string path, bool getByUTC)
+        {
+            return getByUTC ? Directory.GetLastWriteTimeUtc(path) : Directory.GetLastWriteTime(path);
+        }
+        public static string Directory_Get_LinkTarget(string path, bool getFinalTarget)
+        {
+#if NET6_0_OR_GREATER
+            return Directory.ResolveLinkTarget(path, getFinalTarget).FullName;
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
+        }
+        public static void Directory_Set_CreationTime(string path, DateTime creationTime)
+        {
+            Directory.SetCreationTime(path, creationTime);
+        }
+        public static void Directory_Set_CreationTime(string path, DateTime creationTime, bool setByUTC)
+        {
+            if (setByUTC)
+            {
+                Directory.SetCreationTimeUtc(path, creationTime);
+            }
+            else
+            {
+                Directory.SetCreationTime(path, creationTime);
+            }
+        }
+        public static void Directory_Set_LastAccessTime(string path, DateTime accessTime)
+        {
+            Directory.SetLastAccessTime(path, accessTime);
+        }
+        public static void Directory_Set_LastAccessTime(string path, DateTime accessTime, bool setByUTC)
+        {
+            if (setByUTC)
+            {
+                Directory.SetLastAccessTimeUtc(path, accessTime);
+            }
+            else
+            {
+                Directory.SetLastAccessTime(path, accessTime);
+            }
+        }
+        public static void Directory_Set_LastWriteTime(string path, DateTime writeTime)
+        {
+            Directory.SetLastWriteTime(path, writeTime);
+        }
+        public static void Directory_Set_LastWriteTime(string path, DateTime accessTime, bool setByUTC)
+        {
+            if (setByUTC)
+            {
+                Directory.SetLastWriteTimeUtc(path, accessTime);
+            }
+            else
+            {
+                Directory.SetLastWriteTime(path, accessTime);
+            }
         }
         public static void Directory_Copy(string sourceDirName, string destDirName, bool copySubDirs = true)
         {
