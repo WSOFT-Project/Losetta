@@ -1,5 +1,6 @@
 ﻿using AliceScript.Functions;
 using AliceScript.Objects;
+using System;
 using System.Text.RegularExpressions;
 
 namespace AliceScript.NameSpaces
@@ -12,6 +13,7 @@ namespace AliceScript.NameSpaces
             NameSpaceManager.Add(typeof(Core.CoreFunctions));
             NameSpace space = new NameSpace(Constants.TOP_API_NAMESPACE);
             space.Add<ExceptionObject>();
+            space.Add<DateTime>();
             NameSpaceManager.Add(space);
         }
     }

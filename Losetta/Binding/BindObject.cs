@@ -1,4 +1,5 @@
 ﻿using AliceScript.Objects;
+using AliceScript.Parsing;
 using System;
 
 namespace AliceScript.Binding
@@ -12,10 +13,47 @@ namespace AliceScript.Binding
         /// .NETのオブジェクトインスタンス
         /// </summary>
         public object Instance { get; set; }
-
+        public BindObject()
+        {
+            HandleOperator = true;
+        }
+        public override Variable Operator(Variable left, Variable right, string action, ParsingScript script)
+        {
+            if (left.Object is BindObject leftObj && right.Object is BindObject rightObj && leftObj.Instance is IComparable comp1 && rightObj.Instance is IComparable comp2)
+            {
+                switch (action)
+                {
+                    case ">":
+                        {
+                            return new Variable(comp1.CompareTo(comp2) > 0);
+                        }
+                    case "<":
+                        {
+                            return new Variable(comp1.CompareTo(comp2) < 0);
+                        }
+                    case ">=":
+                        {
+                            return new Variable(comp1.CompareTo(comp2) >= 0);
+                        }
+                    case "<=":
+                        {
+                            return new Variable(comp1.CompareTo(comp2) <= 0);
+                        }
+                }
+            }
+            return Variable.False;
+        }
+        public override bool Equals(ObjectBase other)
+        {
+            if (other is BindObject rightObj)
+            {
+                return Instance.Equals(rightObj.Instance);
+            }
+            return base.Equals(other);
+        }
         public override int CompareTo(object other)
         {
-            if(Instance is IComparable var1 && other is IComparable var2)
+            if (Instance is IComparable var1 && other is IComparable var2)
             {
                 return var1.CompareTo(var2);
             }
