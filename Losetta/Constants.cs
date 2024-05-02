@@ -266,6 +266,7 @@ namespace AliceScript
         public const string NET_IMPORT = "netimport";
         public const string UNNEED_VAR = "unneed_var";
         public const string RESET_DEFINES = "reset_defines";
+        public const string OBSOLETE = "obsolete";
         //includeしたファイルにもシンボルを引き継ぐ
         public const string FOLLOW_INCLUDE = "follow_include";
         //varキーワードの型推論を有効にする

@@ -53,7 +53,7 @@ namespace AliceScript.Functions
                 args = Array.Empty<string>();
             }
 
-            LibImportFunction info = e.Script.AttributeFunctions.OfType<LibImportFunction>().FirstOrDefault();
+            LibImportFunction info = e.AttributeFunctions?.OfType<LibImportFunction>().FirstOrDefault();
 
             FunctionBase func;
 
@@ -63,7 +63,7 @@ namespace AliceScript.Functions
             }
             else
             {
-                NetImportFunction libInfo = e.Script.AttributeFunctions.OfType<NetImportFunction>().FirstOrDefault();
+                NetImportFunction libInfo = e.AttributeFunctions?.OfType<NetImportFunction>().FirstOrDefault();
                 if (libInfo is not null)
                 {
                     if (libInfo.Class is null)

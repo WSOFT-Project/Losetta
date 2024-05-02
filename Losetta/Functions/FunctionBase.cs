@@ -2,6 +2,7 @@
 using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace AliceScript.Functions
 {
@@ -70,6 +71,8 @@ namespace AliceScript.Functions
             ex.Script = script;
             ex.Keywords = Keywords;
             ex.ClassInstance = instance;
+            ex.AttributeFunctions = AttributeFunctions;
+            AttributeFunctions = null;
             Run?.Invoke(script, ex);
             if (ex.Return is null)
             {
@@ -162,7 +165,7 @@ namespace AliceScript.Functions
             return args;
         }
 
-        private static FunctionBaseEventArgs InitializeFunctionEventArgs(ParsingScript script, Variable currentVariable, List<Variable> args)
+        private FunctionBaseEventArgs InitializeFunctionEventArgs(ParsingScript script, Variable currentVariable, List<Variable> args)
         {
             FunctionBaseEventArgs functionEventArgs = new FunctionBaseEventArgs
             {
@@ -172,13 +175,16 @@ namespace AliceScript.Functions
                 OriginalScript = script.OriginalScript,
                 Return = Variable.EmptyInstance,
                 Script = script,
-                CurentVariable = currentVariable
+                CurentVariable = currentVariable,
+                AttributeFunctions = this.AttributeFunctions
             };
+            this.AttributeFunctions = null;
 
             return functionEventArgs;
         }
 
         public string[] RealArgs { get; internal set; }
+        public HashSet<AttributeFunction> AttributeFunctions { get; internal set; }
         public AccessModifier AccessModifier { get; set; }
         public FunctionBase()
         {
@@ -188,19 +194,6 @@ namespace AliceScript.Functions
         /// この関数が呼び出されたときに発生するイベント
         /// </summary>
         public event FunctionBaseEventHandler Run;
-        public Variable GetVaruableFromArgs(List<Variable> args)
-        {
-            if (MinimumArgCounts >= 1)
-            {
-                Utils.CheckArgs(args.Count, MinimumArgCounts, m_name);
-            }
-            FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
-            ex.Args = args;
-            Run?.Invoke(null, ex);
-
-            return ex.Return;
-        }
-
     }
     public class AttributeFunction : FunctionBase
     {
@@ -403,6 +396,10 @@ namespace AliceScript.Functions
         /// 呼び出し元が所属するクラスのインスタンス
         /// </summary>
         public AliceScriptClass.ClassInstance ClassInstance { get; set; }
+        /// <summary>
+        /// 直前に実行された属性を表す関数のリスト
+        /// </summary>
+        public HashSet<AttributeFunction> AttributeFunctions { get; set; }
     }
 
 }

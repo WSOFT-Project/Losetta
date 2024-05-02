@@ -486,26 +486,16 @@ namespace AliceScript.PreProcessing
                                 Interpreter.Instance.AppendOutput(arg, true);
                                 break;
                             }
+                        case Constants.OBSOLETE:
+                        case Constants.NET_IMPORT:
                         case Constants.LIBRARY_IMPORT:
                             {
                                 // 関数呼び出しに変換する
                                 sb.Append(Constants.USER_CANT_USE_FUNCTION_PREFIX);
-                                sb.Append(Constants.LIBRARY_IMPORT);
+                                sb.Append(command);
                                 sb.Append(Constants.START_ARG);
                                 sb.Append(pragmaArgs);
-                                sb.Append(Constants.END_ARG);
-                                sb.Append(Constants.END_STATEMENT);
-                                break;
-                            }
-                        case Constants.NET_IMPORT:
-                            {
-                                // 関数呼び出しに変換する
-                                sb.Append(Constants.USER_CANT_USE_FUNCTION_PREFIX);
-                                sb.Append(Constants.NET_IMPORT);
-                                sb.Append(Constants.START_ARG);
-                                sb.Append(pragmaArgs);
-                                sb.Append(Constants.END_ARG);
-                                sb.Append(Constants.END_STATEMENT);
+                                sb.Append(Constants.END_ARG + ";");
                                 break;
                             }
                     }
