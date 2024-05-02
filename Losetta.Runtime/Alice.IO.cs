@@ -179,19 +179,19 @@ namespace AliceScript.NameSpaces
         {
             return getByUTC ? File.GetCreationTimeUtc(path) : File.GetCreationTime(path);
         }
-        public static DateTime File_Get_LastAccessTime(string path)
+        public static DateTime File_Get_AccessTime(string path)
         {
             return File.GetLastAccessTime(path);
         }
-        public static DateTime File_Get_LastAccessTime(string path, bool getByUTC)
+        public static DateTime File_Get_AccessTime(string path, bool getByUTC)
         {
             return getByUTC ? File.GetLastAccessTimeUtc(path) : File.GetLastAccessTime(path);
         }
-        public static DateTime File_Get_LastWriteTime(string path)
+        public static DateTime File_Get_WriteTime(string path)
         {
             return File.GetLastWriteTime(path);
         }
-        public static DateTime File_Get_LastWriteTime(string path, bool getByUTC)
+        public static DateTime File_Get_WriteTime(string path, bool getByUTC)
         {
             return getByUTC ? File.GetLastWriteTimeUtc(path) : File.GetLastWriteTime(path);
         }
@@ -218,11 +218,11 @@ namespace AliceScript.NameSpaces
                 File.SetCreationTime(path, creationTime);
             }
         }
-        public static void File_Set_LastAccessTime(string path, DateTime accessTime)
+        public static void File_Set_AccessTime(string path, DateTime accessTime)
         {
             File.SetLastAccessTime(path, accessTime);
         }
-        public static void File_Set_LastAccessTime(string path, DateTime accessTime, bool setByUTC)
+        public static void File_Set_AccessTime(string path, DateTime accessTime, bool setByUTC)
         {
             if (setByUTC)
             {
@@ -233,11 +233,11 @@ namespace AliceScript.NameSpaces
                 File.SetLastAccessTime(path, accessTime);
             }
         }
-        public static void File_Set_LastWriteTime(string path, DateTime writeTime)
+        public static void File_Set_WriteTime(string path, DateTime writeTime)
         {
             File.SetLastWriteTime(path, writeTime);
         }
-        public static void File_Set_LastWriteTime(string path, DateTime accessTime, bool setByUTC)
+        public static void File_Set_WriteTime(string path, DateTime accessTime, bool setByUTC)
         {
             if (setByUTC)
             {
@@ -545,19 +545,19 @@ namespace AliceScript.NameSpaces
         {
             return getByUTC ? Directory.GetCreationTimeUtc(path) : Directory.GetCreationTime(path);
         }
-        public static DateTime Directory_Get_LastAccessTime(string path)
+        public static DateTime Directory_Get_AccessTime(string path)
         {
             return Directory.GetLastAccessTime(path);
         }
-        public static DateTime Directory_Get_LastAccessTime(string path, bool getByUTC)
+        public static DateTime Directory_Get_AccessTime(string path, bool getByUTC)
         {
             return getByUTC ? Directory.GetLastAccessTimeUtc(path) : Directory.GetLastAccessTime(path);
         }
-        public static DateTime Directory_Get_LastWriteTime(string path)
+        public static DateTime Directory_Get_WriteTime(string path)
         {
             return Directory.GetLastWriteTime(path);
         }
-        public static DateTime Directory_Get_LastWriteTime(string path, bool getByUTC)
+        public static DateTime Directory_Get_WriteTime(string path, bool getByUTC)
         {
             return getByUTC ? Directory.GetLastWriteTimeUtc(path) : Directory.GetLastWriteTime(path);
         }
@@ -584,11 +584,11 @@ namespace AliceScript.NameSpaces
                 Directory.SetCreationTime(path, creationTime);
             }
         }
-        public static void Directory_Set_LastAccessTime(string path, DateTime accessTime)
+        public static void Directory_Set_AccessTime(string path, DateTime accessTime)
         {
             Directory.SetLastAccessTime(path, accessTime);
         }
-        public static void Directory_Set_LastAccessTime(string path, DateTime accessTime, bool setByUTC)
+        public static void Directory_Set_AccessTime(string path, DateTime accessTime, bool setByUTC)
         {
             if (setByUTC)
             {
@@ -599,11 +599,11 @@ namespace AliceScript.NameSpaces
                 Directory.SetLastAccessTime(path, accessTime);
             }
         }
-        public static void Directory_Set_LastWriteTime(string path, DateTime writeTime)
+        public static void Directory_Set_WriteTime(string path, DateTime writeTime)
         {
             Directory.SetLastWriteTime(path, writeTime);
         }
-        public static void Directory_Set_LastWriteTime(string path, DateTime accessTime, bool setByUTC)
+        public static void Directory_Set_WriteTime(string path, DateTime accessTime, bool setByUTC)
         {
             if (setByUTC)
             {
