@@ -513,6 +513,17 @@ namespace AliceScript.NameSpaces
         {
             return Path.GetFileName(path);
         }
+        public static string Path_Get_FileName(string path, bool containExtension)
+        {
+            if(containExtension)
+            {
+                return Path.GetFileName(path);
+            }
+            else
+            {
+                return Path.GetFileNameWithoutExtension(path);
+            }
+        }
         public static string Path_Get_FileNameWithoutExtension(string path)
         {
             return Path.GetFileNameWithoutExtension(path);
