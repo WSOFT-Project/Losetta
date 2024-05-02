@@ -289,6 +289,10 @@
         /// <summary>
         /// 無効なキーワードの組み合わせです
         /// </summary>
-        INVALID_KEYWORD_CONBINATION = 0x04e
+        INVALID_KEYWORD_CONBINATION = 0x04e,
+        /// <summary>
+        /// 旧形式の関数を使用しようとしました
+        /// </summary>
+        FUNCTION_IS_OBSOLETE = 0x04f
     }
 }

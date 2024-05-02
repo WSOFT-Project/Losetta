@@ -83,7 +83,12 @@ namespace AliceScript.Functions
                 }
 
             }
+
             funcName = Constants.ConvertName(funcName);
+            if (Interpreter.Instance.DebugMode)
+            {
+                func.Obsolete = e.AttributeFunctions?.OfType<ObsoleteFunction>().FirstOrDefault();
+            }
 
             if (mode is not null)
             {
@@ -99,56 +104,5 @@ namespace AliceScript.Functions
             }
         }
     }
-    internal class NetImportFunction : AttributeFunction
-    {
-        public NetImportFunction()
-        {
-            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.NET_IMPORT;
-            MinimumArgCounts = 1;
-            Run += PInvokeFlagFunction_Run;
-        }
-
-        private void PInvokeFlagFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string asmName = Utils.GetSafeString(e.Args, 1, null);
-            string asmLocate = Utils.GetSafeString(e.Args, 2, null);
-            string typeName = e.Args[0].AsString();
-
-            if (!string.IsNullOrEmpty(asmName))
-            {
-                typeName += $",{asmName}";
-            }
-            if (string.IsNullOrEmpty(asmLocate))
-            {
-                Class = Type.GetType(typeName, false, true);
-            }
-            else
-            {
-                var asm = Assembly.LoadFrom(asmLocate);
-                Class = asm.GetType(typeName);
-            }
-        }
-        public Type Class { get; set; }
-    }
-    internal class LibImportFunction : AttributeFunction
-    {
-        public LibImportFunction()
-        {
-            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.LIBRARY_IMPORT;
-            Run += PInvokeFlagFunction_Run;
-        }
-
-        private void PInvokeFlagFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            LibraryName = Utils.GetSafeString(e.Args, 0);
-            EntryPoint = Utils.GetSafeString(e.Args, 1, null);
-            if (e.Args.Count > 3)
-            {
-                UseUnicode = e.Args[2].m_bool;
-            }
-        }
-        public string LibraryName { get; set; }
-        public string EntryPoint { get; set; }
-        public bool? UseUnicode { get; set; }
-    }
+    
 }

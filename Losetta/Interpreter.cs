@@ -53,6 +53,10 @@ namespace AliceScript
 
         public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
+        /// <summary>
+        /// デバッグモードで実行する場合はtrue、それ以外の場合はfalse
+        /// </summary>
+        public bool DebugMode { get; set; }
 
         private StringBuilder m_output = new StringBuilder();
         public string Output
@@ -146,6 +150,7 @@ namespace AliceScript
             space.Add(new ExternFunctionCreator());
             space.Add(new LibImportFunction());
             space.Add(new NetImportFunction());
+            space.Add(new ObsoleteFunction());
 
             NameSpaceManager.Add(space);
 

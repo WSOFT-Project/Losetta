@@ -36,7 +36,7 @@ namespace AliceScript.CLI
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
             //REPLはデバッグモードに
-            Program.IsDebugMode = true;
+            Interpreter.Instance.DebugMode = true;
             if (File.Exists(filename))
             {
                 Alice.ExecuteFile(filename);
@@ -56,7 +56,7 @@ namespace AliceScript.CLI
             {
                 sb.AppendLine("詳細情報: " + e.HelpLink);
             }
-            if (Program.IsDebugMode)
+            if (Interpreter.Instance.DebugMode)
             {
                 if (e.Script is not null)
                 {
@@ -76,7 +76,7 @@ namespace AliceScript.CLI
             if (allow_throw)
             {
                 PrintColor(sb.ToString(), ConsoleColor.White, ConsoleColor.DarkRed);
-                if (Program.IsDebugMode)
+                if (Interpreter.Instance.DebugMode)
                 {
                 PauseInput:
                     Console.Write("このエラーを無視して続行するには[C]を、終了する場合はそれ以外のキーを入力してください...");
@@ -489,7 +489,7 @@ namespace AliceScript.CLI
                     File.AppendAllText(fn, e.Output);
                 }
             }
-            s_PrintingCompleted = true;
+            //s_PrintingCompleted = true;
         }
 
         private static bool s_PrintingCompleted = false;

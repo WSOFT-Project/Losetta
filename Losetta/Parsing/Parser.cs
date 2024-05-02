@@ -56,7 +56,7 @@ namespace AliceScript.Parsing
             Variable result = MergeList(listToMerge, script);
             return result;
         }
-        private static HashSet<AttributeFunction> m_attributeFuncs = null;
+        internal static HashSet<AttributeFunction> m_attributeFuncs = null;
         private static List<Variable> Split(ParsingScript script, char[] to)
         {
             List<Variable> listToMerge = new List<Variable>();
@@ -108,7 +108,7 @@ namespace AliceScript.Parsing
 
                 // このトークンに対応する関数を取得する
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || fb is not LiteralFunction))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null ||( fb is not LiteralFunction && fb is not ValueFunction)))
                 {
                     script.ProcessingFunction = fb;//現在処理中としてマーク
                     if (fb is AttributeFunction af)

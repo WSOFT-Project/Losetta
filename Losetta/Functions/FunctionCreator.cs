@@ -1,6 +1,7 @@
 ﻿using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AliceScript.Functions
 {
@@ -12,7 +13,7 @@ namespace AliceScript.Functions
             Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             Run += FunctionCreator_Run;
         }
-        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords)
+        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords,HashSet<AttributeFunction> attributes)
         {
             bool? mode = null;
 
@@ -115,6 +116,10 @@ namespace AliceScript.Functions
             customFunc.ParentScript = script;
             customFunc.ParentOffset = parentOffset;
             customFunc.MethodOnly = isExtension;
+            if (Interpreter.Instance.DebugMode)
+            {
+                customFunc.Obsolete = attributes?.OfType<ObsoleteFunction>().FirstOrDefault();
+            }
             if (isCommand)
             {
                 customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
@@ -144,7 +149,7 @@ namespace AliceScript.Functions
         private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
         {
             string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            DefineFunction(funcName, e.Script, Keywords);
+            DefineFunction(funcName, e.Script, Keywords,e.AttributeFunctions);
         }
 
     }

@@ -486,30 +486,7 @@ namespace AliceScript.NameSpaces
         {
             Directory.Move(from, to);
         }
-        public static string[] Directory_GetDirectories(string path)
-        {
-            return Directory.GetDirectories(path);
-        }
-        public static string[] Directory_GetDirectories(string path, string pattern)
-        {
-            return Directory.GetDirectories(path, pattern);
-        }
-        public static string[] Directory_GetDirectories(string path, string pattern, bool searchSubDir)
-        {
-            return Directory.GetDirectories(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-        }
-        public static string[] Directory_GetFiles(string path)
-        {
-            return Directory.GetFiles(path);
-        }
-        public static string[] Directory_GetFiles(string path, string pattern)
-        {
-            return Directory.GetFiles(path, pattern);
-        }
-        public static string[] Directory_GetFiles(string path, string pattern, bool searchSubDir)
-        {
-            return Directory.GetFiles(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-        }
+        
         public static string Directory_GetRoot(string path)
         {
             return Directory.GetDirectoryRoot(path);
@@ -517,6 +494,60 @@ namespace AliceScript.NameSpaces
         public static string[] Directory_GetLogicalDrives()
         {
             return Directory.GetLogicalDrives();
+        }
+        [Obsolete("directory_get_filesを使用してください")]
+        public static string[] Directory_GetFiles(string path)
+        {
+            return Directory.GetFiles(path);
+        }
+        [Obsolete("directory_get_filesを使用してください")]
+        public static string[] Directory_GetFiles(string path, string pattern)
+        {
+            return Directory.GetFiles(path, pattern);
+        }
+        [Obsolete("directory_get_filesを使用してください")]
+        public static string[] Directory_GetFiles(string path, string pattern, bool searchSubDir)
+        {
+            return Directory.GetFiles(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        }
+        [Obsolete("directory_get_directoriesを使用してください")]
+        public static string[] Directory_GetDirectories(string path)
+        {
+            return Directory.GetDirectories(path);
+        }
+        [Obsolete("directory_get_directoriesを使用してください")]
+        public static string[] Directory_GetDirectories(string path, string pattern)
+        {
+            return Directory.GetDirectories(path, pattern);
+        }
+        [Obsolete("directory_get_directoriesを使用してください")]
+        public static string[] Directory_GetDirectories(string path, string pattern, bool searchSubDir)
+        {
+            return Directory.GetDirectories(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        }
+        public static string[] Directory_Get_Files(string path)
+        {
+            return Directory.GetFiles(path);
+        }
+        public static string[] Directory_Get_Files(string path, string pattern)
+        {
+            return Directory.GetFiles(path, pattern);
+        }
+        public static string[] Directory_Get_Files(string path, string pattern, bool searchSubDir)
+        {
+            return Directory.GetFiles(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        }
+        public static string[] Directory_Get_Directories(string path)
+        {
+            return Directory.GetDirectories(path);
+        }
+        public static string[] Directory_Get_Directories(string path, string pattern)
+        {
+            return Directory.GetDirectories(path, pattern);
+        }
+        public static string[] Directory_Get_Directories(string path, string pattern, bool searchSubDir)
+        {
+            return Directory.GetDirectories(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
         public static long Directory_Get_Length(string path)
         {

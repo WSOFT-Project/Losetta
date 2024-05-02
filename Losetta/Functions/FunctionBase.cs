@@ -2,6 +2,7 @@
 using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace AliceScript.Functions
@@ -31,6 +32,7 @@ namespace AliceScript.Functions
         }
         private FunctionAttribute m_Attribute = FunctionAttribute.GENERAL;
 
+        public ObsoleteFunction Obsolete { get; set; }
         /// <summary>
         /// この関数が変数のプロパティとして呼び出される場合、その変数の種類を取得または設定します
         /// </summary>
@@ -59,6 +61,21 @@ namespace AliceScript.Functions
         /// <returns>この関数の戻り値</returns>
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
+            if (Interpreter.Instance.DebugMode)
+            {
+                if (Obsolete is not null)
+                {
+                    string mes = string.IsNullOrEmpty(Obsolete.Message) ? $"`{this.Name}`は旧形式です。" : $"`{this.Name}`は旧形式です。:{Obsolete.Message}";
+                    if (Obsolete.IsError)
+                    {
+                        throw new ScriptException(mes, Exceptions.FUNCTION_IS_OBSOLETE);
+                    }
+                    else
+                    {
+                        Interpreter.Instance.AppendDebug($"FUNCTION_IS_OBSOLETE(0x04f): {mes}", true);
+                    }
+                }
+            }
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
             ex.Args = args ?? new List<Variable>();
             ex.UseObjectResult = false;
@@ -194,10 +211,6 @@ namespace AliceScript.Functions
         /// この関数が呼び出されたときに発生するイベント
         /// </summary>
         public event FunctionBaseEventHandler Run;
-    }
-    public class AttributeFunction : FunctionBase
-    {
-
     }
     /// <summary>
     /// 関数の機能の種類を表します

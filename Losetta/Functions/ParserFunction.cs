@@ -196,7 +196,7 @@ namespace AliceScript.Functions
             if (script is not null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
             {
                 //ここまでくる=その関数は存在しない=存在チェックは不要
-                return FunctionCreator.DefineFunction(name, script, keywords) ? new ValueFunction(Variable.EmptyInstance) : null;
+                return FunctionCreator.DefineFunction(name, script, keywords, Parser.m_attributeFuncs) ? new ValueFunction(Variable.EmptyInstance) : null;
             }
             return null;
         }
