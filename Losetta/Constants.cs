@@ -117,6 +117,8 @@ namespace AliceScript
         public const string GOTO = "goto";
         public const string GOSUB = "gosub";
 
+        public const string DEBUG = "DEBUG";
+
         /// <summary>
         /// このプログラミング言語の名前
         /// </summary>

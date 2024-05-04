@@ -1,4 +1,5 @@
 ﻿using AliceScript.Binding;
+using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -108,7 +109,7 @@ namespace AliceScript.NameSpaces
                 Debug_IndentLevel--;
             }
         }
-        public static void Debug_Print()
+        public static void Debug_Print(ParsingScript script)
         {
             AddDebugOutput(string.Empty, true);
         }

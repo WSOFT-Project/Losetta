@@ -682,102 +682,23 @@ namespace AliceScript
                 m_tuple.Insert(index, v);
             }
         }
-
-        public virtual bool AsBool()
+        public bool TryAsBool(out bool result)
         {
-            return Type != VarType.BOOLEAN ? throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE) : Bool;
+            result = Bool;
+            return Type == VarType.BOOLEAN;
         }
-        public virtual byte AsByte(bool check = true)
+        public bool AsBool()
         {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true, byte.MinValue, byte.MaxValue);
-            }
-            return (byte)Value;
+            return TryAsBool(out bool r) ? r : throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE);
         }
-        public virtual sbyte AsSByte(bool check = true)
+        public bool TryAsDouble(out double result)
         {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true, sbyte.MinValue, sbyte.MaxValue);
-            }
-            return (sbyte)Value;
+            result = Value;
+            return Type == VarType.NUMBER;
         }
-        public virtual short AsShort(bool check = true)
+        public double AsDouble()
         {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true, short.MinValue, short.MaxValue);
-            }
-            return (short)Value;
-        }
-        public virtual ushort AsUShort(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true, ushort.MinValue, ushort.MaxValue);
-            }
-            return (ushort)Value;
-        }
-        public virtual int AsInt(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true);
-            }
-            return (int)Value;
-        }
-        public virtual uint AsUInt(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true, uint.MinValue, uint.MaxValue);
-            }
-            return (uint)Value;
-        }
-        public virtual nint AsNInt(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true, nint.MinValue, nint.MaxValue);
-            }
-            return (nint)Value;
-        }
-        public virtual UIntPtr AsUNInt(bool check = true)
-        {
-            return new UIntPtr(AsUInt(check));
-        }
-        public virtual long AsLong(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumber(this, null);
-            }
-            return (long)Value;
-        }
-        public virtual ulong AsULong(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumInRange(this, true, ulong.MinValue, ulong.MaxValue);
-            }
-            return (ulong)Value;
-        }
-        public virtual float AsFloat(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumber(this, null);
-            }
-            return (float)Value;
-        }
-        public virtual double AsDouble(bool check = true)
-        {
-            if (check)
-            {
-                Utils.CheckNumber(this, null);
-            }
-            return Value;
+            return TryAsDouble(out double r) ? r : throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE);
         }
 
         public virtual DelegateObject AsDelegate()
@@ -953,6 +874,15 @@ namespace AliceScript
         /// </summary>
         /// <typeparam name="T">変換先の型</typeparam>
         /// <returns>変換されたオブジェクト</returns>
+        public T As<T>()
+        {
+            return (T)ConvertTo(typeof(T));
+        }
+        /// <summary>
+        /// この変数を指定した型に変換します
+        /// </summary>
+        /// <typeparam name="T">変換先の型</typeparam>
+        /// <returns>変換されたオブジェクト</returns>
         public T ConvertTo<T>()
         {
             return (T)ConvertTo(typeof(T));
@@ -997,7 +927,7 @@ namespace AliceScript
                 return true;
             }
             bool isNull = IsNull();
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(System.Nullable<>))
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 if (isNull)
                 {
@@ -1061,47 +991,74 @@ namespace AliceScript
                     {
                         if (type == typeof(byte))
                         {
-                            result = AsByte();
-                            return true;
+                            result = (byte)Value;
+                            return Utils.TestNumInRange(this, true, byte.MinValue, byte.MaxValue);
+                        }
+                        if (type == typeof(sbyte))
+                        {
+                            result = (sbyte)Value;
+                            return Utils.TestNumInRange(this, true, sbyte.MinValue, sbyte.MaxValue);
+                        }
+                        if (type == typeof(short))
+                        {
+                            result = (short)Value;
+                            return Utils.TestNumInRange(this, true, short.MinValue, short.MaxValue);
+                        }
+                        if (type == typeof(ushort))
+                        {
+                            result = (ushort)Value;
+                            return Utils.TestNumInRange(this, true, ushort.MinValue, ushort.MaxValue);
                         }
                         if (type == typeof(int))
                         {
-                            result = AsInt();
-                            return true;
+                            result = (int)Value;
+                            return Utils.TestNumInRange(this, true, int.MinValue, int.MaxValue);
                         }
                         if (type == typeof(uint))
                         {
-                            result = AsUInt();
-                            return true;
+                            result = (uint)Value;
+                            return Utils.TestNumInRange(this, true, uint.MinValue, uint.MaxValue);
+                        }
+                        if (type == typeof(IntPtr))
+                        {
+                            result = (IntPtr)Value;
+                            return Utils.TestNumInRange(this, true, (double)IntPtr.MinValue, (double)IntPtr.MaxValue);
                         }
                         if (type == typeof(UIntPtr))
                         {
-                            result = AsUNInt();
-                            return true;
-                        }
-                        if (type == typeof(nint))
-                        {
-                            result = AsNInt();
-                            return true;
-                        }
-                        if (type == typeof(float))
-                        {
-                            result = AsFloat();
-                            return true;
+                            result = (UIntPtr)Value;
+                            return Utils.TestNumInRange(this, true, (double)UIntPtr.MinValue, (double)UIntPtr.MaxValue);
                         }
                         if (type == typeof(long))
                         {
-                            result = AsLong();
-                            return true;
+                            result = (long)Value;
+                            return Utils.TestNumInRange(this, true, long.MinValue, long.MaxValue);
                         }
                         if (type == typeof(ulong))
                         {
-                            result = AsUInt();
+                            result = (ulong)Value;
+                            return Utils.TestNumInRange(this, true, ulong.MinValue, ulong.MaxValue);
+                        }
+                        if (type == typeof(char))
+                        {
+                            result = (char)Value;
+                            return Utils.TestNumInRange(this, true, char.MinValue, char.MaxValue);
+                        }
+                        if (type == typeof(float))
+                        {
+                            result = (float)Value;
+                            return Utils.TestNumInRange(this, false, float.MinValue, float.MaxValue);
+                        }
+                        if (type == typeof(decimal))
+                        {
+                            //Decimal型はそのままでよい
+                            result = (decimal)Value;
                             return true;
                         }
                         if (type is null || type == typeof(double))
                         {
-                            result = AsDouble();
+                            //Double型はそのままでよい
+                            result = Value;
                             return true;
                         }
                         break;
@@ -1431,7 +1388,7 @@ namespace AliceScript
             m_propertyStringMap[converted] = propName;
 
             m_enumMap ??= new Dictionary<int, string>();
-            m_enumMap[value.AsInt()] = propName;
+            m_enumMap[value.As<int>()] = propName;
         }
 
         public Variable GetEnumProperty(string propName, ParsingScript script, string baseName = "")
@@ -1442,7 +1399,7 @@ namespace AliceScript
                 Variable value = Utils.GetItem(script);
                 return propName == "string"
                     ? ConvertEnumToString(value)
-                    : new Variable(m_enumMap is not null && m_enumMap.ContainsKey(value.AsInt()));
+                    : new Variable(m_enumMap is not null && m_enumMap.ContainsKey(value.As<int>()));
             }
 
             string[] tokens = propName.Split('.');
@@ -1470,7 +1427,7 @@ namespace AliceScript
 
         public Variable ConvertEnumToString(Variable value)
         {
-            return m_enumMap is not null && m_enumMap.TryGetValue(value.AsInt(), out string result) ? new Variable(result) : Variable.EmptyInstance;
+            return m_enumMap is not null && m_enumMap.TryGetValue(value.As<int>(), out string result) ? new Variable(result) : Variable.EmptyInstance;
         }
 
         public Variable GetProperty(string propName, ParsingScript script = null)

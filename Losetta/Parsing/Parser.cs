@@ -712,10 +712,6 @@ namespace AliceScript.Parsing
         //数値同士の演算
         private static Variable MergeNumbers(Variable leftCell, Variable rightCell, ParsingScript script)
         {
-            if (rightCell.Type != Variable.VarType.NUMBER)
-            {
-                rightCell.Value = rightCell.AsDouble();
-            }
             switch (leftCell.Action)
             {
                 case "%":
@@ -739,9 +735,9 @@ namespace AliceScript.Parsing
                 case ">=":
                     return new Variable(leftCell.Value >= rightCell.Value);
                 case Constants.LEFT_SHIFT:
-                    return new Variable(leftCell.AsLong() << rightCell.AsInt());
+                    return new Variable(leftCell.As<long>() << rightCell.As<int>());
                 case Constants.RIGHT_SHIFT:
-                    return new Variable(leftCell.AsLong() >> rightCell.AsInt());
+                    return new Variable(leftCell.As<long>() >> rightCell.As<int>());
                 case "&":
                     return new Variable((int)leftCell.Value & (int)rightCell.Value);
                 case "^":

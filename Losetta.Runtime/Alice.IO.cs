@@ -447,7 +447,7 @@ namespace AliceScript.NameSpaces
             }
             return;
         }
-#endregion
+        #endregion
         #region ディレクトリ操作
         public static void Directory_Create(string path)
         {
@@ -486,7 +486,7 @@ namespace AliceScript.NameSpaces
         {
             Directory.Move(from, to);
         }
-        
+
         public static string Directory_GetRoot(string path)
         {
             return Directory.GetDirectoryRoot(path);
@@ -525,29 +525,77 @@ namespace AliceScript.NameSpaces
         {
             return Directory.GetDirectories(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
-        public static string[] Directory_Get_Files(string path)
+        public static IEnumerable<string> Directory_Get_Files(string path)
         {
-            return Directory.GetFiles(path);
+            return Directory.EnumerateFiles(path);
         }
-        public static string[] Directory_Get_Files(string path, string pattern)
+        public static IEnumerable<string> Directory_Get_Files(string path, string pattern)
         {
-            return Directory.GetFiles(path, pattern);
+            return Directory.EnumerateFiles(path, pattern);
         }
-        public static string[] Directory_Get_Files(string path, string pattern, bool searchSubDir)
+        public static IEnumerable<string> Directory_Get_Files(string path, string pattern, bool searchSubDir)
         {
-            return Directory.GetFiles(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+            return Directory.EnumerateFiles(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
-        public static string[] Directory_Get_Directories(string path)
+        public static IEnumerable<string> Directory_Get_Files(string path, string pattern, bool searchSubDir, bool? matchCasing = null, bool matchByWin32Style = false, bool returnSpecialDirectories = false, bool ignoreInaccessible = true, int maxRecursionDepth = int.MaxValue, int bufferSize = 0)
         {
-            return Directory.GetDirectories(path);
+            EnumerationOptions options = new EnumerationOptions();
+            options.RecurseSubdirectories = searchSubDir;
+            options.MatchCasing = matchCasing.HasValue ? matchCasing.Value ? MatchCasing.CaseSensitive : MatchCasing.CaseInsensitive : MatchCasing.PlatformDefault;
+            options.MatchType = matchByWin32Style ? MatchType.Win32 : MatchType.Simple;
+            options.IgnoreInaccessible = ignoreInaccessible;
+            options.ReturnSpecialDirectories = returnSpecialDirectories;
+            options.MaxRecursionDepth = maxRecursionDepth;
+            options.BufferSize = bufferSize;
+            return Directory.EnumerateFiles(path, pattern, options);
         }
-        public static string[] Directory_Get_Directories(string path, string pattern)
+        public static IEnumerable<string> Directory_Get_Directories(string path)
         {
-            return Directory.GetDirectories(path, pattern);
+            return Directory.EnumerateFiles(path);
         }
-        public static string[] Directory_Get_Directories(string path, string pattern, bool searchSubDir)
+        public static IEnumerable<string> Directory_Get_Directories(string path, string pattern)
         {
-            return Directory.GetDirectories(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+            return Directory.EnumerateFiles(path, pattern);
+        }
+        public static IEnumerable<string> Directory_Get_Directories(string path, string pattern, bool searchSubDir)
+        {
+            return Directory.EnumerateFiles(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        }
+        public static IEnumerable<string> Directory_Get_Directories(string path, string pattern, bool searchSubDir, bool? matchCasing = null, bool matchByWin32Style = false, bool returnSpecialDirectories = false, bool ignoreInaccessible = true, int maxRecursionDepth = int.MaxValue, int bufferSize = 0)
+        {
+            EnumerationOptions options = new EnumerationOptions();
+            options.RecurseSubdirectories = searchSubDir;
+            options.MatchCasing = matchCasing.HasValue ? matchCasing.Value ? MatchCasing.CaseSensitive : MatchCasing.CaseInsensitive : MatchCasing.PlatformDefault;
+            options.MatchType = matchByWin32Style ? MatchType.Win32 : MatchType.Simple;
+            options.IgnoreInaccessible = ignoreInaccessible;
+            options.ReturnSpecialDirectories = returnSpecialDirectories;
+            options.MaxRecursionDepth = maxRecursionDepth;
+            options.BufferSize = bufferSize;
+            return Directory.EnumerateFiles(path, pattern, options);
+        }
+        public static IEnumerable<string> Directory_Get_Entries(string path)
+        {
+            return Directory.EnumerateFileSystemEntries(path);
+        }
+        public static IEnumerable<string> Directory_Get_Entries(string path, string pattern)
+        {
+            return Directory.EnumerateFileSystemEntries(path, pattern);
+        }
+        public static IEnumerable<string> Directory_Get_Entries(string path, string pattern, bool searchSubDir)
+        {
+            return Directory.EnumerateFileSystemEntries(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        }
+        public static IEnumerable<string> Directory_Get_Entries(string path, string pattern, bool searchSubDir, bool? matchCasing = null, bool matchByWin32Style = false, bool returnSpecialDirectories = false, bool ignoreInaccessible = true, int maxRecursionDepth = int.MaxValue, int bufferSize = 0)
+        {
+            EnumerationOptions options = new EnumerationOptions();
+            options.RecurseSubdirectories = searchSubDir;
+            options.MatchCasing = matchCasing.HasValue ? matchCasing.Value ? MatchCasing.CaseSensitive : MatchCasing.CaseInsensitive : MatchCasing.PlatformDefault;
+            options.MatchType = matchByWin32Style ? MatchType.Win32 : MatchType.Simple;
+            options.IgnoreInaccessible = ignoreInaccessible;
+            options.ReturnSpecialDirectories = returnSpecialDirectories;
+            options.MaxRecursionDepth = maxRecursionDepth;
+            options.BufferSize = bufferSize;
+            return Directory.EnumerateFileSystemEntries(path, pattern, options);
         }
         public static long Directory_Get_Length(string path)
         {
@@ -557,11 +605,11 @@ namespace AliceScript.NameSpaces
         {
             long length = 0;
 
-            foreach(FileInfo file in dirInfo.GetFiles())
+            foreach (FileInfo file in dirInfo.GetFiles())
             {
                 length += file.Length;
             }
-            foreach(DirectoryInfo dir in dirInfo.GetDirectories())
+            foreach (DirectoryInfo dir in dirInfo.GetDirectories())
             {
                 length += GetDirectoryLength(dir);
             }
@@ -723,7 +771,7 @@ namespace AliceScript.NameSpaces
         }
         public static string Path_Get_FileName(string path, bool withoutExtension)
         {
-            if(withoutExtension)
+            if (withoutExtension)
             {
                 return Path.GetFileNameWithoutExtension(path);
             }

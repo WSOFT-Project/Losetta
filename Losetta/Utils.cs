@@ -39,16 +39,30 @@ namespace AliceScript
         /// <param name="script">確認元のスクリプト</param>
         public static void CheckNumInRange(Variable variable, bool needInteger = false, double? min = null, double? max = null, ParsingScript script = null)
         {
-            CheckNumber(variable, script);
-            double trueMax = max is null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
-            double trueMin = max is null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
-            bool type = !needInteger || variable.Value % 1 != 0.0;
-            bool less = variable.Value < trueMin;
-            bool over = variable.Value > trueMax;
-            if (type || less || over)
+            if (!TestNumInRange(variable,needInteger,min,max,script))
             {
                 throw new ScriptException($"数値は{(min is not null ? $" {min}以上かつ" : string.Empty)}{(max is not null ? $" {max}以下の" : string.Empty)}{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
             }
+        }
+
+        /// <summary>
+        /// 指定した変数が数値を表し、かつ特定範囲内にあるかどうかを表す値を取得します。
+        /// </summary>
+        /// <param name="variable">確認する変数</param>
+        /// <param name="min">特定範囲より小さな値</param>
+        /// <param name="max">特定範囲より大きな値</param>
+        /// <param name="needInteger">整数かつInt32の範囲内である必要がある場合はtrue。この値は省略できます。</param>
+        /// <param name="script">確認元のスクリプト</param>
+        /// <returns>指定した変数が数値を表し、かつ特定範囲内にある場合はtrue、それ以外の場合はfalse</returns>
+        public static bool TestNumInRange(Variable variable, bool needInteger = false, double? min = null, double? max = null, ParsingScript script = null)
+        {
+            CheckNumber(variable, script);
+            double trueMax = max is null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
+            double trueMin = max is null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
+            bool type = !needInteger || variable.Value % 1 == 0.0;
+            bool less = variable.Value >= trueMin;
+            bool over = variable.Value <= trueMax;
+            return type || less || over;
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
         {
@@ -205,7 +219,7 @@ namespace AliceScript
                 return defaultValue;
             }
             Variable numberVar = args[index];
-            return numberVar.AsInt();
+            return numberVar.As<int>();
         }
 
         public static string GetSafeString(List<Variable> args, int index, string defaultValue = "")

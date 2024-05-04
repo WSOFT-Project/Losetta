@@ -56,7 +56,24 @@ namespace AliceScript
         /// <summary>
         /// デバッグモードで実行する場合はtrue、それ以外の場合はfalse
         /// </summary>
-        public bool DebugMode { get; set; }
+        public bool DebugMode
+        {
+            get => m_debugMode;
+            set
+            {
+                m_debugMode = value;
+                var script = ParsingScript.GetTopLevelScript();
+                if (m_debugMode)
+                {
+                    script.Defines.Add(Constants.DEBUG);
+                }
+                else if (script.Defines.Contains(Constants.DEBUG))
+                {
+                    script.Defines.Remove(Constants.DEBUG);
+                }
+            }
+        }
+        private bool m_debugMode = false;
 
         private StringBuilder m_output = new StringBuilder();
         public string Output
