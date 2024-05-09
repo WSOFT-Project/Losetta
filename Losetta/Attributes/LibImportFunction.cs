@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AliceScript
 {
-    internal class LibImportFunction : AttributeFunction
+    internal class LibImportFunction : FunctionBase
     {
         public LibImportFunction()
         {

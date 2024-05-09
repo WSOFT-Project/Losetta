@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AliceScript
 {
-    internal class NetImportFunction : AttributeFunction
+    internal class NetImportFunction : FunctionBase
     {
         public NetImportFunction()
         {

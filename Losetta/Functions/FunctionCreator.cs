@@ -13,7 +13,7 @@ namespace AliceScript.Functions
             Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             Run += FunctionCreator_Run;
         }
-        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords,HashSet<AttributeFunction> attributes)
+        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords,HashSet<FunctionBase> attributes)
         {
             bool? mode = null;
 
@@ -116,10 +116,8 @@ namespace AliceScript.Functions
             customFunc.ParentScript = script;
             customFunc.ParentOffset = parentOffset;
             customFunc.MethodOnly = isExtension;
-            if (Interpreter.Instance.DebugMode)
-            {
-                customFunc.Obsolete = attributes?.OfType<ObsoleteFunction>().FirstOrDefault();
-            }
+            customFunc.Obsolete = attributes?.OfType<ObsoleteFunction>().FirstOrDefault();
+            bool hasAnnotationFunction = attributes?.OfType<AnnotationFunction>().FirstOrDefault() != null;
             if (isCommand)
             {
                 customFunc.Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
@@ -136,7 +134,7 @@ namespace AliceScript.Functions
             {
                 if (!FunctionExists(funcName, script, out _) || (mode == true && FunctionIsVirtual(funcName, script)))
                 {
-                    FunctionBaseManager.Add(customFunc, funcName, script, accessModifier);
+                    FunctionBaseManager.Add(customFunc, funcName, script, accessModifier,false,hasAnnotationFunction ? Constants.ANNOTATION_FUNCTION_REFIX : '\0');
                 }
                 else
                 {

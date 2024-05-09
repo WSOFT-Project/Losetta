@@ -201,7 +201,7 @@ namespace AliceScript.Functions
         }
 
         public string[] RealArgs { get; internal set; }
-        public HashSet<AttributeFunction> AttributeFunctions { get; internal set; }
+        public HashSet<FunctionBase> AttributeFunctions { get; internal set; }
         public AccessModifier AccessModifier { get; set; }
         public FunctionBase()
         {
@@ -273,7 +273,8 @@ namespace AliceScript.Functions
         /// <param name="script">登録したいスクリプト(この項目を省略するとグローバルに登録されます)</param>
         /// <param name="accessModifier">関数のアクセス修飾子</param>
         /// <param name="byPassCheck">識別子のチェックをバイパスする場合はtrue、それ以外の場合はfalse</param>
-        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, AccessModifier accessModifier = AccessModifier.PRIVATE, bool byPassCheck = false)
+        /// <param name="prefix">識別子につけるプレフィックス(規定値は\0)</param>
+        public static void Add(FunctionBase func, string name = "", ParsingScript script = null, AccessModifier accessModifier = AccessModifier.PRIVATE, bool byPassCheck = false, char prefix = '\0')
         {
             string fname = func.Name;
             func.AccessModifier = accessModifier;
@@ -284,6 +285,10 @@ namespace AliceScript.Functions
             if (!byPassCheck)
             {
                 Utils.CheckLegalName(fname);
+            }
+            if(prefix != '\0')
+            {
+                fname = prefix + fname; 
             }
             script ??= ParsingScript.GetTopLevelScript(script);
             if (accessModifier == AccessModifier.PRIVATE)
@@ -412,7 +417,7 @@ namespace AliceScript.Functions
         /// <summary>
         /// 直前に実行された属性を表す関数のリスト
         /// </summary>
-        public HashSet<AttributeFunction> AttributeFunctions { get; set; }
+        public HashSet<FunctionBase> AttributeFunctions { get; set; }
     }
 
 }

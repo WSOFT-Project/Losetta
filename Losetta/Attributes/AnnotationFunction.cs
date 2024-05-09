@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 
 namespace AliceScript
 {
-    public class AttributeFunction : FunctionBase
+    public class AnnotationFunction : FunctionBase
     {
-
+        public AnnotationFunction()
+        {
+            this.Name = Constants.ANNOTATION_FUNCTION_REFIX + "annotation";
+        }
     }
 }

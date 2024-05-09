@@ -168,6 +168,7 @@ namespace AliceScript
             space.Add(new LibImportFunction());
             space.Add(new NetImportFunction());
             space.Add(new ObsoleteFunction());
+            space.Add(new AnnotationFunction());
 
             NameSpaceManager.Add(space);
 

@@ -397,7 +397,15 @@ namespace AliceScript.PreProcessing
                     inAnnotation = false;
                     sb.Append(Constants.ANNOTATION_FUNCTION_REFIX);
                     sb.Append(pragmaCommand);
-                    sb.Append(pragmaArgs);
+                    if(pragmaArgs.Length > 0)
+                    {
+                        sb.Append(pragmaArgs);
+                    }
+                    else
+                    {
+                        //引数がなかった場合は空の引数リストで関数呼び出しをつける
+                        sb.Append(Constants.START_ARG+Constants.END_ARG);
+                    }
                     sb.Append(Constants.END_STATEMENT);
                     pragmaCommand.Clear();
                     pragmaArgs.Clear();

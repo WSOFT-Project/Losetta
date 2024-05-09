@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AliceScript
 {
-    public class ObsoleteFunction : AttributeFunction
+    public class ObsoleteFunction : FunctionBase
     {
         public ObsoleteFunction()
         {
