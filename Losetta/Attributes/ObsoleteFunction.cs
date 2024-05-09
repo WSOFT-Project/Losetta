@@ -11,14 +11,14 @@ namespace AliceScript
     {
         public ObsoleteFunction()
         {
-            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.OBSOLETE;
+            Name = Constants.ANNOTATION_FUNCTION_REFIX + Constants.OBSOLETE;
             Run += PInvokeFlagFunction_Run;
         }
         public ObsoleteFunction(string message, bool isError)
         {
             Message = message;
             IsError = isError;
-            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.OBSOLETE;
+            Name = Constants.ANNOTATION_FUNCTION_REFIX + Constants.OBSOLETE;
             Run += PInvokeFlagFunction_Run;
         }
 

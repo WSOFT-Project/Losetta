@@ -35,6 +35,7 @@ namespace AliceScript
         public const char QUOTE1_IN_LITERAL = '\ufdd1';
         public const char USER_CANT_USE_FUNCTION_PREFIX = '\ufdd3';
         public const char USER_CANT_USE_VARIABLE_PREFIX = '\ufdd4';
+        public const char ANNOTATION_FUNCTION_REFIX = '\ufdd5';
 
         public const string AS = "as ";
         public const string IS = "is ";

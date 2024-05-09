@@ -11,7 +11,7 @@ namespace AliceScript
     {
         public LibImportFunction()
         {
-            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.LIBRARY_IMPORT;
+            Name = Constants.ANNOTATION_FUNCTION_REFIX + Constants.LIBRARY_IMPORT;
             Run += PInvokeFlagFunction_Run;
         }
 

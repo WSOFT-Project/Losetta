@@ -12,7 +12,7 @@ namespace AliceScript
     {
         public NetImportFunction()
         {
-            Name = Constants.USER_CANT_USE_FUNCTION_PREFIX + Constants.NET_IMPORT;
+            Name = Constants.ANNOTATION_FUNCTION_REFIX + Constants.NET_IMPORT;
             MinimumArgCounts = 1;
             Run += PInvokeFlagFunction_Run;
         }

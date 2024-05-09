@@ -48,6 +48,7 @@ namespace AliceScript.PreProcessing
             char2Line = new Dictionary<int, int>();
 
             bool inPragma = false;
+            bool inAnnotation = false;
             bool inPragmaCommand = false;
             bool inPragmaArgs = false;
             bool inIf = false;
@@ -91,7 +92,7 @@ namespace AliceScript.PreProcessing
 
                 if (ch == '\n')
                 {
-                    if (inPragma)
+                    if (inPragma || inAnnotation)
                     {
                         inPragmaCommand = false;
                         inPragmaArgs = false;
@@ -150,6 +151,14 @@ namespace AliceScript.PreProcessing
                             continue;
                         }
                         break;
+                    case '@':
+                        if(!inAnnotation && !inComments && !inQuotes)
+                        {
+                            inAnnotation = true;
+                            inPragmaCommand = true;
+                            continue;
+                        }
+                        break;
                     case '*':
                         if (!inQuotes && inComments && next == '/')
                         {
@@ -188,6 +197,11 @@ namespace AliceScript.PreProcessing
                         }
                         break;
                     case Constants.START_ARG:
+                        if (inAnnotation && inPragmaCommand)
+                        {
+                            inPragmaCommand = false;
+                            inPragmaArgs = true;
+                        }
                         if (!inQuotes && !inComments && (!inIf || If))
                         {
                             if (levelParentheses == 0)
@@ -254,7 +268,7 @@ namespace AliceScript.PreProcessing
                         {
                             spaceOK = false;
                         }
-                        if (inPragma)
+                        if (inPragma || inAnnotation)
                         {
                             inPragmaCommand = false;
                             inPragmaArgs = false;
@@ -365,7 +379,7 @@ namespace AliceScript.PreProcessing
                         spaceOK = spaceOK || (usedSpace && prev == Constants.NEXT_ARG);
                     }
                 }
-                else if (!inComments && (!inIf || If) && !inPragma)
+                else if (!inComments && (!inIf || If) && !(inPragma || inAnnotation))
                 {
                     sb.Append(ch);
                     lastToken.Append(ch);
@@ -377,6 +391,17 @@ namespace AliceScript.PreProcessing
                 else if (inPragmaArgs)
                 {
                     pragmaArgs.Append(ch);
+                }
+                else if(inAnnotation)
+                {
+                    inAnnotation = false;
+                    sb.Append(Constants.ANNOTATION_FUNCTION_REFIX);
+                    sb.Append(pragmaCommand);
+                    sb.Append(pragmaArgs);
+                    sb.Append(Constants.END_STATEMENT);
+                    pragmaCommand.Clear();
+                    pragmaArgs.Clear();
+                    i--;
                 }
                 else if (inPragma)
                 {
