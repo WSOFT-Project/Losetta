@@ -2,8 +2,8 @@
 using AliceScript.Functions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace AliceScript.NameSpaces.Core
@@ -135,6 +135,15 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.ToUpper();
         }
+        public static string ToUpper(this string str, string? cultureName)
+        {
+            if (cultureName == null)
+            {
+                return str.ToUpperInvariant();
+            }
+            var info = CultureInfo.GetCultureInfo(cultureName, true).TextInfo;
+            return info.ToUpper(str);
+        }
         public static string ToUpperInvariant(this string str)
         {
             return str.ToUpperInvariant();
@@ -143,9 +152,37 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.ToLower();
         }
+        public static string ToLower(this string str, string? cultureName)
+        {
+            if (cultureName == null)
+            {
+                return str.ToLowerInvariant();
+            }
+            var info = CultureInfo.GetCultureInfo(cultureName, true).TextInfo;
+            return info.ToLower(str);
+        }
         public static string ToLowerInvariant(this string str)
         {
             return str.ToLowerInvariant();
+        }
+        public static string ToTitleCase(this string str)
+        {
+            var info = CultureInfo.CurrentCulture.TextInfo;
+            return info.ToTitleCase(str);
+        }
+        public static string ToTitleCase(this string str, string? cultureName)
+        {
+            if (cultureName == null)
+            {
+                return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(str);
+            }
+            var info = CultureInfo.GetCultureInfo(cultureName, true).TextInfo;
+            return info.ToTitleCase(str);
+        }
+        public static string ToTitleInvariant(this string str)
+        {
+            var info = CultureInfo.InvariantCulture.TextInfo;
+            return info.ToTitleCase(str);
         }
         public static string PadLeft(this string str, int totalWidth)
         {

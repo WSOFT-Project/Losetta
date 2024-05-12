@@ -537,17 +537,20 @@ namespace AliceScript.NameSpaces
         {
             return Directory.EnumerateFiles(path, pattern, searchSubDir ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
         }
-        public static IEnumerable<string> Directory_Get_Files(string path, string pattern, bool searchSubDir, bool? matchCasing = null, bool matchByWin32Style = false, bool returnSpecialDirectories = false, bool ignoreInaccessible = true, int maxRecursionDepth = int.MaxValue, int bufferSize = 0)
+        public static IEnumerable<string> Directory_Get_Files(string path, string pattern, bool searchSubDir, bool? matchCasing = null, bool matchByWin32Style = false, bool ignoreInaccessible = true, int maxRecursionDepth = int.MaxValue, int bufferSize = 0)
         {
+#if NETCOREAPP2_1_OR_GREATER
             EnumerationOptions options = new EnumerationOptions();
             options.RecurseSubdirectories = searchSubDir;
             options.MatchCasing = matchCasing.HasValue ? matchCasing.Value ? MatchCasing.CaseSensitive : MatchCasing.CaseInsensitive : MatchCasing.PlatformDefault;
             options.MatchType = matchByWin32Style ? MatchType.Win32 : MatchType.Simple;
             options.IgnoreInaccessible = ignoreInaccessible;
-            options.ReturnSpecialDirectories = returnSpecialDirectories;
             options.MaxRecursionDepth = maxRecursionDepth;
             options.BufferSize = bufferSize;
             return Directory.EnumerateFiles(path, pattern, options);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static IEnumerable<string> Directory_Get_Directories(string path)
         {
@@ -563,6 +566,7 @@ namespace AliceScript.NameSpaces
         }
         public static IEnumerable<string> Directory_Get_Directories(string path, string pattern, bool searchSubDir, bool? matchCasing = null, bool matchByWin32Style = false, bool returnSpecialDirectories = false, bool ignoreInaccessible = true, int maxRecursionDepth = int.MaxValue, int bufferSize = 0)
         {
+#if NETCOREAPP2_1_OR_GREATER
             EnumerationOptions options = new EnumerationOptions();
             options.RecurseSubdirectories = searchSubDir;
             options.MatchCasing = matchCasing.HasValue ? matchCasing.Value ? MatchCasing.CaseSensitive : MatchCasing.CaseInsensitive : MatchCasing.PlatformDefault;
@@ -572,6 +576,9 @@ namespace AliceScript.NameSpaces
             options.MaxRecursionDepth = maxRecursionDepth;
             options.BufferSize = bufferSize;
             return Directory.EnumerateFiles(path, pattern, options);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static IEnumerable<string> Directory_Get_Entries(string path)
         {
@@ -587,6 +594,7 @@ namespace AliceScript.NameSpaces
         }
         public static IEnumerable<string> Directory_Get_Entries(string path, string pattern, bool searchSubDir, bool? matchCasing = null, bool matchByWin32Style = false, bool returnSpecialDirectories = false, bool ignoreInaccessible = true, int maxRecursionDepth = int.MaxValue, int bufferSize = 0)
         {
+#if NETCOREAPP2_1_OR_GREATER
             EnumerationOptions options = new EnumerationOptions();
             options.RecurseSubdirectories = searchSubDir;
             options.MatchCasing = matchCasing.HasValue ? matchCasing.Value ? MatchCasing.CaseSensitive : MatchCasing.CaseInsensitive : MatchCasing.PlatformDefault;
@@ -596,6 +604,9 @@ namespace AliceScript.NameSpaces
             options.MaxRecursionDepth = maxRecursionDepth;
             options.BufferSize = bufferSize;
             return Directory.EnumerateFileSystemEntries(path, pattern, options);
+#else
+                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static long Directory_Get_Length(string path)
         {
