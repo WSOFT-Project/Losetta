@@ -256,9 +256,9 @@ namespace AliceScript.NameSpaces.Core
             if (args.Count > 0 && args[0].Type == Variable.VarType.DELEGATE)
             {
                 var d = args[0].AsDelegate();
-                foreach (Variable item in ary.Tuple)
+                for (int i = 0; i < ary.Tuple.Count; i++)
                 {
-                    d.Invoke(new List<Variable> { item }, script);
+                    d.Invoke(new List<Variable> { ary.Tuple[i] }, script);
                 }
             }
         }

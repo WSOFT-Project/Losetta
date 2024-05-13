@@ -26,7 +26,7 @@ namespace AliceScript.NameSpaces
             }
             else if (x % 2 == 0)
             {
-                return false; // 偶数はあらかじめ除く
+                return false;
             }
 
             double sqrtNum = Math.Sqrt(x);
@@ -34,12 +34,9 @@ namespace AliceScript.NameSpaces
             {
                 if (x % i == 0)
                 {
-                    // 素数ではない
                     return false;
                 }
             }
-
-            // 素数である
             return true;
         }
         public static bool Math_IsNaN(double x)

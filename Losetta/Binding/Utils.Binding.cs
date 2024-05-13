@@ -208,8 +208,6 @@ namespace AliceScript
                 var parameters = load.TrueParameters.Select((x, index) =>
                 Expression.Convert(Expression.ArrayIndex(args, Expression.Constant(index)), GetTrueParametor(x.ParameterType))).ToArray();
 
-
-
                 if (getFunc.IsStatic)
                 {
                     load.ObjFunc = Expression.Lambda<Func<object[], object>>(

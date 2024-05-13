@@ -141,7 +141,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 return str.ToUpperInvariant();
             }
-            var info = CultureInfo.GetCultureInfo(cultureName, true).TextInfo;
+            var info = CultureInfo.GetCultureInfo(cultureName).TextInfo;
             return info.ToUpper(str);
         }
         public static string ToUpperInvariant(this string str)
@@ -158,7 +158,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 return str.ToLowerInvariant();
             }
-            var info = CultureInfo.GetCultureInfo(cultureName, true).TextInfo;
+            var info = CultureInfo.GetCultureInfo(cultureName).TextInfo;
             return info.ToLower(str);
         }
         public static string ToLowerInvariant(this string str)
@@ -176,7 +176,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(str);
             }
-            var info = CultureInfo.GetCultureInfo(cultureName, true).TextInfo;
+            var info = CultureInfo.GetCultureInfo(cultureName).TextInfo;
             return info.ToTitleCase(str);
         }
         public static string ToTitleInvariant(this string str)
