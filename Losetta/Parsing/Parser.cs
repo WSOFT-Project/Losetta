@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AliceScript.Parsing
 {
@@ -779,6 +780,30 @@ namespace AliceScript.Parsing
                 case ":":
                     leftCell.SetHashVariable(leftCell.AsString(), rightCell);
                     break;
+                case "*":
+                    if(rightCell.Type != Variable.VarType.NUMBER)
+                    {
+                        Utils.ThrowErrorMsg("String型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND
+                         , script, leftCell.Action);
+                    break;
+                    }
+                    string text = leftCell.AsString();
+                    int repeat = (int)rightCell.Value;
+                    #if NET6_0_OR_GREATER
+                    DefaultInterpolatedStringHandler sh = new DefaultInterpolatedStringHandler(text.Length * repeat, 0);
+                    for(int i = 0;i < repeat; i++)
+                    {
+                        sh.AppendLiteral(text);
+                    }
+                    return Variable.FromText(sh.ToStringAndClear());
+                    #else
+                    StringBuilder sb = new StringBuilder(text.Length * repeat);
+                    for(int i = 0;i < repeat; i++)
+                    {
+                        sb.Append(text);
+                    }
+                    return Variable.FromText(sb.ToString());
+                    #endif
                 case null:
                 case "\0":
                 case ")":
