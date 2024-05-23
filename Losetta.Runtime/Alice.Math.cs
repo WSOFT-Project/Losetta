@@ -160,9 +160,7 @@ namespace AliceScript.NameSpaces
             return Math.CopySign(x, y);
 
 #else
-                int sign = Math.Sign(y);
-                sign = sign == 0 ? 1 : sign;
-                return Math.Abs(x) * sign;
+                return Math.Abs(x) * Math.Sign(y);
 #endif
         }
         public static double Math_Exp(double x)
