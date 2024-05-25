@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AliceScript.NameSpaces.Core
@@ -345,14 +346,25 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string Repeat(this string str, int repeatCount)
         {
-            var sb = new StringBuilder();
-
+            if (repeatCount <= 0)
+            {
+                return string.Empty;
+            }
+#if NET6_0_OR_GREATER
+            DefaultInterpolatedStringHandler sh = new DefaultInterpolatedStringHandler(str.Length * repeatCount, 0);
             for (int i = 0; i < repeatCount; i++)
             {
-                sb.Append(str);
+                sh.AppendLiteral(str);
             }
-
+            return sh.ToStringAndClear();
+#else
+            StringBuilder sb = new StringBuilder(str.Length * repeatCount);
+                    for(int i = 0;i < repeatCount; i++)
+                    {
+                        sb.Append(str);
+                    }
             return sb.ToString();
+#endif
         }
         public static string Indent(this string str, int indentLevel, string indentChar = " ")
         {

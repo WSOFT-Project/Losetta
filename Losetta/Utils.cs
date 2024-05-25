@@ -39,7 +39,7 @@ namespace AliceScript
         /// <param name="script">確認元のスクリプト</param>
         public static void CheckNumInRange(Variable variable, bool needInteger = false, double? min = null, double? max = null, ParsingScript script = null)
         {
-            if (!TestNumInRange(variable,needInteger,min,max,script))
+            if (!TestNumInRange(variable, needInteger, min, max, script))
             {
                 throw new ScriptException($"数値は{(min is not null ? $" {min}以上かつ" : string.Empty)}{(max is not null ? $" {max}以下の" : string.Empty)}{(needInteger ? "整数" : "実数")}である必要があります。", Exceptions.NUMBER_OUT_OF_RANGE, script);
             }
