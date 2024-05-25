@@ -184,6 +184,15 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.GetEnumerator();
         }
+        public static VariableCollection Repeat(this VariableCollection ary, uint repeat)
+        {
+            VariableCollection v = new VariableCollection();
+            for (int i = 0; i < repeat; i++)
+            {
+                v.Tuple.AddRange(ary.Tuple);
+            }
+            return v;
+        }
         public static int IndexOf(this VariableCollection ary, Variable item)
         {
             return ary.Tuple.IndexOf(item);
