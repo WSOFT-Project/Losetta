@@ -56,7 +56,7 @@ namespace AliceScript
         /// <returns>指定した変数が数値を表し、かつ特定範囲内にある場合はtrue、それ以外の場合はfalse</returns>
         public static bool TestNumInRange(Variable variable, bool needInteger = false, double? min = null, double? max = null, ParsingScript script = null)
         {
-            CheckNumber(variable, script);
+            CheckNumber(variable, script, !(needInteger || max is null || min is null));
             double trueMax = max is null ? (needInteger ? int.MaxValue : double.MaxValue) : max.Value;
             double trueMin = max is null ? (needInteger ? int.MinValue : double.MinValue) : min.Value;
             bool type = !needInteger || variable.Value % 1 == 0.0;
@@ -64,6 +64,12 @@ namespace AliceScript
             bool over = variable.Value <= trueMax;
             return type && less && over;
         }
+        /// <summary>
+        /// 指定した変数が有効な数値であることを確認し、そうでない場合は例外をスローします。
+        /// </summary>
+        /// <param name="variable">確認する変数</param>
+        /// <param name="script">確認元のスクリプト</param>
+        /// <param name="acceptNaN">NaNを認める場合はtrue、それ以外の場合はfalse</param>
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
         {
             if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || !double.IsNaN(variable.Value)))
