@@ -586,6 +586,13 @@ namespace AliceScript.PreProcessing
             }
             return sb.ToString();
         }
+        /// <summary>
+        /// 字句解析上意味のある最初の文字を取得します
+        /// </summary>
+        /// <param name="text">取得元の文字列</param>
+        /// <param name="startIndex">検索を開始する文字列上のインデックス</param>
+        /// <param name="foundIndex">見つかった最初の文字の文字列上のインデックス</param>
+        /// <returns>見つかった最初の文字</returns>
         private static char GetMeaningChar(string text, int startIndex, out int foundIndex)
         {
             for (int i = startIndex; i < text.Length; i++)

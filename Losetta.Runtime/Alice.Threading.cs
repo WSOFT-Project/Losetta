@@ -38,7 +38,7 @@ namespace AliceScript.NameSpaces
         }
         public static void Task_Run(DelegateObject d, ParsingScript script)
         {
-            Task.Run(() => d.Invoke(Variable.EmptyInstance, script));
+            Task.Run(() => d.Invoke(new List<Variable> { }, script));
         }
         public static void Task_Run(DelegateObject d, ParsingScript script, params Variable[] args)
         {
