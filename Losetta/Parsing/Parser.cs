@@ -781,23 +781,22 @@ namespace AliceScript.Parsing
                     leftCell.SetHashVariable(leftCell.AsString(), rightCell);
                     break;
                 case "*":
-                    if (rightCell.Type != Variable.VarType.NUMBER)
+
+                    uint repeat = rightCell.As<uint>();
+                    if(repeat == 0)
                     {
-                        Utils.ThrowErrorMsg("String型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND
-                         , script, leftCell.Action);
-                        break;
+                        return new Variable(Variable.VarType.STRING);
                     }
                     string text = leftCell.AsString();
-                    int repeat = (int)rightCell.Value;
 #if NET6_0_OR_GREATER
-                    DefaultInterpolatedStringHandler sh = new DefaultInterpolatedStringHandler(text.Length * repeat, 0);
+                    DefaultInterpolatedStringHandler sh = new DefaultInterpolatedStringHandler(text.Length * (int)repeat, 0);
                     for (int i = 0; i < repeat; i++)
                     {
                         sh.AppendLiteral(text);
                     }
                     return Variable.FromText(sh.ToStringAndClear());
 #else
-                    StringBuilder sb = new StringBuilder(text.Length * repeat);
+                    StringBuilder sb = new StringBuilder(text.Length * (int)repeat);
                     for(int i = 0;i < repeat; i++)
                     {
                         sb.Append(text);
@@ -871,13 +870,7 @@ namespace AliceScript.Parsing
                     }
                 case "*":
                     {
-                        if (rightCell.Type != Variable.VarType.NUMBER)
-                        {
-                            Utils.ThrowErrorMsg("配列型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND
-                             , script, leftCell.Action);
-                            return leftCell;
-                        }
-                        double repeat = rightCell.Value;
+                        uint repeat = rightCell.As<uint>();
                         Variable v = new Variable(Variable.VarType.ARRAY);
                         for (int i = 0; i < repeat; i++)
                         {

@@ -62,7 +62,7 @@ namespace AliceScript
             bool type = !needInteger || variable.Value % 1 == 0.0;
             bool less = variable.Value >= trueMin;
             bool over = variable.Value <= trueMax;
-            return type || less || over;
+            return type && less && over;
         }
         public static void CheckNumber(Variable variable, ParsingScript script, bool acceptNaN = false)
         {
