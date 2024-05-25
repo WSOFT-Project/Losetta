@@ -3,9 +3,9 @@ using AliceScript.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
 
 namespace AliceScript.Parsing
 {
@@ -109,7 +109,7 @@ namespace AliceScript.Parsing
 
                 // このトークンに対応する関数を取得する
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null ||( fb is not LiteralFunction && fb is not ValueFunction)))
+                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || (fb is not LiteralFunction && fb is not ValueFunction)))
                 {
                     script.ProcessingFunction = fb;//現在処理中としてマーク
                     if (fb.Name.StartsWith(Constants.ANNOTATION_FUNCTION_REFIX))
@@ -781,29 +781,29 @@ namespace AliceScript.Parsing
                     leftCell.SetHashVariable(leftCell.AsString(), rightCell);
                     break;
                 case "*":
-                    if(rightCell.Type != Variable.VarType.NUMBER)
+                    if (rightCell.Type != Variable.VarType.NUMBER)
                     {
                         Utils.ThrowErrorMsg("String型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND
                          , script, leftCell.Action);
-                    break;
+                        break;
                     }
                     string text = leftCell.AsString();
                     int repeat = (int)rightCell.Value;
-                    #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
                     DefaultInterpolatedStringHandler sh = new DefaultInterpolatedStringHandler(text.Length * repeat, 0);
-                    for(int i = 0;i < repeat; i++)
+                    for (int i = 0; i < repeat; i++)
                     {
                         sh.AppendLiteral(text);
                     }
                     return Variable.FromText(sh.ToStringAndClear());
-                    #else
+#else
                     StringBuilder sb = new StringBuilder(text.Length * repeat);
                     for(int i = 0;i < repeat; i++)
                     {
                         sb.Append(text);
                     }
                     return Variable.FromText(sb.ToString());
-                    #endif
+#endif
                 case null:
                 case "\0":
                 case ")":
@@ -867,6 +867,22 @@ namespace AliceScript.Parsing
                         v.Tuple.AddRange(leftCell.Tuple);
                         v.Tuple.Remove(rightCell);
 
+                        return v;
+                    }
+                case "*":
+                    {
+                        if (rightCell.Type != Variable.VarType.NUMBER)
+                        {
+                            Utils.ThrowErrorMsg("配列型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND
+                             , script, leftCell.Action);
+                            return leftCell;
+                        }
+                        double repeat = rightCell.Value;
+                        Variable v = new Variable(Variable.VarType.ARRAY);
+                        for (int i = 0; i < repeat; i++)
+                        {
+                            v.Tuple.AddRange(leftCell.Tuple);
+                        }
                         return v;
                     }
                 case null:
