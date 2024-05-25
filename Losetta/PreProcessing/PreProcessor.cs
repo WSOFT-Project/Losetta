@@ -63,6 +63,7 @@ namespace AliceScript.PreProcessing
             bool spaceOK = false;
             bool inComments = false;
             bool simpleComments = false;
+            bool hasDoller = false;
             char prev = Constants.EMPTY;
 
             int levelCurly = 0;
@@ -73,6 +74,7 @@ namespace AliceScript.PreProcessing
             int lineNumberBrack = 0;
             int lineNumberPar = 0;
             int lineNumberQuote = 0;
+            int skipFor = 0;
 
             int lastScriptLength = 0;
 
@@ -82,7 +84,14 @@ namespace AliceScript.PreProcessing
             {
                 char ch = source[i];
                 char next = i + 1 < source.Length ? source[i + 1] : Constants.EMPTY;
+                char nextnext = i + 2 < source.Length ? source[i + 2] : Constants.EMPTY;
                 char last = sb.Length > 0 ? sb[sb.Length - 1] : Constants.EMPTY;
+
+                if (skipFor > 0)
+                {
+                    skipFor--;
+                    continue;
+                }
 
                 if (ch == Constants.EMPTY)
                 {
@@ -152,7 +161,7 @@ namespace AliceScript.PreProcessing
                         }
                         break;
                     case '@':
-                        if(!inAnnotation && !inComments && !inQuotes)
+                        if (!inAnnotation && !inComments && !inQuotes)
                         {
                             inAnnotation = true;
                             inPragmaCommand = true;
@@ -182,10 +191,18 @@ namespace AliceScript.PreProcessing
                     case '”':
                     case '„':
                     case '"':
-                        ch = '"';
+                        ch = Constants.QUOTE;
                         if (!inComments && (!inIf || If) && !inQuotes1)
                         {
+                            // 文字列リテラルの事前結合が行えるか判断
+                            // つまり、ダブルクオーテーションで囲われていて、リテラル間が'+'でつながっており、次のリテラルもそうである場合
+                            if (inQuotes && !hasDoller && GetMeaningChar(source, i + 1, out int left) == '+' && GetMeaningChar(source, left + 1, out int right) == Constants.QUOTE)
+                            {
+                                skipFor = left - i + (right - left);
+                                continue;
+                            }
                             inQuotes = inQuotes2 = !inQuotes2;
+                            hasDoller = inQuotes && prev == Constants.DOLLER;
                             if (inQuotes && prev == '"' && lineNumberQuote == 0)
                             {
                                 lineNumberQuote = lineNumber;
@@ -392,19 +409,19 @@ namespace AliceScript.PreProcessing
                 {
                     pragmaArgs.Append(ch);
                 }
-                else if(inAnnotation)
+                else if (inAnnotation)
                 {
                     inAnnotation = false;
                     sb.Append(Constants.ANNOTATION_FUNCTION_REFIX);
                     sb.Append(pragmaCommand);
-                    if(pragmaArgs.Length > 0)
+                    if (pragmaArgs.Length > 0)
                     {
                         sb.Append(pragmaArgs);
                     }
                     else
                     {
                         //引数がなかった場合は空の引数リストで関数呼び出しをつける
-                        sb.Append(Constants.START_ARG+Constants.END_ARG);
+                        sb.Append(Constants.START_ARG + Constants.END_ARG);
                     }
                     sb.Append(Constants.END_STATEMENT);
                     pragmaCommand.Clear();
@@ -568,6 +585,20 @@ namespace AliceScript.PreProcessing
                 }
             }
             return sb.ToString();
+        }
+        private static char GetMeaningChar(string text, int startIndex, out int foundIndex)
+        {
+            for (int i = startIndex; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (!(IsIgnoreChar(c) || IsIgnoreCharEvenIfString(c) || char.IsWhiteSpace(c)))
+                {
+                    foundIndex = i;
+                    return c;
+                }
+            }
+            foundIndex = -1;
+            return Constants.EMPTY;
         }
         private static void ThrowSyntaxError(string msg, string code, Exceptions ecode, int level, int lineStart, int lineEnd, string filename)
         {
