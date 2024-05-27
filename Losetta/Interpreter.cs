@@ -48,9 +48,14 @@ namespace AliceScript
                 return instance;
             }
         }
-
+        /// <summary>
+        /// グローバルの名前空間
+        /// </summary>
         public NameSpace GlobalNameSpace => NameSpaceManager.Get(Constants.TOP_NAMESPACE);
 
+        /// <summary>
+        /// このインタプリタの名前
+        /// </summary>
         public string Name => Assembly.GetExecutingAssembly().GetName().Name;
 
         /// <summary>

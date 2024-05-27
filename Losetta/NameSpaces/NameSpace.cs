@@ -46,10 +46,20 @@ namespace AliceScript.NameSpaces
         {
             return NameSpaces.ContainsValue(name);
         }
+        /// <summary>
+        /// 指定した名前の名前空間が存在するかどうかを表す値を取得します。
+        /// </summary>
+        /// <param name="name">確認したい名前空間の名前</param>
+        /// <returns>nameと一致する名前空間が存在する場合はtrue、それ以外の場合はfalse。</returns>
         public static bool Contains(string name)
         {
             return NameSpaces.ContainsKey(name.ToLowerInvariant());
         }
+        /// <summary>
+        /// 指定した名前の名前空間オブジェクトを取得します
+        /// </summary>
+        /// <param name="name">取得したい名前空間の名前</param>
+        /// <returns>nameと一致する名前空間が存在する場合はそのオブジェクト、存在しない場合はnull。</returns>
         public static NameSpace Get(string name)
         {
             return NameSpaces.TryGetValue(name.ToLowerInvariant(), out var value) ? value : null;

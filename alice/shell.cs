@@ -35,8 +35,7 @@ namespace AliceScript.CLI
             Interpreter.Instance.OnDebug += Debug_Print;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
-            //REPLはデバッグモードに
-            Interpreter.Instance.DebugMode = true;
+
             if (File.Exists(filename))
             {
                 Alice.ExecuteFile(filename);
