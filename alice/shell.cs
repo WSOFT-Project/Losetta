@@ -23,7 +23,6 @@ namespace AliceScript.CLI
             NEXT = 1,
             TAB = 2
         };
-        public static bool canDebug = false;
         [STAThread]
         public static void Do()
         {
@@ -35,6 +34,9 @@ namespace AliceScript.CLI
             Interpreter.Instance.OnDebug += Debug_Print;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "shell");
+
+            // 例外を[c]で継続できるようにするため一旦REPLではデバッグモードに
+            Interpreter.Instance.DebugMode = true;
 
             if (File.Exists(filename))
             {
