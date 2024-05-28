@@ -11,18 +11,22 @@ namespace AliceScript.NameSpaces.Core
 {
     internal partial class CoreFunctions
     {
+        public static int CompareTo(this string str, string item)
+        {
+            return string.Compare(str, item);
+        }
+        public static int CompareTo(this string str, string item, bool ignoreCase)
+        {
+            return string.Compare(str, item, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
+        }
+        public static int CompareTo(this string str, string item, bool ignoreCase, bool considerCulture)
+        {
+            return string.Compare(str, item, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
         public static int CompareTo(this string str, string item, bool ignoreCase, string cultureName)
         {
             var info = cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName);
             return string.Compare(str, item, ignoreCase, info);
-        }
-        public static int CompareTo(this string str, string item)
-        {
-            return string.Compare(str, item, StringComparison.Ordinal);
-        }
-        public static int CompareTo(this string str, string item, bool ignoreCase)
-        {
-            return string.Compare(str, item, ignoreCase ? StringComparison.Ordinal : StringComparison.Ordinal);
         }
         public static int IndexOf(this string str, string item)
         {
