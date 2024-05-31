@@ -2,6 +2,7 @@
 using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AliceScript.Functions
 {

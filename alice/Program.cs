@@ -18,29 +18,29 @@ namespace AliceScript.CLI
             ParsedArguments pa = new ParsedArguments(args);
             AliceScript.Runtime.Args = pa.Args;
             CreateAliceDirectory(false);
-            if (pa.Values.ContainsKey("print"))
+            if (pa.Values.TryGetValue("print",out string pr))
             {
-                if (pa.Values["print"].ToLower() == "off")
+                if (string.Equals(pr, "off", StringComparison.OrdinalIgnoreCase))
                 {
                     allow_print = false;
                 }
                 else
                 {
-                    print_redirect_files.Add(pa.Values["print"]);
+                    print_redirect_files.Add(pr);
                 }
             }
-            if (pa.Values.ContainsKey("throw"))
+            if (pa.Values.TryGetValue("throw", out string th))
             {
-                if (pa.Values["throw"].ToLower() == "off")
+                if (string.Equals(th, "off", StringComparison.OrdinalIgnoreCase))
                 {
                     allow_throw = false;
                 }
                 else
                 {
-                    throw_redirect_files.Add(pa.Values["throw"]);
+                    throw_redirect_files.Add(th);
                 }
             }
-            if (pa.Values.TryGetValue("runtime", out string v) && v.ToLower() == "nano")
+            if (pa.Values.TryGetValue("runtime", out string v) && string.Equals(v, "nano", StringComparison.OrdinalIgnoreCase))
             {
                 //最小モードで初期化
                 Runtime.InitBasicAPI();
@@ -64,9 +64,9 @@ namespace AliceScript.CLI
             Interpreter.Instance.OnOutput += Instance_OnOutput;
 
             string filename = Path.Combine(AppContext.BaseDirectory, ".alice", "init");
-            if (pa.Values.ContainsKey("init"))
+            if (pa.Values.TryGetValue("init", out string init))
             {
-                filename = pa.Values["init"];
+                filename = init;
             }
             if (File.Exists(filename))
             {
@@ -149,12 +149,15 @@ namespace AliceScript.CLI
             {
                 if (isFirst)
                 {
-                    sb.Append($" {v}");
+                    sb.Append(Constants.SPACE);
+                    sb.Append(v);
                     isFirst = false;
                 }
                 else
                 {
-                    sb.Append($",{v}");
+                    sb.Append(Constants.SPACE);
+                    sb.Append(',');
+                    sb.Append(v);
                 }
             }
             sb.Append(Constants.END_GROUP);

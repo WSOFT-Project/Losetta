@@ -29,6 +29,11 @@ namespace AliceScript.Binding
             {
                 if ((!wantMethod || load.IsMethod) && load.TryConvertParameters(e, this, out var args))
                 {
+                    if(e.AttributeFunctions?.OfType<TestCallFunction>().FirstOrDefault() is not null)
+                    {
+                        e.Return = Variable.EmptyInstance;
+                        return;
+                    }
                     if (load.IsInstanceFunc)
                     {
                         if (Parent?.Instance is not null)
