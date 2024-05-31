@@ -218,15 +218,20 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.PadRight(totalWidth, paddingChar);
         }
-        public static string PadCenter(this string str, int totalWidth, bool padRight = false, bool truncate = false)
+        public static string PadCenter(this string str, int totalWidth, bool padLeft = false, bool truncate = false)
         {
-            return PadCenter(str, totalWidth, Constants.SPACE, padRight, truncate);
+            return PadCenter(str, totalWidth, Constants.SPACE, padLeft, truncate);
         }
-        public static string PadCenter(this string str, int totalWidth, char paddingChar, bool padRight = false, bool truncate = false)
+        public static string PadCenter(this string str, int totalWidth, char paddingChar, bool padLeft = false, bool truncate = false)
         {
+            if(!truncate && str.Length > totalWidth)
+            {
+                //文字列がWidthより大きく、切り詰めない場合はそのまま返す
+                return str;
+            }
             int length = (totalWidth - str.Length) / 2;
             int surplus = totalWidth - str.Length - length;
-            if (padRight)
+            if (!padLeft)
             {
 #if NET47_OR_GREATER || NETCOREAPP2_0_OR_GREATER
                 // 割り切れないとき右寄せ指定の場合はスワップ
@@ -245,7 +250,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 sb.Append(paddingChar);
             }
-            if (truncate && str.Length > totalWidth)
+            if (str.Length > totalWidth)
             {
                 // 文字列がtotalWidthより長い場合は切り詰め
 #if NETCOREAPP2_1_OR_GREATER
