@@ -197,7 +197,7 @@ namespace AliceScript.CLI
         private static string CompleteTab(string script, string init, ref int tabFileIndex,
           ref string start, ref string baseStr, ref string startsWith)
         {
-            if (tabFileIndex > 0 && !script.Equals(init))
+            if (tabFileIndex > 0 && !script.Equals(init, StringComparison.Ordinal))
             {
                 // The user has changed something in the input field
                 tabFileIndex = 0;
@@ -216,7 +216,7 @@ namespace AliceScript.CLI
             return start + baseStr + result;
         }
 
-        private static bool exit = false;
+        private static bool exit;
         private static void RunLoop()
         {
             List<string> commands = new List<string>();
@@ -271,7 +271,7 @@ namespace AliceScript.CLI
                     continue;
                 }
 
-                if (commands.Count == 0 || !commands[^1].Equals(script))
+                if (commands.Count == 0 || !commands[^1].Equals(script, StringComparison.Ordinal))
                 {
                     commands.Add(script);
                 }
@@ -363,7 +363,7 @@ namespace AliceScript.CLI
                 if (delta < sb.Length)
                 {
                     delta = Math.Max(0, Math.Min(delta, sb.Length - 1));
-                    sb.Insert(delta, key.KeyChar.ToString());
+                    sb.Insert(delta, key.KeyChar);
                 }
                 else
                 {
@@ -372,7 +372,7 @@ namespace AliceScript.CLI
                 SetCursor(prompt, sb.ToString(), delta + 1);
             }
         }
-        private static ParsingScript CurrentScript = null;
+        private static ParsingScript CurrentScript;
         private static void ProcessScript(string script, string filename = "")
         {
             s_PrintingCompleted = false;
@@ -493,6 +493,6 @@ namespace AliceScript.CLI
             //s_PrintingCompleted = true;
         }
 
-        private static bool s_PrintingCompleted = false;
+        private static bool s_PrintingCompleted;
     }
 }
