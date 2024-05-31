@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AliceScript
 {
-    public class TestCallFunction : FunctionBase
+    internal class TestCallFunction : FunctionBase
     {
         public TestCallFunction()
         {

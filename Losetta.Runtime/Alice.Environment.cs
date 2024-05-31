@@ -211,9 +211,9 @@ namespace AliceScript.NameSpaces
         {
             Environment.Exit(exitCode);
         }
-        public static void env_SetExitCode(int exitCode)
-        {
-            Environment.ExitCode = exitCode;
+        public static int env_exitCode{
+            get { return Environment.ExitCode; }
+            set { Environment.ExitCode = value; }
         }
         public static string env_Expand_EnvironmentVariables(string name)
         {
