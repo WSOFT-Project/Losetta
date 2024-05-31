@@ -202,20 +202,40 @@ namespace AliceScript.NameSpaces.Core
             var info = CultureInfo.InvariantCulture.TextInfo;
             return info.ToTitleCase(str);
         }
-        public static string PadLeft(this string str, int totalWidth)
+        public static string PadLeft(this string str, int totalWidth, bool truncate = false)
         {
+            if(truncate && str.Length > totalWidth)
+            {
+                //切り詰めが必要
+                return str.Substring(0, totalWidth);
+            }
             return str.PadLeft(totalWidth);
         }
-        public static string PadLeft(this string str, int totalWidth, char paddingChar)
+        public static string PadLeft(this string str, int totalWidth, char paddingChar, bool truncate = false)
         {
+            if(truncate && str.Length > totalWidth)
+            {
+                //切り詰めが必要
+                return str.Substring(0, totalWidth);
+            }
             return str.PadLeft(totalWidth, paddingChar);
         }
-        public static string PadRight(this string str, int totalWidth)
+        public static string PadRight(this string str, int totalWidth, bool truncate = false)
         {
+            if(truncate && str.Length > totalWidth)
+            {
+                //切り詰めが必要
+                return str.Substring(0, totalWidth);
+            }
             return str.PadRight(totalWidth);
         }
-        public static string PadRight(this string str, int totalWidth, char paddingChar)
+        public static string PadRight(this string str, int totalWidth, char paddingChar, bool truncate = false)
         {
+            if(truncate && str.Length > totalWidth)
+            {
+                //切り詰めが必要
+                return str.Substring(0, totalWidth);
+            }
             return str.PadRight(totalWidth, paddingChar);
         }
         public static string PadCenter(this string str, int totalWidth, bool padLeft = false, bool truncate = false)
@@ -224,10 +244,16 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadCenter(this string str, int totalWidth, char paddingChar, bool padLeft = false, bool truncate = false)
         {
-            if(!truncate && str.Length > totalWidth)
+            if(str.Length > totalWidth)
             {
-                //文字列がWidthより大きく、切り詰めない場合はそのまま返す
-                return str;
+                //切り詰めが必要なら行う
+                if(truncate)
+                {
+                    return str.Substring(0,totalWidth);
+                }else
+                {
+                    return str;
+                }
             }
             int length = (totalWidth - str.Length) / 2;
             int surplus = totalWidth - str.Length - length;
@@ -250,20 +276,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 sb.Append(paddingChar);
             }
-            if (str.Length > totalWidth)
-            {
-                // 文字列がtotalWidthより長い場合は切り詰め
-#if NETCOREAPP2_1_OR_GREATER
-                sb.Append(str.AsSpan().Slice(0, totalWidth));
-#else
-                // Spanが使えない時は無理しない
-                sb.Append(str.Substring(0,totalWidth));
-#endif
-            }
-            else
-            {
-                sb.Append(str);
-            }
+            sb.Append(str);
             for (int i = 0; i < surplus; i++)
             {
                 sb.Append(paddingChar);
