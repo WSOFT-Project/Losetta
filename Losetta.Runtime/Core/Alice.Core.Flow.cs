@@ -428,27 +428,70 @@ namespace AliceScript.NameSpaces.Core
             }
 
             //foreach文本体
-            using (var enumerator = forScript.GetTempScript(tokens[1] + ".GetEnumerator()").Process().As<IEnumerator<object>>())
+            //配列型と文字列型についてはfor文と同じものに最適化する
+            switch (arrayValue.Type)
             {
-                if (enumerator is null)
-                {
-                    Utils.ThrowErrorMsg("foreachでループするオブジェクトは適切にGetEnumeratorメソッドを実装する必要があります", Exceptions.INVALID_SYNTAX, script, "foreach");
-                }
-
-                while (enumerator.MoveNext())
-                {
-                    Variable result = ProcessEach(new Variable(enumerator.Current));
-
-                    if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                case Variable.VarType.ARRAY:
                     {
-                        return result;
+                        for (int i = 0; i < arrayValue.Tuple.Count; i++)
+                        {
+                            Variable result = ProcessEach(arrayValue.Tuple[i]);
+
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                return result;
+                            }
+                            if (result.Type == Variable.VarType.CONTINUE)
+                            {
+                                continue;
+                            }
+                        }
+                        break;
                     }
-                    if (result.Type == Variable.VarType.CONTINUE)
+                case Variable.VarType.STRING:
                     {
-                        continue;
+                        for (int i = 0; i < arrayValue.String.Length; i++)
+                        {
+                            Variable result = ProcessEach(new Variable(arrayValue.String[i].ToString()));
+
+                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            {
+                                return result;
+                            }
+                            if (result.Type == Variable.VarType.CONTINUE)
+                            {
+                                continue;
+                            }
+                        }
+                        break;
                     }
-                }
+                default:
+                    {
+                        using (var enumerator = forScript.GetTempScript(tokens[1] + ".GetEnumerator()").Process().As<IEnumerator<object>>())
+                        {
+                            if (enumerator is null)
+                            {
+                                Utils.ThrowErrorMsg("foreachでループするオブジェクトは適切にGetEnumeratorメソッドを実装する必要があります", Exceptions.INVALID_SYNTAX, script, "foreach");
+                            }
+
+                            while (enumerator.MoveNext())
+                            {
+                                Variable result = ProcessEach(new Variable(enumerator.Current));
+
+                                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                                {
+                                    return result;
+                                }
+                                if (result.Type == Variable.VarType.CONTINUE)
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                        break;
+                    }
             }
+
             return Variable.EmptyInstance;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
