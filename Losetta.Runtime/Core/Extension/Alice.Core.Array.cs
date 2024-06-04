@@ -2,6 +2,7 @@
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -180,7 +181,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Intersect(items);
         }
-        public static IEnumerator<Variable> GetEnumerator(this VariableCollection ary)
+        public static IEnumerator<object> GetEnumerator(this VariableCollection ary)
         {
             return ary.Tuple.GetEnumerator();
         }

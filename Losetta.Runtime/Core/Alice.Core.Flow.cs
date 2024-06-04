@@ -388,6 +388,7 @@ namespace AliceScript.NameSpaces.Core
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Foreach(ParsingScript script, BindFunction func)
         {
+            //構文解析、トークン取得
             string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
             script.Forward();
             string bodyString = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
@@ -398,8 +399,8 @@ namespace AliceScript.NameSpaces.Core
                 Utils.ThrowErrorMsg("foreach文はforeach(variable in array)の形をとるべきです", Exceptions.INVALID_SYNTAX, script, "foreach");
             }
 
+            //実行準備を行う
             ParsingScript forScript = script.GetTempScript(tokens[1], func);
-
             Variable arrayValue = Utils.GetItem(forScript);
 
             if (arrayValue is null)
@@ -407,89 +408,46 @@ namespace AliceScript.NameSpaces.Core
                 return Variable.EmptyInstance;
             }
 
+            // 代入式を逐次実行できるように隠し変数を作成
+            string forConstName = Constants.USER_CANT_USE_VARIABLE_PREFIX + "eachconst";
+
+            var body = new StringBuilder();
+            body.Append(tokens[0].Trim());
+            body.Append(Constants.ASSIGNMENT);
+            body.Append(forConstName);
+            body.Append(Constants.END_STATEMENT);
+            body.Append(bodyString);
+
+            //繰り返し実行される本文
             Variable ProcessEach(Variable current)
             {
-                // 代入式を逐次実行できるように隠し変数を作成
                 current.Readonly = true;
-                string forConstName = Constants.USER_CANT_USE_VARIABLE_PREFIX + "eachconst";
-
-                var body = new StringBuilder();
-                body.Append(tokens[0].Trim());
-                body.Append(Constants.ASSIGNMENT);
-                body.Append(forConstName);
-                body.Append(Constants.END_STATEMENT);
-                body.Append(bodyString);
-
                 ParsingScript mainScript = forScript.GetTempScript(body.ToString());
                 mainScript.Variables[forConstName] = new ValueFunction(current);
-
                 return mainScript.Process(true);
             }
 
-            switch (arrayValue.Type)
+            //foreach文本体
+            using (var enumerator = forScript.GetTempScript(tokens[1] + ".GetEnumerator()").Process().As<IEnumerator<object>>())
             {
-                case Variable.VarType.ARRAY:
-                    {
-                        int cycles = arrayValue.Count;
-                        for (int i = 0; i < cycles; i++)
-                        {
-                            Variable result = ProcessEach(arrayValue.GetValue(i));
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                            {
-                                return result;
-                            }
-                            if (result.Type == Variable.VarType.CONTINUE)
-                            {
-                                continue;
-                            }
-                        }
-                        break;
-                    }
-                case Variable.VarType.STRING:
-                    {
-                        foreach (char c in arrayValue.String)
-                        {
-                            Variable result = ProcessEach(new Variable(c.ToString()));
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                            {
-                                return result;
-                            }
-                            if (result.Type == Variable.VarType.CONTINUE)
-                            {
-                                continue;
-                            }
-                        }
-                        break;
-                    }
-                case Variable.VarType.OBJECT:
-                    {
-                        EnumeratorObject enumerator = forScript.GetTempScript(tokens[1] + ".GetEnumerator()").Process().Object as EnumeratorObject;
-                        if (enumerator is null)
-                        {
-                            Utils.ThrowErrorMsg("foreachでループできるオブジェクトはGetEnumeratorメソッドを実装する必要があります", Exceptions.INVALID_SYNTAX, script, "foreach");
-                        }
-                        IDisposable disposable = enumerator.Enumerator;
-                        while (enumerator.MoveNext())
-                        {
-                            Variable result = ProcessEach(new Variable(enumerator.Current));
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
-                            {
-                                disposable?.Dispose();
-                                return result;
-                            }
-                            if (result.Type == Variable.VarType.CONTINUE)
-                            {
-                                continue;
-                            }
-                        }
-                        disposable?.Dispose();
-                        break;
-                    }
-            }
+                if (enumerator is null)
+                {
+                    Utils.ThrowErrorMsg("foreachでループするオブジェクトは適切にGetEnumeratorメソッドを実装する必要があります", Exceptions.INVALID_SYNTAX, script, "foreach");
+                }
 
-            if (arrayValue.Type == Variable.VarType.STRING)
-            {
-                arrayValue = new Variable(new List<string>(arrayValue.ToString().ToCharArray().Select(c => c.ToString())));
+                while (enumerator.MoveNext())
+                {
+                    Variable result = ProcessEach(new Variable(enumerator.Current));
+
+                    if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                    {
+                        return result;
+                    }
+                    if (result.Type == Variable.VarType.CONTINUE)
+                    {
+                        continue;
+                    }
+                }
             }
             return Variable.EmptyInstance;
         }

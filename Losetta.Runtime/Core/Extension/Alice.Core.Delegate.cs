@@ -2,6 +2,7 @@
 using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,6 +17,10 @@ namespace AliceScript.NameSpaces.Core
         public static Variable Invoke(this DelegateObject func, ParsingScript script)
         {
             return func.Invoke(new List<Variable> { }, script);
+        }
+        public static IEnumerator<object> GetEnumerator(this DelegateObject func)
+        {
+            return func.Functions.GetEnumerator();
         }
         public static Variable Invoke(this DelegateObject func, ParsingScript script, params Variable[] args)
         {

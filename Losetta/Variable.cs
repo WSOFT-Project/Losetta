@@ -292,6 +292,7 @@ namespace AliceScript
                 Delegate = m;
                 return;
             }
+            /*
             if (o is IEnumerator<object> en)
             {
                 // キャスト毎にリセットされるためEnumeratorをEnumeratorObjectでボックス化する
@@ -299,7 +300,7 @@ namespace AliceScript
                 e.Instance = new EnumeratorObject(en);
                 Object = e;
                 return;
-            }
+            }*/
             if (o is ObjectBase obj)
             {
                 Object = obj;

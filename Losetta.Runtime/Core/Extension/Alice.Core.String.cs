@@ -418,6 +418,18 @@ namespace AliceScript.NameSpaces.Core
             return Encoding.GetEncoding(codepage).GetBytes(str);
         }
 
+        public static IEnumerator<object> GetEnumerator(this string str)
+        {
+            IEnumerator<object> CastEnumerator()
+            {
+                var source= str.GetEnumerator();
+                while (source.MoveNext())
+                {
+                    yield return source.Current;
+                }
+            }
+            return CastEnumerator();
+        }
         #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Length(this string str)
