@@ -105,7 +105,7 @@ namespace AliceScript.NameSpaces
             // 無限値と近いのは同符号の無限値のみ
             if (double.IsInfinity(x) || double.IsInfinity(y))
             {
-                return x == y;
+                return double.IsInfinity(x) && double.IsInfinity(y) && Math.Sign(x) == Math.Sign(y);
             }
             // 絶対値が大きいほうのtolearance倍の差であれば2値は近いとみなす
             return Math.Max(Math.Abs(x), Math.Abs(y)) * tolerance >= Math.Abs(x - y);
@@ -133,7 +133,7 @@ namespace AliceScript.NameSpaces
             // 無限値と近いのは同符号の無限値のみ
             if (double.IsInfinity(x) || double.IsInfinity(y))
             {
-                return x == y;
+                return double.IsInfinity(x) && double.IsInfinity(y) && Math.Sign(x) == Math.Sign(y);
             }
             // 大きいほうのtolearance倍の差であれば2値は近いとみなす
             return toabsolutely >= Math.Abs(x - y);
