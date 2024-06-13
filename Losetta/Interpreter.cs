@@ -172,11 +172,14 @@ namespace AliceScript
             space.Add(new ExternFunctionCreator());
             space.Add(new LibImportFunction());
             space.Add(new NetImportFunction());
-            space.Add(new ObsoleteFunction());
-            space.Add(new AnnotationFunction());
-            space.Add(new TestCallFunction());
+
+            NameSpace experimental = new NameSpace("WSOFT.Interpreter.Services");
+            experimental.Add(new ObsoleteFunction());
+            experimental.Add(new AnnotationFunction());
+            experimental.Add(new TestCallFunction());
 
             NameSpaceManager.Add(space);
+            NameSpaceManager.Add(experimental);
 
             ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }
