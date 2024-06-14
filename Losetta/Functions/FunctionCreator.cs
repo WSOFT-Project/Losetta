@@ -113,7 +113,9 @@ namespace AliceScript.Functions
             }
 
             CustomFunction customFunc = new CustomFunction(funcName, body, args, script, false, type_modifer, nullable);
-            customFunc.ParentScript = script;
+
+            customFunc.ParentScript = attributes?.OfType<IndependentFunction>().FirstOrDefault() is null ? script : ParsingScript.GetTopLevelScript();
+
             customFunc.ParentOffset = parentOffset;
             customFunc.MethodOnly = isExtension;
             customFunc.Obsolete = attributes?.OfType<ObsoleteFunction>().FirstOrDefault();

@@ -177,6 +177,7 @@ namespace AliceScript
             experimental.Add(new ObsoleteFunction());
             experimental.Add(new AnnotationFunction());
             experimental.Add(new TestCallFunction());
+            experimental.Add(new IndependentFunction());
 
             NameSpaceManager.Add(space);
             NameSpaceManager.Add(experimental);
