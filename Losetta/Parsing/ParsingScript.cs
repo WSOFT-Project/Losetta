@@ -1386,15 +1386,20 @@ namespace AliceScript.Parsing
                         sb.Append(Constants.SPACE);
                     }
                 }
-                if (Function is CustomFunction)
-                {
-                    sb.Append(".custom ");
-                }
-                else if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+
+                if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
                 {
                     sb.Append(".structure ");
                 }
-                sb.Append(Constants.FUNCTION);
+                if (Function is CustomFunction cfx)
+                {
+                    sb.Append(".custom ");
+                    sb.Append(Constants.TypeToString(cfx.ReturnType).ToLowerInvariant());
+                }
+                else
+                {
+                    sb.Append(Constants.FUNCTION);
+                }
                 sb.Append(Constants.SPACE);
                 if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
                 {

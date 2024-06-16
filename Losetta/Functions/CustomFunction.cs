@@ -432,6 +432,7 @@ namespace AliceScript.Functions
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
+        public Variable.VarType ReturnType => m_returnType;
 
         protected int m_this = -1;
         protected string m_body;
