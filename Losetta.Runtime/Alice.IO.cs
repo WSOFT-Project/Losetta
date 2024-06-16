@@ -760,7 +760,7 @@ namespace AliceScript.NameSpaces
         }
         #endregion
         #region パス関連
-        public static string Path_ChageExtension(string filename, string extension)
+        public static string Path_ChangeExtension(string filename, string extension)
         {
             return Path.ChangeExtension(filename, extension);
         }
