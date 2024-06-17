@@ -10,7 +10,7 @@ using System.Reflection;
 namespace AliceScript.Binding
 {
     /// <summary>
-    /// 任意の静的メソッドを表すオブジェクト
+    /// 任意の静的メソッドのオーバーロードひとつを表すオブジェクト
     /// </summary>
     public sealed class BindingOverloadFunction : IComparable<BindingOverloadFunction>
     {
@@ -23,15 +23,55 @@ namespace AliceScript.Binding
         /// この関数に必要な引数の最小個数
         /// </summary>
         public int MinimumArgCounts { get; set; }
+
+        /// <summary>
+        /// このオーバーロードが持つ引数
+        /// </summary>
         public ParameterInfo[] TrueParameters { get; set; }
+
+        /// <summary>
+        /// このオーバーロードを表すAction
+        /// </summary>
         public Action<object[]> VoidFunc { get; set; }
+
+        /// <summary>
+        /// このオーバーロードを表すFunc
+        /// </summary>
         public Func<object[], object> ObjFunc { get; set; }
+
+        /// <summary>
+        /// このインスタンスオーバーロードを表すAction
+        /// </summary>
         public Action<object, object[]> InstanceVoidFunc { get; set; }
+
+        /// <summary>
+        /// このインスタンスオーバーロードを表すFunc
+        /// </summary>
         public Func<object, object[], object> InstanceObjFunc { get; set; }
+
+        /// <summary>
+        /// このオーバーロードがActionである場合はtrue、そうでない場合はfalse
+        /// </summary>
+        /// <value></value>
         public bool IsVoidFunc { get; set; }
+
+        /// <summary>
+        /// このオーバーロードがインスタンスに属する場合はtrue、そうでない場合はfalse
+        /// </summary>
+        /// <value></value>
         public bool IsInstanceFunc { get; set; }
+
+        /// <summary>
+        /// このオーバーロードが拡張メソッドである場合はtrue、そうでない場合はfalse
+        /// </summary>
+        /// <value></value>
         public bool IsMethod { get; set; }
 
+        /// <summary>
+        /// このオーバーロードともう一方のオーバーロードのどちらが優先されるかを判断します。
+        /// </summary>
+        /// <param name="other">比較する一方のオーバーロードを表すオブジェクト</param>
+        /// <returns>より先に解決されるべき場合は1,より後に解決されるべき場合は-1</returns>
         public int CompareTo(BindingOverloadFunction other)
         {
             int result = MinimumArgCounts.CompareTo(other.MinimumArgCounts);
@@ -56,6 +96,13 @@ namespace AliceScript.Binding
             return result;
         }
 
+        /// <summary>
+        /// AliceScriptの関数に渡された引数をこのメソッドで使用する引数に変換できるか試みます
+        /// </summary>
+        /// <param name="e">AliceScriptの関数の呼び出し情報</param>
+        /// <param name="parent">このメソッドを呼び出したAliceScriptの関数</param>
+        /// <param name="converted">変換された引数。ただし、返還できなかった場合はnull。</param>
+        /// <returns>変換できた場合はtrue,そうでない場合はfalse</returns>
         public bool TryConvertParameters(FunctionBaseEventArgs e, FunctionBase parent, out object[] converted)
         {
             converted = null;
