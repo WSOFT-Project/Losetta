@@ -142,8 +142,21 @@ namespace AliceScript.NameSpaces.Core
         {
             if (script.EnableImport)
             {
+                var data = Utils.GetFileFromPackageOrLocal(filePath, fromPackage);
+                AlicePackage.LoadData(data, filePath, true);
+            }
+            else
+            {
+                throw new ScriptException("その操作は禁止されています", Exceptions.FORBIDDEN_OPERATION, script);
+            }
+        }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
+        public static void Import(ParsingScript script, string filePath, bool fromPackage = false, bool isNativeLibrary = false)
+        {
+            if (script.EnableImport)
+            {
                 var data = Utils.GetFileFromPackageOrLocal(filePath, fromPackage, script);
-                if (fromPackage)
+                if (isNativeLibrary)
                 {
                     Interop.NetLibraryLoader.LoadLibrary(data);
                 }
