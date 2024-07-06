@@ -285,9 +285,13 @@ namespace AliceScript.NameSpaces.Core
                     break;
                 }
                 result = script.GetTempScript(loopBody).Process();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if (result.IsReturn)
                 {
                     return result;
+                }
+                if (result.Type == Variable.VarType.BREAK)
+                {
+                    return Variable.EmptyInstance;
                 }
                 if (result.Type == Variable.VarType.CONTINUE)
                 {
@@ -309,10 +313,14 @@ namespace AliceScript.NameSpaces.Core
                 script.Pointer = startDoCondition;
 
                 result = script.ProcessBlock();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if (result.IsReturn)
                 {
                     script.Pointer = startDoCondition;
                     break;
+                }
+                if (result.Type == Variable.VarType.BREAK)
+                {
+                    return Variable.EmptyInstance;
                 }
                 if (result.Type == Variable.VarType.CONTINUE)
                 {
@@ -370,9 +378,13 @@ namespace AliceScript.NameSpaces.Core
                 }
                 ParsingScript mainScript = initScript.GetTempScript(body);
                 Variable result = mainScript.Process();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if (result.IsReturn)
                 {
                     return result;
+                }
+                if(result.Type == Variable.VarType.BREAK)
+                {
+                    return Variable.EmptyInstance;
                 }
                 if (result.Type == Variable.VarType.CONTINUE)
                 {
@@ -437,9 +449,13 @@ namespace AliceScript.NameSpaces.Core
                         {
                             Variable result = ProcessEach(arrayValue.Tuple[i]);
 
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            if (result.IsReturn)
                             {
                                 return result;
+                            }
+                            if (result.Type == Variable.VarType.BREAK)
+                            {
+                                return Variable.EmptyInstance;
                             }
                             if (result.Type == Variable.VarType.CONTINUE)
                             {
@@ -454,9 +470,13 @@ namespace AliceScript.NameSpaces.Core
                         {
                             Variable result = ProcessEach(new Variable(arrayValue.String[i].ToString()));
 
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            if (result.IsReturn)
                             {
                                 return result;
+                            }
+                            if (result.Type == Variable.VarType.BREAK)
+                            {
+                                return Variable.EmptyInstance;
                             }
                             if (result.Type == Variable.VarType.CONTINUE)
                             {
@@ -478,9 +498,13 @@ namespace AliceScript.NameSpaces.Core
                             {
                                 Variable result = ProcessEach(new Variable(enumerator.Current));
 
-                                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                                if (result.IsReturn)
                                 {
                                     return result;
+                                }
+                                if (result.Type == Variable.VarType.BREAK)
+                                {
+                                    return Variable.EmptyInstance;
                                 }
                                 if (result.Type == Variable.VarType.CONTINUE)
                                 {
