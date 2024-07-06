@@ -285,9 +285,14 @@ namespace AliceScript.NameSpaces.Core
                     break;
                 }
                 result = script.GetTempScript(loopBody).Process();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if (result.IsReturn)
                 {
                     return result;
+                }
+
+                if (result.Type == Variable.VarType.BREAK)
+                {
+                    return Variable.EmptyInstance;
                 }
                 if (result.Type == Variable.VarType.CONTINUE)
                 {
@@ -309,10 +314,15 @@ namespace AliceScript.NameSpaces.Core
                 script.Pointer = startDoCondition;
 
                 result = script.ProcessBlock();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if (result.IsReturn)
                 {
                     script.Pointer = startDoCondition;
                     break;
+                }
+
+                if (result.Type == Variable.VarType.BREAK)
+                {
+                    return Variable.EmptyInstance;
                 }
                 if (result.Type == Variable.VarType.CONTINUE)
                 {
@@ -370,9 +380,14 @@ namespace AliceScript.NameSpaces.Core
                 }
                 ParsingScript mainScript = initScript.GetTempScript(body);
                 Variable result = mainScript.Process();
-                if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                if (result.IsReturn)
                 {
                     return result;
+                }
+
+                if (result.Type == Variable.VarType.BREAK)
+                {
+                    return Variable.EmptyInstance;
                 }
                 if (result.Type == Variable.VarType.CONTINUE)
                 {
@@ -434,9 +449,14 @@ namespace AliceScript.NameSpaces.Core
                         for (int i = 0; i < cycles; i++)
                         {
                             Variable result = ProcessEach(arrayValue.GetValue(i));
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            if (result.IsReturn)
                             {
                                 return result;
+                            }
+
+                            if (result.Type == Variable.VarType.BREAK)
+                            {
+                                return Variable.EmptyInstance;
                             }
                             if (result.Type == Variable.VarType.CONTINUE)
                             {
@@ -450,9 +470,14 @@ namespace AliceScript.NameSpaces.Core
                         foreach (char c in arrayValue.String)
                         {
                             Variable result = ProcessEach(new Variable(c.ToString()));
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            if (result.IsReturn)
                             {
                                 return result;
+                            }
+
+                            if (result.Type == Variable.VarType.BREAK)
+                            {
+                                return Variable.EmptyInstance;
                             }
                             if (result.Type == Variable.VarType.CONTINUE)
                             {
@@ -472,10 +497,15 @@ namespace AliceScript.NameSpaces.Core
                         while (enumerator.MoveNext())
                         {
                             Variable result = ProcessEach(new Variable(enumerator.Current));
-                            if (result.IsReturn || result.Type == Variable.VarType.BREAK)
+                            if (result.IsReturn)
                             {
                                 disposable?.Dispose();
                                 return result;
+                            }
+
+                            if (result.Type == Variable.VarType.BREAK)
+                            {
+                                return Variable.EmptyInstance;
                             }
                             if (result.Type == Variable.VarType.CONTINUE)
                             {

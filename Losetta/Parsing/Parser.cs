@@ -928,25 +928,28 @@ namespace AliceScript.Parsing
         {
             switch (action)
             {
-                case "**":
                 case "++":
-                case "--": return 11;
+                case "--": return 14;
+                case "**": return 13;
                 case "%":
                 case "*":
-                case "/": return 10;
+                case "/": return 12;
                 case "+":
-                case "-": return 9;
+                case "-": return 11;
+                case Constants.LEFT_SHIFT:
+                case Constants.RIGHT_SHIFT: return 10;
                 case "<":
                 case ">":
                 case ">=":
-                case "<=": return 8;
+                case "<=": return 9;
                 case "==":
-                case "!=": return 7;
-                case "&": return 6;
+                case "!=": return 8;
+                case "&": return 7;
+                case "^": return 6;
                 case "|": return 5;
-                case "^": return 4;
-                case "&&": return 2;
-                case "||": return 2;
+                case "&&": return 4;
+                case "||": return 3;
+                case "??": return 2;
                 case "=": return 1;
                 default: return 0;// NULL action has priority 0.
             }
