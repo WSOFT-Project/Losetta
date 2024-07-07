@@ -5,7 +5,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-    <Version>0.10.5</Version>
+    <Version>0.10.6</Version>
     <Company>WSOFT</Company>
     <Product>Losetta</Product>
     <Title>Alice.Runtime</Title>
@@ -16,7 +16,7 @@
     <PackageIcon>alice_logo.png</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64;Debug_Throw</Configurations>
+    <Configurations>Debug;Release;Release_Win_X64;Release_Win_X86;Release_Win_ARM;Release_Win_ARM64;Release_OSX_x64;Release_OSX_ARM64;Release_Linux_x64;Release_Linux_ARM;Release_Linux_ARM64;Debug_Throw</Configurations>
     <Platforms>AnyCPU;ARM32;ARM64;x64;x86</Platforms>
     <Description>Package of basic functions and APIs available in AliceScript</Description>
     <PackageTags>scripting;scripting-language;scripting-engine;runtime;api;wrapper;</PackageTags>
@@ -59,6 +59,18 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSX_x64|ARM32'">
     <Optimize>True</Optimize>
   </PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSX_ARM64|x64'">
+		<Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSX_ARM64|ARM64'">
+		<Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSX_ARM64|ARM32'">
+		<Optimize>True</Optimize>
+	</PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Linux_x64|AnyCPU'">
     <Optimize>True</Optimize>
