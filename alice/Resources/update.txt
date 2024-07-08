@@ -1,126 +1,289 @@
-// 実行ファイルのファイル名
-// ファイル名が異なる場合はこの部分を編集してください。{0}には現在の実行ファイルのディレクトリが代入されます。また、Windowsの場合でも末尾の.exeは不要です
-var target_filename = "{0}alice";
-
 using Alice.IO;
 using Alice.Net;
+using Alice.Regex;
 using Alice.Console;
-using Alice.Environment;
+using Alice.Security;
 using Alice.Diagnostics;
+using Alice.Environment;
 
-const version_get_api = "https://api.wsoft.ws/download/detail?id={0}&feature=version";
+const string update_get_api = "https://api.wsoft.ws/download/detail?id={0}";
 const download_url = "https://download.wsoft.ws/{0}/Download";
 
-var download_id="";
-var isWin=false;
-
-var platform= env_impl_target();
-var arch= env_impl_architecture();
-
-// プラットフォームの識別
-if(platform=="Windows")
+// OS名とアーキテクチャ名から、該当するバイナリのダウンロードIDを取得します
+// os = OS名。Windows,Linux,OSXのいずれか
+// arch = アーキテクチャ名。x64,x86,ARM32,ARM64のいずれか
+// return = 該当するバイナリが見つかった場合はID、それ以外の場合は空文字列
+string GetDownloadId(string os, string arch)
 {
-    isWin=true;
-    if(arch=="x64")
+    switch(os)
     {
-        download_id="WS148";
+        case "Windows":
+        {
+            switch(arch)
+            {
+                case "x64":
+                {
+                    return "WS330";
+                }
+                case "x86":
+                {
+                    return "WS331";
+                }
+                case "ARM64":
+                {
+                    return "WS332";
+                }
+                case "ARM32":
+                {
+                    return "WS333";
+                }
+                default:
+                {
+                    return "";
+                }
+            }
+            break;
+        }
+        case "OSX":
+        {
+            switch(arch)
+            {
+                case "x64":
+                {
+                    return "WS320";
+                }
+                case "ARM64":
+                {
+                    return "WS321";
+                }
+                default:
+                {
+                    return "";
+                }
+            }
+            break;
+        }
+        case "Linux":
+        {
+            switch(arch)
+            {
+                case "x64":
+                {
+                    return "WS310";
+                }
+                case "ARM32":
+                {
+                    return "WS311";
+                }
+                case "ARM64":
+                {
+                    return "WS312";
+                }
+                default:
+                {
+                    return "";
+                }
+            }
+            break;
+        }
+        default:
+        {
+            return "";
+        }
     }
-    if(arch=="x86")
+
+}
+
+string GetDownloadData(string download_id)
+{
+    string update_url = update_get_api.format(download_id);
+    write($"{update_url} から最新情報を取得しています...");
+    string result = "";
+    try
     {
-        download_id="WS149";
+        result = web_download_text(update_url);
+    }catch
+    {
+        print("失敗");
+        env_Exit(1);
     }
-    if(arch=="ARM32")
+    print("完了");
+    return result;
+}
+
+bool CheckFound(string data)
+{
+    return GetValue(data, "Status") == "Found";
+}
+
+string GetValue(string json, string key)
+{
+    var kv = regex_match(json,$'"{key}":"(.*?)"').split(":");
+
+    if(kv.length > 1)
     {
-        download_id="WS151";
+        string r = kv[1];
+        return r.SubString(1, r.Length - 2);
     }
-    if(arch=="ARM64")
+    return "";
+}
+
+string GetNewlyVersion(string data)
+{
+    return GetValue(data, "Version");
+}
+string GetFileSize(string data)
+{
+    return GetValue(data, "FileSize");
+}
+string GetTitle(string data)
+{
+    return GetValue(data, "Title");
+}
+
+bool CompareVersion(string new, string now)
+{
+    var news = new.Split(".");
+    var nows = now.Split(".");
+    if(news.Length != nows.Length)
     {
-        download_id="WS150";
+        return true;
+    }
+    for(var i = 0; i < news.Length; i++)
+    {
+        string n = news[i];
+        string m = nows[i];
+        try
+        {
+            if(m.Convert(number) > n.Convert(number))
+            {
+                return false;
+            }
+        }catch{}
+    }
+    return true;
+}
+
+bool VerifyCheckSum(bytes data, string sum)
+{
+    string checksum = sha512_getHash(data).ToBase64();
+    sum = sum.Trim();
+    return checksum == sum;
+}
+
+bool AskYN(string message)
+{
+    write($"{message} [Y/n]");
+
+    string ans = Console_ReadKey().ToUpperInvariant();
+    print();
+
+    if(ans == "Y")
+    {
+        return true;
+    }
+    else if(ans == "N")
+    {
+        return false;
+    }
+    else
+    {
+        return AskYN(message);
     }
 }
-if(platform=="OSX")
+
+string platform = env_impl_target();
+string arch = env_impl_architecture();
+
+string download_id = GetDownloadId(platform, arch);
+
+if(download_id == null)
 {
-    download_id="WS147";
-}
-if(platform=="Linux")
-{
-    if(arch=="x64")
-    {
-        download_id="WS144";
-    }
-    if(arch=="ARM32")
-    {
-        download_id="WS145";
-    }
-    if(arch=="ARM64")
-    {
-        download_id="WS146";
-    }
-}
-
-if(download_id!="")
-{
-
-// Windowsの場合はファイル名に.exeを挿入
-if(isWin&& !target_filename.EndsWith(".exe"))
-{
-    target_filename+=".exe";
-}
-
-print("環境の判定: OS:{0},アーキテクチャ:{1}",platform,arch);
-
-var version_url = version_get_api.format(download_id);
-print("{0} から最新バージョンを取得しています...",version_url);
-var new_version = web_download_text(version_url);
-print("最新バージョン : {0}",new_version);
-
-var force=env_commandLineArgs().Contains("force");
-var check=env_commandLineArgs().Contains("check");
-
-if(check)
-{
-    print("この実装のバージョン : {0}",env_impl_version());
-    if(new_version != env_impl_version())
-    {
-        print("AliceScriptの実装の更新があります");
-    }
+    print("このプラットフォームでは更新はサポートされていません");
     return;
 }
 
-if(new_version != env_impl_version() || force)
+string data = GetDownloadData(download_id);
+
+write("最新情報を読み込んでいます...");
+string now_version = env_impl_version();
+string new_version = GetNewlyVersion(data);
+string fileSize = GetFileSize(data);
+string title = GetTitle(data);
+
+bool force = env_commandLineArgs().Contains("force");
+bool check = env_commandLineArgs().Contains("check");
+bool need = CompareVersion(new_version, now_version);
+print("完了");
+
+print();
+
+if(need || force)
 {
-    print("この実装よりも新しい実装が公開されています。");
-    Console_Write("更新を実行しますか？(Y/N)>>");
-    if(Console_ReadKey()=="y")
-    {
-        print();
-        var path=target_filename.format(env_impl_location());
-        var tmp =path+".old";
-        file_delete(tmp);
-        file_move(path,tmp);
-        
-        var url = download_url.format(download_id);
-        print("{0} から最新バイナリをダウンロードしています...",url);
-        web_download_file(url,path);
-        print("ダウンロードが完了しました。");
-
-        if(!isWin)
-        {
-            print("ファイル : {0} に実行権限を付与しています...",path);
-            process_start("chmod","+x "+path).WaitForExit();
-        }
-
-        print("{0} に更新しました",new_version);
-        return;
-    }
-
-    print();
-    print("更新はユーザーによって取り消されました");
+    print("以下の更新が使用可能です");
+    print($"- {title} {now_version} -> {new_version} [{fileSize}]");
+}
+else
+{
+    print("現在使用可能な更新はありません");
     return;
 }
 print();
-print("現在利用できる更新はありません");
-}
+bool need_new = (need || force) && !check;
 
-print("このプラットフォームでは更新はサポートされていません");
-return;
+if(need_new)
+{
+    print($"更新を行うには {fileSize} のファイルをダウンロードする必要があります");
+
+    if(!AskYN("更新しますか？"))
+    {
+        print("更新はユーザーによって取り消されました");
+        return;
+    }
+    print();
+    bytes? bin = null;
+    try
+    {
+        string url = download_url.format(download_id);
+        write($"{url} から更新をダウンロードしています...");
+        bin = web_download_data(url);
+        print("完了");
+    }
+    catch(e)
+    {
+        print("失敗");
+        print("更新のダウンロードに失敗しました。更新は行われませんでした。");
+        print($"情報: {e.Message}");
+        env_Exit(1);
+    }
+    
+    write("ファイルを検証しています...");
+    bool verify = VerifyCheckSum(bin, GetValue(data, "Hash"));
+    print("完了");
+    if(!verify)
+    {
+        print("ファイルの検証に失敗しました。更新は行われませんでした。");
+        env_Exit(1);
+    }
+
+    string fileName = env_processPath();
+    string tmpFile = fileName + ".old";
+
+    write("ファイルをバックアップしています...");
+    print();
+    file_delete(tmpFile);
+    file_move(fileName, tmpFile);
+    write("完了");
+
+    write("ファイルを書き込んでいます...");
+    file_write_data(fileName, bin);
+    print("完了");
+
+    print("更新が完了しました");
+    print($"{tmpFile} にバックアップがあります");
+    if(platform != "Windows")
+    {
+        print("最後に次のコマンドを実行してください");
+        print($" chmod +x {fileName}");
+    }
+}

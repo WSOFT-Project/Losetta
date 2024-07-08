@@ -121,7 +121,7 @@ namespace AliceScript.NameSpaces.Core
             // LINQが使えない場合は自分で実装したやつを使う
             if(count <= 0)
             {
-                return ary;
+                new List<Variable>(ary.Tuple);
             }
             // 実際に欲しいIEnumratableの先頭からの長さ
             int wantCount = ary.Count - count;

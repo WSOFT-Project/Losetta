@@ -163,24 +163,22 @@ namespace AliceScript.CLI.Properties {
         }
         
         /// <summary>
-        ///   // 実行ファイルのファイル名
-        ///// ファイル名が異なる場合はこの部分を編集してください。{0}には現在の実行ファイルのディレクトリが代入されます。また、Windowsの場合でも末尾の.exeは不要です
-        ///var target_filename = &quot;{0}alice&quot;;
-        ///
-        ///using Alice.IO;
+        ///   using Alice.IO;
         ///using Alice.Net;
+        ///using Alice.Regex;
         ///using Alice.Console;
-        ///using Alice.Environment;
+        ///using Alice.Security;
         ///using Alice.Diagnostics;
+        ///using Alice.Environment;
         ///
-        ///const version_get_api = &quot;https://api.wsoft.ws/download/detail?id={0}&amp;feature=version&quot;;
+        ///const string update_get_api = &quot;https://api.wsoft.ws/download/detail?id={0}&quot;;
         ///const download_url = &quot;https://download.wsoft.ws/{0}/Download&quot;;
         ///
-        ///var download_id=&quot;&quot;;
-        ///var isWin=false;
-        ///
-        ///var platform= env_impl_target();
-        ///var arch= env_impl_architecture [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        ///// OS名とアーキテクチャ名から、該当するバイナリのダウンロードIDを取得します
+        ///// os = OS名。Windows,Linux,OSXのいずれか
+        ///// arch = アーキテクチャ名。x64,x86,ARM32,ARM64のいずれか
+        ///// return = 該当するバイナリが見つかった場合はID、それ以外の場合は空文字列
+        ///string GetDownloadId(string os, string arch) [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string update {
             get {

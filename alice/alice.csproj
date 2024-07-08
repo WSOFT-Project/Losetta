@@ -10,7 +10,7 @@
 	  
 	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <ApplicationIcon>alice_logo.ico</ApplicationIcon>
-	  <Version>0.10.5</Version>
+	  <Version>0.10.6</Version>
 	  <Title>Losetta.CLI</Title>
 	  <Authors>WSOFT</Authors>
 	  <Company>WSOFT</Company>
