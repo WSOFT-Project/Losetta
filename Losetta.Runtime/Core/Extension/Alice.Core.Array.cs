@@ -12,7 +12,7 @@ namespace AliceScript.NameSpaces.Core
     {
         public static void Add(this VariableCollection ary, params Variable[] items)
         {
-            ary.AddRange(items);
+            ary.Add(items);
         }
         public static void AddRange(this VariableCollection ary, Variable[] items)
         {
@@ -308,6 +308,34 @@ namespace AliceScript.NameSpaces.Core
         public static double Sum(this double[] ary)
         {
             return ary.Sum();
+        }
+        public static double Median(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        {
+            double[] data = ary.Tuple.Select(item => func.Invoke(item, script).As<double>()).ToArray();
+            return Median(data);
+        }
+        public static double Median(this double[] ary)
+        {
+            if(ary.Length % 2 == 0)
+            {
+                return ary.OrderBy(x => x).Skip((ary.Length / 2) - 1).Take(2).Average();
+            }
+            else
+            {
+                return ary.OrderBy(x => x).ElementAt(ary.Length / 2);
+            }
+        }
+        public static Variable Mode(this VariableCollection ary)
+        {
+            return ary.GroupBy(x => x).OrderByDescending(g => g.Count()).Select(g => g.Key).First();
+        }
+        public static Variable Mode(this VariableCollection ary, ParsingScript script, DelegateObject func)
+        {
+            return ary.Select(item => func.Invoke(item, script)).GroupBy(x => x).OrderByDescending(g => g.Count()).Select(g => g.Key).First();
+        }
+        public static double Mode(this double[] ary)
+        {
+            return ary.GroupBy(x => x).OrderByDescending(g => g.Count()).Select(g => g.Key).First();
         }
         public static Variable Aggregate(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
