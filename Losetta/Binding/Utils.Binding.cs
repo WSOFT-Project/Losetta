@@ -1,5 +1,6 @@
 ﻿using AliceScript.Binding;
 using AliceScript.NameSpaces;
+using AliceScript.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -320,6 +321,35 @@ namespace AliceScript
             }
 
             return obj;
+        }
+        /// <summary>
+        /// 引数リストからオーバーロードの優先順位を計算します
+        /// </summary>
+        /// <param name="parameters">オーバーロードの引数リスト</param>
+        /// <returns>優先順位</returns>
+        internal static uint CalcPriority(ParameterInfo[] parameters)
+        {
+            uint priority = 0;
+            foreach(var param in parameters)
+            {
+                // この引数のポイント
+                uint raw = 3;
+                if(param.ParameterType == typeof(char))
+                {
+                    // charはstring(ほかの)よりも優先順位が高い
+                    raw = 4;
+                }
+                else if(param.ParameterType == typeof(VariableCollection))
+                {
+                    raw = 2;
+                }
+                else if(param.ParameterType == typeof(Variable))
+                {
+                    raw = 1;
+                }
+                priority += raw;
+            }
+            return priority;
         }
 
         internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute, bool createNew = false) where T : Attribute, new()

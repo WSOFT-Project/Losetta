@@ -68,6 +68,11 @@ namespace AliceScript.Binding
         public bool IsMethod { get; set; }
 
         /// <summary>
+        /// このオーバーロードの優先順位
+        /// </summary>
+        public uint Priority { get; set; }
+
+        /// <summary>
         /// このオーバーロードともう一方のオーバーロードのどちらが優先されるかを判断します。
         /// </summary>
         /// <param name="other">比較する一方のオーバーロードを表すオブジェクト</param>
@@ -76,23 +81,10 @@ namespace AliceScript.Binding
         {
             int result = MinimumArgCounts.CompareTo(other.MinimumArgCounts);
 
-            if (result == 0)
+            if(result == 0)
             {
-                // 比較に困る場合、引数のVariableCollection(なんでも配列型)の数で比べる
-                int? r = TrueParameters.Where(item => item.ParameterType == typeof(VariableCollection))?.Count().CompareTo(other.TrueParameters.Where(item => item.ParameterType == typeof(VariableCollection))?.Count());
-                result = r.HasValue ? r.Value : result;
+                result = Priority.CompareTo(other.Priority) * -1;
             }
-            if (result == 0)
-            {
-                // それでも比較に困る場合、引数のVariable(なんでも型)の数で比べる
-                int? r = TrueParameters.Where(item => item.ParameterType == typeof(Variable))?.Count().CompareTo(other.TrueParameters.Where(item => item.ParameterType == typeof(Variable))?.Count());
-                result = r.HasValue ? r.Value : result;
-            }
-            if (other.HasParams || result == 0)
-            {
-                result = -1;
-            }
-
             return result;
         }
 

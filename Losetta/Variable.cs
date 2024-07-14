@@ -960,8 +960,13 @@ namespace AliceScript
                         }
                         if (type == typeof(char))
                         {
-                            result = String.Length > 0 ? String[0] : Constants.EMPTY;
-                            return true;
+                            if(String.Length == 1)
+                            {
+                                result = String[0];
+                                return true;
+                            }
+                            result = Constants.EMPTY;
+                            return false;
                         }
                         if (type is null || type == typeof(string))
                         {

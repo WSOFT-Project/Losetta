@@ -110,6 +110,7 @@ namespace AliceScript.Binding
                 {
                     load.HasParams = load.TrueParameters[^1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
                     load.IsMethod = methodInfo.IsDefined(typeof(ExtensionAttribute), true);
+                    load.Priority = Utils.CalcPriority(load.TrueParameters);
                     func.RequestType = load.IsMethod ? new TypeObject() : null;
                 }
                 int i = 0;

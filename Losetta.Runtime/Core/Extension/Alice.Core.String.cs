@@ -204,7 +204,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadLeft(this string str, int totalWidth, bool truncate = false)
         {
-            if(truncate && str.Length > totalWidth)
+            if (truncate && str.Length > totalWidth)
             {
                 //切り詰めが必要
                 return str.Substring(0, totalWidth);
@@ -213,7 +213,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadLeft(this string str, int totalWidth, char paddingChar, bool truncate = false)
         {
-            if(truncate && str.Length > totalWidth)
+            if (truncate && str.Length > totalWidth)
             {
                 //切り詰めが必要
                 return str.Substring(0, totalWidth);
@@ -222,7 +222,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadRight(this string str, int totalWidth, bool truncate = false)
         {
-            if(truncate && str.Length > totalWidth)
+            if (truncate && str.Length > totalWidth)
             {
                 //切り詰めが必要
                 return str.Substring(0, totalWidth);
@@ -231,7 +231,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadRight(this string str, int totalWidth, char paddingChar, bool truncate = false)
         {
-            if(truncate && str.Length > totalWidth)
+            if (truncate && str.Length > totalWidth)
             {
                 //切り詰めが必要
                 return str.Substring(0, totalWidth);
@@ -244,13 +244,14 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string PadCenter(this string str, int totalWidth, char paddingChar, bool padLeft = false, bool truncate = false)
         {
-            if(str.Length > totalWidth)
+            if (str.Length > totalWidth)
             {
                 //切り詰めが必要なら行う
-                if(truncate)
+                if (truncate)
                 {
-                    return str.Substring(0,totalWidth);
-                }else
+                    return str.Substring(0, totalWidth);
+                }
+                else
                 {
                     return str;
                 }
@@ -311,6 +312,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.Replace(oldValue, newValue);
         }
+        public static string Replace(this string str, char oldChar, char newChar)
+        {
+            return str.Replace(oldChar, newChar);
+        }
         public static string Replace(this string str, string oldvalue, string newValue, bool ignoreCase)
         {
 #if NETCOREAPP2_0_OR_GREATER
@@ -329,11 +334,54 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string ReplaceLineEndings(this string str)
         {
+#if NET6_0_OR_GREATER
             return str.ReplaceLineEndings();
+#else
+            return ReplaceLineEndings(str, Environment.NewLine);
+#endif
         }
         public static string ReplaceLineEndings(this string str, string replacementText)
         {
+#if NET6_0_OR_GREATER
             return str.ReplaceLineEndings(replacementText);
+#else
+            if (str == null || replacementText == null)
+            {
+                return null;
+            }
+
+            StringBuilder result = new StringBuilder(str.Length);
+            int length = str.Length;
+            for (int i = 0; i < length; i++)
+            {
+                char currentChar = str[i];
+
+                if (currentChar == '\u000D')
+                {
+                    if (i + 1 < length && str[i + 1] == '\u000A')
+                    {
+                        // CRLF
+                        result.Append(replacementText);
+                        i++; // \nを飛ばす
+                    }
+                    else
+                    {
+                        // CR
+                        result.Append(replacementText);
+                    }
+                }
+                else if (currentChar == '\u000A' || currentChar == '\u0085' || currentChar == '\u2028' || currentChar == '\u000C' || currentChar == '\u2029')
+                {
+                    result.Append(replacementText);
+                }
+                else
+                {
+                    result.Append(currentChar);
+                }
+            }
+
+            return result.ToString();
+#endif
         }
         public static string[] Split(this string str)
         {
@@ -348,7 +396,11 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string[] Split(this string str, string separator)
         {
-            return str.Split(separator);
+            return str.Split(separator, StringSplitOptions.None);
+        }
+        public static string[] Split(this string str, char sep)
+        {
+            return str.Split(sep);
         }
         public static string[] SplitLines(this string str)
         {
@@ -417,7 +469,7 @@ namespace AliceScript.NameSpaces.Core
         {
             IEnumerator<object> CastEnumerator()
             {
-                var source= str.GetEnumerator();
+                var source = str.GetEnumerator();
                 while (source.MoveNext())
                 {
                     yield return source.Current;
