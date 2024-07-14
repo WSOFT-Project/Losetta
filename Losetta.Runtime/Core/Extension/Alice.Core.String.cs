@@ -352,12 +352,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string[] SplitLines(this string str)
         {
-            var result = str.Split('\n');
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = result[i].Trim('\r');
-            }
-            return result;
+            return ReplaceLineEndings(str, "\n").Split('\n');
         }
         public static string Substring(this string str, int startIndex)
         {
