@@ -337,6 +337,35 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.GroupBy(x => x).OrderByDescending(g => g.Count()).Select(g => g.Key).First();
         }
+        /// <summary>
+        /// 現在の配列内の数値の標準偏差を取得します。
+        /// </summary>
+        /// <param name="ary">取得する数値が格納された配列</param>
+        /// <param name="sample">不偏標準偏差(母集団の標本)に対して標準偏差を取得する場合はtrue、標準偏差を取得する場合はfalse。</param>
+        /// <returns>配列内の数値の標準偏差</returns>
+        public static double StdDev(this double[] ary, bool sample = false)
+        {
+            return Math.Sqrt(Variance(ary, sample));
+        }
+        public static double StdDev(this VariableCollection ary, ParsingScript script, DelegateObject func, bool sample = false)
+        {
+            double[] data = ary.Tuple.Select(item => func.Invoke(item, script).As<double>()).ToArray();
+            return StdDev(data, sample);
+        }
+        public static double Variance(this double[] ary, bool sample = false)
+        {
+            int n = ary.Length;
+            double ave = ary.Average();
+            double s = 0;
+            for (int i = 0; i < n; ++i)
+                s = s + (ary[i] - ave) * (ary[i] - ave);
+            return sample ? s / (n - 1) : s / n;
+        }
+        public static double Variance(this VariableCollection ary, ParsingScript script, DelegateObject func, bool sample = false)
+        {
+            double[] data = ary.Tuple.Select(item => func.Invoke(item, script).As<double>()).ToArray();
+            return Variance(data, sample);
+        }
         public static Variable Aggregate(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
             return ary.Tuple.Aggregate((result, current) => func.Invoke(new List<Variable> { result, current }, script));
