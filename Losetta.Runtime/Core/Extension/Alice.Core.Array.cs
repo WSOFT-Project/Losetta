@@ -272,6 +272,27 @@ namespace AliceScript.NameSpaces.Core
                 }
             }
         }
+        public static List<Variable> Slice(this List<Variable> list, int begin)
+        {
+            if(begin < 0)
+            {
+                begin += list.Count;
+            }
+            return Slice(list, begin, list.Count);
+        }
+        public static List<Variable> Slice(this List<Variable> list, int begin, int end)
+        {
+            if(begin < 0) 
+            {
+                begin += list.Count;
+            }
+            if(end < 0)
+            {
+                end += list.Count;
+            }
+            var length = Math.Max(0, end - begin);
+            return list.GetRange(begin, length);
+        }
         #region 配列集計
         public static double Mean(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {
