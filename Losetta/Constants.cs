@@ -229,11 +229,6 @@ namespace AliceScript
         public static readonly Regex UTF32_LITERAL = new Regex(@"[^\\]\\U[0-9a-fA-F]{8}", RegexOptions.Compiled);
 
         /// <summary>
-        /// インデックスの逆引きがとるパターン
-        /// </summary>
-        public static readonly Regex REVERSE_INDEXER = new Regex("(.*)\\[\\^([0-9]*)\\]", RegexOptions.Compiled);
-
-        /// <summary>
         /// return式がとるパターン
         /// </summary>
         public static readonly Regex RETURN_PATTERN = new Regex("return([\\s\\S]*?);", RegexOptions.Compiled);

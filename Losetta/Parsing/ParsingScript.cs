@@ -981,7 +981,15 @@ namespace AliceScript.Parsing
                     }
                 case IndexOutOfRangeException indexOutOfRangeExc:
                     {
-                        OnThrowError(indexOutOfRangeExc, "インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
+                        if(string.IsNullOrEmpty(indexOutOfRangeExc.Message))
+                        {
+                            OnThrowError(indexOutOfRangeExc, "インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
+                        }
+                        else
+                        {
+                            OnThrowError(indexOutOfRangeExc, indexOutOfRangeExc.Message, Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
+                        }
+                        
                         return;
                     }
                 case ArgumentNullException argumentNullExc:

@@ -697,12 +697,6 @@ namespace AliceScript
         {
             List<Variable> indices = new List<Variable>();
 
-            if (max != 0)
-            {
-                //逆からインデックス
-                varName = Constants.REVERSE_INDEXER.Replace(varName, "$1[" + max + "-$2]");
-            }
-
             int argStart = varName.IndexOf(Constants.START_ARRAY, StringComparison.Ordinal);
             if (argStart < 0)
             {
@@ -763,6 +757,16 @@ namespace AliceScript
 
                 int tupleSize = currLevel.GetSize();
 
+                // インデックスの境界外アクセスが起こるのは
+                // i >= 0の場合 -> i >= max
+                // i < 0の場合  -> -i > max
+                // インデックスが正の場合 -> arrayIndex >= tupleSize
+                // インデックスが負の場合 -> |arrayIndex| > tupleSize
+
+                if(arrayIndex < 0)
+                {
+                    arrayIndex = tupleSize + arrayIndex;
+                }
                 if (arrayIndex < 0 || arrayIndex >= tupleSize)
                 {
                     throw new IndexOutOfRangeException("インデックス `" + index.AsString() + "`は配列の境界 `" + tupleSize + "` 外です。");
