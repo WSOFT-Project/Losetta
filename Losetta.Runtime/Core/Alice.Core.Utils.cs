@@ -28,6 +28,10 @@ namespace AliceScript.NameSpaces.Core
         {
             Alice.OnExiting();
         }
+        public static void Exit(int exitCode)
+        {
+            Alice.OnExiting(exitCode);
+        }
 
         public static string Read()
         {
