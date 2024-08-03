@@ -482,7 +482,21 @@ namespace AliceScript.NameSpaces.Core
         {
             return Encoding.GetEncoding(codepage).GetBytes(str);
         }
-
+        public static int CodePointAt(this string str, int index)
+        {
+            return str[index];
+        }
+        public static int CodePointAt(this string str, int index, bool utf32)
+        {
+            if(utf32)
+            {
+                return char.ConvertToUtf32(str, index);
+            }
+            else
+            {
+                return str[index];
+            }
+        }
         public static IEnumerator<object> GetEnumerator(this string str)
         {
             IEnumerator<object> CastEnumerator()
