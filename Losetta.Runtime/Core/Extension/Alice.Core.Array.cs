@@ -293,6 +293,28 @@ namespace AliceScript.NameSpaces.Core
             var length = Math.Max(0, end - begin);
             return list.GetRange(begin, length);
         }
+
+        public static IEnumerable<VariableCollection> Chunk(this VariableCollection list, int size)
+        {
+#if NET6_0_OR_GREATER
+            return list.Tuple.Chunk(size).Select(x => new VariableCollection(x.ToList()));
+#else
+            List<VariableCollection> result = new List<VariableCollection>();
+
+            for (int i = 0; i < list.Count; i += size)
+            {
+                if (i + size > list.Count)
+                {
+                    result.Add(new VariableCollection(list.Tuple.Skip(i).ToList()));
+                }
+                else
+                {
+                    result.Add(new VariableCollection(list.Tuple.GetRange(i, size)));
+                }
+            }
+            return result;
+#endif
+        }
         #region 配列集計
         public static double Mean(this VariableCollection ary, ParsingScript script, DelegateObject func)
         {

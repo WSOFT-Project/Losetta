@@ -406,6 +406,24 @@ namespace AliceScript.NameSpaces.Core
         {
             return ReplaceLineEndings(str, "\n").Split('\n');
         }
+        public static List<string> Chunk(this string str, int size)
+        {
+            List<string> result = new List<string>();
+
+            for (int i = 0; i < str.Length; i += size)
+            {
+                if (i + size > str.Length)
+                {
+                    result.Add(str.Substring(i));
+                }
+                else
+                {
+                    result.Add(str.Substring(i, size));
+                }
+            }
+            return result;
+
+        }
         public static string Substring(this string str, int startIndex)
         {
             return str.Substring(startIndex);

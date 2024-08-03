@@ -10,6 +10,11 @@ namespace AliceScript.Objects
             get => m_tuple;
             set => m_tuple = value;
         }
+        public VariableCollection(){ }
+        public VariableCollection (List<Variable> list)
+        {
+            m_tuple = list;
+        }
         public TypeObject Type { get; set; }
 
         /// <summary>
