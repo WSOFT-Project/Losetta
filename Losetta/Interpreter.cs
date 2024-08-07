@@ -174,6 +174,7 @@ namespace AliceScript
             space.Add(new NetImportFunction());
 
             NameSpace experimental = new NameSpace("WSOFT.Interpreter.Services");
+            experimental.Add<RangeStruct>();
             experimental.Add(new ObsoleteFunction());
             experimental.Add(new AnnotationFunction());
             experimental.Add(new TestCallFunction());
@@ -182,7 +183,7 @@ namespace AliceScript
             NameSpaceManager.Add(space);
             NameSpaceManager.Add(experimental);
 
-            ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
+            //ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }
 
         public void RegisterActions()

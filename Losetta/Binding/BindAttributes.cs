@@ -64,7 +64,7 @@ namespace AliceScript.Binding
     /// <summary>
     /// AliceScriptで使用できるオブジェクトとして公開するクラス
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class|AttributeTargets.Struct)]
     public class AliceObjectAttribute : Attribute
     {
         /// <summary>

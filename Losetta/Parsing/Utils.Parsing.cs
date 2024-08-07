@@ -753,6 +753,24 @@ namespace AliceScript
             for (int i = 0; i < indices.Count; i++)
             {
                 Variable index = indices[i];
+                if (index is not null && index.TryConvertTo<RangeStruct>(out var range))
+                {
+                    range = range.ToActuallyRange(currLevel.Count);
+                    switch(currLevel.Type)
+                    {
+                        case Variable.VarType.ARRAY:
+                        {
+                            currLevel = new Variable(currLevel.Tuple.Tuple.GetRange(range.Start, range.End));
+                            break;
+                        }
+                        case Variable.VarType.STRING:
+                        {
+                            currLevel = new Variable(currLevel.String.Substring(range.Start, range.End));
+                            break;
+                        }
+                    }
+                    break;
+                }
                 int arrayIndex = currLevel.GetArrayIndex(index);
 
                 int tupleSize = currLevel.GetSize();

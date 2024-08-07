@@ -907,7 +907,14 @@ namespace AliceScript
         public bool TryConvertTo<T>(out T result)
         {
             bool r = TryConvertTo(typeof(T), out object obj);
-            result = (T)obj;
+            if(obj is null)
+            {
+                result = default(T);
+            }
+            else
+            {
+                result = (T)obj;
+            }
             return r;
         }
         /// <summary>
@@ -1299,9 +1306,13 @@ namespace AliceScript
             Type = VarType.ARRAY;
             m_tuple ??= new VariableCollection();
         }
-
-        public int Count => Type == VarType.ARRAY ? m_tuple.Count :
-                       Type == VarType.VOID ? 0 : 1;
+        public int Count
+        {
+            get
+            {
+                return GetLength();
+            }
+        }
 
 
         public Variable SetProperty(string propName, Variable value, ParsingScript script, string baseName = "")

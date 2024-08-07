@@ -114,7 +114,6 @@ namespace AliceScript
         public const string OBJECT_PROPERTIES = "Properties";
         public const string OBJECT_TYPE = "Type";
 
-        public const string LABEL_OPERATOR = ":";
         public const string GOTO = "goto";
         public const string GOSUB = "gosub";
 
@@ -136,10 +135,10 @@ namespace AliceScript
         public static readonly string END_ARG_STR = END_ARG.ToString();
         public static readonly string NULL_ACTION = END_ARG.ToString();
 
-        public static readonly string[] OPER_ACTIONS = { LABEL_OPERATOR, ARROW };
+        public static readonly string[] OPER_ACTIONS = {  ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
                                                 AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",NULL_OP,AS,IS_NOT,IS};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS};
 
         public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 

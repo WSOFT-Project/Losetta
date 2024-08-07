@@ -211,7 +211,6 @@ namespace AliceScript
             {
                 return null;
             }
-
             ParsingScript tempScript = script.GetTempScript(token);
             Variable result = tempScript.Execute();
             return new ValueFunction(result);

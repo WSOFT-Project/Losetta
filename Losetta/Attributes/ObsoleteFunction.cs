@@ -14,7 +14,7 @@ namespace AliceScript
             Name = Constants.ANNOTATION_FUNCTION_REFIX + Constants.OBSOLETE;
             Run += PInvokeFlagFunction_Run;
         }
-        public ObsoleteFunction(string message, bool isError)
+        public ObsoleteFunction(bool isError, string message)
         {
             Message = message;
             IsError = isError;
@@ -24,8 +24,8 @@ namespace AliceScript
 
         private void PInvokeFlagFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            Message = Utils.GetSafeString(e.Args, 0, null);
-            IsError = Utils.GetSafeBool(e.Args, 1);
+            IsError = Utils.GetSafeBool(e.Args, 0);
+            Message = Utils.GetSafeString(e.Args, 1, null);
         }
         public string Message { get; set; }
         public bool IsError { get; set; }

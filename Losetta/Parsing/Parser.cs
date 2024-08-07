@@ -288,6 +288,12 @@ namespace AliceScript.Parsing
                             current.Value = -current.Value;
                             break;
                         }
+                    case PreOperetors.Range:
+                    {
+                        Console.WriteLine("AAA");
+                        current = new Variable(new RangeStruct((int)current.Value));
+                        break;
+                    }
                 }
             }
 
@@ -359,27 +365,31 @@ namespace AliceScript.Parsing
                 script.Forward(action.Length - 1);
             }
 
-
-            if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
+            if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
             {
                 token = token.Substring(2);
                 return PreOperetors.Increment;
             }
-            else if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE)
+            else if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
             {
                 token = token.Substring(2);
                 return PreOperetors.Decrement;
             }
-            else if (token.Length > 1 && token[0] == '+' && token[1] != Constants.QUOTE)
+            else if (token.Length > 1 && token[0] == '+' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
             {
                 token = token.Substring(1);
                 //単項プラス演算子は何もする必要がない
                 return PreOperetors.None;
             }
-            else if (token.Length > 1 && token[0] == '-' && token[1] != Constants.QUOTE)
+            else if (token.Length > 1 && token[0] == '-' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
             {
                 token = token.Substring(1);
                 return PreOperetors.Minus;
+            }
+            else if (token.Length > 1 && token[0] == ':' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+            {
+                token = token.Substring(1);
+                return PreOperetors.Range;
             }
             return PreOperetors.None;
         }
@@ -397,7 +407,12 @@ namespace AliceScript.Parsing
             /// <summary>
             /// 単項マイナス
             /// </summary>
-            Minus, None
+            Minus,
+            /// <summary>
+            /// 前置Range
+            /// </summary>
+            Range,
+            None
         }
         private static void CheckQuotesIndices(ParsingScript script,
                             char ch, ref bool inQuotes, ref int arrayIndexDepth)
@@ -747,6 +762,8 @@ namespace AliceScript.Parsing
                     return new Variable((int)leftCell.Value | (int)rightCell.Value);
                 case "**":
                     return new Variable(Math.Pow(leftCell.Value, rightCell.Value));
+                case ":":
+                    return new Variable(new RangeStruct((int)leftCell.Value, (int)rightCell.Value));
                 case null:
                 case "\0":
                 case ")":

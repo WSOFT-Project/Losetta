@@ -79,7 +79,7 @@ namespace AliceScript.Binding
                 string name = methodInfo.Name;
                 if(Utils.TryGetAttibutte<ObsoleteAttribute>(methodInfo, out var obs))
                 {
-                    func.Obsolete = new ObsoleteFunction(obs.Message,obs.IsError);
+                    func.Obsolete = new ObsoleteFunction(obs.IsError, obs.Message);
                 }
                 if (Utils.TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {
@@ -187,7 +187,7 @@ namespace AliceScript.Binding
                 string name = methodInfo.Name;
                 if (Utils.TryGetAttibutte<ObsoleteAttribute>(methodInfo, out var obs))
                 {
-                    func.Obsolete = new ObsoleteFunction(obs.Message, obs.IsError);
+                    func.Obsolete = new ObsoleteFunction(obs.IsError, obs.Message);
                 }
                 if (Utils.TryGetAttibutte<AliceFunctionAttribute>(methodInfo, out var attribute))
                 {

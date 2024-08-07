@@ -73,12 +73,4 @@ namespace AliceScript.Functions
         }
     }
 
-    internal sealed class LabelFunction : ActionFunction
-    {
-        protected override Variable Evaluate(ParsingScript script)
-        {
-            // ラベル名のため何もしない
-            return Variable.EmptyInstance;
-        }
-    }
 }

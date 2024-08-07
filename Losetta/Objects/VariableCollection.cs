@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace AliceScript.Objects
@@ -83,7 +84,6 @@ namespace AliceScript.Objects
                 throw new ScriptException("現在の配列にはその型を代入することができません。", Exceptions.WRONG_TYPE_VARIABLE);
             }
         }
-
         public void RemoveAt(int index)
         {
             m_tuple.RemoveAt(index);
