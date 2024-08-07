@@ -1,4 +1,5 @@
-﻿using AliceScript.Parsing;
+﻿using AliceScript.Objects;
+using AliceScript.Parsing;
 using System.Text;
 
 namespace AliceScript.Functions
@@ -143,7 +144,15 @@ namespace AliceScript.Functions
                     // 数値として処理
                     Name = "NumberLiteral";
                     double num = Utils.ConvertToDouble(Item, e.Script);
-                    e.Return = new Variable(num);
+                    // Rangeの特殊対応
+                    if (Action == ":")
+                    {
+                        e.Return = new Variable(new RangeStruct((int)num));
+                    }
+                    else
+                    {
+                        e.Return = new Variable(num);
+                    }
                 }
             }
 
@@ -153,7 +162,7 @@ namespace AliceScript.Functions
         public string Item { private get; set; }
         public bool DetectionUTF8_Literal { get; set; }
         public bool DetectionStringFormat { get; set; }
-
+        public string Action { get; set; }
 
     }
 }

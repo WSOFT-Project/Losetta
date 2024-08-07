@@ -191,6 +191,7 @@ namespace AliceScript
             ParserFunction.AddAction(Constants.ASSIGNMENT, new AssignFunction());
             ParserFunction.AddAction(Constants.INCREMENT, new IncrementDecrementFunction());
             ParserFunction.AddAction(Constants.DECREMENT, new IncrementDecrementFunction());
+            ParserFunction.AddAction("..", new PoseRangeFunction());
         }
 
         public Variable ProcessFile(string filename, bool mainFile = false)

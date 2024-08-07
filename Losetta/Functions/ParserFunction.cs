@@ -63,7 +63,7 @@ namespace AliceScript.Functions
                 return;
             }
 
-            m_impl = CheckString(script, item, ch);
+            m_impl = CheckString(script, item, ch, action);
             if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
@@ -152,9 +152,11 @@ namespace AliceScript.Functions
                 ? TryCustomFunction(item, script, keywords)
                 : null;
         }
-        public static ParserFunction CheckString(ParsingScript script, string item, char ch)
+        public static ParserFunction CheckString(ParsingScript script, string item, char ch, string action)
         {
             LiteralFunction literalFunction = new LiteralFunction();
+
+            literalFunction.Action = action;
 
             if (item.Length > 0 && char.IsDigit(item[0]))
             {
