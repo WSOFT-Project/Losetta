@@ -98,4 +98,15 @@ namespace AliceScript.Binding
         public AliceBindState DefaultState { get; set; }
 
     }
+    /// <summary>
+    /// AliceScriptで使用できるプロパティとして公開するプロパティ
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class AliceObjectOperatorAttribute : Attribute
+    {
+        /// <summary>
+        /// 演算子
+        /// </summary>
+        public string Operator { get; set; }
+    }
 }

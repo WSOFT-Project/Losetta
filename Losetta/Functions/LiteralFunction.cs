@@ -1,5 +1,6 @@
 ﻿using AliceScript.Objects;
 using AliceScript.Parsing;
+using System;
 using System.Text;
 
 namespace AliceScript.Functions

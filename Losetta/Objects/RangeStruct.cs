@@ -39,6 +39,11 @@ namespace AliceScript.Objects
             var length = Math.Max(0, End - Start);
             return new RangeStruct(Start, length);
         }
+        [AliceObjectOperator(Operator = ":")]
+        public RangeStruct TwoRangeOperator(int i)
+        {
+            return new RangeStruct(Start, i);
+        }
         public int Start { get; set; }
         public int End{get;set;}
         private bool m_fromStart{get;set;}

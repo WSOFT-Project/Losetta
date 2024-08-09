@@ -1,6 +1,8 @@
 ﻿using AliceScript.Objects;
 using AliceScript.Parsing;
+using AliceScript.Functions;
 using System;
+using System.Collections.Generic;
 
 namespace AliceScript.Binding
 {
@@ -19,6 +21,10 @@ namespace AliceScript.Binding
         }
         public override Variable Operator(Variable left, Variable right, string action, ParsingScript script)
         {
+            if(Operators.TryGetValue(action, out var result))
+            {
+                return result.Evaluate(new List<Variable>{right}, script);
+            }
             if (left.Object is BindObject leftObj && right.Object is BindObject rightObj && leftObj.Instance is IComparable comp1 && rightObj.Instance is IComparable comp2)
             {
                 switch (action)
@@ -61,5 +67,11 @@ namespace AliceScript.Binding
             }
             return 0;
         }
+        public Dictionary<string, FunctionBase> Operators
+        {
+            get => m_operators;
+            set => m_operators = value;
+        }
+        private Dictionary<string, FunctionBase> m_operators = new Dictionary<string, FunctionBase>();
     }
 }

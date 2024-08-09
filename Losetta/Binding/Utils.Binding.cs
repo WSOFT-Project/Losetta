@@ -253,11 +253,20 @@ namespace AliceScript
             }
             Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
             Dictionary<string, HashSet<MethodInfo>> staticmethods = new Dictionary<string, HashSet<MethodInfo>>();
+            Dictionary<string, HashSet<MethodInfo>> operators = new Dictionary<string,HashSet<MethodInfo>>();
             foreach (var m in type.GetMethods())
             {
                 if (m.IsPublic && !m.IsDefined(typeof(CompilerGeneratedAttribute)))
                 {
-                    if (m.IsStatic)
+                    if(TryGetAttibutte<AliceObjectOperatorAttribute>(m, out var opattr))
+                    {
+                        if (!operators.ContainsKey(opattr.Operator))
+                        {
+                            operators[opattr.Operator] = new HashSet<MethodInfo>();
+                        }
+                        operators[opattr.Operator].Add(m);
+                    }
+                    else if (m.IsStatic)
                     {
                         if (!staticmethods.ContainsKey(m.Name))
                         {
@@ -291,6 +300,16 @@ namespace AliceScript
                 {
                     func.Parent = obj;
                     obj.StaticFunctions[func.Name] = func;
+                }
+            }
+            foreach (KeyValuePair<string,HashSet<MethodInfo>> mkv in operators)
+            {
+                var func = CreateBindFunction(mkv.Value);
+                if (func is not null)
+                {
+                    func.Parent = obj;
+                    func.Name = $"operator{mkv.Key}";
+                    obj.Operators[mkv.Key] = func;
                 }
             }
             foreach (var p in type.GetProperties())

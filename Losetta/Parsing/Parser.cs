@@ -653,14 +653,7 @@ namespace AliceScript.Parsing
                 else
                 if (leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator)
                 {
-                    if(rightCell.Type == Variable.VarType.NUMBER && leftCell.TryConvertTo<RangeStruct>(out var range))
-                    {
-                        leftCell = new Variable(new RangeStruct(range.Start, (int)rightCell.Value));
-                    }
-                    else
-                    {
-                        leftCell = obj.Operator(leftCell, rightCell, leftCell.Action, script);
-                    }
+                    leftCell = obj.Operator(leftCell, rightCell, leftCell.Action, script);
                 }
                 else
                 {
