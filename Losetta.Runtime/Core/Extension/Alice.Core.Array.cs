@@ -237,6 +237,10 @@ namespace AliceScript.NameSpaces.Core
         {
             ary.Tuple.Sort();
         }
+        public static void Sort(this VariableCollection ary, DelegateObject comparator, ParsingScript script)
+        {
+            ary.Tuple.Sort((a,b) => comparator.Invoke(script,a,b).As<int>());
+        }
         public static void Sort(this VariableCollection ary, int index, int count)
         {
             ary.Tuple.Sort(index, count, null);
