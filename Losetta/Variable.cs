@@ -142,6 +142,10 @@ namespace AliceScript
             ByteArray = ba;
             Type = VarType.BYTES;
         }
+        public Variable(List<Variable> l)
+        {
+            Tuple = new VariableCollection(l);
+        }
         public Variable(IEnumerable<Variable> a)
         {
             Tuple = new VariableCollection();
