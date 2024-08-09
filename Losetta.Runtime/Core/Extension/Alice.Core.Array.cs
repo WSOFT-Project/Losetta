@@ -237,6 +237,10 @@ namespace AliceScript.NameSpaces.Core
         {
             ary.Tuple.Sort();
         }
+        public static void Sort(this VariableCollection ary, int index, int count)
+        {
+            ary.Tuple.Sort(index, count, null);
+        }
         public static void Reverse(this VariableCollection ary)
         {
             ary.Tuple.Reverse();
