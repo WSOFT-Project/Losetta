@@ -325,22 +325,13 @@ namespace AliceScript.NameSpaces.Core
         }
         public static List<Variable> Zip(this List<Variable> list,params List<Variable>[] others)
         {
-
             // 結果の長さを決める(もっとも小さいもの)
-            int size = list.Count;
-            foreach(var other in others)
-            {
-                if(size > other.Count)
-                {
-                    size = other.Count;
-                }
-            }
-
+            int size = Math.Min(list.Count, others.Min(x => x.Count));
+            
             var result = new List<Variable>(size);
             for (int i = 0; i < size; i++)
             {
-                List<Variable> element = new List<Variable>(1 + others.Length);
-                element.Add(list[i]);
+                List<Variable> element = new List<Variable>(1 + others.Length){ list[i] };
                 foreach(var other in others)
                 {
                     element.Add(other[i]);
