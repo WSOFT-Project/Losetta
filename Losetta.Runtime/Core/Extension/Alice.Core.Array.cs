@@ -327,7 +327,7 @@ namespace AliceScript.NameSpaces.Core
         {
             // 結果の長さを決める(もっとも小さいもの)
             int size = Math.Min(list.Count, others.Min(x => x.Count));
-            
+
             var result = new List<Variable>(size);
             for (int i = 0; i < size; i++)
             {
@@ -337,6 +337,18 @@ namespace AliceScript.NameSpaces.Core
                     element.Add(other[i]);
                 }
                 result.Add(new Variable(element));
+            }
+            return result;
+        }
+        public static List<Variable> Zip(this List<Variable> list, ParsingScript script, DelegateObject predicate, params List<Variable>[] others)
+        {
+            // 結果の長さを決める(もっとも小さいもの)
+            int size = Math.Min(list.Count, others.Min(x => x.Count));
+
+            var result = new List<Variable>(size);
+            for (int i = 0; i < size; i++)
+            {
+                result.Add(predicate.Invoke(script, new Variable(others[size])));
             }
             return result;
         }
