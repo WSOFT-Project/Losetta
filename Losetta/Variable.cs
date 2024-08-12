@@ -1134,7 +1134,7 @@ namespace AliceScript
                         if (Object is BindObject bo)
                         {
                             result = bo.Instance;
-                            return true;
+                            return type.IsAssignableFrom(result.GetType());
                         }
                         result = System.Convert.ChangeType(Object, type);
                         return true;

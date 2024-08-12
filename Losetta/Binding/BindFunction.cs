@@ -77,6 +77,10 @@ namespace AliceScript.Binding
             foreach (var methodInfo in methodInfos)
             {
                 string name = methodInfo.Name;
+                if(name == "Slice")
+                {
+                    Console.WriteLine();
+                }
                 if(Utils.TryGetAttibutte<ObsoleteAttribute>(methodInfo, out var obs))
                 {
                     func.Obsolete = new ObsoleteFunction(obs.IsError, obs.Message);
@@ -244,7 +248,7 @@ namespace AliceScript.Binding
             return func.Overloads.Count > 0 ? func : null;
         }
 
-        private SortedSet<BindingOverloadFunction> Overloads = new SortedSet<BindingOverloadFunction>();
+        private List<BindingOverloadFunction> Overloads = new List<BindingOverloadFunction>();
         /// <summary>
         /// この関数がBindObjectのメソッドの場合、そのオブジェクト
         /// </summary>

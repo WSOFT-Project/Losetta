@@ -280,9 +280,13 @@ namespace AliceScript.NameSpaces.Core
                 }
             }
         }
+        public static List<Variable> Slice(this List<Variable> list, RangeStruct range)
+        {
+            return Slice(list, range.Start, range.End);
+        }
         public static List<Variable> Slice(this List<Variable> list, int begin)
         {
-            if(begin < 0)
+            if (begin < 0)
             {
                 begin += list.Count;
             }
