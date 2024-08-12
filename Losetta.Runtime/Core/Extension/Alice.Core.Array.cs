@@ -284,26 +284,26 @@ namespace AliceScript.NameSpaces.Core
         {
             return Slice(list, range.Start, range.End);
         }
-        public static List<Variable> Slice(this List<Variable> list, int begin)
+        public static List<Variable> Slice(this List<Variable> list, int start)
         {
-            if (begin < 0)
+            if (start < 0)
             {
-                begin += list.Count;
+                start += list.Count;
             }
-            return Slice(list, begin, list.Count);
+            return Slice(list, start, list.Count);
         }
-        public static List<Variable> Slice(this List<Variable> list, int begin, int end)
+        public static List<Variable> Slice(this List<Variable> list, int start, int end)
         {
-            if(begin < 0) 
+            if(start < 0) 
             {
-                begin += list.Count;
+                start += list.Count;
             }
             if(end < 0)
             {
                 end += list.Count;
             }
-            var length = Math.Max(0, end - begin);
-            return list.GetRange(begin, length);
+            var length = Math.Max(0, end - start);
+            return list.GetRange(start, length);
         }
 
         public static IEnumerable<VariableCollection> Chunk(this VariableCollection list, int size)
