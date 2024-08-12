@@ -331,7 +331,7 @@ namespace AliceScript.Functions
                 // ステートメント形式のラムダなら波かっこ内を取得し、それ以外なら丸かっこ内を取得
                 string body = script.Current == Constants.START_GROUP
                     ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP)
-                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
+                    : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, Constants.TOKENS_SEPARATION_STR + "\0");
 
 
                 int parentOffset = script.Pointer;

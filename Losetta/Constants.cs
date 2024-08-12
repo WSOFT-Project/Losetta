@@ -180,7 +180,8 @@ namespace AliceScript
         public static readonly string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
         public static readonly char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
         public static readonly string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
-        public static readonly char[] TOKENS_SEPARATION = ",;)".ToCharArray();
+        public static readonly string TOKENS_SEPARATION_STR = ",;)";
+        public static readonly char[] TOKENS_SEPARATION = TOKENS_SEPARATION_STR.ToCharArray();
 
         /// <summary>
         /// ソースコード上では無視される文字
