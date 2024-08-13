@@ -146,10 +146,6 @@ namespace AliceScript.NameSpaces
         {
             return Math.Abs(x);
         }
-        public static double Math_Ceiling(double x)
-        {
-            return Math.Ceiling(x);
-        }
         public static double Math_Clamp(double x, double min, double max)
         {
             return double.IsNaN(x) ? double.NaN : x < min ? min : max < x ? max : x;
@@ -263,10 +259,28 @@ namespace AliceScript.NameSpaces
         {
             return Math.Truncate(x);
         }
-
+        public static double Math_Truncate(double x, uint digits)
+        {
+            double power = Math.Pow(10, digits);
+            return Math.Truncate(x * power) / power;
+        }
+        public static double Math_Ceiling(double x)
+        {
+            return Math.Ceiling(x);
+        }
+        public static double Math_Ceiling(double x, uint digits)
+        {
+            double power = Math.Pow(10, digits);
+            return Math.Ceiling(x * power) / power;
+        }
         public static double Math_Floor(double x)
         {
             return Math.Floor(x);
+        }
+        public static double Math_Floor(double x, uint digits)
+        {
+            double power = Math.Pow(10, digits);
+            return Math.Floor(x * power) / power;
         }
         #endregion
         #region ビット加減算
