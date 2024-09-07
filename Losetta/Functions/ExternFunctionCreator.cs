@@ -85,9 +85,14 @@ namespace AliceScript.Functions
             }
 
             funcName = Constants.ConvertName(funcName);
-            if (Interpreter.Instance.DebugMode)
+            
+            var handles = e.AttributeFunctions?.OfType<ICallingHandleAttribute>();
+            if(handles is not null)
             {
-                func.Obsolete = e.AttributeFunctions?.OfType<ObsoleteFunction>().FirstOrDefault();
+                foreach (var handle in handles)
+                {
+                    func.HandleAttributes.Add(handle);
+                }
             }
 
             if (mode is not null)

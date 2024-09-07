@@ -32,7 +32,7 @@ namespace AliceScript.Functions
         }
         private FunctionAttribute m_Attribute = FunctionAttribute.GENERAL;
 
-        public ObsoleteFunction Obsolete { get; set; }
+        public HashSet<ICallingHandleAttribute> HandleAttributes { get; set; }
         /// <summary>
         /// この関数が変数のプロパティとして呼び出される場合、その変数の種類を取得または設定します
         /// </summary>
@@ -61,21 +61,6 @@ namespace AliceScript.Functions
         /// <returns>この関数の戻り値</returns>
         public Variable Evaluate(List<Variable> args, ParsingScript script, AliceScriptClass.ClassInstance instance = null)
         {
-            if (Interpreter.Instance.DebugMode)
-            {
-                if (Obsolete is not null)
-                {
-                    string mes = string.IsNullOrEmpty(Obsolete.Message) ? $"`{this.Name}`は旧形式です。" : $"`{this.Name}`は旧形式です。:{Obsolete.Message}";
-                    if (Obsolete.IsError)
-                    {
-                        throw new ScriptException(mes, Exceptions.FUNCTION_IS_OBSOLETE);
-                    }
-                    else
-                    {
-                        Interpreter.Instance.AppendDebug($"FUNCTION_IS_OBSOLETE(0x04f): {mes}", true);
-                    }
-                }
-            }
             FunctionBaseEventArgs ex = new FunctionBaseEventArgs();
             ex.Args = args ?? new List<Variable>();
             ex.UseObjectResult = false;
@@ -90,10 +75,19 @@ namespace AliceScript.Functions
             ex.ClassInstance = instance;
             ex.AttributeFunctions = AttributeFunctions;
             AttributeFunctions = null;
+
+            foreach (var handle in HandleAttributes)
+            {
+                handle.PreCall(this, ex);
+            }
             Run?.Invoke(script, ex);
             if (ex.Return is null)
             {
                 ex.Return = Variable.EmptyInstance;
+            }
+            foreach (var handle in HandleAttributes)
+            {
+                handle.PostCall(this, ex);
             }
             return ex.UseObjectResult ? new Variable(ex.ObjectResult) : ex.Return;
         }
@@ -205,6 +199,7 @@ namespace AliceScript.Functions
         public AccessModifier AccessModifier { get; set; }
         public FunctionBase()
         {
+            HandleAttributes = new HashSet<ICallingHandleAttribute>();
             MinimumArgCounts = 0;
         }
         /// <summary>

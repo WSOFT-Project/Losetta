@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AliceScript
 {
-    public class ObsoleteFunction : FunctionBase
+    public class ObsoleteFunction : FunctionBase, ICallingHandleAttribute
     {
         public ObsoleteFunction()
         {
@@ -26,6 +26,25 @@ namespace AliceScript
         {
             IsError = Utils.GetSafeBool(e.Args, 0);
             Message = Utils.GetSafeString(e.Args, 1, null);
+        }
+        public void PreCall(FunctionBase function, FunctionBaseEventArgs args)
+        {
+            if (Interpreter.Instance.DebugMode)
+            {
+                string mes = string.IsNullOrEmpty(Message) ? $"`{this.Name}`は旧形式です。" : $"`{this.Name}`は旧形式です。:{Message}";
+                if (IsError)
+                {
+                    throw new ScriptException(mes, Exceptions.FUNCTION_IS_OBSOLETE);
+                }
+                else
+                {
+                    Interpreter.Instance.AppendDebug($"FUNCTION_IS_OBSOLETE(0x04f): {mes}", true);
+                }
+            }
+        }
+        public void PostCall(FunctionBase function, FunctionBaseEventArgs args)
+        {
+
         }
         public string Message { get; set; }
         public bool IsError { get; set; }

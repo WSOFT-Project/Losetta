@@ -176,6 +176,7 @@ namespace AliceScript
             NameSpace experimental = new NameSpace("WSOFT.Interpreter.Services");
             experimental.Add<RangeStruct>();
             experimental.Add(new ObsoleteFunction());
+            experimental.Add(new UnSupportedPlatformFunction());
             experimental.Add(new AnnotationFunction());
             experimental.Add(new TestCallFunction());
             experimental.Add(new IndependentFunction());

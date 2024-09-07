@@ -118,7 +118,15 @@ namespace AliceScript.Functions
 
             customFunc.ParentOffset = parentOffset;
             customFunc.MethodOnly = isExtension;
-            customFunc.Obsolete = attributes?.OfType<ObsoleteFunction>().FirstOrDefault();
+
+            var handles = attributes?.OfType<ICallingHandleAttribute>();
+            if (handles is not null)
+            {
+                foreach (var handle in handles)
+                {
+                    customFunc.HandleAttributes.Add(handle);
+                }
+            }
             bool hasAnnotationFunction = attributes?.OfType<AnnotationFunction>().FirstOrDefault() != null;
             if (isCommand)
             {
