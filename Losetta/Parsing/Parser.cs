@@ -306,32 +306,38 @@ namespace AliceScript.Parsing
                 script.Forward(action.Length - 1);
             }
 
-            if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
+            while(true)
             {
-                token = token.Substring(2);
-                result.Push(PreOperetors.Increment);
+                if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
+                {
+                    token = token.Substring(2);
+                    result.Push(PreOperetors.Increment);
+                }
+                else if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
+                {
+                    token = token.Substring(2);
+                    result.Push(PreOperetors.Increment);
+                }
+                else if (token.Length > 1 && token[0] == ':' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                {
+                    token = token.Substring(1);
+                    result.Push(PreOperetors.Range);
+                }
+                else if (token.Length > 1 && token[0] == '+' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                {
+                    token = token.Substring(1);
+                    //単項プラス演算子は何もする必要がない
+                }
+                else if (token.Length > 1 && token[0] == '-' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                {
+                    token = token.Substring(1);
+                    result.Push(PreOperetors.Minus);
+                }
+                else
+                {
+                    return result;
+                }
             }
-            if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
-            {
-                token = token.Substring(2);
-                result.Push(PreOperetors.Increment);
-            }
-            if (token.Length > 1 && token[0] == ':' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
-            {
-                token = token.Substring(1);
-                result.Push(PreOperetors.Range);
-            }
-            if (token.Length > 1 && token[0] == '+' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
-            {
-                token = token.Substring(1);
-                //単項プラス演算子は何もする必要がない
-            }
-            if (token.Length > 1 && token[0] == '-' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
-            {
-                token = token.Substring(1);
-                result.Push(PreOperetors.Minus);
-            }
-            return result;
         }
 
         private enum PreOperetors
