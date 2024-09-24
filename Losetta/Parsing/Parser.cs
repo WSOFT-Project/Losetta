@@ -228,6 +228,11 @@ namespace AliceScript.Parsing
                                 current.Value = -current.Value;
                                 break;
                             }
+                        case PreOperetors.BitwiseNot:
+                            {
+                                current.Value = ~(long)current.Value;
+                                break;
+                            }
                         case PreOperetors.Range:
                             {
                                 current = new Variable(new RangeStruct(0, (int)current.Value));
@@ -333,6 +338,11 @@ namespace AliceScript.Parsing
                     token = token.Substring(1);
                     result.Push(PreOperetors.Minus);
                 }
+                else if (token.Length > 1 && token[0] == '~' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                {
+                    token = token.Substring(1);
+                    result.Push(PreOperetors.BitwiseNot);
+                }
                 else
                 {
                     return result;
@@ -358,6 +368,10 @@ namespace AliceScript.Parsing
             /// 前置Range
             /// </summary>
             Range,
+            /// <summary>
+            /// ビット補数
+            /// </summary>
+            BitwiseNot,
             None
         }
         private static void CheckQuotesIndices(ParsingScript script,
