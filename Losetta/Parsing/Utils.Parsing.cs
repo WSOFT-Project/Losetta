@@ -30,7 +30,7 @@ namespace AliceScript
             //value = var.Clone();
             if (script.ProcessingFunction is not null && script.ProcessingFunction.Keywords is not null && var is not null)
             {
-                var.Keywords = script.ProcessingFunction.Keywords;
+                //var.Keywords = script.ProcessingFunction.Keywords;
             }
             if (inQuotes)
             {

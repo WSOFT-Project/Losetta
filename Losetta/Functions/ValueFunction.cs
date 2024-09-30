@@ -26,6 +26,7 @@ namespace AliceScript.Functions
         private void ValueFunction_Run(object sender, FunctionBaseEventArgs e)
         {
             Variable value = Value;
+            Value.Keywords = Keywords;
             if (e.Script.Current == Constants.TERNARY_OPERATOR)
             {
                 if (value.IsNull())

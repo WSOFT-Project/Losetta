@@ -1856,7 +1856,13 @@ namespace AliceScript
 
         public string CustomGet { get; set; }
         public string CustomSet { get; set; }
+        /// <summary>
+        /// この変数にオプションで持てるタグ
+        /// </summary>
         public object Tag { get; set; }
+        /// <summary>
+        /// この変数がキーワードを持って参照されているとき、そのキーワードのリスト
+        /// </summary>
         public HashSet<string> Keywords
         {
             get => m_keywords;

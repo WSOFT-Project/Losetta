@@ -31,6 +31,7 @@ namespace AliceScript.Functions
 
             bool parms = false;
             bool refs = false;
+            bool readonlys = false;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -91,11 +92,16 @@ namespace AliceScript.Functions
                     int zure = 0;
                     parms = options.Contains(Constants.PARAMS);
                     refs = options.Contains(Constants.REF);
-                    if (parms)
+                    readonlys = options.Contains(Constants.READONLY);
+                    if(parms)
                     {
                         zure++;
                     }
-                    if (refs)
+                    if(refs)
+                    {
+                        zure++;
+                    }
+                    if (readonlys)
                     {
                         zure++;
                     }
@@ -144,22 +150,23 @@ namespace AliceScript.Functions
                     }
                     else
                     {
-                        string argName = arg;// RealArgs[i].ToLowerInvariant();
-                        if (parms)
-                        {
-                            parmsindex = i;
-                            //argName = argName.Substring(Constants.PARAMS.Length);
-                            argName = argName.Trim();
-                        }
+                        string argName = arg.Trim();
                         if (parms && refs)
                         {
                             throw new ScriptException(Constants.PARAMS + "パラメータを参照渡しに設定することはできません。", Exceptions.INCOMPLETE_FUNCTION_DEFINITION, script);
                         }
-                        else if (refs)
+
+                        if (refs)
                         {
                             m_refMap.Add(i);
-                            //argName = argName.Substring(Constants.REF.Length);
-                            argName = argName.Trim();
+                        }
+                        if (parms)
+                        {
+                            parmsindex = i;
+                        }
+                        if (readonlys)
+                        {
+                            m_readonlyMap.Add(i);
                         }
                         trueArgs[i] = argName;
 
@@ -341,6 +348,11 @@ namespace AliceScript.Functions
                         val = new Variable();
                         val.Assign(args[i]);
                     }
+                    if (m_readonlyMap.Contains(i))
+                    {
+                        m_readonlyTypeMap[i] = val.Readonly;
+                        val.Readonly = true;
+                    }
                     var arg = new ValueFunction(val);
                     arg.Name = m_args[i];
                     //m_VarMap[m_args[i]] = arg;
@@ -402,6 +414,11 @@ namespace AliceScript.Functions
 
             result.IsReturn = false;
 
+            foreach (var entry in m_readonlyTypeMap)
+            {
+                args[entry.Key].Readonly = entry.Value;
+            }
+
             return result;
         }
 
@@ -446,6 +463,8 @@ namespace AliceScript.Functions
         private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();
         private List<Variable> m_defaultArgs = new List<Variable>();
         private List<int> m_refMap = new List<int>();
+        private List<int> m_readonlyMap = new List<int>();
+        private Dictionary<int, bool> m_readonlyTypeMap = new Dictionary<int, bool>();
         private Dictionary<int, int> m_defArgMap = new Dictionary<int, int>();
 
         private Dictionary<string, int> ArgMap { get; set; } = new Dictionary<string, int>();
