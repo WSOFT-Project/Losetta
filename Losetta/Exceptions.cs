@@ -293,6 +293,10 @@
         /// <summary>
         /// 旧形式の関数を使用しようとしました
         /// </summary>
-        FUNCTION_IS_OBSOLETE = 0x04f
+        FUNCTION_IS_OBSOLETE = 0x04f,
+        /// <summary>
+        /// 暗黙的に型変換できませんでした
+        /// </summary>
+        CANT_IMPLICITLY_CONVERT = 0x050,
     }
 }

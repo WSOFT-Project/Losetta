@@ -364,15 +364,36 @@ namespace AliceScript
             {
                 throw new ScriptException("定数またはreadonly属性を持つ変数には代入できません", Exceptions.CANT_ASSIGN_TO_READ_ONLY);
             }
-            if (v.IsNull())
+            if (Nullable && (v.Type == VarType.VARIABLE || v.Type == m_type) && v.IsNull())
             {
                 AssignNull();
                 return;
             }
-            else if (TypeChecked && (m_type != v.Type || (!Nullable && v.Nullable)))
+            if (TypeChecked && (m_type != v.Type || (!Nullable && v.Nullable)))
             {
-                throw new ScriptException($"`{m_type}`型の変数には`{v.Type}`型の値を代入できません", Exceptions.TYPE_MISMATCH);
+                try
+                {
+                    // asを使えば変換できるかを確認する
+                    if(v.IsNull())
+                    {
+                        throw new ScriptException("nullを代入することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
+                    }
+                    _ = v.Convert(m_type, true);
+                    throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。明示的な変換が存在します。型変換を忘れていませんか？", Exceptions.CANT_IMPLICITLY_CONVERT);
+                }
+                catch(ScriptException ex)
+                {
+                    if(ex.ErrorCode == Exceptions.COULDNT_CONVERT_VARIABLE)
+                    {
+                        throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。", Exceptions.TYPE_MISMATCH);
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
+                }
             }
+
 
             m_bool = v.m_bool;
             m_byteArray = v.m_byteArray;
