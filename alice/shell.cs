@@ -80,10 +80,10 @@ namespace AliceScript.CLI
                 if (Interpreter.Instance.DebugMode)
                 {
                 PauseInput:
-                    Console.Write("このエラーを無視して続行するには[C]を、終了する場合はそれ以外のキーを入力してください...");
-                    switch (Console.ReadKey().Key)
+                    Console.Write("このエラーを無視して続行するには[Enter]を、終了する場合はそれ以外のキーを入力してください...");
+                    switch (Console.ReadKey(true).Key)
                     {
-                        case ConsoleKey.C:
+                        case ConsoleKey.Enter:
                             {
                                 e.Handled = true;
                                 break;
