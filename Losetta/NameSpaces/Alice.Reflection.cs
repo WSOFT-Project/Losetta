@@ -26,11 +26,11 @@ namespace AliceScript.NameSpaces
             varName = Constants.ConvertName(varName);
             return ParserFunction.GetVariable(varName, script) is ValueFunction getVar ? getVar.Value : Variable.EmptyInstance;
         }
-        public static Variable Reflect_Get_Member(ParsingScript script, string memberName)
+        public static Variable Reflect_Get_Member(ParsingScript script, string identifier)
         {
-            memberName = Constants.ConvertName(memberName);
+            identifier = Constants.ConvertName(identifier);
             string action = string.Empty;
-            var member = new ParserFunction(script, memberName, '\0', ref action).m_impl;
+            var member = new ParserFunction(script, identifier, '\0', ref action).m_impl;
             if (member is ValueFunction valueFunction)
             {
                 return valueFunction.Value;
@@ -39,7 +39,7 @@ namespace AliceScript.NameSpaces
             {
                 return new Variable(new DelegateObject(fb));
             }
-            throw new ScriptException($"識別子`{memberName}`は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
+            throw new ScriptException($"識別子`{identifier}`は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
         }
     }
 }
