@@ -13,7 +13,7 @@ namespace AliceScript.Functions
             Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             Run += FunctionCreator_Run;
         }
-        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords,HashSet<FunctionBase> attributes)
+        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords, HashSet<FunctionBase> attributes)
         {
             bool? mode = null;
 
@@ -37,7 +37,7 @@ namespace AliceScript.Functions
             foreach (string str in keywords)
             {
                 string type_str = str;
-                if (type_str.EndsWith("?", StringComparison.Ordinal))
+                if (type_str.EndsWith('?'))
                 {
                     nullable = true;
                     type_str = type_str.Substring(0, type_str.Length - 1);
@@ -144,7 +144,7 @@ namespace AliceScript.Functions
             {
                 if (!FunctionExists(funcName, script, out _) || (mode == true && FunctionIsVirtual(funcName, script)))
                 {
-                    FunctionBaseManager.Add(customFunc, funcName, script, accessModifier,false,hasAnnotationFunction ? Constants.ANNOTATION_FUNCTION_REFIX : '\0');
+                    FunctionBaseManager.Add(customFunc, funcName, script, accessModifier, false, hasAnnotationFunction ? Constants.ANNOTATION_FUNCTION_REFIX : '\0');
                 }
                 else
                 {
@@ -157,7 +157,7 @@ namespace AliceScript.Functions
         private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
         {
             string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            DefineFunction(funcName, e.Script, Keywords,e.AttributeFunctions);
+            DefineFunction(funcName, e.Script, Keywords, e.AttributeFunctions);
         }
 
     }

@@ -98,7 +98,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
+                if (path.EndsWith('/')) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -131,7 +131,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
+                if (path.EndsWith('/')) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -162,7 +162,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
+                if (path.EndsWith('/')) { path = path + "/default"; }
 
                 if (!Exists(path))
                 {
@@ -196,7 +196,7 @@ namespace AliceScript.Extra
             try
             {
 
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
+                if (path.EndsWith('/')) { path = path + "/default"; }
 
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
@@ -220,7 +220,7 @@ namespace AliceScript.Extra
             value = SecurityElement.Escape(value);
 
 
-            if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
+            if (path.EndsWith('/')) { path = path + "/default"; }
             XmlDocument xml = new XmlDocument();
 
             xml.LoadXml(xmlText);
@@ -278,7 +278,7 @@ namespace AliceScript.Extra
         {
             try
             {
-                if (path.EndsWith("/", StringComparison.Ordinal)) { path = path + "/default"; }
+                if (path.EndsWith('/')) { path = path + "/default"; }
                 XmlDocument xml = new XmlDocument();
                 xml.LoadXml(xmlText);
                 xml.SelectSingleNode("package/" + path).ParentNode.RemoveChild(xml.SelectSingleNode("package/" + path));

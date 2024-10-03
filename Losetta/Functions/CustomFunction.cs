@@ -59,7 +59,7 @@ namespace AliceScript.Functions
                             options.Add(oldtoken);
                         }
                         else
-                        if (option.StartsWith("=", StringComparison.Ordinal) || option.EndsWith("=", StringComparison.Ordinal))
+                        if (option.StartsWith('=') || option.EndsWith('='))
                         {
                             oldtoken += option;
                             connectnexttoken = true;

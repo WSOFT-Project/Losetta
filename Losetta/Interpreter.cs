@@ -183,8 +183,6 @@ namespace AliceScript
 
             NameSpaceManager.Add(space);
             NameSpaceManager.Add(experimental);
-
-            //ParserFunction.AddAction(Constants.LABEL_OPERATOR, new LabelFunction());
         }
 
         public void RegisterActions()
