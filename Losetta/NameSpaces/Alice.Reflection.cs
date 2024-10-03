@@ -39,7 +39,7 @@ namespace AliceScript.NameSpaces
             {
                 return new Variable(new DelegateObject(fb));
             }
-            return Variable.EmptyInstance;
+            throw new ScriptException($"識別子`{memberName}`は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
         }
     }
 }
