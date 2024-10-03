@@ -26,7 +26,7 @@ namespace AliceScript.NameSpaces
             varName = Constants.ConvertName(varName);
             return ParserFunction.GetVariable(varName, script) is ValueFunction getVar ? getVar.Value : Variable.EmptyInstance;
         }
-        public static Variable Reflect_GetMember(ParsingScript script, string memberName)
+        public static Variable Reflect_Get_Member(ParsingScript script, string memberName)
         {
             memberName = Constants.ConvertName(memberName);
             string action = string.Empty;
