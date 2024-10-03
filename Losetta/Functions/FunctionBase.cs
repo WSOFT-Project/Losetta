@@ -142,7 +142,7 @@ namespace AliceScript.Functions
 
             if (RequestType?.Match(currentVariable) == false)
             {
-                throw new ScriptException($"関数[{Name}]は無効または定義されていません", Exceptions.COULDNT_FIND_FUNCTION);
+                throw new ScriptException($"`{Name}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
             }
 
             List<Variable> args = GetFunctionArguments(script);

@@ -17,7 +17,7 @@ namespace AliceScript.Functions
         {
             List<string> properties = Utils.ExtractTokens(e.Script);
 
-            if (properties.Count == 1 && properties[0].Contains("."))
+            if (properties.Count == 1 && properties[0].Contains('.'))
             {
                 e.Return = UseExistingEnum(properties[0]);
                 return;

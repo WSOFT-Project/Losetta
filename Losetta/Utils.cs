@@ -104,7 +104,6 @@ namespace AliceScript
             }
         }
 
-
         public static void ThrowErrorMsg(string msg, Exceptions errorcode, ParsingScript script, string token = null)
         {
             throw new ScriptException(msg, errorcode, script);
@@ -290,29 +289,11 @@ namespace AliceScript
                                     CultureInfo.InvariantCulture, out num);
         }
 
-        public static void ProcessErrorMsg(string str, ParsingScript script)
+        public static void ProcessErrorMsg(string identifier, ParsingScript script)
         {
-            if (!string.IsNullOrEmpty(str))
-            {
-                char ch = script.TryPrev();
-                string entity = ch == '(' ? "関数" :
-                                ch == '[' ? "配列" :
-                                ch == '{' ? "演算子" :
-                                            "変数";
-                Exceptions ex = ch == '(' ? Exceptions.COULDNT_FIND_FUNCTION :
-                                ch == '[' ? Exceptions.COULDNT_FIND_ARRAY :
-                                ch == '{' ? Exceptions.COULDNT_FIND_OPERATOR :
-                                            Exceptions.COULDNT_FIND_VARIABLE;
-                string token = Constants.GetRealName(str);
-
-                string msg = entity + " `" + token + "`は定義されていないか、存在しません";
-
-                ThrowErrorMsg(msg, ex, script, str);
-            }
-
+            identifier = Constants.GetRealName(identifier);
+            throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
         }
-
-
         private static readonly char[] separator = new char[] { ',', ':' };
 
         public static int GetNumberOfDigits(string data, int itemNumber = -1)

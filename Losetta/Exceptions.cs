@@ -15,7 +15,7 @@
         /// </summary>
         COULDNT_FIND_ARRAY = 0x002,
         /// <summary>
-        /// 変数が見つかりません
+        /// `identifier`は現在のコンテキストに存在しません。
         /// </summary>
         COULDNT_FIND_VARIABLE = 0x004,
         /// <summary>

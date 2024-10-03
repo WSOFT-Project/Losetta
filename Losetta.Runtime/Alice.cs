@@ -29,7 +29,7 @@ namespace AliceScript.NameSpaces
                 string indstr = match.Value.TrimStart('{').TrimEnd('}');
                 bool selectSubFormat = false;
                 string subFormat = "";
-                if (indstr.Contains(":"))
+                if (indstr.Contains(':'))
                 {
                     string[] vs = indstr.Split(':');
                     indstr = vs[0];

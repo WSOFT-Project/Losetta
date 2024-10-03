@@ -63,7 +63,7 @@ namespace AliceScript.NameSpaces
         {
             return (script.TryGetVariable(name, out ParserFunction impl) || ParserFunction.s_functions.TryGetValue(name, out impl)) && impl is ValueFunction vf
                 ? vf.Value
-                : throw new ScriptException("指定された名前の変数は定義されていません", Exceptions.COULDNT_FIND_VARIABLE, script);
+                : throw new ScriptException($"`{name}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script); ;
         }
         public static IEnumerable<string> Interpreter_Namespaces()
         {
