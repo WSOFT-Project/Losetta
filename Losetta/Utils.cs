@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace AliceScript
@@ -74,7 +75,7 @@ namespace AliceScript
         {
             if (variable.Type != Variable.VarType.NUMBER && (acceptNaN || !double.IsNaN(variable.Value)))
             {
-                ThrowErrorMsg("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE, script);
+                throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE, script);
             }
         }
         public static void CheckNotNull(string name, ParserFunction func, ParsingScript script)
@@ -82,7 +83,7 @@ namespace AliceScript
             if (func is null)
             {
                 string realName = Constants.GetRealName(name);
-                ThrowErrorMsg("次の変数または関数は存在しません [" + realName + "]", Exceptions.PROPERTY_OR_METHOD_NOT_FOUND, script);
+                throw new ScriptException($"`{realName}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
             }
         }
         public static bool CheckNotNull(object obj, string name, ParsingScript script)
@@ -90,8 +91,7 @@ namespace AliceScript
             if (obj is null)
             {
                 string realName = Constants.GetRealName(name);
-                ThrowErrorMsg("次のオブジェクトは存在しません [" + realName + "]", Exceptions.OBJECT_DOESNT_EXIST, script);
-                return false;
+                throw new ScriptException($"`{realName}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
             }
             return true;
         }
@@ -100,7 +100,7 @@ namespace AliceScript
         {
             if (!script.StillValid())
             {
-                ThrowErrorMsg("関数の定義が不完全です", Exceptions.INCOMPLETE_FUNCTION_DEFINITION, script, script.Prev.ToString());
+                throw new ScriptException("関数の定義が不完全です。", Exceptions.INCOMPLETE_FUNCTION_DEFINITION, script);
             }
         }
 
@@ -108,22 +108,19 @@ namespace AliceScript
         {
             throw new ScriptException(msg, errorcode, script);
         }
-
-
         public static void CheckLegalName(string name, bool checkReserved = false)
         {
             if (string.IsNullOrEmpty(name))
             {
-                Utils.ThrowErrorMsg("識別子を空にすることはできません", Exceptions.ILLEGAL_IDENTIFIER, null, name);
+                throw new ScriptException("識別子を空にすることはできません", Exceptions.ILLEGAL_IDENTIFIER);
             }
             if (checkReserved && Constants.CheckReserved(name))
             {
-                Utils.ThrowErrorMsg($"識別子`{name}`は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME, null, name);
+                throw new ScriptException($"識別子`{name}`は予約語のため使用できません", Exceptions.ITS_RESERVED_NAME);
             }
-
             if (!Constants.IDENTIFIER_PATTERN.IsMatch(name))
             {
-                Utils.ThrowErrorMsg($"識別子`{name}`には使用できない文字が含まれています", Exceptions.ILLEGAL_IDENTIFIER, null, name);
+                throw new ScriptException($"識別子`{name}`には使用できない文字が含まれています", Exceptions.ILLEGAL_IDENTIFIER);
             }
         }
 
@@ -170,7 +167,6 @@ namespace AliceScript
             }
             return true;
         }
-
 
         /// <summary>
         /// 現在のパッケージまたはローカルからファイルを取得します
@@ -251,17 +247,17 @@ namespace AliceScript
 
         public static bool CanConvertToDouble(string str, out double num)
         {
-            //文字列を小文字に置き換え
-            str = str.ToLowerInvariant();
-            if (str.StartsWith('_') || str.EndsWith('_') || str.Contains("_.") || str.Contains("._"))
+            if (str.StartsWith('_') || str.EndsWith('_') || str.Contains("_.", StringComparison.Ordinal) || str.Contains("._", StringComparison.Ordinal))
             {
                 throw new ScriptException("数値リテラルの先頭・末尾または小数点の前後にアンダースコア(_)を含めることはできません", Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
-            if (str.Length - str.Replace(".", "").Length > 1)
+            if (str.Count(c => c == '.') > 1)
             {
                 throw new ScriptException("数値リテラルで小数点は一度のみ使用できます", Exceptions.INVALID_NUMERIC_REPRESENTATION);
             }
-            str = str.Replace("_", "");
+            // 数値リテラル中のアンダースコアを削除
+            str = str.Replace('_', '\0');
+            
             //0xから始まる実数の16進表現を確認します
             try
             {
