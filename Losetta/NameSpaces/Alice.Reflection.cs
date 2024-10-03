@@ -1,5 +1,6 @@
-﻿using AliceScript.Binding;
+using AliceScript.Binding;
 using AliceScript.Functions;
+using AliceScript.Objects;
 using AliceScript.Parsing;
 using System.Collections.Generic;
 
@@ -24,6 +25,21 @@ namespace AliceScript.NameSpaces
         {
             varName = Constants.ConvertName(varName);
             return ParserFunction.GetVariable(varName, script) is ValueFunction getVar ? getVar.Value : Variable.EmptyInstance;
+        }
+        public static Variable Reflect_GetMember(ParsingScript script, string memberName)
+        {
+            memberName = Constants.ConvertName(memberName);
+            string action = string.Empty;
+            var member = new ParserFunction(script, memberName, '\0', ref action).m_impl;
+            if (member is ValueFunction valueFunction)
+            {
+                return valueFunction.Value;
+            }
+            else if (member is FunctionBase fb)
+            {
+                return new Variable(new DelegateObject(fb));
+            }
+            return Variable.EmptyInstance;
         }
     }
 }
