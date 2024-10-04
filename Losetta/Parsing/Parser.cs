@@ -820,66 +820,45 @@ namespace AliceScript.Parsing
         //配列演算
         private static Variable MergeArray(Variable leftCell, Variable rightCell, ParsingScript script)
         {
+            // 左辺が配列なのは確定しているので、右辺が配列かどうかを確認
+            if(rightCell.Type != Variable.VarType.ARRAY)
+            {
+                if (leftCell.Action == "*")
+                {
+                    uint repeat = rightCell.As<uint>();
+                    Variable v = new Variable(Variable.VarType.ARRAY);
+                    for (int i = 0; i < repeat; i++)
+                    {
+                        v.Tuple.AddRange(leftCell.Tuple);
+                    }
+                    return v;
+                }
+                Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
+                         script, leftCell.Action);
+            }
             switch (leftCell.Action)
             {
-                case "+=":
-                    {
-                        if (rightCell.Type == Variable.VarType.ARRAY)
-                        {
-                            leftCell.Tuple.AddRange(rightCell.Tuple);
-                        }
-                        else
-                        {
-                            leftCell.Tuple.Add(rightCell);
-                        }
-                        return leftCell;
-                    }
                 case "+":
                     {
-                        Variable v = new Variable(Variable.VarType.ARRAY);
-                        if (rightCell.Type == Variable.VarType.ARRAY)
-                        {
-                            v.Tuple.AddRange(leftCell.Tuple);
-                            v.Tuple.AddRange(rightCell.Tuple);
-                        }
-                        else
-                        {
-                            v.Tuple.AddRange(leftCell.Tuple);
-                            v.Tuple.Add(rightCell);
-                        }
-                        return v;
-                    }
-                case "-=":
-                    {
-                        if (leftCell.Tuple.Remove(rightCell))
-                        {
-                            return leftCell;
-                        }
-                        else
-                        {
-                            Utils.ThrowErrorMsg("配列に対象の変数が見つかりませんでした", Exceptions.COULDNT_FIND_ITEM,
-                         script, leftCell.Action);
-                            return leftCell;
-                        }
+                        return new Variable(leftCell.Tuple.Concat(rightCell.Tuple));
                     }
                 case "-":
                     {
-                        Variable v = new Variable(Variable.VarType.ARRAY);
-
-                        v.Tuple.AddRange(leftCell.Tuple);
-                        v.Tuple.Remove(rightCell);
-
-                        return v;
+                        return new Variable(leftCell.Tuple.Except(rightCell.Tuple));
                     }
-                case "*":
+                case "|":
                     {
-                        uint repeat = rightCell.As<uint>();
-                        Variable v = new Variable(Variable.VarType.ARRAY);
-                        for (int i = 0; i < repeat; i++)
-                        {
-                            v.Tuple.AddRange(leftCell.Tuple);
-                        }
-                        return v;
+                        return new Variable(leftCell.Tuple.Union(rightCell.Tuple));
+                    }
+                case "&":
+                    {
+                        return new Variable(leftCell.Tuple.Intersect(rightCell.Tuple));
+                    }
+                case "^":
+                    {
+                        var intersect = leftCell.Tuple.Intersect(rightCell.Tuple);
+                        var union = leftCell.Tuple.Union(rightCell.Tuple);
+                        return new Variable(union.Except(intersect));
                     }
                 case null:
                 case "\0":
