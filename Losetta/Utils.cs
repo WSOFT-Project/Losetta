@@ -83,7 +83,7 @@ namespace AliceScript
             if (func is null)
             {
                 string realName = Constants.GetRealName(name);
-                throw new ScriptException($"`{realName}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
+                throw new ScriptException($"`{realName}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
             }
         }
         public static bool CheckNotNull(object obj, string name, ParsingScript script)
@@ -91,7 +91,7 @@ namespace AliceScript
             if (obj is null)
             {
                 string realName = Constants.GetRealName(name);
-                throw new ScriptException($"`{realName}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
+                throw new ScriptException($"`{realName}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
             }
             return true;
         }
@@ -288,7 +288,7 @@ namespace AliceScript
         public static void ProcessErrorMsg(string identifier, ParsingScript script)
         {
             identifier = Constants.GetRealName(identifier);
-            throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
+            throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
         }
         private static readonly char[] separator = new char[] { ',', ':' };
 

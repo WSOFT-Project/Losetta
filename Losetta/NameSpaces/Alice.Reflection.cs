@@ -39,7 +39,7 @@ namespace AliceScript.NameSpaces
             {
                 return new Variable(new DelegateObject(fb));
             }
-            throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
+            throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
         }
     }
 }

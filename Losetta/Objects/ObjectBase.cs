@@ -141,7 +141,7 @@ namespace AliceScript.Objects
             }
             else
             {
-                throw new ScriptException("指定されたプロパティまたはデリゲートは存在しません", Exceptions.COULDNT_FIND_VARIABLE);
+                throw new ScriptException("指定されたプロパティまたはデリゲートは存在しません", Exceptions.IDENTIFIER_NOT_FOUND);
             }
 
             return Task.FromResult(Variable.EmptyInstance);

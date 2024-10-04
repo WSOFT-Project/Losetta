@@ -142,7 +142,7 @@ namespace AliceScript.Functions
 
             if (RequestType?.Match(currentVariable) == false)
             {
-                throw new ScriptException($"`{Name}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
+                throw new ScriptException($"`{Name}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
             }
 
             List<Variable> args = GetFunctionArguments(script);

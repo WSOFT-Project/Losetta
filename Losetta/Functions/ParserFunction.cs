@@ -668,7 +668,7 @@ namespace AliceScript.Functions
             }
             else if (!exists && !registVar && !unneed && !string.IsNullOrEmpty(name))
             {
-                throw new ScriptException($"`{name}`は現在のコンテキストに存在しません。", Exceptions.COULDNT_FIND_VARIABLE, script);
+                throw new ScriptException($"`{name}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
             }
             if (func is not null && func is ValueFunction v)
             {

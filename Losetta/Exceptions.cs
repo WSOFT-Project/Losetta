@@ -1,4 +1,6 @@
-﻿namespace AliceScript
+﻿using System;
+
+namespace AliceScript
 {
     public enum Exceptions
     {
@@ -9,6 +11,7 @@
         /// <summary>
         /// 関数が見つかりません
         /// </summary>
+        [Obsolete("IDENTIFIER_NOT_FOUNDを使用してください。")]
         COULDNT_FIND_FUNCTION = 0x001,
         /// <summary>
         /// 配列が見つかりません
@@ -17,6 +20,7 @@
         /// <summary>
         /// `identifier`は現在のコンテキストに存在しません。
         /// </summary>
+        [Obsolete("IDENTIFIER_NOT_FOUNDを使用してください。")]
         COULDNT_FIND_VARIABLE = 0x004,
         /// <summary>
         /// アイテムが配列内に見つかりません
@@ -298,5 +302,9 @@
         /// 暗黙的に型変換できませんでした
         /// </summary>
         CANT_IMPLICITLY_CONVERT = 0x050,
+        /// <summary>
+        /// `identifier`は現在のコンテキストに存在しません。
+        /// </summary>
+        IDENTIFIER_NOT_FOUND = 0x051,
     }
 }

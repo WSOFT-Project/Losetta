@@ -73,7 +73,7 @@ namespace AliceScript.Functions
                     MethodInfo method = libInfo.Class.GetMethod(funcName, Constants.InvokeStringToType(args.ToArray()));
                     if (libInfo.Class is null)
                     {
-                        throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.COULDNT_FIND_VARIABLE);
+                        throw new ScriptException("外部に適切に定義された関数が見つかりませんでした", Exceptions.IDENTIFIER_NOT_FOUND);
                     }
                     func = Utils.CreateBindFunction(method);
                 }
