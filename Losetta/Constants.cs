@@ -138,7 +138,7 @@ namespace AliceScript
         public static readonly string[] OPER_ACTIONS = {  ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
                                                 AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS, "."};
 
         public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 

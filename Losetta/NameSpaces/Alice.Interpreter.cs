@@ -79,9 +79,11 @@ namespace AliceScript.NameSpaces
         }
         public static IEnumerable<string> Interpreter_Functions(string nameSpace)
         {
+            /*
             return NameSpaceManager.Contains(nameSpace)
                 ? NameSpaceManager.NameSpaces[nameSpace].Functions.Select(item => item.Key)
-                : Array.Empty<string>();
+                : Array.Empty<string>();*/
+            return new List<string>();
         }
         public static ParsingScript GetScript(ParsingScript script)
         {

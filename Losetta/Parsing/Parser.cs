@@ -1,4 +1,5 @@
 ﻿using AliceScript.Functions;
+using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using System;
 using System.Collections.Generic;
@@ -75,18 +76,21 @@ namespace AliceScript.Parsing
             char ch;
             string action;
 
+            NameSpace currentSpace = null;
+
             do
             {
                 HashSet<string> keywords = new HashSet<string>();
+                bool wantMethod = script.Prev == '.';
             ExtractNextToken:
                 string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
 
-                if (string.IsNullOrEmpty(token) && script.Prev != Constants.START_ARG && script.Prev != Constants.START_GROUP && script.StillValid())
+                if (!wantMethod && string.IsNullOrEmpty(token) && script.Prev != Constants.START_ARG && script.Prev != Constants.START_GROUP && script.StillValid())
                 {
                     //トークンが空で、無意味だった場合
                     goto ExtractNextToken;
                 }
-                if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
+                if (!wantMethod && !(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
                 {
                     //null許容型修飾子の場合(bool?とか)
                     if (script.Current == '?')
@@ -108,22 +112,45 @@ namespace AliceScript.Parsing
                 Stack<PreOperetors> negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子を取得
 
                 // このトークンに対応する関数を取得する
-                ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || (fb is not LiteralFunction && fb is not ValueFunction)))
+                ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords, wantMethod);
+                Variable current;
+
+                bool afterSpace = currentSpace is not null;
+                // 名前空間リテラルがきたなら、現在の名前空間を更新
+                currentSpace = func.m_impl is NameSpace space ? space : null;
+
+                if(func.m_impl is FunctionBase fb)
                 {
-                    script.ProcessingFunction = fb;//現在処理中としてマーク
-                    if (fb.Name.StartsWith(Constants.ANNOTATION_FUNCTION_REFIX))
+                    if (script.ProcessingFunction is null || (fb is not LiteralFunction && fb is not ValueFunction))
                     {
-                        m_attributeFuncs ??= new HashSet<FunctionBase>();
-                        m_attributeFuncs.Add(fb);
+                        script.ProcessingFunction = fb;//現在処理中としてマーク
+                        if (fb.Name.StartsWith(Constants.ANNOTATION_FUNCTION_REFIX))
+                        {
+                            m_attributeFuncs ??= new HashSet<FunctionBase>();
+                            m_attributeFuncs.Add(fb);
+                        }
+                        else if (m_attributeFuncs is not null && m_attributeFuncs.Count > 0)
+                        {
+                            fb.AttributeFunctions = m_attributeFuncs;
+                            m_attributeFuncs = null;
+                        }
                     }
-                    else if (m_attributeFuncs is not null && m_attributeFuncs.Count > 0)
+
+                    if(wantMethod && afterSpace)
                     {
-                        fb.AttributeFunctions = m_attributeFuncs;
-                        m_attributeFuncs = null;
+                        // メソッド呼び出しの処理
+                        current = fb.Evaluate(script, listToMerge[listToMerge.Count - 1]);
+                        listToMerge.RemoveAt(listToMerge.Count - 1);
+                    }
+                    else
+                    {
+                        current = fb.Execute(script);
                     }
                 }
-                Variable current = func.GetValue(script);//関数を呼び出し
+                else
+                {
+                    current = func.GetValue(script);
+                }
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {
                     return listToMerge;
@@ -452,15 +479,19 @@ namespace AliceScript.Parsing
                 return true;
             }
 
-
-            // eを用いた数値記法の場合
+            // 数値リテラルの場合
+            // 先頭が数字の場合は、小数点リテラル
+            if(ch == '.' && char.IsDigit(next))
+            {
+                return true;
+            }
+            // 科学記法の場合
             if (char.ToUpperInvariant(prev) == 'E' &&
                (ch == '-' || ch == '+' || char.IsDigit(ch)) &&
                item.Length > 1 && char.IsDigit(item[item.Length - 2]))
             {
                 return true;
             }
-
 
             //それ以外の場合完了
             if ((action = Utils.ValidAction(script.FromPrev())) is not null ||
@@ -636,6 +667,10 @@ namespace AliceScript.Parsing
             }
             else
             {
+                if(leftCell.Action == ".")
+                {
+                    leftCell = rightCell;
+                }
                 if (leftCell.Action == Constants.EQUAL || leftCell.Action == "===")
                 {
                     leftCell = new Variable(leftCell.Equals(rightCell));

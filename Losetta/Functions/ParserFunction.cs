@@ -32,7 +32,7 @@ namespace AliceScript.Functions
             m_impl = this;
         }
 
-        public ParserFunction(ParsingScript script, string item, char ch, ref string action, HashSet<string> keywords = null)
+        public ParserFunction(ParsingScript script, string item, char ch, ref string action, HashSet<string> keywords = null, bool wantMethod = false, NameSpace accessingSpace = null)
         {
             if (keywords is null)
             {
@@ -47,6 +47,12 @@ namespace AliceScript.Functions
                     m_impl.Keywords = keywords;
                     return;
                 }
+            }
+
+            if (wantMethod && (m_impl = GetVariable(item, script, false, keywords, wantMethod)) is not null)
+            {
+                m_impl.Keywords = keywords;
+                return;
             }
 
             m_impl = CheckGroup(script, ref item, ch, ref action);
@@ -440,12 +446,11 @@ namespace AliceScript.Functions
             }
             return impl;
         }
-
-        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null)
+        public static ParserFunction GetVariable(string name, ParsingScript script = null, bool force = false, HashSet<string> keywords = null, bool wantMethod = false, NameSpace accessingSpace = null)
         {
             if (!force && script is not null && script.TryPrev() == Constants.START_ARG && !keywords.Contains(Constants.NEW))
             {
-                return GetFunction(name, script);
+                return GetFunction(name, script, wantMethod);
             }
 
             name = Constants.ConvertName(name);
@@ -474,7 +479,7 @@ namespace AliceScript.Functions
             }
 
             //関数として取得を続行
-            var pfx = GetFunction(name, script);
+            var pfx = GetFunction(name, script, wantMethod);
             if (pfx is not null)
             {
                 if (pfx is FunctionBase cf && !(cf.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE) || cf.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE)))
@@ -488,7 +493,7 @@ namespace AliceScript.Functions
             return pfx;
         }
 
-        public static ParserFunction GetFunction(string name, ParsingScript script, bool wantMethod = false)
+        public static ParserFunction GetFunction(string name, ParsingScript script, bool wantMethod = false, NameSpace accessingSpace = null)
         {
             //TODO:関数の取得部分
             name = Constants.ConvertName(name);
@@ -533,6 +538,19 @@ namespace AliceScript.Functions
             }
 
             // 完全修飾名を検索
+            func = accessingSpace?.GetFunction(name);
+            if (func is not null)
+            {
+                if (wantMethod && func.IsMethod)
+                {
+                    return func.NewInstance();
+                }
+                else if (!func.IsMethod || !func.MethodOnly)
+                {
+                    return func.NewInstance();
+                }
+            }
+
             func = GetFromNamespcaeName(name);
             if (func is not null)
             {
@@ -582,19 +600,15 @@ namespace AliceScript.Functions
         {
             FunctionBase func = null;
             string lastSpaceName = null;
-            foreach (string spaceName in script.UsingNamespaces)
+            foreach(NameSpace space in script.UsingNamespaces)
             {
-                var temp = GetFromNamespcaeName(spaceName + "." + name);
-                if (lastSpaceName is not null && temp is not null)
+                func = space.Functions.TryGetValue(name, out var f) ? f : null;
+                if(func is not null)
                 {
-                    throw new ScriptException($"`{name}`は`{lastSpaceName}`と`{spaceName}`間があいまいです", Exceptions.AMBIGUOUS_IDENTIFIER);
-                }
-                if (temp is not null)
-                {
-                    func = temp;
-                    lastSpaceName = spaceName;
+                    break;
                 }
             }
+
             return func is not null
                 ? func
                 : !script.TopInFile && script.ParentScript is not null ? GetFromUsingNamespace(name, script.ParentScript) : null;

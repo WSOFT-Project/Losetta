@@ -94,7 +94,7 @@ namespace AliceScript
                 int qend = script.Find(curr, script.Pointer + 1);
                 if (qend == -1)
                 {
-                    throw new ScriptException("`" + script.FromPrev() + "` で、クオーテーションが不均等です。", Exceptions.UNBALANCED_QUOTES, script);
+                    throw new ScriptException($"`{script.FromPrev()}`で、クオーテーションが不均等です。", Exceptions.UNBALANCED_QUOTES, script);
                 }
                 string result = script.Substr(script.Pointer + 1, qend - script.Pointer - 1);
                 script.Pointer = qend + 1;
@@ -665,7 +665,7 @@ namespace AliceScript
             return data.StartsWith(Constants.NOT, StringComparison.Ordinal) && !data.StartsWith(Constants.NOT_EQUAL, StringComparison.Ordinal) ? Constants.NOT : null;
         }
 
-        public static string ValidAction(string rest)
+        public static string ValidAction(ReadOnlySpan<char> rest)
         {
             string action = Utils.StartsWith(rest, Constants.ACTIONS);
             return action;
@@ -676,7 +676,7 @@ namespace AliceScript
             return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '&' || ch == '|' || ch == '^';
         }
 
-        public static string StartsWith(string data, string[] items)
+        public static string StartsWith(ReadOnlySpan<char> data, string[] items)
         {
             foreach (string item in items)
             {

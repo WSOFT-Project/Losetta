@@ -35,7 +35,7 @@ namespace AliceScript.Parsing
         private Dictionary<int, int> m_char2Line = null; // 元の行へのポインタ
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
-        private HashSet<string> m_namespaces = new HashSet<string>();
+        private HashSet<NameSpace> m_namespaces = new HashSet<NameSpace>(){ NameSpaceManager.TopLevel };// このスクリプトでusingされた名前空間の一覧
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
 
@@ -90,7 +90,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// このスクリプトでusingされた名前空間の一覧
         /// </summary>
-        public HashSet<string> UsingNamespaces
+        public HashSet<NameSpace> UsingNamespaces
         {
             get => m_namespaces;
             set => m_namespaces = value;
@@ -529,7 +529,7 @@ namespace AliceScript.Parsing
             m_data = data;
             m_from = from;
             m_char2Line = char2Line;
-            Using(Constants.TOP_NAMESPACE, true);
+            //Using(Constants.TOP_NAMESPACE, true);
             if (usingAlice)
             {
                 Using(Constants.TOP_API_NAMESPACE);
@@ -556,7 +556,7 @@ namespace AliceScript.Parsing
             Package = other.Package;
             Generation = other.Generation + 1;
             ThrowError = other.ThrowError;
-            Using(Constants.TOP_NAMESPACE);
+            //Using(Constants.TOP_NAMESPACE);
             if (usingAlice)
             {
                 Using(Constants.TOP_API_NAMESPACE);
@@ -572,9 +572,9 @@ namespace AliceScript.Parsing
         public void Using(string name, bool whenPossible = false)
         {
             name = name.ToLowerInvariant();
-            if (NameSpaceManager.Contains(name))
+            if (NameSpaceManager.TryGetNameSpace(name, out var space))
             {
-                UsingNamespaces.Add(name);
+                UsingNamespaces.Add(space);
             }
             else if (!whenPossible)
             {
@@ -808,12 +808,11 @@ namespace AliceScript.Parsing
         {
             return m_from >= count ? m_data[m_from - count] : Constants.EMPTY;
         }
-        public string FromPrev(int backChars = 1, int maxChars = Constants.MAX_CHARS_TO_SHOW)
+        public ReadOnlySpan<char> FromPrev(int backChars = 1, int maxChars = Constants.MAX_CHARS_TO_SHOW)
         {
             int from = Math.Max(0, m_from - backChars);
             int max = Math.Min(m_data.Length - from, maxChars);
-            string result = m_data.Substring(from, max);
-            return result;
+            return  m_data.AsSpan().Slice(from, max);
         }
         public void Forward(int delta = 1) { m_from += delta; }
         public void Backward(int delta = 1)
