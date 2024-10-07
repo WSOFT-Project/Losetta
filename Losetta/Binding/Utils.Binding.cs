@@ -240,6 +240,8 @@ namespace AliceScript
         {
             var obj = new BindObject();
             obj.Name = type.Name;
+            obj.Type = type;
+            
             bool defaultState = true;
 
             if (TryGetAttibutte<AliceObjectAttribute>(type, out var attr))

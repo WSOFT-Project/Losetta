@@ -15,6 +15,11 @@ namespace AliceScript.Binding
         /// .NETのオブジェクトインスタンス
         /// </summary>
         public object Instance { get; set; }
+
+        /// <summary>
+        /// このオブジェクトがバインドしている型
+        /// </summary>
+        public Type Type { get; set; }
         public BindObject()
         {
             HandleOperator = true;

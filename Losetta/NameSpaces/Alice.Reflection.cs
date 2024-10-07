@@ -16,8 +16,7 @@ namespace AliceScript.NameSpaces
     [AliceNameSpace(Name = "Alice.Reflection")]
     internal static class ReflectionFunctions
     {
-        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static IEnumerable<Variable> Properties(this Variable v)
+        public static IEnumerable<Variable> GetProperties(Variable v)
         {
             return v.GetProperties();
         }

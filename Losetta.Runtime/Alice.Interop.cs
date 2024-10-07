@@ -11,6 +11,7 @@ namespace AliceScript.NameSpaces
         public static void Init()
         {
             NameSpaceManager.Add(typeof(InteropFunctions));
+            NameSpaceManager.Add(typeof(MarshalFunctions));
         }
     }
     [AliceNameSpace(Name = "Alice.Interop")]
@@ -46,6 +47,18 @@ namespace AliceScript.NameSpaces
         {
             BindFunction func = Utils.CreateExternBindFunction(procName, libraryName, returnType, parameterTypes, entryPoint, useUnicode);
             return new DelegateObject(func);
+        }
+    }
+    [AliceNameSpace(Name = "Alice.Interop.Marshal")]
+    public static class MarshalFunctions
+    {
+        public static object As(Variable item, TypeObject type)
+        {
+            if(type.ClassType is BindObject bind)
+            {
+                return item.ConvertTo(bind.Type);
+            }
+            throw  new ArgumentException("指定された型は.NETの型ではありません。");
         }
     }
 }
