@@ -118,9 +118,21 @@ namespace AliceScript.Functions
 
                         }
                     }
+                    // 型宣言がある場合
                     if (options.Count > zure + 1)
                     {
-                        Variable v = script.GetTempScript(options[options.Count - 2]).Execute();
+                        string typeStr = options[options.Count - 2];
+                        Variable v;
+                        if(typeStr.Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // varキーワードの場合
+                            v = new Variable(new TypeObject());
+                        }
+                        else
+                        {
+                            // 他の型の場合は実行してみて確認
+                            v = script.GetTempScript(options[options.Count - 2]).Execute();
+                        }
                         if (v is not null && v.Type == Variable.VarType.OBJECT && v.Object is TypeObject to)
                         {
                             reqType = to;
