@@ -356,7 +356,9 @@ namespace AliceScript.NameSpaces.Core
             var result = new List<Variable>(size);
             for (int i = 0; i < size; i++)
             {
-                result.Add(predicate.Invoke(script, new Variable(others[size])));
+                var args = new List<Variable>{ list[i] };
+                args.AddRange(others.Select(x => x[i]));
+                result.Add(predicate.Invoke(args, script));
             }
             return result;
         }
