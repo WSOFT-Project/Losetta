@@ -79,7 +79,7 @@ namespace AliceScript.Functions
                 }
                 else
                 {
-                    throw new ScriptException("外部定義関数は、#libimportか#netimportと併用することでのみ使用できます", Exceptions.NONE);
+                    throw new ScriptException("外部定義関数は、@libimportか@netimportと併用することでのみ使用できます", Exceptions.NONE);
                 }
 
             }
