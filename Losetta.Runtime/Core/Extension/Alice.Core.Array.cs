@@ -181,6 +181,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return ary.Tuple.Intersect(items);
         }
+        public static IEnumerable<Variable> SymDifference(this VariableCollection ary, VariableCollection items)
+        {
+            return ary.Tuple.Except(items).Union(items.Tuple.Except(ary));
+        }
         public static IEnumerator<object> GetEnumerator(this VariableCollection ary)
         {
             return ary.Tuple.GetEnumerator();
