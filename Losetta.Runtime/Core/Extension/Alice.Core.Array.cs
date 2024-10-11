@@ -12,11 +12,11 @@ namespace AliceScript.NameSpaces.Core
     {
         public static void Add(this VariableCollection ary, params Variable[] items)
         {
-            ary.Add(items);
+            ary.Tuple.AddRange(items);
         }
         public static void AddRange(this VariableCollection ary, Variable[] items)
         {
-            ary.AddRange(items);
+            ary.Tuple.AddRange(items);
         }
         public static int BinarySearch(this VariableCollection ary, Variable item)
         {
