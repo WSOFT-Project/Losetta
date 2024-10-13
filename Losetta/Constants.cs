@@ -144,7 +144,13 @@ namespace AliceScript
                                                 AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS, RANGE};
 
+        /// <summary>
+        /// 単項前置演算子(1文字のもの)
+        /// </summary>
         public static readonly char[] PRE_SINGLE_SIZE_ACTIONS = { PLUS, MINUS, BITWISE_NOT };
+        /// <summary>
+        /// 単項前置演算子(2文字のもの)
+        /// </summary>
         public static readonly string[] PRE_DOUBLE_SIZE_ACTIONS = { INCREMENT, DECREMENT, RANGE};
         public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
