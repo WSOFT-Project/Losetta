@@ -1062,10 +1062,10 @@ namespace AliceScript.Parsing
             Variable result = null;
 
 
-            result = await Parser.AliceScriptAsync(this, toArray);
+            result = Parser.AliceScript(this, toArray);
             try
             {
-                result = await Parser.AliceScriptAsync(this, toArray);
+                result = Parser.AliceScript(this, toArray);
             }
             catch (Exception e)
             {

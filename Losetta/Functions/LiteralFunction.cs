@@ -145,15 +145,7 @@ namespace AliceScript.Functions
                     // 数値として処理
                     Name = "NumberLiteral";
                     double num = Utils.ConvertToDouble(Item, e.Script);
-                    // Rangeの特殊対応
-                    if (Action == ":")
-                    {
-                        e.Return = new Variable(new RangeStruct((int)num));
-                    }
-                    else
-                    {
-                        e.Return = new Variable(num);
-                    }
+                    e.Return = new Variable(num);
                 }
             }
 

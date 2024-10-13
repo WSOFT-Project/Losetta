@@ -30,6 +30,9 @@ namespace AliceScript
         public const char DESTRUCTION = '_';
         public const char TERNARY_OPERATOR = '?';
         public const char DOLLER = '$';
+        public const char PLUS = '+';
+        public const char MINUS = '-';
+        public const char BITWISE_NOT = '~'; 
 
         public const char QUOTE_IN_LITERAL = '\ufdd2';
         public const char QUOTE1_IN_LITERAL = '\ufdd1';
@@ -37,6 +40,7 @@ namespace AliceScript
         public const char USER_CANT_USE_VARIABLE_PREFIX = '\ufdd4';
         public const char ANNOTATION_FUNCTION_REFIX = '\ufdd5';
 
+        public const string RANGE = "..";
         public const string AS = "as ";
         public const string IS = "is ";
         public const string IS_NOT = "is not ";
@@ -138,8 +142,10 @@ namespace AliceScript
         public static readonly string[] OPER_ACTIONS = {  ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
                                                 AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS, RANGE};
 
+        public static readonly char[] PRE_SINGLE_SIZE_ACTIONS = { PLUS, MINUS, BITWISE_NOT };
+        public static readonly string[] PRE_DOUBLE_SIZE_ACTIONS = { INCREMENT, DECREMENT, RANGE};
         public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
         public static readonly string[] CORE_OPERATORS = { TRY, FOR, WHILE };

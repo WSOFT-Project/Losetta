@@ -187,6 +187,7 @@ namespace AliceScript
 
         public void RegisterActions()
         {
+            ParserFunction.AddAction(Constants.RANGE, new PoseRangeFunction());
             ParserFunction.AddAction(Constants.ASSIGNMENT, new AssignFunction());
             ParserFunction.AddAction(Constants.INCREMENT, new IncrementDecrementFunction());
             ParserFunction.AddAction(Constants.DECREMENT, new IncrementDecrementFunction());

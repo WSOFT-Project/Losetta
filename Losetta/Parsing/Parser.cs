@@ -36,27 +36,6 @@ namespace AliceScript.Parsing
             return result;
         }
 
-        /// <summary>
-        /// 非同期的にスクリプトを解析・実行し、実行結果を返します
-        /// </summary>
-        /// <param name="script">解析・実行するスクリプト</param>
-        /// <param name="to">式を終了させる文字</param>
-        /// <returns>スクリプトの実行結果</returns>
-        /// <exception cref="ScriptException">スクリプトを解析できない場合に発生する例外</exception>
-        public static async Task<Variable> AliceScriptAsync(ParsingScript script, char[] to)
-        {
-            // まず、式をトークンごとに分割してVariableにする
-            List<Variable> listToMerge = Split(script, to);
-
-            if (listToMerge.Count == 0)
-            {
-                throw new ScriptException(script.Rest + "を解析できません", Exceptions.COULDNT_PARSE, script);
-            }
-
-            // 得られたVariable同士を演算する
-            Variable result = MergeList(listToMerge, script);
-            return result;
-        }
         internal static HashSet<FunctionBase> m_attributeFuncs = null;
         private static List<Variable> Split(ParsingScript script, char[] to)
         {
@@ -136,7 +115,7 @@ namespace AliceScript.Parsing
             return listToMerge;
         }
 
-        
+
         public static string ExtractNextToken(ParsingScript script, char[] to, ref bool inQuotes,
             ref int arrayIndexDepth, ref int negated, out char ch, out string action, bool throwExc = true)
         {
@@ -209,36 +188,10 @@ namespace AliceScript.Parsing
 
             if (current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
             {
-                while(preops.Count > 0)
+                while (preops.Count > 0)
                 {
-                    switch (preops.Pop())
-                    {
-                        case PreOperetors.Increment:
-                            {
-                                current.Value++;
-                                break;
-                            }
-                        case PreOperetors.Decrement:
-                            {
-                                current.Value--;
-                                break;
-                            }
-                        case PreOperetors.Minus:
-                            {
-                                current.Value = -current.Value;
-                                break;
-                            }
-                        case PreOperetors.BitwiseNot:
-                            {
-                                current.Value = ~(long)current.Value;
-                                break;
-                            }
-                        case PreOperetors.Range:
-                            {
-                                current = new Variable(new RangeStruct(0, (int)current.Value));
-                                break;
-                            }
-                    }
+                    PreOperetors op = preops.Pop();
+                    current = ProcessUnaryPreOperation(current, op);
                 }
             }
 
@@ -272,7 +225,6 @@ namespace AliceScript.Parsing
                 script.MoveForwardIf(action[0]);
             }
 
-
             char next = script.TryCurrent(); // 前進済み
             bool done = listToMerge.Count == 0 &&
                         (next == Constants.END_STATEMENT ||
@@ -280,8 +232,8 @@ namespace AliceScript.Parsing
                          (current is not null && current.IsReturn));
             if (done)
             {
-
-                // 数値結果がない場合は、数式ではありません
+                // 数値結果がない場合は、2項演算ではない
+                current.Action = action;
                 listToMerge.Add(current);
                 return true;
             }
@@ -311,34 +263,34 @@ namespace AliceScript.Parsing
                 script.Forward(action.Length - 1);
             }
 
-            while(true)
+            while (true)
             {
-                if (token.Length > 2 && token.StartsWith(Constants.INCREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
+                if (MatchPreOperator(token, Constants.INCREMENT))
                 {
                     token = token.Substring(2);
                     result.Push(PreOperetors.Increment);
                 }
-                else if (token.Length > 2 && token.StartsWith(Constants.DECREMENT, StringComparison.Ordinal) && token[2] != Constants.QUOTE && token[2] != Constants.QUOTE1)
+                else if (MatchPreOperator(token, Constants.DECREMENT))
                 {
                     token = token.Substring(2);
-                    result.Push(PreOperetors.Increment);
+                    result.Push(PreOperetors.Decrement);
                 }
-                else if (token.Length > 1 && token[0] == ':' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                else if (MatchPreOperator(token, Constants.RANGE))
                 {
-                    token = token.Substring(1);
+                    token = token.Substring(2);
                     result.Push(PreOperetors.Range);
                 }
-                else if (token.Length > 1 && token[0] == '+' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                else if (MatchPreOperator(token, Constants.PLUS))
                 {
                     token = token.Substring(1);
                     //単項プラス演算子は何もする必要がない
                 }
-                else if (token.Length > 1 && token[0] == '-' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                else if (MatchPreOperator(token, Constants.MINUS))
                 {
                     token = token.Substring(1);
                     result.Push(PreOperetors.Minus);
                 }
-                else if (token.Length > 1 && token[0] == '~' && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1)
+                else if (MatchPreOperator(token, Constants.BITWISE_NOT))
                 {
                     token = token.Substring(1);
                     result.Push(PreOperetors.BitwiseNot);
@@ -349,7 +301,18 @@ namespace AliceScript.Parsing
                 }
             }
         }
+        private static bool MatchPreOperator(string token, string op)
+        {
+            return token.Length > op.Length && token.StartsWith(op, StringComparison.Ordinal) && token[op.Length] != Constants.QUOTE && token[op.Length] != Constants.QUOTE1;
+        }
+        private static bool MatchPreOperator(string token, char op)
+        {
+            return token.Length > 1 && token.StartsWith(op) && token[1] != Constants.QUOTE && token[1] != Constants.QUOTE1;
+        }
 
+        /// <summary>
+        /// 前置演算子の種類
+        /// </summary>
         private enum PreOperetors
         {
             /// <summary>
@@ -428,6 +391,7 @@ namespace AliceScript.Parsing
             char prev = script.TryPrev(2);
             char ch = script.TryPrev();
             char next = script.TryCurrent();
+            char nextnext = script.TryNext();
 
             if (to.Contains(ch) || ch == Constants.START_ARG ||
                                    ch == Constants.START_GROUP || ch == '?' ||
@@ -447,11 +411,17 @@ namespace AliceScript.Parsing
                 return true;
             }
             // 単項前置演算子向けの対応
-            if (item.Length < 2 && (ch == '-' || ch == '+' || ch == ':') && (prev == '+' || prev == '-' || prev == '\0' || Constants.TOKEN_SEPARATION.Contains(prev)))
+            // 2文字分の単項演算子なら、トークン区切り、PRE_DOUBLE_SIZE_ACTIONSになっている
+            if (Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(prev) && Constants.PRE_DOUBLE_SIZE_ACTIONS.Contains($"{ch}{next}"))
+            {
+                // 前置演算子の場合
+                return (action = Utils.ValidAction(script.FromPrev())) is not null;
+            }
+            // 1文字分の単項前置演算子なら、トークン区切り、PRE_SINGLE_SIZE_ACTIONS、文字の形になっている
+            if (Constants.PRE_SINGLE_SIZE_ACTIONS.Contains(ch) && !Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(next))
             {
                 return true;
             }
-
 
             // eを用いた数値記法の場合
             if (char.ToUpperInvariant(prev) == 'E' &&
@@ -460,7 +430,6 @@ namespace AliceScript.Parsing
             {
                 return true;
             }
-
 
             //それ以外の場合完了
             if ((action = Utils.ValidAction(script.FromPrev())) is not null ||
@@ -567,9 +536,10 @@ namespace AliceScript.Parsing
             {
                 return Variable.EmptyInstance;
             }
-            // セルが1つだけなら早期リターン
+            // セルが1つだけなら単項演算を処理してReturn
             if (listToMerge.Count == 1)
             {
+                listToMerge[0] = ProcessUnaryPostOperation(listToMerge[0], listToMerge[0].Action);
                 return listToMerge[0];
             }
 
@@ -580,8 +550,6 @@ namespace AliceScript.Parsing
             Variable result = Merge(baseCell, ref index, listToMerge, script);
             return result;
         }
-
-
         private static Variable Merge(Variable current, ref int index, List<Variable> listToMerge,
                                       ParsingScript script, bool mergeOneOnly = false)
         {
@@ -595,7 +563,7 @@ namespace AliceScript.Parsing
                     next = Merge(next, ref index, listToMerge, script, true /* mergeOneOnly */);
                 }
 
-                current = MergeCells(current, next, script);
+                current = ProcessBinaryOperation(current, next, script);
                 if (mergeOneOnly)
                 {
                     break;
@@ -604,8 +572,69 @@ namespace AliceScript.Parsing
 
             return current;
         }
-
-        private static Variable MergeCells(Variable leftCell, Variable rightCell, ParsingScript script)
+        /// <summary>
+        /// 単項前置演算子を処理します
+        /// </summary>
+        /// <param name="current">演算対象の値</param>
+        /// <param name="action">前置演算子</param>
+        /// <returns>演算結果の値</returns>
+        /// <exception cref="ScriptException">不明な演算子の場合にスローされる例外</exception>
+        private static Variable ProcessUnaryPreOperation(Variable current, PreOperetors action)
+        {
+            switch (action)
+            {
+                case PreOperetors.Increment:
+                    current.Value++;
+                    return current;
+                case PreOperetors.Decrement:
+                    current.Value--;
+                    return current;
+                case PreOperetors.Minus:
+                    return new Variable(current.Value * -1);
+                case PreOperetors.BitwiseNot:
+                    return new Variable(~(long)current.Value);
+                case PreOperetors.Range:
+                    return new Variable(new RangeStruct((int)current.Value));
+                default:
+                    throw new ScriptException("次の演算子を処理できませんでした。[" + action + "]", Exceptions.INVALID_OPERAND);
+            }
+        }
+        /// <summary>
+        /// 単項後置演算子を処理します
+        /// </summary>
+        /// <param name="current">演算対象の値</param>
+        /// <param name="action">後置演算子</param>
+        /// <returns>演算結果の値</returns>
+        /// <exception cref="ScriptException">不明な演算子の場合にスローされる例外</exception>
+        private static Variable ProcessUnaryPostOperation(Variable current, string action)
+        {
+            // 演算子は処理できたとしておく
+            current.Action = string.Empty;
+            switch (action)
+            {
+                case Constants.RANGE:
+                    return new Variable(new RangeStruct((int)current.Value));
+                case Constants.INCREMENT:
+                    current.Value++;
+                    return current;
+                case Constants.DECREMENT:
+                    current.Value--;
+                    return current;
+                case ")":
+                case "\0":
+                    return current;
+                default:
+                    throw new ScriptException("次の演算子を処理できませんでした。[" + action + "]", Exceptions.INVALID_OPERAND);
+            }
+        }
+        /// <summary>
+        /// 2項演算子を処理します
+        /// </summary>
+        /// <param name="leftCell">演算対象の左辺の値</param>
+        /// <param name="rightCell">演算対象の右辺の値</param>
+        /// <param name="script">処理中のスクリプト</param>
+        /// <returns>演算結果の値</returns>
+        private static Variable ProcessBinaryOperation(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             if (leftCell.IsReturn ||
      leftCell.Type == Variable.VarType.BREAK ||
@@ -750,6 +779,8 @@ namespace AliceScript.Parsing
                     return new Variable((int)leftCell.Value | (int)rightCell.Value);
                 case "**":
                     return new Variable(Math.Pow(leftCell.Value, rightCell.Value));
+                case Constants.RANGE:
+                    return new Variable(new RangeStruct((int)leftCell.Value, (int)rightCell.Value));
                 case null:
                 case "\0":
                 case ")":
@@ -780,11 +811,7 @@ namespace AliceScript.Parsing
                 case ">=":
                     return new Variable(
                       string.Compare(leftCell.AsString(), rightCell.AsString(), StringComparison.Ordinal) >= 0);
-                case ":":
-                    leftCell.SetHashVariable(leftCell.AsString(), rightCell);
-                    break;
                 case "*":
-
                     uint repeat = rightCell.As<uint>();
                     if (repeat == 0)
                     {
@@ -821,7 +848,7 @@ namespace AliceScript.Parsing
         private static Variable MergeArray(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             // 左辺が配列なのは確定しているので、右辺が配列かどうかを確認
-            if(rightCell.Type != Variable.VarType.ARRAY)
+            if (rightCell.Type != Variable.VarType.ARRAY)
             {
                 if (leftCell.Action == "*")
                 {
