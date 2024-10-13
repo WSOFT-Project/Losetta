@@ -410,17 +410,21 @@ namespace AliceScript.Parsing
             {
                 return true;
             }
-            // 単項前置演算子向けの対応
-            // 2文字分の単項演算子なら、トークン区切り、PRE_DOUBLE_SIZE_ACTIONSになっている
-            if (Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(prev) && Constants.PRE_DOUBLE_SIZE_ACTIONS.Contains($"{ch}{next}"))
+            
+            // 単項前置演算子向けの対応(前置演算子はその前の文字がトークン区切りである)
+            if (Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(prev))
             {
-                // 前置演算子の場合
-                return (action = Utils.ValidAction(script.FromPrev())) is not null;
-            }
-            // 1文字分の単項前置演算子なら、トークン区切り、PRE_SINGLE_SIZE_ACTIONS、文字の形になっている
-            if (Constants.PRE_SINGLE_SIZE_ACTIONS.Contains(ch) && !Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(next))
-            {
-                return true;
+                // 2文字分の単項演算子なら、トークン区切り、PRE_DOUBLE_SIZE_ACTIONSになっている
+                if (Constants.PRE_DOUBLE_SIZE_ACTIONS.Contains($"{ch}{next}"))
+                {
+                    // 前置演算子の場合
+                    return (action = Utils.ValidAction(script.FromPrev())) is not null;
+                }
+                // 1文字分の単項前置演算子なら、トークン区切り、PRE_SINGLE_SIZE_ACTIONS、文字の形になっている
+                if (Constants.PRE_SINGLE_SIZE_ACTIONS.Contains(ch) && !Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(next))
+                {
+                    return true;
+                }
             }
 
             // eを用いた数値記法の場合
