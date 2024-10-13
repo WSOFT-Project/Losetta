@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using AliceScript.Objects;
 
 namespace AliceScript
 {
@@ -351,6 +352,8 @@ namespace AliceScript
             {BREAK,new Variable(Variable.VarType.BREAK) },
             //ループを次に進めます
             {CONTINUE,new Variable(Variable.VarType.CONTINUE) },
+            // 配列の全体を表します
+            {RANGE, new Variable(new RangeStruct(0))},
             {"string", Variable.AsType(Variable.VarType.STRING) },
             {"number",Variable.AsType(Variable.VarType.NUMBER) },
             {"bytes",Variable.AsType(Variable.VarType.BYTES) },
