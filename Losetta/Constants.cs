@@ -45,7 +45,6 @@ namespace AliceScript
         public const string AS = "as ";
         public const string IS = "is ";
         public const string IS_NOT = "is not ";
-        public const string FOR_EACH = ":";
         public const string FOR_IN = " in ";
         public const string INFINITY = "Infinity";
         public const string NEG_INFINITY = "-Infinity";
@@ -179,7 +178,6 @@ namespace AliceScript
         public static readonly char[] END_ARG_ARRAY = END_ARG.ToString().ToCharArray();
         public static readonly char[] END_ARRAY_ARRAY = END_ARRAY.ToString().ToCharArray();
         public static readonly char[] END_LINE_ARRAY = END_LINE.ToString().ToCharArray();
-        public static readonly char[] FOR_ARRAY = (END_ARG_STR + FOR_EACH).ToCharArray();
         public static readonly char[] QUOTE_ARRAY = QUOTE.ToString().ToCharArray();
 
         public static readonly char[] COMPARE_ARRAY = "<>=)".ToCharArray();

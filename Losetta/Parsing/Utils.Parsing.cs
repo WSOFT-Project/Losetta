@@ -755,8 +755,16 @@ namespace AliceScript
                 Variable index = indices[i];
                 if (index is not null && index.TryConvertTo<RangeStruct>(out var range))
                 {
+                    if(range.Start > currLevel.Count)
+                    {
+                        throw new IndexOutOfRangeException("インデックス `" + range.Start + "`は配列の境界 `" + currLevel.Count + "` 外です。");
+                    }
+                    if(range.End > currLevel.Count)
+                    {
+                        throw new IndexOutOfRangeException("インデックス `" + range.End+ "`は配列の境界 `" + currLevel.Count + "` 外です。");
+                    }
                     range = range.ToActuallyRange(currLevel.Count);
-                    switch(currLevel.Type)
+                    switch (currLevel.Type)
                     {
                         case Variable.VarType.ARRAY:
                         {
