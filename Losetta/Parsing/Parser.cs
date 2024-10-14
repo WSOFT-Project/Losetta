@@ -604,7 +604,8 @@ namespace AliceScript.Parsing
             }
         }
         /// <summary>
-        /// 単項後置演算子を処理します
+        /// 単項後置演算子を処理します。
+        /// 単項後置演算子を追加したいときは、Constants.POST_UNARY_OPERATORSに追加してください。
         /// </summary>
         /// <param name="current">演算対象の値</param>
         /// <param name="action">後置演算子</param>
