@@ -11,6 +11,17 @@ namespace AliceScript.Functions
     /// </summary>
     public class CustomFunction : FunctionBase
     {
+        /// <summary>
+        /// 新しいユーザー定義関数を作成します
+        /// </summary>
+        /// <param name="funcName">関数の名前</param>
+        /// <param name="body">関数の本文</param>
+        /// <param name="args">引数の一覧</param>
+        /// <param name="script">この関数が定義されているスクリプト</param>
+        /// <param name="forceReturn">この関数が最後に評価した値を返す場合はtrue、そうでない場合はfalse</param>
+        /// <param name="returnType">戻り値の型</param>
+        /// <param name="nullable"></param>
+        /// <exception cref="ScriptException"></exception>
         public CustomFunction(string funcName,
                                 string body, string[] args, ParsingScript script, bool forceReturn = false, Variable.VarType returnType = Variable.VarType.VARIABLE, bool nullable = true)
         {

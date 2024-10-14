@@ -23,6 +23,8 @@ namespace AliceScript.Functions
 
             bool isCommand = keywords.Contains(Constants.COMMAND);
             bool isExtension = keywords.Contains(Constants.EXTENSION);
+            bool forceReturn = false;
+
             if (keywords.Contains(Constants.OVERRIDE))
             {
                 mode = true;
@@ -86,8 +88,16 @@ namespace AliceScript.Functions
 
             int parentOffset = script.Pointer;
 
-            if (script.Current != Constants.START_GROUP)
+            if(script.Current == Constants.ARROW[0] && script.Next == Constants.ARROW[1])
             {
+                // 式形式の関数の場合
+                forceReturn = true;
+                script.Forward();
+                body += Utils.GetBodyBetween(script, Constants.ARROW[1], '\0', Constants.TOKENS_SEPARATION_STR + "\0");
+            }
+            else if (script.Current != Constants.START_GROUP)
+            {
+                // 未実装の関数の場合
                 if (mode == false)
                 {
                     body = $"Alice.throw(\"このメソッドは実装されていません\",{(int)Exceptions.NOT_IMPLEMENTED});";
@@ -112,10 +122,9 @@ namespace AliceScript.Functions
                 body = Constants.RETURN_PATTERN.Replace(body, $"{{readonly var \ufdd4return=$1;Alice.Diagnostics.Assert({ensure},\"この関数は、関数が表明した事後条件を満たしませんでした\");return \ufdd4return;}}");
             }
 
-            CustomFunction customFunc = new CustomFunction(funcName, body, args, script, false, type_modifer, nullable);
+            CustomFunction customFunc = new CustomFunction(funcName, body, args, script, forceReturn, type_modifer, nullable);
 
             customFunc.ParentScript = attributes?.OfType<IndependentFunction>().FirstOrDefault() is null ? script : ParsingScript.GetTopLevelScript();
-
             customFunc.ParentOffset = parentOffset;
             customFunc.MethodOnly = isExtension;
 
