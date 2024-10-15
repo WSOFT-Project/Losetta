@@ -79,14 +79,14 @@ namespace AliceScript.Functions
 
             item = Constants.ConvertName(item);
 
-            /*
+            
             m_impl = GetRegisteredAction(item, script, ref action);
             if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
-            */
+            
 
             m_impl = GetArrayFunction(item, script, action);
             if (m_impl is not null)
