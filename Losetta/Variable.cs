@@ -66,11 +66,8 @@ namespace AliceScript
 
         Task<Variable> ScriptObject.GetProperty(string sPropertyName, List<Variable> args, ParsingScript script)
         {
-
-
-            sPropertyName = Variable.GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
-
-
+            sPropertyName = GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
+            
             if (Properties.TryGetValue(sPropertyName, out ValueFunction value))
             {
                 GETTING = true;
@@ -82,16 +79,14 @@ namespace AliceScript
 
             else
             {
-                return Task.FromResult(Variable.EmptyInstance);
+                return Task.FromResult(EmptyInstance);
             }
 
         }
         public virtual Task<Variable> SetProperty(string sPropertyName, Variable argValue)
         {
-
-            sPropertyName = Variable.GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
-
-            return Task.FromResult(Variable.EmptyInstance);
+            sPropertyName = GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
+            return Task.FromResult(EmptyInstance);
         }
         public static Variable AsType(VarType type)
         {
@@ -158,7 +153,7 @@ namespace AliceScript
         {
             Tuple = new VariableCollection
             {
-                Type = new TypeObject(Variable.VarType.STRING)
+                Type = new TypeObject(VarType.STRING)
             };
             foreach (string s in a)
             {
@@ -169,7 +164,7 @@ namespace AliceScript
         {
             Tuple = new VariableCollection
             {
-                Type = new TypeObject(Variable.VarType.NUMBER)
+                Type = new TypeObject(VarType.NUMBER)
             };
             foreach (var i in a)
             {
@@ -324,8 +319,6 @@ namespace AliceScript
 
         public virtual Variable DeepClone()
         {
-            //Variable newVar = new Variable();
-            //newVar.Copy(this);
             Variable newVar = (Variable)MemberwiseClone();
 
             if (m_tuple is not null)
@@ -482,57 +475,57 @@ namespace AliceScript
             }
             switch (type)
             {
-                case Variable.VarType.ARRAY:
+                case VarType.ARRAY:
                     {
-                        Variable tuple = new Variable(Variable.VarType.ARRAY)
+                        Variable tuple = new Variable(VarType.ARRAY)
                         {
                             Tuple = new VariableCollection { this }
                         };
                         return tuple;
                     }
-                case Variable.VarType.BOOLEAN:
+                case VarType.BOOLEAN:
                     {
                         switch (Type)
                         {
-                            case Variable.VarType.NUMBER:
+                            case VarType.NUMBER:
                                 {
                                     return new Variable(Value == 1.0);
                                 }
-                            case Variable.VarType.BYTES:
+                            case VarType.BYTES:
                                 {
                                     return new Variable(BitConverter.ToBoolean(ByteArray));
                                 }
-                            case Variable.VarType.STRING:
+                            case VarType.STRING:
                                 {
                                     return new Variable(String.Equals(Constants.TRUE, StringComparison.OrdinalIgnoreCase));
                                 }
                         }
                         break;
                     }
-                case Variable.VarType.BYTES:
+                case VarType.BYTES:
                     {
                         switch (Type)
                         {
-                            case Variable.VarType.BOOLEAN:
+                            case VarType.BOOLEAN:
                                 {
                                     return new Variable(BitConverter.GetBytes(Bool));
                                 }
-                            case Variable.VarType.NUMBER:
+                            case VarType.NUMBER:
                                 {
                                     return new Variable(BitConverter.GetBytes(Value));
                                 }
-                            case Variable.VarType.STRING:
+                            case VarType.STRING:
                                 {
-                                    return new Variable(System.Text.Encoding.Unicode.GetBytes(AsString()));
+                                    return new Variable(Encoding.Unicode.GetBytes(AsString()));
                                 }
                         }
                         break;
                     }
-                case Variable.VarType.NUMBER:
+                case VarType.NUMBER:
                     {
                         switch (Type)
                         {
-                            case Variable.VarType.BOOLEAN:
+                            case VarType.BOOLEAN:
                                 {
                                     double d = 0.0;
                                     if (Bool)
@@ -541,11 +534,11 @@ namespace AliceScript
                                     }
                                     return new Variable(d);
                                 }
-                            case Variable.VarType.BYTES:
+                            case VarType.BYTES:
                                 {
                                     return new Variable(BitConverter.ToDouble(ByteArray));
                                 }
-                            case Variable.VarType.STRING:
+                            case VarType.STRING:
                                 {
                                     if (Utils.CanConvertToDouble(String, out double d))
                                     {
@@ -561,15 +554,15 @@ namespace AliceScript
                         }
                         break;
                     }
-                case Variable.VarType.STRING:
+                case VarType.STRING:
                     {
-                        return Type == Variable.VarType.BYTES ? new Variable(System.Text.Encoding.Unicode.GetString(ByteArray)) : new Variable(AsString());
+                        return Type == VarType.BYTES ? new Variable(Encoding.Unicode.GetString(ByteArray)) : new Variable(AsString());
                     }
             }
             //変換に失敗または非対応
             return throwError
                 ? throw new ScriptException(Constants.TypeToString(Type) + "型を" + Constants.TypeToString(type) + "型に変換することはできません", Exceptions.COULDNT_CONVERT_VARIABLE)
-                : Variable.EmptyInstance;
+                : EmptyInstance;
         }
 
 
@@ -1248,7 +1241,7 @@ namespace AliceScript
                                 }
                                 Variable propValue = GetProperty(prop);
                                 string value = "";
-                                if (propValue is not null && propValue != Variable.EmptyInstance)
+                                if (propValue is not null && propValue != EmptyInstance)
                                 {
                                     value = propValue.AsString();
                                     if (!string.IsNullOrEmpty(value))
@@ -1381,7 +1374,7 @@ namespace AliceScript
 
         public Variable FinishSetProperty(string propName, Variable value, ParsingScript script, string baseName = "")
         {
-            Variable result = Variable.EmptyInstance;
+            Variable result = EmptyInstance;
 
             // Check for an existing custom setter
             if (m_propertyMap.TryGetValue(propName, out result) ||
@@ -1469,12 +1462,12 @@ namespace AliceScript
 
         public Variable ConvertEnumToString(Variable value)
         {
-            return m_enumMap is not null && m_enumMap.TryGetValue(value.As<int>(), out string result) ? new Variable(result) : Variable.EmptyInstance;
+            return m_enumMap is not null && m_enumMap.TryGetValue(value.As<int>(), out string result) ? new Variable(result) : EmptyInstance;
         }
 
         public Variable GetProperty(string propName, ParsingScript script = null)
         {
-            Variable result = Variable.EmptyInstance;
+            Variable result = EmptyInstance;
 
             int ind = propName.IndexOf('.', StringComparison.Ordinal);
             if (ind > 0)
@@ -1520,7 +1513,7 @@ namespace AliceScript
 
         public async Task<Variable> GetPropertyAsync(string propName, ParsingScript script = null)
         {
-            Variable result = Variable.EmptyInstance;
+            Variable result = EmptyInstance;
 
             int ind = propName.IndexOf('.', StringComparison.Ordinal);
             if (ind > 0)
@@ -1562,7 +1555,7 @@ namespace AliceScript
 
         private Variable GetCoreProperty(string propName, ParsingScript script = null)
         {
-            Variable result = Variable.EmptyInstance;
+            Variable result = EmptyInstance;
             propName = propName.ToLowerInvariant();
 
             if (m_propertyMap.TryGetValue(propName, out result) ||
@@ -1570,7 +1563,7 @@ namespace AliceScript
             {
                 return result;
             }
-            else if (script is not null && Properties.TryGetValue(propName, out var p) && (p.RequestType.Type.HasFlag(Type) || p.RequestType.Type == Variable.VarType.VARIABLE))
+            else if (script is not null && Properties.TryGetValue(propName, out var p) && (p.RequestType.Type.HasFlag(Type) || p.RequestType.Type == VarType.VARIABLE))
             {
                 return p.GetValue(this);
             }

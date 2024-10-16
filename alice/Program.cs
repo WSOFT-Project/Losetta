@@ -16,7 +16,7 @@ namespace AliceScript.CLI
         private static void Main(string[] args)
         {
             ParsedArguments pa = new ParsedArguments(args);
-            AliceScript.Runtime.Args = pa.Args;
+            Runtime.Args = pa.Args;
             CreateAliceDirectory(false);
             if (pa.Values.TryGetValue("print",out string pr))
             {
@@ -183,7 +183,7 @@ namespace AliceScript.CLI
             if (force)
             {
                 var directoryInfo = new DirectoryInfo(path);
-                directoryInfo.Attributes |= System.IO.FileAttributes.Hidden;
+                directoryInfo.Attributes |= FileAttributes.Hidden;
 
                 File.WriteAllText(Path.Combine(AppContext.BaseDirectory, ".alice", "version"), Properties.Resources.version, Encoding.UTF8);
 

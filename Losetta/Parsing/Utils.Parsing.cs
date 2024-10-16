@@ -13,7 +13,7 @@ namespace AliceScript
         public static Variable GetItem(ParsingScript script, bool eatLast = true)
         {
             script.MoveForwardIf(Constants.NEXT_ARG, Constants.SPACE);
-            Utils.CheckNotEnd(script);
+            CheckNotEnd(script);
 
             bool inQuotes = script.Current == Constants.QUOTE;
             bool inQuotes1 = script.Current == Constants.QUOTE1;
@@ -169,9 +169,9 @@ namespace AliceScript
             CustomFunction customFunc = null;
             if (token == Constants.FUNCTION && script.Prev == '(')
             {
-                string[] args = Utils.GetFunctionSignature(script);
+                string[] args = GetFunctionSignature(script);
                 script.MoveForwardIf('{');
-                string body = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
+                string body = GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
                 script.MoveForwardIf('}');
 
                 int parentOffset = script.Pointer +
@@ -191,7 +191,7 @@ namespace AliceScript
         {
             if (string.IsNullOrWhiteSpace(token) || (token[0] == '"' && token[^1] != '"'))
             {
-                Utils.ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
+                ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
             }
             if (customFunc is not null)
             {
@@ -236,12 +236,12 @@ namespace AliceScript
             script.MoveForwardIf('{');
             while (script.StillValid() && script.Current != '}')
             {
-                var funcName = Utils.GetNextToken(script, true);
+                var funcName = GetNextToken(script, true);
                 if (string.IsNullOrWhiteSpace(funcName))
                 {
                     break;
                 }
-                var token = Utils.GetNextToken(script, true);
+                var token = GetNextToken(script, true);
 
                 CustomFunction customFunc = GetFunction(script, funcName, token);
                 script.MoveForwardIf(',');
@@ -251,7 +251,7 @@ namespace AliceScript
                     case "value":
                         if (setgetProvided)
                         {
-                            Utils.ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
+                            ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
                         }
                         valueProvided = true;
                         SetPropertyFromStr(token, result, script, lower, customFunc);
@@ -259,7 +259,7 @@ namespace AliceScript
                     case "set":
                         if (valueProvided)
                         {
-                            Utils.ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
+                            ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
                         }
                         setgetProvided = true;
                         SetPropertyFromStr(token, result, script, lower, customFunc);
@@ -267,7 +267,7 @@ namespace AliceScript
                     case "get":
                         if (valueProvided)
                         {
-                            Utils.ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
+                            ThrowErrorMsg("値を混合して取得/設定することはできません", Exceptions.CANT_MIX_VALUE_AND_SET_GET, script, funcName);
                         }
                         setgetProvided = true;
                         SetPropertyFromStr(token, result, script, lower, customFunc);
@@ -379,7 +379,7 @@ namespace AliceScript
             }
 
 #pragma warning disable 219
-            string body = Utils.GetBodyBetween(tempScript, start, end, "\0", false);
+            string body = GetBodyBetween(tempScript, start, end, "\0", false);
 #pragma warning restore 219
             // 本文の最後の文字まで移動
 
@@ -392,7 +392,7 @@ namespace AliceScript
                     spread = true;
                     script.Forward(3);
                 }
-                Variable item = Utils.GetItem(script, false);
+                Variable item = GetItem(script, false);
                 if (spread)
                 {
                     // スプレッド構文なら展開
@@ -500,7 +500,7 @@ namespace AliceScript
         public static Variable GetVariableFromString(string str, ParsingScript script, FunctionBase callFrom, int startIndex = 0)
         {
             ParsingScript tempScript = script.GetTempScript(str, callFrom, startIndex);
-            Variable result = Utils.GetItem(tempScript);
+            Variable result = GetItem(tempScript);
             return result;
         }
 
@@ -667,7 +667,7 @@ namespace AliceScript
 
         public static string ValidAction(string rest)
         {
-            string action = Utils.StartsWith(rest, Constants.ACTIONS);
+            string action = StartsWith(rest, Constants.ACTIONS);
             return action;
         }
 
@@ -737,7 +737,7 @@ namespace AliceScript
             script.MoveForwardIf(Constants.START_ARG);
             while (script.TryCurrent() != Constants.END_GROUP)
             {
-                string propName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
+                string propName = GetToken(script, Constants.TOKEN_SEPARATION);
                 script.MoveForwardIf(Constants.NEXT_ARG);
                 tokens.Add(propName);
             }

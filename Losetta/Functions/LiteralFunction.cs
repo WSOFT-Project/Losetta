@@ -148,7 +148,6 @@ namespace AliceScript.Functions
                     e.Return = new Variable(num);
                 }
             }
-
         }
 
         public bool StringMode { get; set; }
@@ -156,6 +155,5 @@ namespace AliceScript.Functions
         public bool DetectionUTF8_Literal { get; set; }
         public bool DetectionStringFormat { get; set; }
         public string Action { get; set; }
-
     }
 }

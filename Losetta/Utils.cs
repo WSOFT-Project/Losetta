@@ -320,7 +320,7 @@ namespace AliceScript
 
         public static string GetFileContents(byte[] data)
         {
-            return Utils.GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
+            return GetFileLines(data).Replace(Environment.NewLine, Constants.END_LINE.ToString());
         }
 
 

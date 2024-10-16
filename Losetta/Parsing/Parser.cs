@@ -386,11 +386,9 @@ namespace AliceScript.Parsing
         private static bool StillCollecting(string item, char[] to, ParsingScript script,
                                     ref string action)
         {
-            char prevprev = script.TryPrev(3);
             char prev = script.TryPrev(2);
             char ch = script.TryPrev();
             char next = script.TryCurrent();
-            char nextnext = script.TryNext();
 
             if (to.Contains(ch) || ch == Constants.START_ARG ||
                                    ch == Constants.START_GROUP || ch == '?' ||

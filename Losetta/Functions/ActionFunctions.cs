@@ -61,7 +61,7 @@ namespace AliceScript.Functions
                 currentValue.Value += valueDelta;
             }
 
-            ParserFunction.AddGlobalOrLocalVariable(m_name,
+            AddGlobalOrLocalVariable(m_name,
                                                     new ValueFunction(currentValue), e.Script);
             e.Return = new Variable(newValue);
         }

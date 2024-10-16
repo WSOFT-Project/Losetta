@@ -376,7 +376,7 @@ namespace AliceScript
         internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute, bool createNew = false) where T : Attribute, new()
         {
             attribute = null;
-            var attr = System.Attribute.GetCustomAttributes(memberInfo, typeof(T));
+            var attr = Attribute.GetCustomAttributes(memberInfo, typeof(T));
             if (attr.Length > 0)
             {
                 attribute = attr[0] as T;

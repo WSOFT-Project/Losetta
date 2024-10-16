@@ -46,7 +46,7 @@ namespace AliceScript.CLI
                 }
                 else if (src)
                 {
-                    Script += arg + AliceScript.Constants.END_STATEMENT;
+                    Script += arg + Constants.END_STATEMENT;
                 }
                 else
                 {

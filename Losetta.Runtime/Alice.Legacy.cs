@@ -43,7 +43,7 @@ namespace AliceScript.NameSpaces
             }
             char[] sep = sepStr.ToCharArray();
 
-            var function = ParserFunction.GetVariable(varName, e.Script);
+            var function = GetVariable(varName, e.Script);
             Variable mapVar = function is not null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
@@ -62,7 +62,7 @@ namespace AliceScript.NameSpaces
                 }
             }
 
-            ParserFunction.AddGlobalOrLocalVariable(varName,
+            AddGlobalOrLocalVariable(varName,
                                               new ValueFunction(mapVar), e.Script);
         }
     }
@@ -82,7 +82,7 @@ namespace AliceScript.NameSpaces
             Variable toAdd = Utils.GetSafeVariable(e.Args, 1);
             string hash = Utils.GetSafeString(e.Args, 2);
 
-            var function = ParserFunction.GetVariable(varName, e.Script);
+            var function = GetVariable(varName, e.Script);
             Variable mapVar = function is not null ? function.GetValue(e.Script) :
                                         new Variable(Variable.VarType.ARRAY);
 
@@ -97,7 +97,7 @@ namespace AliceScript.NameSpaces
                 }
             }
 
-            ParserFunction.AddGlobalOrLocalVariable(varName,
+            AddGlobalOrLocalVariable(varName,
                                                 new ValueFunction(mapVar), e.Script);
         }
     }
@@ -159,7 +159,7 @@ namespace AliceScript.NameSpaces
 
             Variable result = baseValue.SetProperty(propName, propValue, e.Script);
 
-            ParserFunction.AddGlobalOrLocalVariable(baseValue.ParsingToken,
+            AddGlobalOrLocalVariable(baseValue.ParsingToken,
                                                     new ValueFunction(baseValue), e.Script);
             e.Return = result;
         }

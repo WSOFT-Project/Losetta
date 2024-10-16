@@ -78,7 +78,7 @@ namespace AliceScript.Functions
 
             if (arrayIndices.Count == 0)
             {
-                ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
+                AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
                 Variable retVar = varValue.DeepClone();
                 retVar.CurrentAssign = m_name;
                 return retVar;
@@ -86,12 +86,12 @@ namespace AliceScript.Functions
 
             Variable array;
 
-            ParserFunction pf = ParserFunction.GetVariable(m_name, baseScript);
+            ParserFunction pf = GetVariable(m_name, baseScript);
             array = pf is not null ? pf.GetValue(script) : new Variable();
 
             ExtendArray(array, arrayIndices, 0, varValue);
 
-            ParserFunction.AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
+            AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
             return array;
         }
         internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)
@@ -123,17 +123,15 @@ namespace AliceScript.Functions
                 return varValue.DeepClone();
             }
 
-            ParserFunction existing = ParserFunction.GetVariable(name, script);
+            ParserFunction existing = GetVariable(name, script);
             Variable baseValue = existing is not null ? existing.GetValue(script) : new Variable(Variable.VarType.ARRAY);
             baseValue.SetProperty(prop, varValue, script, name);
 
-
-            ParserFunction.AddGlobalOrLocalVariable(name, new ValueFunction(baseValue), script);
+            AddGlobalOrLocalVariable(name, new ValueFunction(baseValue), script);
             //ParserFunction.AddGlobal(name, new ValueFunction(baseValue), false);
 
             return varValue.DeepClone();
         }
-
 
         public override ParserFunction NewInstance()
         {

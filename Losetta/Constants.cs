@@ -394,7 +394,7 @@ namespace AliceScript
 
         public static bool CheckReserved(string name)
         {
-            return Constants.KEYWORD.Contains(name);
+            return KEYWORD.Contains(name);
         }
 
         public static string GetRealName(string name)
