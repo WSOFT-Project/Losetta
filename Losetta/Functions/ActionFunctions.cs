@@ -72,20 +72,4 @@ namespace AliceScript.Functions
             return new IncrementDecrementFunction();
         }
     }
-    internal sealed class PoseRangeFunction : ActionFunction, INumericFunction
-    {
-        public PoseRangeFunction() 
-        {
-            Name = "Range";
-            this.Run += PoseRangeFunction_Run;
-        }
-
-        private void PoseRangeFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            Variable varValue = Utils.GetItem(e.Script);
-            Console.WriteLine(e.Args[0]);
-            Console.WriteLine(varValue);
-        }
-    }
-
 }

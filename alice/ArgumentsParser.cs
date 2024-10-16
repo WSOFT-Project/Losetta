@@ -6,8 +6,8 @@ namespace AliceScript.CLI
 {
     public class ParsedArguments
     {
-        public static Regex FlagPattern = new Regex("-.*", RegexOptions.Compiled);
-        public static Regex ValuePattern = new Regex("-.*=.*", RegexOptions.Compiled);
+        public readonly static Regex FlagPattern = new Regex("-.*", RegexOptions.Compiled);
+        public readonly static Regex ValuePattern = new Regex("-.*=.*", RegexOptions.Compiled);
         public ParsedArguments(string[] args)
         {
             m_init(args);

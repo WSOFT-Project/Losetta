@@ -24,6 +24,14 @@ namespace AliceScript.Binding
         {
             HandleOperator = true;
         }
+        /// <summary>
+        /// BindObjectに対する2項演算を処理
+        /// </summary>
+        /// <param name="left">2項演算の左辺値</param>
+        /// <param name="right">2項演算の右辺値</param>
+        /// <param name="action">演算子</param>
+        /// <param name="script">処理中のスクリプト</param>
+        /// <returns>この演算の戻り値</returns>
         public override Variable Operator(Variable left, Variable right, string action, ParsingScript script)
         {
             if(Operators.TryGetValue(action, out var result))
@@ -52,9 +60,7 @@ namespace AliceScript.Binding
                         }
                 }
             }
-            Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + action + "]", Exceptions.INVALID_OPERAND,
-                 script, action);
-            return Variable.EmptyInstance;
+            throw new ScriptException($"演算子`{action}`を`{left.GetTypeString()}`と`{right.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
         }
         public override bool Equals(ObjectBase other)
         {

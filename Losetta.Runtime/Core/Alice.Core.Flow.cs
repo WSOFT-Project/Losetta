@@ -5,7 +5,6 @@ using AliceScript.Parsing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace AliceScript.NameSpaces.Core
@@ -382,7 +381,7 @@ namespace AliceScript.NameSpaces.Core
                 {
                     return result;
                 }
-                if(result.Type == Variable.VarType.BREAK)
+                if (result.Type == Variable.VarType.BREAK)
                 {
                     return Variable.EmptyInstance;
                 }

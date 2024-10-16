@@ -87,7 +87,6 @@ namespace AliceScript.Functions
                 return;
             }
             
-
             m_impl = GetArrayFunction(item, script, action);
             if (m_impl is not null)
             {

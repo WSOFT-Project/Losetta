@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AliceScript.Parsing
 {
@@ -410,7 +409,7 @@ namespace AliceScript.Parsing
             {
                 return true;
             }
-            
+
             // 単項前置演算子向けの対応(前置演算子はその前の文字がトークン区切りである)
             if (Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(prev))
             {
@@ -503,8 +502,7 @@ namespace AliceScript.Parsing
                 }
             }
 
-            //[&&]'かつ'演算なのに左辺がすでにFalseであったり[||]'または'演算なのに左辺がすでにTrueのとき、これ以上演算の必要がない。
-            //これは[&]演算子および[|]演算子には適用されません
+            // 短絡論理演算で、評価をスキップできる時にトークンをスキップする
             if ((current.Action == "&&" && !current.Bool) ||
                 (current.Action == "||" && current.Bool))
             {
@@ -600,7 +598,7 @@ namespace AliceScript.Parsing
                 case PreOperetors.Range:
                     return new Variable(new RangeStruct((int)current.Value));
                 default:
-                    throw new ScriptException("次の演算子を処理できませんでした。[" + action + "]", Exceptions.INVALID_OPERAND);
+                    throw new ScriptException($"演算子`{action}`は`{current.GetTypeString()}`型のオペランドに適用できません。", Exceptions.INVALID_OPERAND);
             }
         }
         /// <summary>
@@ -615,22 +613,27 @@ namespace AliceScript.Parsing
         {
             // 演算子は処理できたとしておく
             current.Action = string.Empty;
-            switch (action)
+            if(action == ")" || action == "\0")
             {
-                case Constants.RANGE:
-                    return new Variable(new RangeStruct((int)current.Value));
-                case Constants.INCREMENT:
-                    current.Value++;
-                    return current;
-                case Constants.DECREMENT:
-                    current.Value--;
-                    return current;
-                case ")":
-                case "\0":
-                    return current;
-                default:
-                    throw new ScriptException("次の演算子を処理できませんでした。[" + action + "]", Exceptions.INVALID_OPERAND);
+                return current;
             }
+            if(current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
+            {
+                switch (action)
+                {
+                    case Constants.RANGE:
+                        return new Variable(new RangeStruct((int)current.Value));
+                    case Constants.INCREMENT:
+                        current.Value++;
+                        return current;
+                    case Constants.DECREMENT:
+                        current.Value--;
+                        return current;
+                    default:
+                        break;
+                }
+            }
+            throw new ScriptException($"演算子`{action}`は`{current.GetTypeString()}`型のオペランドに適用できません。", Exceptions.INVALID_OPERAND);
         }
         /// <summary>
         /// 2項演算子を処理します
@@ -721,10 +724,6 @@ namespace AliceScript.Parsing
         //Bool同士の演算
         private static Variable MergeBooleans(Variable leftCell, Variable rightCell, ParsingScript script)
         {
-            if (rightCell.Type != Variable.VarType.BOOLEAN)
-            {
-                rightCell = new Variable(rightCell.AsBool());
-            }
             switch (leftCell.Action)
             {
                 case "&":
@@ -742,9 +741,7 @@ namespace AliceScript.Parsing
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
-                         script, leftCell.Action);
-                    return leftCell;
+                    throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
         }
         //数値同士の演算
@@ -791,9 +788,7 @@ namespace AliceScript.Parsing
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
-                         script, leftCell.Action);
-                    return leftCell;
+                    throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
         }
         //文字列演算
@@ -843,9 +838,7 @@ namespace AliceScript.Parsing
                 case ")":
                     break;
                 default:
-                    Utils.ThrowErrorMsg("String型演算で次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND
-                         , script, leftCell.Action);
-                    break;
+                    throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
             return leftCell;
         }
@@ -865,8 +858,7 @@ namespace AliceScript.Parsing
                     }
                     return v;
                 }
-                Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
-                         script, leftCell.Action);
+                throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
             switch (leftCell.Action)
             {
@@ -897,9 +889,7 @@ namespace AliceScript.Parsing
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
-                         script, leftCell.Action);
-                    return leftCell;
+                    throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
 
         }
@@ -946,9 +936,7 @@ namespace AliceScript.Parsing
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
-                         script, leftCell.Action);
-                    return leftCell;
+                    throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
 
         }
@@ -963,9 +951,7 @@ namespace AliceScript.Parsing
                 case ")":
                     return leftCell;
                 default:
-                    Utils.ThrowErrorMsg("次の演算子を処理できませんでした。[" + leftCell.Action + "]", Exceptions.INVALID_OPERAND,
-                         script, leftCell.Action);
-                    return leftCell;
+                    throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
         }
 
