@@ -12,5 +12,27 @@ namespace AliceScript.NameSpaces.Core
         {
             return dict.Select(kvp => new Variable(kvp));
         }
+        #region プロパティ
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static int Length(this Dictionary<Variable, Variable> dict)
+        {
+            return dict.Count;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static int Size(this Dictionary<Variable, Variable> dict)
+        {
+            return dict.Count;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static IEnumerable<Variable> Keys(this Dictionary<Variable, Variable> dict)
+        {
+            return dict.Keys;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static IEnumerable<Variable> Values(this Dictionary<Variable, Variable> dict)
+        {
+            return dict.Values;
+        }
+        #endregion
     }
 }
