@@ -488,7 +488,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static int CodePointAt(this string str, int index, bool utf32)
         {
-            if(utf32)
+            if (utf32)
             {
                 return char.ConvertToUtf32(str, index);
             }

@@ -28,7 +28,7 @@ namespace AliceScript
             ARRAY = 16,
             ARRAY_NUM = 32,
             ARRAY_STR = 64,
-            MAP_NUM = 128,
+            DICTIONARY = 128,
             MAP_STR = 256,
             BREAK = 1024,
             CONTINUE = 2048,
@@ -39,7 +39,7 @@ namespace AliceScript
 
             BYTES = ARRAY | 512,
             DELEGATE = ARRAY | 32768,
-            STRING = ARRAY | CHAR
+            STRING = ARRAY | CHAR,
         };
         public static Variable True => new Variable(true);
         public static Variable False => new Variable(false);
@@ -170,6 +170,11 @@ namespace AliceScript
             {
                 Tuple.Add(new Variable(i));
             }
+        }
+        public Variable(Dictionary<Variable, Variable> dict)
+        {
+            Dictionary = dict;
+            Type = VarType.DICTIONARY;
         }
         public Variable(object o)
         {
@@ -334,8 +339,7 @@ namespace AliceScript
 
                 newVar.Tuple = newTuple;
 
-                newVar.m_dictionary = new Dictionary<string, int>(m_dictionary);
-                newVar.m_keyMappings = new Dictionary<string, string>(m_keyMappings);
+                newVar.m_dictionary = new Dictionary<Variable, Variable>(m_dictionary);
                 newVar.m_propertyStringMap = new Dictionary<string, string>(m_propertyStringMap);
                 newVar.m_propertyMap = new Dictionary<string, Variable>(m_propertyMap);
                 newVar.m_enumMap = m_enumMap is null ? null : new Dictionary<int, string>(m_enumMap);
@@ -395,7 +399,6 @@ namespace AliceScript
             m_delegate = v.m_delegate;
             m_dictionary = v.m_dictionary;
             m_enumMap = v.m_enumMap;
-            m_keyMappings = v.m_keyMappings;
             m_object = v.m_object;
             m_propertyMap = v.m_propertyMap;
             m_propertyStringMap = v.m_propertyStringMap;
@@ -456,7 +459,6 @@ namespace AliceScript
             IsReturn = false;
             //Type = VarType.NONE;
             m_dictionary = null;
-            m_keyMappings = null;
             m_propertyMap = new Dictionary<string, Variable>();
             m_propertyStringMap = new Dictionary<string, string>();
             m_tuple = null;
@@ -564,33 +566,10 @@ namespace AliceScript
                 ? throw new ScriptException(Constants.TypeToString(Type) + "型を" + Constants.TypeToString(type) + "型に変換することはできません", Exceptions.COULDNT_CONVERT_VARIABLE)
                 : EmptyInstance;
         }
-
-
-        public void AddVariableToHash(string hash, Variable newVar)
-        {
-            Variable listVar = null;
-            string lower = hash.ToLowerInvariant();
-            if (m_dictionary.TryGetValue(lower, out int retValue))
-            {
-                // already exists, change the value:
-                listVar = m_tuple[retValue];
-            }
-            else
-            {
-                listVar = new Variable(VarType.ARRAY);
-                m_tuple.Add(listVar);
-
-                m_keyMappings[lower] = hash;
-                m_dictionary[lower] = m_tuple.Count - 1;
-            }
-
-            listVar.AddVariable(newVar);
-        }
-
         public List<Variable> GetAllKeys()
         {
             List<Variable> results = new List<Variable>();
-            var keys = m_keyMappings.Values;
+            var keys = m_dictionary.Keys;
             foreach (var key in keys)
             {
                 results.Add(new Variable(key));
@@ -607,64 +586,20 @@ namespace AliceScript
         public List<string> GetKeys()
         {
             List<string> results = new List<string>();
-            var keys = m_keyMappings.Values;
+            var keys = m_dictionary.Keys;
             foreach (var key in keys)
             {
-                results.Add(key);
+                results.Add(key.ToString());
             }
             return results;
         }
 
-        public int SetHashVariable(string hash, Variable var)
-        {
-            SetAsArray();
-            string lower = hash.ToLowerInvariant();
-            if (m_dictionary.TryGetValue(lower, out int retValue))
-            {
-                // already exists, change the value:
-                m_tuple[retValue] = var;
-                return retValue;
-            }
-
-            m_tuple.Add(var);
-            m_keyMappings[lower] = hash;
-            m_dictionary[lower] = m_tuple.Count - 1;
-
-            return m_tuple.Count - 1;
-        }
-
-        public void TrySetAsMap()
-        {
-            if (m_tuple is null || m_tuple.Count < 1 ||
-                m_dictionary.Count > 0 || m_keyMappings.Count > 0 ||
-                m_tuple[0].m_dictionary.Count == 0)
-            {
-                return;
-            }
-
-            for (int i = 0; i < m_tuple.Count; i++)
-            {
-                var current = m_tuple[i];
-                if (current.m_tuple is null || current.m_dictionary.Count == 0)
-                {
-                    continue;
-                }
-
-                var key = current.m_dictionary.First().Key;
-                m_keyMappings[key] = current.m_keyMappings[key];
-                m_dictionary[key] = i;
-
-                current.m_dictionary.Clear();
-                m_tuple[i] = current.m_tuple[0];
-            }
-        }
-
-        public int GetArrayIndex(Variable indexVar)
+        public int? GetArrayIndex(Variable indexVar)
         {
             if (!Constants.CAN_GET_ARRAYELEMENT_VARIABLE_TYPES.Contains(Type))
             {
                 //変換不可
-                return -1;
+                return null;
             }
 
             if (indexVar.Type == VarType.NUMBER)
@@ -673,34 +608,9 @@ namespace AliceScript
                 return (int)indexVar.Value;
             }
 
-            string hash = indexVar.AsString();
-            string lower = hash.ToLowerInvariant();
-            int ptr = m_tuple.Count;
-            if (m_dictionary.TryGetValue(lower, out ptr) &&
-                ptr < m_tuple.Count)
-            {
-                return ptr;
-            }
-
-            int result = -1;
-            return !string.IsNullOrWhiteSpace(indexVar.String) &&
-                int.TryParse(indexVar.String, out result)
-                ? result
-                : -1;
+            return null;
         }
 
-        public void AddVariable(Variable v, int index = -1)
-        {
-            SetAsArray();
-            if (index < 0 || m_tuple.Count <= index)
-            {
-                m_tuple.Add(v);
-            }
-            else
-            {
-                m_tuple.Insert(index, v);
-            }
-        }
         public bool TryAsBool(out bool result)
         {
             result = Bool;
@@ -845,7 +755,7 @@ namespace AliceScript
                         break;
                     }
             }
-            return (int)Type ^ subhash;
+            return subhash;
         }
 
         /// <summary>
@@ -1090,6 +1000,20 @@ namespace AliceScript
                         {
                             //Double型はそのままでよい
                             result = Value;
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.DICTIONARY:
+                    {
+                        if (type is null || type == typeof(Dictionary<Variable, Variable>))
+                        {
+                            result = m_dictionary;
+                            return true;
+                        }
+                        if (type is null || type == typeof(VariableCollection))
+                        {
+                            result = new VariableCollection(m_dictionary.Select(item => new Variable(item)).ToList());
                             return true;
                         }
                         break;
@@ -1812,6 +1736,11 @@ namespace AliceScript
             get => m_tuple;
             set { m_tuple = value; Type = VarType.ARRAY; }
         }
+        public Dictionary<Variable, Variable> Dictionary
+        {
+            get => m_dictionary;
+            set { m_dictionary = value; Type = VarType.DICTIONARY; }
+        }
 
         public string Action { get; set; }
         /// <summary>
@@ -1891,8 +1820,7 @@ namespace AliceScript
         protected VariableCollection m_tuple = null;
         protected byte[] m_byteArray = null;
         private HashSet<string> m_keywords = new HashSet<string>();
-        private Dictionary<string, int> m_dictionary = new Dictionary<string, int>();
-        private Dictionary<string, string> m_keyMappings = new Dictionary<string, string>();
+        private Dictionary<Variable, Variable> m_dictionary = new Dictionary<Variable, Variable>();
         private Dictionary<string, string> m_propertyStringMap = new Dictionary<string, string>();
         private Dictionary<string, Variable> m_propertyMap = new Dictionary<string, Variable>();
         private Dictionary<int, string> m_enumMap;

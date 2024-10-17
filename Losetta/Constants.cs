@@ -413,7 +413,7 @@ namespace AliceScript
                 case Variable.VarType.ARRAY_NUM:
                 case Variable.VarType.ARRAY: return "ARRAY";
                 case Variable.VarType.MAP_STR:
-                case Variable.VarType.MAP_NUM: return "MAP";
+                case Variable.VarType.DICTIONARY: return "DICTIONARY";
                 case Variable.VarType.OBJECT: return "OBJECT";
                 case Variable.VarType.BREAK: return "BREAK";
                 case Variable.VarType.CONTINUE: return "CONTINUE";
@@ -439,10 +439,6 @@ namespace AliceScript
                 case "LIST<INT>":
                 case "LIST<DOUBLE>": type = Variable.VarType.ARRAY_NUM; break;
                 case "LIST<STRING>": type = Variable.VarType.ARRAY_STR; break;
-                case "MAP<INT>":
-                case "MAP<STRING,INT>":
-                case "MAP<DOUBLE>":
-                case "MAP<STRING,DOUBLE>": type = Variable.VarType.MAP_NUM; break;
                 case "MAP<STRING>":
                 case "MAP<STRING,STRING>": type = Variable.VarType.MAP_STR; break;
                 case "TUPLE":

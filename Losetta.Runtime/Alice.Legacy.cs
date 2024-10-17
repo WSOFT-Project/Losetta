@@ -10,8 +10,6 @@ namespace AliceScript.NameSpaces
         {
             NameSpace space = new NameSpace("Alice.Legacy");
 
-            space.Add(new AddVariablesToHashFunction());
-            space.Add(new AddVariableToHashFunction());
             space.Add(new GetColumnFunction());
             space.Add(new SetPropertyFunction());
             space.Add(new GetPropertyFunction());
@@ -21,88 +19,6 @@ namespace AliceScript.NameSpaces
             NameSpaceManager.Add(space);
         }
     }
-    internal sealed class AddVariablesToHashFunction : FunctionBase
-    {
-        public AddVariablesToHashFunction()
-        {
-            Name = "AddAllToHash";
-            MinimumArgCounts = 3;
-            Run += AddVariablesToHashFunction_Run;
-        }
-
-        private void AddVariablesToHashFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string varName = Utils.GetSafeString(e.Args, 0);
-            Variable lines = Utils.GetSafeVariable(e.Args, 1);
-            int fromLine = Utils.GetSafeInt(e.Args, 2);
-            string hash2 = Utils.GetSafeString(e.Args, 3);
-            string sepStr = Utils.GetSafeString(e.Args, 4, "\t");
-            if (sepStr == "\\t")
-            {
-                sepStr = "\t";
-            }
-            char[] sep = sepStr.ToCharArray();
-
-            var function = GetVariable(varName, e.Script);
-            Variable mapVar = function is not null ? function.GetValue(e.Script) :
-                                        new Variable(Variable.VarType.ARRAY);
-
-            for (int counter = fromLine; counter < lines.Tuple.Count; counter++)
-            {
-                Variable lineVar = lines.Tuple[counter];
-                Variable toAdd = new Variable(counter - fromLine);
-                string line = lineVar.AsString();
-                var tokens = line.Split(sep);
-                string hash = tokens[0];
-                mapVar.AddVariableToHash(hash, toAdd);
-                if (!string.IsNullOrWhiteSpace(hash2) &&
-                    !hash2.Equals(hash, StringComparison.OrdinalIgnoreCase))
-                {
-                    mapVar.AddVariableToHash(hash2, toAdd);
-                }
-            }
-
-            AddGlobalOrLocalVariable(varName,
-                                              new ValueFunction(mapVar), e.Script);
-        }
-    }
-
-    internal sealed class AddVariableToHashFunction : FunctionBase
-    {
-        public AddVariableToHashFunction()
-        {
-            Name = Constants.ADD_TO_HASH;
-            MinimumArgCounts = 3;
-            Run += AddVariableToHashFunction_Run;
-        }
-
-        private void AddVariableToHashFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            string varName = Utils.GetSafeString(e.Args, 0);
-            Variable toAdd = Utils.GetSafeVariable(e.Args, 1);
-            string hash = Utils.GetSafeString(e.Args, 2);
-
-            var function = GetVariable(varName, e.Script);
-            Variable mapVar = function is not null ? function.GetValue(e.Script) :
-                                        new Variable(Variable.VarType.ARRAY);
-
-            mapVar.AddVariableToHash(hash, toAdd);
-            for (int i = 3; i < e.Args.Count; i++)
-            {
-                string hash2 = Utils.GetSafeString(e.Args, 3);
-                if (!string.IsNullOrWhiteSpace(hash2) &&
-                    !hash2.Equals(hash, StringComparison.OrdinalIgnoreCase))
-                {
-                    mapVar.AddVariableToHash(hash2, toAdd);
-                }
-            }
-
-            AddGlobalOrLocalVariable(varName,
-                                                new ValueFunction(mapVar), e.Script);
-        }
-    }
-
-
     internal sealed class GetPropertiesFunction : FunctionBase, IArrayFunction
     {
         public GetPropertiesFunction()

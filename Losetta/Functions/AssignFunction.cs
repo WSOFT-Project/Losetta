@@ -58,7 +58,7 @@ namespace AliceScript.Functions
             }
 
             script.MoveBackIfPrevious(Constants.END_ARG);
-            varValue.TrySetAsMap();
+            //varValue.TrySetAsMap();
 
             if (script.Current == ' ' || script.Prev == ' ')
             {
@@ -149,7 +149,7 @@ namespace AliceScript.Functions
             }
 
             Variable index = arrayIndices[indexPtr];
-            int currIndex = ExtendArrayHelper(parent, index);
+            int currIndex = parent.GetArrayIndex(index) ?? throw new IndexOutOfRangeException("インデクサーには整数値が必要です。"); ;
 
             if (arrayIndices.Count - 1 == indexPtr)
             {
@@ -159,29 +159,6 @@ namespace AliceScript.Functions
 
             Variable son = parent.Tuple[currIndex];
             ExtendArray(son, arrayIndices, indexPtr + 1, varValue);
-        }
-
-        private static int ExtendArrayHelper(Variable parent, Variable indexVar)
-        {
-            parent.SetAsArray();
-
-            int arrayIndex = parent.GetArrayIndex(indexVar);
-            if (arrayIndex < 0)
-            {
-                // このとき、インデックスではなく辞書配列のkeyが指定された
-                string hash = indexVar.AsString();
-                arrayIndex = parent.SetHashVariable(hash, Variable.NewEmpty());
-                return arrayIndex;
-            }
-
-            if (parent.Tuple.Count <= arrayIndex)
-            {
-                for (int i = parent.Tuple.Count; i <= arrayIndex; i++)
-                {
-                    parent.Tuple.Add(Variable.NewEmpty());
-                }
-            }
-            return arrayIndex;
         }
     }
 }
