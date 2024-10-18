@@ -78,14 +78,14 @@ namespace AliceScript.Functions
             }
 
             //item = Constants.ConvertName(item);
-            
+
             m_impl = GetRegisteredAction(item, script, ref action);
             if (m_impl is not null)
             {
                 m_impl.Keywords = keywords;
                 return;
             }
-            
+
             m_impl = GetArrayFunction(item, script, action);
             if (m_impl is not null)
             {
@@ -148,7 +148,7 @@ namespace AliceScript.Functions
                     Utils.SkipRestExpr(statement.Script);
 
                     // 一度前に進めてみて、カンマが来たらそれは辞書式
-                    if(statement.Script.Current == ',')
+                    if (statement.Script.Current == ',')
                     {
                         // この波括弧は辞書式だった
                         script.Pointer = startPoint - 1;
