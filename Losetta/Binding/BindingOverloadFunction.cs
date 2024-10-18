@@ -111,42 +111,46 @@ namespace AliceScript.Binding
             {
                 paramType = TrueParameters[i].ParameterType;
 
-                if (paramType == typeof(FunctionBaseEventArgs))
+                if(TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(BindInfoAttribute)))
                 {
-                    diff++;
-                    parametors.Add(e);
-                    continue;
+                    if (paramType == typeof(FunctionBaseEventArgs))
+                    {
+                        diff++;
+                        parametors.Add(e);
+                        continue;
+                    }
+                    if (paramType == typeof(ParsingScript))
+                    {
+                        diff++;
+                        parametors.Add(e.Script);
+                        continue;
+                    }
+                    if (paramType == typeof(FunctionBase))
+                    {
+                        diff++;
+                        parametors.Add(parent);
+                        continue;
+                    }
+                    if (paramType == typeof(BindFunction) && parent is BindFunction)
+                    {
+                        diff++;
+                        parametors.Add(parent);
+                        continue;
+                    }
+                    if (paramType == typeof(BindValueFunction) && parent is BindFunction)
+                    {
+                        diff++;
+                        parametors.Add(parent);
+                        continue;
+                    }
+                    if (paramType == typeof(BindingOverloadFunction))
+                    {
+                        diff++;
+                        parametors.Add(this);
+                        continue;
+                    }
                 }
-                if (paramType == typeof(ParsingScript))
-                {
-                    diff++;
-                    parametors.Add(e.Script);
-                    continue;
-                }
-                if (paramType == typeof(FunctionBase))
-                {
-                    diff++;
-                    parametors.Add(parent);
-                    continue;
-                }
-                if (paramType == typeof(BindFunction) && parent is BindFunction)
-                {
-                    diff++;
-                    parametors.Add(parent);
-                    continue;
-                }
-                if (paramType == typeof(BindValueFunction) && parent is BindFunction)
-                {
-                    diff++;
-                    parametors.Add(parent);
-                    continue;
-                }
-                if (paramType == typeof(BindingOverloadFunction))
-                {
-                    diff++;
-                    parametors.Add(this);
-                    continue;
-                }
+                
                 if (i == 0 && IsMethod && e.CurentVariable is not null)
                 {
                     diff++;

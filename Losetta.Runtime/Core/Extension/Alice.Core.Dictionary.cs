@@ -13,11 +13,18 @@ namespace AliceScript.NameSpaces.Core
         {
             return dict.Select(kvp => new Variable(kvp));
         }
+        public static void Add(this Dictionary<Variable, Variable> dict, Variable key, Variable value)
+        {
+            dict.Add(key, value);
+        }
+        public static void Add(this Dictionary<Variable, Variable> dict, KeyValuePair<Variable, Variable> kvp)
+        {
+            dict.Add(kvp.Key, kvp.Value);
+        }
         #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static int Length(this Dictionary<Variable, Variable> dict, BindingOverloadFunction func)
+        public static int Length(this Dictionary<Variable, Variable> dict)
         {
-            Console.WriteLine(func.Priority);
             return dict.Count;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]

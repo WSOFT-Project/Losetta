@@ -14,7 +14,7 @@ namespace AliceScript.NameSpaces.Core
         {
             return func.Contains(d);
         }
-        public static Variable Invoke(this DelegateObject func, ParsingScript script)
+        public static Variable Invoke(this DelegateObject func, [BindInfo] ParsingScript script)
         {
             return func.Invoke(new List<Variable> { }, script);
         }
@@ -22,15 +22,15 @@ namespace AliceScript.NameSpaces.Core
         {
             return func.Functions.GetEnumerator();
         }
-        public static Variable Invoke(this DelegateObject func, ParsingScript script, params Variable[] args)
+        public static Variable Invoke(this DelegateObject func, [BindInfo] ParsingScript script, params Variable[] args)
         {
             return func.Invoke(args.ToList(), script);
         }
-        public static void BeginInvoke(this DelegateObject func, ParsingScript script)
+        public static void BeginInvoke(this DelegateObject func, [BindInfo] ParsingScript script)
         {
             func.BeginInvoke(null, script);
         }
-        public static void BeginInvoke(this DelegateObject func, ParsingScript script, params Variable[] args)
+        public static void BeginInvoke(this DelegateObject func, [BindInfo] ParsingScript script, params Variable[] args)
         {
             func.BeginInvoke(args.ToList(), script);
         }

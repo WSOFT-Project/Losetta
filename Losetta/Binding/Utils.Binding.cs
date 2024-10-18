@@ -373,6 +373,11 @@ namespace AliceScript
                     // 必須ではない引数は減点
                     raw--;
                 }
+                if(param.CustomAttributes.Any(attr => attr.AttributeType == typeof(BindInfoAttribute)))
+                {
+                    // BindInfoの場合は減点
+                    raw = 1;
+                }
                 priority += raw;
             }
             return priority;

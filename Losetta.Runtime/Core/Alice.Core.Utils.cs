@@ -88,23 +88,23 @@ namespace AliceScript.NameSpaces.Core
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, int errorCode)
+        public static void Throw([BindInfo] ParsingScript script, int errorCode)
         {
             throw new ScriptException(string.Empty, (Exceptions)errorCode, script);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, string message)
+        public static void Throw([BindInfo] ParsingScript script, string message)
         {
             throw new ScriptException(message, Exceptions.USER_DEFINED, script);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, ExceptionObject exception)
+        public static void Throw([BindInfo] ParsingScript script, ExceptionObject exception)
         {
             var s = exception.MainScript ?? script;
             throw new ScriptException(exception.Message, exception.Error, s);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, string message, int errorCode)
+        public static void Throw([BindInfo] ParsingScript script, string message, int errorCode)
         {
             throw new ScriptException(message, (Exceptions)errorCode, script);
         }
@@ -112,7 +112,7 @@ namespace AliceScript.NameSpaces.Core
         private static readonly Dictionary<string, Variable> m_singletons =
            new Dictionary<string, Variable>();
 
-        public static Variable Singleton(ParsingScript script)
+        public static Variable Singleton([BindInfo] ParsingScript script)
         {
             string expr = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
 
@@ -129,7 +129,7 @@ namespace AliceScript.NameSpaces.Core
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static void Import(ParsingScript script, string filePath)
+        public static void Import([BindInfo] ParsingScript script, string filePath)
         {
             if (script.EnableImport)
             {
@@ -142,7 +142,7 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static void Import(ParsingScript script, string filePath, bool fromPackage = false)
+        public static void Import([BindInfo] ParsingScript script, string filePath, bool fromPackage = false)
         {
             if (script.EnableImport)
             {
@@ -155,7 +155,7 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static void Import(ParsingScript script, string filePath, bool fromPackage = false, bool isNativeLibrary = false)
+        public static void Import([BindInfo] ParsingScript script, string filePath, bool fromPackage = false, bool isNativeLibrary = false)
         {
             if (script.EnableImport)
             {
@@ -175,7 +175,7 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static Variable Include(ParsingScript script, BindFunction func, string fileName)
+        public static Variable Include([BindInfo] ParsingScript script, [BindInfo] BindFunction func, string fileName)
         {
             ParsingScript tempScript = script.GetIncludeFileScript(fileName, func);
 
@@ -189,7 +189,7 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static Variable Return(ParsingScript script, Variable result = null)
+        public static Variable Return([BindInfo] ParsingScript script, Variable result = null)
         {
             // Returnに到達したら終了
             script.SetDone();
