@@ -142,6 +142,8 @@ namespace AliceScript.Functions
                 else
                 {
                     action = null;
+                    return new StatementFunction(body, script);
+                    /*
                     var statement = new StatementFunction(body, script);
 
                     int nowPointer = statement.Script.Pointer;
@@ -160,6 +162,7 @@ namespace AliceScript.Functions
                         statement.Script.Pointer = nowPointer;
                         return statement;
                     }
+                    */
                 }
             }
             return null;

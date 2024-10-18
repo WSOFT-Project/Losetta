@@ -67,7 +67,7 @@ namespace AliceScript
         Task<Variable> ScriptObject.GetProperty(string sPropertyName, List<Variable> args, ParsingScript script)
         {
             sPropertyName = GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
-            
+
             if (Properties.TryGetValue(sPropertyName, out ValueFunction value))
             {
                 GETTING = true;
@@ -371,16 +371,16 @@ namespace AliceScript
                 try
                 {
                     // asを使えば変換できるかを確認する
-                    if(v.IsNull())
+                    if (v.IsNull())
                     {
                         throw new ScriptException("nullを代入することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
                     }
                     _ = v.Convert(m_type, true);
                     throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。明示的な変換が存在します。型変換を忘れていませんか？", Exceptions.CANT_IMPLICITLY_CONVERT);
                 }
-                catch(ScriptException ex)
+                catch (ScriptException ex)
                 {
-                    if(ex.ErrorCode == Exceptions.COULDNT_CONVERT_VARIABLE)
+                    if (ex.ErrorCode == Exceptions.COULDNT_CONVERT_VARIABLE)
                     {
                         throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。", Exceptions.TYPE_MISMATCH);
                     }
@@ -835,7 +835,7 @@ namespace AliceScript
         public bool TryConvertTo<T>(out T result)
         {
             bool r = TryConvertTo(typeof(T), out object obj);
-            if(obj is null)
+            if (obj is null)
             {
                 result = default(T);
             }
@@ -895,7 +895,7 @@ namespace AliceScript
                         }
                         if (type == typeof(char))
                         {
-                            if(String.Length == 1)
+                            if (String.Length == 1)
                             {
                                 result = String[0];
                                 return true;
@@ -1203,7 +1203,15 @@ namespace AliceScript
                         for (; i < count; i++)
                         {
                             Variable arg = m_tuple[i];
+                            if (arg.Type == VarType.STRING)
+                            {
+                                sb.Append(Constants.QUOTE);
+                            }
                             sb.Append(arg.AsString(isList, sameLine, maxCount));
+                            if (arg.Type == VarType.STRING)
+                            {
+                                sb.Append(Constants.QUOTE);
+                            }
                             if (i != count - 1)
                             {
                                 sb.Append(sameLine ? ", " : Environment.NewLine);
@@ -1218,6 +1226,41 @@ namespace AliceScript
                             sb.Append(Constants.END_ARRAY.ToString() +
                                      (sameLine ? "" : Environment.NewLine));
                         }
+                        return sb.ToString();
+                    }
+                case VarType.DICTIONARY:
+                    {
+                        var sb = new StringBuilder();
+                        sb.Append(Constants.START_GROUP);
+                        sb.Append(Constants.SPACE);
+
+                        foreach (var kvp in Dictionary)
+                        {
+                            if (kvp.Key.Type == VarType.STRING)
+                            {
+                                sb.Append(Constants.QUOTE);
+                            }
+                            sb.Append(kvp.Key.AsString(isList, sameLine, maxCount));
+                            if (kvp.Key.Type == VarType.STRING)
+                            {
+                                sb.Append(Constants.QUOTE);
+                            }
+                            sb.Append(": ");
+                            if (kvp.Value.Type == VarType.STRING)
+                            {
+                                sb.Append(Constants.QUOTE);
+                            }
+                            sb.Append(kvp.Value.AsString(isList, sameLine, maxCount));
+                            if (kvp.Value.Type == VarType.STRING)
+                            {
+                                sb.Append(Constants.QUOTE);
+                            }
+                            sb.Append(", ");
+                        }
+
+                        sb.Append(Constants.SPACE);
+                        sb.Append(Constants.END_GROUP);
+                        sb.Remove(sb.Length - 4, 2);
                         return sb.ToString();
                     }
                 default:
