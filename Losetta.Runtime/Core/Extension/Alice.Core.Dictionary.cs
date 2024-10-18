@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AliceScript.Binding;
 using AliceScript.Functions;
-using AliceScript.Objects;
 
 namespace AliceScript.NameSpaces.Core
 {
