@@ -411,7 +411,14 @@ namespace AliceScript
                 if (spread)
                 {
                     // スプレッド構文なら展開
-                    args.AddRange(item.Tuple);
+                    if(item.Type == Variable.VarType.ARRAY)
+                    {
+                        args.AddRange(item.Tuple);
+                    }
+                    else
+                    {
+                        throw new ScriptException("スプレッド構文は配列でのみ使用できます。", Exceptions.SPREAD_ONLY_FOR_ARRAYS, script);
+                    }
                 }
                 else
                 {

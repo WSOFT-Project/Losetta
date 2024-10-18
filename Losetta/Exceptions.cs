@@ -306,5 +306,9 @@ namespace AliceScript
         /// `identifier`は現在のコンテキストに存在しません。
         /// </summary>
         IDENTIFIER_NOT_FOUND = 0x051,
+        /// <summary>
+        /// スプレッド構文は配列でのみ使用できます
+        /// </summary>
+        SPREAD_ONLY_FOR_ARRAYS = 0x052,
     }
 }
