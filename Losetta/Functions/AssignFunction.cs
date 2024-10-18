@@ -149,16 +149,29 @@ namespace AliceScript.Functions
             }
 
             Variable index = arrayIndices[indexPtr];
-            int currIndex = parent.GetArrayIndex(index) ?? throw new IndexOutOfRangeException("インデクサーには整数値が必要です。"); ;
 
-            if (arrayIndices.Count - 1 == indexPtr)
+            // 辞書への代入の場合
+            if (parent.Type == Variable.VarType.DICTIONARY)
             {
-                parent.Tuple[currIndex] = varValue;
+                parent.Dictionary[index] = varValue;
+                Variable son = parent.Dictionary[index];
+                ExtendArray(son, arrayIndices, indexPtr + 1, varValue);
                 return;
             }
 
-            Variable son = parent.Tuple[currIndex];
-            ExtendArray(son, arrayIndices, indexPtr + 1, varValue);
+            int currIndex = parent.GetArrayIndex(index) ?? throw new IndexOutOfRangeException("インデクサーには整数値が必要です。");
+
+            switch (parent.Type)
+            {
+                case Variable.VarType.ARRAY:
+                    if (arrayIndices.Count - 1 == indexPtr)
+                    {
+                        parent.Tuple[currIndex] = varValue;
+                    }
+                    Variable son = parent.Tuple[currIndex];
+                    ExtendArray(son, arrayIndices, indexPtr + 1, varValue);
+                    return;
+            }
         }
     }
 }
