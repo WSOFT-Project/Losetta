@@ -354,19 +354,24 @@ namespace AliceScript
             foreach(var param in parameters)
             {
                 // この引数のポイント
-                uint raw = 3;
+                uint raw = 5;
                 if(param.ParameterType == typeof(char))
                 {
                     // charはstring(ほかの)よりも優先順位が高い
-                    raw = 4;
+                    raw = 6;
                 }
                 else if(param.ParameterType == typeof(VariableCollection))
                 {
-                    raw = 2;
+                    raw = 4;
                 }
                 else if(param.ParameterType == typeof(Variable))
                 {
-                    raw = 1;
+                    raw = 2;
+                }
+                if(param.IsOptional)
+                {
+                    // 必須ではない引数は減点
+                    raw--;
                 }
                 priority += raw;
             }

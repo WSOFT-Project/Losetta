@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AliceScript.Binding;
@@ -14,8 +15,9 @@ namespace AliceScript.NameSpaces.Core
         }
         #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static int Length(this Dictionary<Variable, Variable> dict)
+        public static int Length(this Dictionary<Variable, Variable> dict, BindingOverloadFunction func)
         {
+            Console.WriteLine(func.Priority);
             return dict.Count;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]

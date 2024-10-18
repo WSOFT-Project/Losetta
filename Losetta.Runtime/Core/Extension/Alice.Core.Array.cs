@@ -464,7 +464,7 @@ namespace AliceScript.NameSpaces.Core
         #endregion
         #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static int Length(this VariableCollection ary)
+        public static int Length(this VariableCollection ary, BindingOverloadFunction func)
         {
             return ary.Count;
         }

@@ -79,12 +79,8 @@ namespace AliceScript.Binding
         /// <returns>より先に解決されるべき場合は1,より後に解決されるべき場合は-1</returns>
         public int CompareTo(BindingOverloadFunction other)
         {
-            int result = MinimumArgCounts.CompareTo(other.MinimumArgCounts);
+            int result = Priority.CompareTo(other.Priority) * -1;
 
-            if(result == 0)
-            {
-                result = Priority.CompareTo(other.Priority) * -1;
-            }
             return result;
         }
 
