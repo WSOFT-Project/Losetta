@@ -53,6 +53,10 @@ namespace AliceScript.Functions
         /// </summary>
         public bool MethodOnly { get; set; } = true;
         /// <summary>
+        /// この関数が呼び出せるコンテキスト
+        /// </summary>
+        public ParsingScript.Contexts Context { get; set; } = ParsingScript.Contexts.ANY;
+        /// <summary>
         /// この関数を呼び出します
         /// </summary>
         /// <param name="args">呼び出しに使用する引数</param>

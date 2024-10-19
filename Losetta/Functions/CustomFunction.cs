@@ -355,21 +355,30 @@ namespace AliceScript.Functions
                 {
                     Variable val;
 
-                    bool refd = args[i].Keywords.Contains(Constants.REF);
+                    bool refd = args[i].Type == Variable.VarType.REFERENCE;
                     if (m_refMap.Contains(i))
                     {
-                        val = refd
-                            ? args[i]
-                            : throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
+                        if(!refd)
+                        {
+                            throw new ScriptException("引数 `" + ArgMap.Where(kvp => kvp.Value == i).FirstOrDefault().Key + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
+                        }
+                        var v = args[i].Reference;
+                        if(v is ValueFunction vf)
+                        {
+                            val = vf.Value;
+                        }
+                        else
+                        {
+                            throw new ScriptException($"引数 `{ArgMap.Where(kvp => kvp.Value == i).FirstOrDefault().Key}` で、変数以外への参照が渡されました", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
+                        }
                     }
                     else
                     {
                         if (refd)
                         {
-                            throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD, script);
+                            throw new ScriptException("引数 `" + ArgMap.Where(kvp => kvp.Value == i).FirstOrDefault().Key + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD, script);
                         }
-                        val = new Variable();
-                        val.Assign(args[i]);
+                        val = args[i];
                     }
                     if (m_readonlyMap.Contains(i))
                     {

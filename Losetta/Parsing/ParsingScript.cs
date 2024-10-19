@@ -38,7 +38,16 @@ namespace AliceScript.Parsing
         private HashSet<string> m_namespaces = new HashSet<string>();
         internal List<StackInfo> m_stacktrace = new List<StackInfo>();
 
+        [Flags]
+        public enum Contexts
+        {
+            DEFAULT = 1,
+            INHERITANCE = 1 << 1,// 子スクリプトへ伝搬する
+            IN_ARGS = DEFAULT | 1 << 2,
+            ANY = DEFAULT | INHERITANCE | IN_ARGS
+        }
 
+        public Contexts Context { get; set; } = Contexts.DEFAULT;
         /// <summary>
         /// 最上位のスクリプトを取得します
         /// </summary>
@@ -1260,7 +1269,8 @@ namespace AliceScript.Parsing
                 Package = Package,
                 Generation = Generation + 1,
                 ThrowError = ThrowError,
-                m_stacktrace = new List<StackInfo>(m_stacktrace)
+                m_stacktrace = new List<StackInfo>(m_stacktrace),
+                Context = Context.HasFlag(Contexts.INHERITANCE) ? Context : Contexts.DEFAULT
             };
             if (callFrom is not null)
             {

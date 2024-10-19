@@ -379,6 +379,11 @@ namespace AliceScript
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
 
+            if(!isList && !arrayMode)
+            {
+                script.Context = ParsingScript.Contexts.IN_ARGS;
+            }
+
             if (!script.StillValid() || script.Current == Constants.END_STATEMENT)
             {
                 return args;

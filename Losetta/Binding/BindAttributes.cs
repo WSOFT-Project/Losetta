@@ -1,4 +1,5 @@
 ﻿using AliceScript.Functions;
+using AliceScript.Parsing;
 using System;
 
 namespace AliceScript.Binding
@@ -28,6 +29,10 @@ namespace AliceScript.Binding
         /// この関数が拡張メソッドとして使用可能なとき、この関数は拡張メソッドとしてのみ呼び出すことができます
         /// </summary>
         public bool MethodOnly { get; set; } = true;
+        /// <summary>
+        /// この関数が呼び出せるコンテキスト
+        /// </summary>
+        public ParsingScript.Contexts Context { get; set; } = ParsingScript.Contexts.ANY;
     }
 
     /// <summary>

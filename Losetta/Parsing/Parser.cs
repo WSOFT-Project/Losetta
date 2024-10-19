@@ -101,7 +101,17 @@ namespace AliceScript.Parsing
                         m_attributeFuncs = null;
                     }
                 }
-                Variable current = func.GetValue(script);//関数を呼び出し
+                Variable current;
+                if(NeedReferenceNext)
+                {
+                    // 参照が必要な場合
+                    current = new Variable(func.m_impl);
+                    NeedReferenceNext = false;
+                }
+                else
+                {
+                    current = func.GetValue(script);
+                }
                 if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
                 {
                     return listToMerge;
@@ -114,7 +124,7 @@ namespace AliceScript.Parsing
             return listToMerge;
         }
 
-
+        public static bool NeedReferenceNext {get;set;}
         public static string ExtractNextToken(ParsingScript script, char[] to, ref bool inQuotes,
             ref int arrayIndexDepth, ref int negated, out char ch, out string action, bool throwExc = true)
         {

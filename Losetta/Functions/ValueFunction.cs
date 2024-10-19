@@ -75,7 +75,7 @@ namespace AliceScript.Functions
 
                 if (e.Script.TryCurrent() != '.')
                 {
-                    e.Return = result;
+                    e.Return = result.Clone();
                     return;
                 }
                 e.Script.Forward();
@@ -83,7 +83,7 @@ namespace AliceScript.Functions
                 m_propName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
                 Variable propValue = result.GetProperty(m_propName, e.Script);
                 Utils.CheckNotNull(propValue, m_propName, e.Script);
-                e.Return = propValue;
+                e.Return = propValue.Clone();
                 return;
             }
 
@@ -96,13 +96,14 @@ namespace AliceScript.Functions
                                      value.GetEnumProperty(temp, e.Script) :
                                      value.GetProperty(temp, e.Script);
                 Utils.CheckNotNull(propValue, temp, e.Script);
-                e.Return = EvaluateFunction(propValue, e.Script, m_propName, this);
+                e.Return = EvaluateFunction(propValue, e.Script, m_propName, this).Clone();
                 return;
             }
 
             // Otherwise just return the stored value.
-            e.Return = value;
+            e.Return = value.Clone();
         }
+        
         public static Variable EvaluateFunction(Variable var, ParsingScript script, string m_propName, FunctionBase callFrom)
         {
             if (var is not null && var.CustomFunctionGet is not null)

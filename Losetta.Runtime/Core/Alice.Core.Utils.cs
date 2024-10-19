@@ -201,5 +201,28 @@ namespace AliceScript.NameSpaces.Core
 
             return result;
         }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Context = ParsingScript.Contexts.IN_ARGS)]
+        public static Variable Ref(ParsingScript script)
+        {
+            Parser.NeedReferenceNext = true;
+            return Utils.GetItem(script);
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__makeref")]
+        public static Variable MakeRef(ParsingScript script)
+        {
+            Parser.NeedReferenceNext = true;
+            return Utils.GetItem(script);
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__useref")]
+        public static Variable UseRef(ParsingScript script)
+        {
+            Parser.NeedReferenceNext = true;
+            var r = Utils.GetItem(script);
+            if(r.Type == Variable.VarType.REFERENCE && r.Reference is not null)
+            {
+                return r.Reference.GetValue(script);
+            }
+            throw new ScriptException("そのような参照は存在しません",Exceptions.NONE,script);
+        }
     }
 }
