@@ -190,6 +190,7 @@ namespace AliceScript.Parsing
         /// </summary>
         [AliceProperty(State = AliceBindState.Enabled)]
         public char NextNext => m_from + 2 < m_data.Length ? m_data[m_from + 2] : Constants.EMPTY;
+        [AliceProperty(State = AliceBindState.Enabled)]
         public Dictionary<int, int> Char2Line
         {
             get => m_char2Line;

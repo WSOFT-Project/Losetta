@@ -296,6 +296,20 @@ namespace AliceScript
                 Delegate = m;
                 return;
             }
+            if (o is Dictionary<Variable, Variable> vDict)
+            {
+                Dictionary = vDict;
+                return;
+            }
+            if (o is IDictionary dict)
+            {
+                Dictionary = new Dictionary<Variable, Variable>();
+                foreach (DictionaryEntry entry in dict)
+                {
+                    Dictionary.Add(new Variable(entry.Key), new Variable(entry.Value));
+                }
+                return;
+            }
             /*
             if (o is IEnumerator<object> en)
             {
@@ -755,7 +769,7 @@ namespace AliceScript
                         break;
                     }
             }
-            return (int) Type ^ subhash;
+            return (int)Type ^ subhash;
         }
 
         /// <summary>
@@ -1234,7 +1248,7 @@ namespace AliceScript
                         sb.Append(Constants.START_GROUP);
                         sb.Append(Constants.SPACE);
 
-                        if(Dictionary.Count > 0)
+                        if (Dictionary.Count > 0)
                         {
                             foreach (var kvp in Dictionary)
                             {
