@@ -1234,33 +1234,34 @@ namespace AliceScript
                         sb.Append(Constants.START_GROUP);
                         sb.Append(Constants.SPACE);
 
-                        foreach (var kvp in Dictionary)
+                        if(Dictionary.Count > 0)
                         {
-                            if (kvp.Key.Type == VarType.STRING)
+                            foreach (var kvp in Dictionary)
                             {
-                                sb.Append(Constants.QUOTE);
+                                if (kvp.Key.Type == VarType.STRING)
+                                {
+                                    sb.Append(Constants.QUOTE);
+                                }
+                                sb.Append(kvp.Key.AsString(isList, sameLine, maxCount));
+                                if (kvp.Key.Type == VarType.STRING)
+                                {
+                                    sb.Append(Constants.QUOTE);
+                                }
+                                sb.Append(": ");
+                                if (kvp.Value.Type == VarType.STRING)
+                                {
+                                    sb.Append(Constants.QUOTE);
+                                }
+                                sb.Append(kvp.Value.AsString(isList, sameLine, maxCount));
+                                if (kvp.Value.Type == VarType.STRING)
+                                {
+                                    sb.Append(Constants.QUOTE);
+                                }
+                                sb.Append(", ");
                             }
-                            sb.Append(kvp.Key.AsString(isList, sameLine, maxCount));
-                            if (kvp.Key.Type == VarType.STRING)
-                            {
-                                sb.Append(Constants.QUOTE);
-                            }
-                            sb.Append(": ");
-                            if (kvp.Value.Type == VarType.STRING)
-                            {
-                                sb.Append(Constants.QUOTE);
-                            }
-                            sb.Append(kvp.Value.AsString(isList, sameLine, maxCount));
-                            if (kvp.Value.Type == VarType.STRING)
-                            {
-                                sb.Append(Constants.QUOTE);
-                            }
-                            sb.Append(", ");
+                            sb.Remove(sb.Length - 2, 1);
                         }
-
-                        sb.Append(Constants.SPACE);
                         sb.Append(Constants.END_GROUP);
-                        sb.Remove(sb.Length - 4, 2);
                         return sb.ToString();
                     }
                 default:

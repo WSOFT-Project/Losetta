@@ -262,8 +262,18 @@ namespace AliceScript
         /// 型指定修飾子
         /// </summary>
         public static readonly HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","delegate","bool","variable","void",
-              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?","var"
+            "string", "string?",
+            "number", "number?",
+            "array", "array?",
+            "bytes", "bytes?",
+            "object", "object?",
+            "enum", "enum?",
+            "delegate", "delegate?",
+            "bool", "bool?",
+            "dictionary", "dictionary?",
+            "variable", "variable?",
+            "void",
+            "var",
         };
         /// <summary>
         /// AliceScriptのキーワード
@@ -359,6 +369,7 @@ namespace AliceScript
             {"enum",Variable.AsType(Variable.VarType.ENUM) },
             {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
             {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
+            {"dictionary",Variable.AsType(Variable.VarType.DICTIONARY) },
 
         };
         /// <summary>
