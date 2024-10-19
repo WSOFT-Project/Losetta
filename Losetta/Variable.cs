@@ -755,7 +755,7 @@ namespace AliceScript
                         break;
                     }
             }
-            return subhash;
+            return (int) Type ^ subhash;
         }
 
         /// <summary>
