@@ -45,7 +45,7 @@ namespace AliceScript.Parsing
         /// <param name="script">呼び出し元のスクリプト</param>
         /// <returns>最上位のスクリプト</returns>
         [AliceFunction(State = AliceBindState.Enabled)]
-        public static ParsingScript GetTopLevelScript(ParsingScript script = null)
+        public static ParsingScript GetTopLevelScript([BindInfo] ParsingScript script = null)
         {
             if (m_toplevel_script.ParentScript is not null)
             {
@@ -981,7 +981,7 @@ namespace AliceScript.Parsing
                     }
                 case IndexOutOfRangeException indexOutOfRangeExc:
                     {
-                        if(string.IsNullOrEmpty(indexOutOfRangeExc.Message))
+                        if (string.IsNullOrEmpty(indexOutOfRangeExc.Message))
                         {
                             OnThrowError(indexOutOfRangeExc, "インデックスが配列の境界外です。", Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
                         }
@@ -989,7 +989,7 @@ namespace AliceScript.Parsing
                         {
                             OnThrowError(indexOutOfRangeExc, indexOutOfRangeExc.Message, Exceptions.INDEX_OUT_OF_RANGE, indexOutOfRangeExc.Source);
                         }
-                        
+
                         return;
                     }
                 case ArgumentNullException argumentNullExc:
@@ -1243,7 +1243,7 @@ namespace AliceScript.Parsing
         /// <param name="startIndex"></param>
         /// <returns></returns>
         [AliceFunction(State = AliceBindState.Enabled)]
-        public ParsingScript GetTempScript(string str = null, FunctionBase callFrom = null, int startIndex = 0)
+        public ParsingScript GetTempScript(string str = null, [BindInfo] FunctionBase callFrom = null, int startIndex = 0)
         {
             ParsingScript tempScript = new ParsingScript(str, startIndex)
             {
