@@ -822,6 +822,15 @@ namespace AliceScript
             return (T)ConvertTo(typeof(T));
         }
         /// <summary>
+        /// この変数を指定した型に変換できるか試みます
+        /// </summary>
+        /// <param name="result">変換されたオブジェクト</param>
+        /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
+        public bool TryAs<T>(out T result)
+        {
+            return TryConvertTo(typeof(T), out object o) ? (result = (T)o) is not null : (result = default) is not null;
+        }
+        /// <summary>
         /// この変数を指定した型に変換します
         /// </summary>
         /// <typeparam name="T">変換先の型</typeparam>

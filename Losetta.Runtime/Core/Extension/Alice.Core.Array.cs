@@ -363,6 +363,31 @@ namespace AliceScript.NameSpaces.Core
             }
             return result;
         }
+        public static Dictionary<Variable, Variable> ToDictionary(this VariableCollection ary, DelegateObject keySource, DelegateObject valueSource, [BindInfo] ParsingScript script)
+        {
+            return ary.ToDictionary(x => keySource.Invoke(x, script), x => valueSource.Invoke(x, script));
+        }
+        public static Dictionary<Variable, Variable> ToDictionary(this VariableCollection ary, DelegateObject source, [BindInfo] ParsingScript script)
+        {
+            Dictionary<Variable, Variable> dict = new Dictionary<Variable, Variable>(ary.Count);
+            foreach(var element in ary)
+            {
+                var key = source.Invoke(element, script);
+                if(key.TryAs<KeyValuePair<Variable, Variable>>(out var kvp))
+                {
+                    dict.Add(kvp.Key, kvp.Value);
+                }
+                else if(key.Type == Variable.VarType.ARRAY && key.Tuple.Count >= 2)
+                {
+                    dict.Add(key.Tuple[0], key.Tuple[1]);
+                }
+                else
+                {
+                    throw new ScriptException($"`source`の戻り値は辞書型か、`{nameof(KeyValuePair<Variable, Variable>)}`型の配列である必要があります。", Exceptions.TYPE_MISMATCH, script);
+                }
+            }
+            return dict;
+        }
         #region 配列集計
         public static double Mean(this VariableCollection ary, [BindInfo] ParsingScript script, DelegateObject func)
         {
