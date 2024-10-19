@@ -1276,7 +1276,7 @@ namespace AliceScript.Parsing
         /// <param name="startIndex"></param>
         /// <returns></returns>
         [AliceFunction(State = AliceBindState.Enabled)]
-        public ParsingScript GetChildScript(string str, FunctionBase callFrom = null, int startIndex = 0)
+        public ParsingScript GetChildScript(string str, [BindInfo] FunctionBase callFrom = null, int startIndex = 0)
         {
             str = PreProcessor.ConvertToScript(str, out var char2Line, out var def, out var settings);
             var script = GetTempScript(str, callFrom, startIndex);

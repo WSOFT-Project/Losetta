@@ -20,7 +20,7 @@ namespace AliceScript.NameSpaces
         {
             return v.GetProperties();
         }
-        public static Variable Reflect_Get_Variable(ParsingScript script, string identifier)
+        public static Variable Reflect_Get_Variable([BindInfo] ParsingScript script, string identifier)
         {
             var member = GetMember(script, identifier);
             if(member is ValueFunction valueFunction)
@@ -29,7 +29,7 @@ namespace AliceScript.NameSpaces
             }
             throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
         }
-        public static Variable Reflect_Get_Function(ParsingScript script, string identifier)
+        public static Variable Reflect_Get_Function([BindInfo] ParsingScript script, string identifier)
         {
             var member = GetMember(script, identifier);
             if (member is FunctionBase func)
@@ -38,7 +38,7 @@ namespace AliceScript.NameSpaces
             }
             throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
         }
-        public static Variable Reflect_Get_Member(ParsingScript script, string identifier)
+        public static Variable Reflect_Get_Member([BindInfo] ParsingScript script, string identifier)
         {
             var member = GetMember(script, identifier);
             if (member is ValueFunction valueFunction)
@@ -51,7 +51,7 @@ namespace AliceScript.NameSpaces
             }
             throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
         }
-        private static ParserFunction GetMember(ParsingScript script, string identifier)
+        private static ParserFunction GetMember([BindInfo] ParsingScript script, string identifier)
         {
             identifier = Constants.ConvertName(identifier);
             string action = string.Empty;

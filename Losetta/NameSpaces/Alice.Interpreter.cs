@@ -41,7 +41,7 @@ namespace AliceScript.NameSpaces
             Interpreter.Instance.AppendOutput(text, newLine);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static bool Interpreter_NameExists(ParsingScript script)
+        public static bool Interpreter_NameExists([BindInfo] ParsingScript script)
         {
             string varName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             varName = Constants.ConvertName(varName);
@@ -59,7 +59,7 @@ namespace AliceScript.NameSpaces
         {
             return Interpreter.Instance.Process(script, filename, mainFile);
         }
-        public static Variable Interpreter_GetVariable(ParsingScript script, string name)
+        public static Variable Interpreter_GetVariable([BindInfo] ParsingScript script, string name)
         {
             return (script.TryGetVariable(name, out ParserFunction impl) || ParserFunction.s_functions.TryGetValue(name, out impl)) && impl is ValueFunction vf
                 ? vf.Value
@@ -83,11 +83,11 @@ namespace AliceScript.NameSpaces
                 ? NameSpaceManager.NameSpaces[nameSpace].Functions.Select(item => item.Key)
                 : Array.Empty<string>();
         }
-        public static ParsingScript GetScript(ParsingScript script)
+        public static ParsingScript GetScript([BindInfo] ParsingScript script)
         {
             return script;
         }
-        public static ParsingScript GetParent(ParsingScript script)
+        public static ParsingScript GetParent([BindInfo] ParsingScript script)
         {
             return script.ParentScript;
         }
