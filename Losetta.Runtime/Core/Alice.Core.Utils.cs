@@ -202,21 +202,20 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Context = ParsingScript.Contexts.IN_ARGS)]
-        public static Variable Ref(ParsingScript script)
+        public static Variable Ref([BindInfo] ParsingScript script)
         {
             Parser.NeedReferenceNext = true;
             return Utils.GetItem(script);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__makeref")]
-        public static Variable MakeRef(ParsingScript script)
+        public static Variable MakeRef([BindInfo] ParsingScript script)
         {
             Parser.NeedReferenceNext = true;
             return Utils.GetItem(script);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__useref")]
-        public static Variable UseRef(ParsingScript script)
+        public static Variable UseRef([BindInfo] ParsingScript script)
         {
-            Parser.NeedReferenceNext = true;
             var r = Utils.GetItem(script);
             if(r.Type == Variable.VarType.REFERENCE && r.Reference is not null)
             {

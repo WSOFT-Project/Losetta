@@ -123,4 +123,12 @@ namespace AliceScript.Binding
     {
 
     }
+    /// <summary>
+    /// BindFunctionで参照渡しを行うための引数
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public class RefAttribute : Attribute
+    {
+
+    }
 }

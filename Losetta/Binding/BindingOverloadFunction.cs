@@ -189,7 +189,29 @@ namespace AliceScript.Binding
                 }
 
                 var item = e.Args[i - diff];
-                if (item is null)
+                if(TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(RefAttribute)) && paramType == typeof(Variable))
+                {
+                    if(item.Type == Variable.VarType.REFERENCE)
+                    {
+                        if(item.Reference is ValueFunction value)
+                        {
+                            parametors.Add(value.Value);
+                        }
+                        else
+                        {
+                            throw new ScriptException($"引数 `{i}` で、変数以外への参照が渡されました", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD);
+                        }
+                    }
+                    else
+                    {
+                        throw new ScriptException("引数 `" + i+ "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD);
+                    }
+                }
+                else if(item.Type == Variable.VarType.REFERENCE)
+                {
+                    throw new ScriptException("引数 `" + i + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD);
+                }
+                else if (item is null)
                 {
                     if (inParams)
                     {
