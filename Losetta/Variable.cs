@@ -36,6 +36,7 @@ namespace AliceScript
             ENUM = 8192,
             CUSTOM = 16384,
             BOOLEAN = 65536,
+            REFERENCE = 131072,
 
             BYTES = ARRAY | 512,
             DELEGATE = ARRAY | 32768,
@@ -175,6 +176,11 @@ namespace AliceScript
         {
             Dictionary = dict;
             Type = VarType.DICTIONARY;
+        }
+        public Variable(ParserFunction func)
+        {
+            Reference = func;
+            Type = VarType.REFERENCE;
         }
         public Variable(object o)
         {
@@ -420,6 +426,7 @@ namespace AliceScript
             m_tuple = v.m_tuple;
             m_type = v.m_type;
             m_value = v.m_value;
+            Reference = v.Reference;
         }
         public static Variable NewEmpty()
         {
@@ -1808,7 +1815,7 @@ namespace AliceScript
             get => m_dictionary;
             set { m_dictionary = value; Type = VarType.DICTIONARY; }
         }
-
+        public ParserFunction Reference { get; set; }
         public string Action { get; set; }
         /// <summary>
         /// この変数の型
