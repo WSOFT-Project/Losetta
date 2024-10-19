@@ -268,7 +268,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, FUNCTION, VIRTUAL, OVERRIDE, COMMAND, REF, READONLY, EXTENSION, NEW }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, FUNCTION, VIRTUAL, OVERRIDE, COMMAND, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";
@@ -422,6 +422,7 @@ namespace AliceScript
                 case Variable.VarType.BYTES: return "BYTES";
                 case Variable.VarType.UNDEFINED: return "UNDEFINED";
                 case Variable.VarType.VOID: return "VOID";
+                case Variable.VarType.REFERENCE: return "REFERENCE";
                 default: return "NONE";
             }
         }

@@ -36,6 +36,7 @@ namespace AliceScript
             ENUM = 8192,
             CUSTOM = 16384,
             BOOLEAN = 65536,
+            REFERENCE = 131072,
 
             BYTES = ARRAY | 512,
             DELEGATE = ARRAY | 32768,
@@ -67,7 +68,7 @@ namespace AliceScript
         Task<Variable> ScriptObject.GetProperty(string sPropertyName, List<Variable> args, ParsingScript script)
         {
             sPropertyName = GetActualPropertyName(sPropertyName, ((ScriptObject)this).GetProperties());
-            
+
             if (Properties.TryGetValue(sPropertyName, out ValueFunction value))
             {
                 GETTING = true;
@@ -170,6 +171,11 @@ namespace AliceScript
             {
                 Tuple.Add(new Variable(i));
             }
+        }
+        public Variable(ParserFunction func)
+        {
+            Reference = func;
+            Type = VarType.REFERENCE;
         }
         public Variable(object o)
         {
@@ -367,16 +373,16 @@ namespace AliceScript
                 try
                 {
                     // asを使えば変換できるかを確認する
-                    if(v.IsNull())
+                    if (v.IsNull())
                     {
                         throw new ScriptException("nullを代入することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
                     }
                     _ = v.Convert(m_type, true);
                     throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。明示的な変換が存在します。型変換を忘れていませんか？", Exceptions.CANT_IMPLICITLY_CONVERT);
                 }
-                catch(ScriptException ex)
+                catch (ScriptException ex)
                 {
-                    if(ex.ErrorCode == Exceptions.COULDNT_CONVERT_VARIABLE)
+                    if (ex.ErrorCode == Exceptions.COULDNT_CONVERT_VARIABLE)
                     {
                         throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。", Exceptions.TYPE_MISMATCH);
                     }
@@ -403,6 +409,7 @@ namespace AliceScript
             m_tuple = v.m_tuple;
             m_type = v.m_type;
             m_value = v.m_value;
+            Reference = v.Reference;
         }
         public static Variable NewEmpty()
         {
@@ -925,7 +932,7 @@ namespace AliceScript
         public bool TryConvertTo<T>(out T result)
         {
             bool r = TryConvertTo(typeof(T), out object obj);
-            if(obj is null)
+            if (obj is null)
             {
                 result = default(T);
             }
@@ -985,7 +992,7 @@ namespace AliceScript
                         }
                         if (type == typeof(char))
                         {
-                            if(String.Length == 1)
+                            if (String.Length == 1)
                             {
                                 result = String[0];
                                 return true;
@@ -1812,6 +1819,7 @@ namespace AliceScript
             get => m_tuple;
             set { m_tuple = value; Type = VarType.ARRAY; }
         }
+        public ParserFunction Reference { get; set; }
 
         public string Action { get; set; }
         /// <summary>

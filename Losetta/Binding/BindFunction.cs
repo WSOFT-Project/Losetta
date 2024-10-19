@@ -96,6 +96,7 @@ namespace AliceScript.Binding
                     {
                         func.MethodOnly = true;
                     }
+                    func.Context = attribute.Context;
                     func.Attribute = attribute.Attribute;
                 }
                 else if (needBind)
@@ -200,6 +201,7 @@ namespace AliceScript.Binding
                     {
                         func.MethodOnly = true;
                     }
+                    func.Context = attribute.Context;
                     if (attribute.State == AliceBindState.Disabled)
                     {
                         continue;

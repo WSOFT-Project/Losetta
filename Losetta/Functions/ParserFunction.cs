@@ -42,38 +42,33 @@ namespace AliceScript.Functions
             {
                 // overrideやvirtualなど、関数定義時にしか使わないキーワードがあれば先に関数モードにする
                 m_impl = TryCustomFunction(item, script, keywords);
-                if (m_impl is not null)
+                if(CheckValidFunction(m_impl, script.Context, keywords))
                 {
-                    m_impl.Keywords = keywords;
                     return;
                 }
             }
 
             m_impl = CheckGroup(script, ref item, ch, ref action);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = CheckDefineFunction(script, item, keywords);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = CheckString(script, item, ch, action);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = GetLambdaFunction(script, item, ch, ref action);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
@@ -81,23 +76,20 @@ namespace AliceScript.Functions
 
             
             m_impl = GetRegisteredAction(item, script, ref action);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
-            
+
             m_impl = GetArrayFunction(item, script, action);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = GetObjectFunction(item, script, keywords);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
@@ -106,16 +98,14 @@ namespace AliceScript.Functions
             {
                 m_impl = new ConstructorFunction(t);
             }
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
             m_impl = TryCustomFunction(item, script, keywords);
-            if (m_impl is not null)
+            if (CheckValidFunction(m_impl, script.Context, keywords))
             {
-                m_impl.Keywords = keywords;
                 return;
             }
 
@@ -123,6 +113,15 @@ namespace AliceScript.Functions
             {
                 Utils.ProcessErrorMsg(item, script);
             }
+        }
+        private bool CheckValidFunction(ParserFunction func, ParsingScript.Contexts context,HashSet<string> keywords)
+        {
+            if(func is not null && (func is not FunctionBase fb || fb.Context.HasFlag(context)))
+            {
+                func.Keywords = keywords;
+                return true;
+            }
+            return false;
         }
         public static ParserFunction CheckGroup(ParsingScript script, ref string item, char ch, ref string action)
         {
@@ -678,7 +677,11 @@ namespace AliceScript.Functions
                 {
                     v.Value.Parent = script;
                 }
-                v.Value = function.Value;
+                if(v.Value is null)
+                {
+                    v.Value = function.Value;
+                }
+                v.Value.Assign(function.Value);
             }
             else if (func is null)
             {
