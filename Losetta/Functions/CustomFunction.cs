@@ -137,7 +137,7 @@ namespace AliceScript.Functions
                         if(typeStr.Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
                         {
                             // varキーワードの場合
-                            v = new Variable(new TypeObject());
+                            v = Variable.From(new TypeObject());
                         }
                         else
                         {

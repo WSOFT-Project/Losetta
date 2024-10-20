@@ -41,7 +41,7 @@ namespace AliceScript.Functions
             {
                 var to = new TypeObject(Variable.VarType.ARRAY);
                 to.ArrayType = t;
-                e.Return = new Variable(to);
+                e.Return = Variable.From(to);
             }
             else
             {

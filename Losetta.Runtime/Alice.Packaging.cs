@@ -55,7 +55,7 @@ namespace AliceScript.NameSpaces
                 {
                     case AlicePackageObjectPropertyMode.Manifest:
                         {
-                            e.Value = new Variable(new PackageManifestObject(Host.Package.Manifest));
+                            e.Value = Variable.From(new PackageManifestObject(Host.Package.Manifest));
                             break;
                         }
                 }
@@ -109,7 +109,7 @@ namespace AliceScript.NameSpaces
                 var m = AlicePackage.GetManifest(e.Args[0].AsString());
                 if (m is not null)
                 {
-                    e.Return = new Variable(new PackageManifestObject(m));
+                    e.Return = Variable.From(new PackageManifestObject(m));
                 }
             }
         }

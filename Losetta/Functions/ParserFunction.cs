@@ -583,7 +583,7 @@ namespace AliceScript.Functions
             string className = Constants.ConvertName(name);
 
             var csClass = AliceScriptClass.GetClass(className, script);
-            return csClass is not null ? new ValueFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
+            return csClass is not null ? new ValueFunction(Variable.From(new TypeObject(csClass))) : GetFromNamespace(name, script);
         }
         internal static FunctionBase GetFromNamespcaeName(string name)
         {

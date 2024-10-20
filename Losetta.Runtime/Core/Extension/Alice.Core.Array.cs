@@ -373,7 +373,7 @@ namespace AliceScript.NameSpaces.Core
             foreach(var element in ary)
             {
                 var key = source.Invoke(element, script);
-                if(key.TryAs<KeyValuePair<Variable, Variable>>(out var kvp))
+                if(key.Is<KeyValuePair<Variable, Variable>>(out var kvp))
                 {
                     dict.Add(kvp.Key, kvp.Value);
                 }

@@ -65,10 +65,10 @@ namespace AliceScript
                 if (end == Constants.END_GROUP)
                 {
                     return new Variable(items.ToDictionary(
-                        item => item.Object is BindObject bind && bind.Instance is KeyValuePair<Variable, Variable> kvp
+                        item => item.Is<KeyValuePair<Variable, Variable>>(out var kvp)
                             ? kvp.Key
                             : throw new ScriptException($"マップのキーが不正です。", Exceptions.NONE, script),
-                        item => item.Object is BindObject bind && bind.Instance is KeyValuePair<Variable, Variable> kvp
+                        item => item.Is<KeyValuePair<Variable, Variable>>(out var kvp)
                             ? kvp.Value
                             : throw new ScriptException($"マップの値が不正です。", Exceptions.NONE, script)));
                 }
@@ -836,10 +836,10 @@ namespace AliceScript
                             currLevel = currLevel.Tuple[arrayIndex];
                             continue;
                         case Variable.VarType.DELEGATE:
-                            currLevel = new Variable(currLevel.Delegate.Functions[arrayIndex]);
+                            currLevel = Variable.From(currLevel.Delegate.Functions[arrayIndex]);
                             continue;
                         case Variable.VarType.STRING:
-                            currLevel = new Variable(currLevel.String[arrayIndex].ToString());
+                            currLevel = Variable.From(currLevel.String[arrayIndex].ToString());
                             continue;
                     }
                 }

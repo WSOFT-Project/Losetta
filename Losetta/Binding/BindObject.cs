@@ -38,7 +38,7 @@ namespace AliceScript.Binding
             {
                 return result.Evaluate(new List<Variable>{right}, script);
             }
-            if (left.Object is BindObject leftObj && right.Object is BindObject rightObj && leftObj.Instance is IComparable comp1 && rightObj.Instance is IComparable comp2)
+            if(left.Is<IComparable>(out var comp1) && right.Is<IComparable>(out var comp2))
             {
                 switch (action)
                 {

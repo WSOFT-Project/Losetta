@@ -48,6 +48,10 @@ namespace AliceScript
         {
             return new Variable(text);
         }
+        public static Variable From(object obj)
+        {
+            return new Variable(obj);
+        }
         public static void AddProp(ValueFunction pb, string name = null)
         {
             name ??= pb.Name;
@@ -91,7 +95,7 @@ namespace AliceScript
         }
         public static Variable AsType(VarType type)
         {
-            return new Variable(new TypeObject(type));
+            return From(new TypeObject(type));
         }
         public Variable()
         {
@@ -833,9 +837,11 @@ namespace AliceScript
         /// </summary>
         /// <param name="result">変換されたオブジェクト</param>
         /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
-        public bool TryAs<T>(out T result)
+        public bool Is<T>(out T result)
         {
-            return TryConvertTo(typeof(T), out object o) ? (result = (T)o) is not null : (result = default) is not null;
+            bool r = TryConvertTo(typeof(T), out object o);
+            result = r ? (T)o : default;
+            return r;
         }
         /// <summary>
         /// この変数を指定した型に変換します
@@ -1682,7 +1688,7 @@ namespace AliceScript
             }
             else if (Type == VarType.DELEGATE)
             {
-                return new Variable(Delegate.Functions[index]);
+                return Variable.From(Delegate.Functions[index]);
             }
             else if (Type == VarType.STRING)
             {

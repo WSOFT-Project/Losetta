@@ -86,7 +86,7 @@ namespace AliceScript.Objects
                 Name = "ToNativeProperty";
                 Run += delegate (object sender, FunctionBaseEventArgs e)
                 {
-                    e.Return = type.ClassType is not null ? new Variable(Variable.VarType.OBJECT) : new Variable(new TypeObject(type.Type));
+                    e.Return = type.ClassType is not null ? new Variable(Variable.VarType.OBJECT) : Variable.From(new TypeObject(type.Type));
                 };
             }
         }

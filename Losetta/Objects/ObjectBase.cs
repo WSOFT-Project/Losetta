@@ -60,7 +60,7 @@ namespace AliceScript.Objects
             }
             var obase = (ObjectBase)MemberwiseClone();  //(ObjectBase)Activator.CreateInstance(GetType());
             obase.Namespace = Namespace;
-            return new Variable(obase);
+            return Variable.From(obase);
         }
 
         public virtual List<string> GetProperties()
@@ -168,7 +168,7 @@ namespace AliceScript.Objects
         {
             if (obj is not null)
             {
-                ParserFunction.RegisterFunction(obj.Name, new ValueFunction(new Variable(obj)), true);
+                ParserFunction.RegisterFunction(obj.Name, new ValueFunction(Variable.From(obj)), true);
             }
         }
     }
