@@ -220,6 +220,20 @@ namespace AliceScript.NameSpaces
 
             return factorial;
         }
+        public static double Math_Lerp(double a, double b, double t)
+        {
+            return a + (b - a) * t;
+        }
+        public static double Math_Remap(double x, double fromMin, double fromMax, double toMin, double toMax)
+        {
+            return (x - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
+        }
+        public static double Math_DivRem(long x, long y, [Ref] Variable result)
+        {
+            long ret =  Math.DivRem(x, y, out long l);
+            result.Assign(new Variable(l));
+            return ret;
+        }
 
         #region 数学定数
         public static double Math_Tau => 6.2831853071795862;
