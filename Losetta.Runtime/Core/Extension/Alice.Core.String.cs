@@ -13,20 +13,25 @@ namespace AliceScript.NameSpaces.Core
     {
         public static int CompareTo(this string str, string item)
         {
-            return string.Compare(str, item);
+            return string.Compare(str, item, StringComparison.Ordinal);
         }
         public static int CompareTo(this string str, string item, bool ignoreCase)
         {
-            return string.Compare(str, item, ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture);
+            return string.Compare(str, item, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
         public static int CompareTo(this string str, string item, bool ignoreCase, bool considerCulture)
         {
-            return string.Compare(str, item, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+            return string.Compare(str, item, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
         }
-        public static int CompareTo(this string str, string item, bool ignoreCase, string cultureName)
+        public static int CompareTo(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
         {
-            var info = cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName);
-            return string.Compare(str, item, ignoreCase, info);
+            CompareOptions options = CompareOptions.None;
+            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
+            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
+            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
+            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+
+            return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.Compare(str, item, options);
         }
         public static int IndexOf(this string str, string item)
         {
@@ -110,7 +115,17 @@ namespace AliceScript.NameSpaces.Core
         }
         public static bool StartsWith(this string str, string value, bool ignoreCase, bool considerCulture)
         {
-            return str.StartsWith(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+            return str.StartsWith(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
+        }
+        public static bool StartsWith(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        {
+            CompareOptions options = CompareOptions.None;
+            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
+            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
+            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
+            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+
+            return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.IsPrefix(str, item, options);
         }
         public static bool EndsWith(this string str, string value)
         {
@@ -123,6 +138,16 @@ namespace AliceScript.NameSpaces.Core
         public static bool EndsWith(this string str, string value, bool ignoreCase, bool considerCulture)
         {
             return str.EndsWith(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
+        public static bool EndsWith(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        {
+            CompareOptions options = CompareOptions.None;
+            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
+            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
+            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
+            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+
+            return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.IsSuffix(str, item, options);
         }
         public static bool Contains(this string str, string value)
         {
@@ -149,18 +174,24 @@ namespace AliceScript.NameSpaces.Core
                 throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
+        public static bool Contains(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        {
+            CompareOptions options = CompareOptions.None;
+            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
+            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
+            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
+            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+
+            return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.IndexOf(str, item, options) > 0;
+        }
         public static string ToUpper(this string str)
         {
             return str.ToUpper();
         }
-        public static string ToUpper(this string str, string? cultureName)
+        public static string ToUpper(this string str, string cultureName)
         {
-            if (cultureName == null)
-            {
-                return str.ToUpperInvariant();
-            }
-            var info = CultureInfo.GetCultureInfo(cultureName).TextInfo;
-            return info.ToUpper(str);
+            var culture = cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName);
+            return culture.TextInfo.ToUpper(str);
         }
         public static string ToUpperInvariant(this string str)
         {
@@ -170,14 +201,10 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.ToLower();
         }
-        public static string ToLower(this string str, string? cultureName)
+        public static string ToLower(this string str, string cultureName)
         {
-            if (cultureName == null)
-            {
-                return str.ToLowerInvariant();
-            }
-            var info = CultureInfo.GetCultureInfo(cultureName).TextInfo;
-            return info.ToLower(str);
+            var culture = cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName);
+            return culture.TextInfo.ToLower(str);
         }
         public static string ToLowerInvariant(this string str)
         {
@@ -188,14 +215,10 @@ namespace AliceScript.NameSpaces.Core
             var info = CultureInfo.CurrentCulture.TextInfo;
             return info.ToTitleCase(str);
         }
-        public static string ToTitleCase(this string str, string? cultureName)
+        public static string ToTitleCase(this string str, string cultureName)
         {
-            if (cultureName == null)
-            {
-                return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(str);
-            }
-            var info = CultureInfo.GetCultureInfo(cultureName).TextInfo;
-            return info.ToTitleCase(str);
+            var culture = cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName);
+            return culture.TextInfo.ToTitleCase(str);
         }
         public static string ToTitleCaseInvariant(this string str)
         {
@@ -332,6 +355,48 @@ namespace AliceScript.NameSpaces.Core
                 throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
+        public static string Replace(this string str, string oldValue, string newValue, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        {
+            CompareOptions options = CompareOptions.None;
+            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
+            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
+            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
+            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+
+            var comp = (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo;
+
+            int pointer = 0;
+            char[] chars = str.ToCharArray();
+            char[] newChars = newValue.ToCharArray();
+            while((pointer = comp.IndexOf(str, oldValue, pointer, options)) > 0)
+            {
+                chars = ReplaceAt(chars, pointer++, newChars);
+            }
+            return new string(chars);
+        }
+        public static string ReplaceAt(this string str, int index, char newChar)
+        {
+            char[] chars = str.ToCharArray();
+            chars[index] = newChar;
+            return new string(chars);
+        }
+        public static string ReplaceAt(this string str, int index, string newChar)
+        {
+            return new string(ReplaceAt(str.ToCharArray(), index, newChar.ToCharArray()));
+        }
+        private static char[] ReplaceAt(char[] chars, int index, char[] newChars)
+        {
+            if(chars.Length < index + newChars.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+            int pointer = index;
+            for (int i = 0; i < newChars.Length; i++)
+            {
+                chars[pointer++] = newChars[i];
+            }
+            return chars;
+        }
         public static string ReplaceLineEndings(this string str)
         {
 #if NET6_0_OR_GREATER
@@ -443,6 +508,16 @@ namespace AliceScript.NameSpaces.Core
         public static bool Equals(this string str, string value, bool ignoreCase, bool considerCulture)
         {
             return str.Equals(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+        }
+        public static bool Equals(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        {
+            CompareOptions options = CompareOptions.None;
+            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
+            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
+            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
+            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+
+            return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.Compare(str, item, options) == 0;
         }
         public static string Repeat(this string str, int repeatCount)
         {
