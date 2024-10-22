@@ -378,9 +378,14 @@ namespace AliceScript.NameSpaces.Core
         }
         private static char[] ReplaceAt(char[] chars, int index, char[] newChars)
         {
-            if(chars.Length < index + newChars.Length)
+            if(index > chars.Length || index < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
+            }
+            if(chars.Length < index + newChars.Length)
+            {
+                // 配列の長さが足りない場合は拡張する
+                Array.Resize(ref chars, index + newChars.Length);
             }
             int pointer = index;
             for (int i = 0; i < newChars.Length; i++)
