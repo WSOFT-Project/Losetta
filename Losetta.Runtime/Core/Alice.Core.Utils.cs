@@ -208,21 +208,22 @@ namespace AliceScript.NameSpaces.Core
             Parser.NeedReferenceNext = true;
             return Utils.GetItem(script);
         }
-        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__getref")]
-        public static Variable GetRef([BindInfo] ParsingScript script) => Ref(script);
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__makeref")]
+        public static Variable MakeRef([BindInfo] ParsingScript script) => Ref(script);
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__useref")]
         public static Variable UseRef([BindInfo] ParsingScript script, [BindInfo] BindFunction func)
+        {
+            var d = GetRefItem(script, func);
+            return d.GetValue(script);
+        }
+        private static ParserFunction GetRefItem(ParsingScript script, BindFunction func)
         {
             var r = script.GetFunctionArgs(func, Constants.START_ARG, Constants.END_ARG).FirstOrDefault();
             if (r.Type == Variable.VarType.REFERENCE && r.Reference is not null)
             {
-                return r.Reference.GetValue(script.ParentScript);
+                return r.Reference;
             }
             throw new ScriptException("そのような参照は存在しません", Exceptions.NONE, script);
-        }
-        public static void Test(ref int i)
-        {
-            i = 10;
         }
     }
 }
