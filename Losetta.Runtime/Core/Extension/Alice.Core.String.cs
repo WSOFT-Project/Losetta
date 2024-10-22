@@ -23,15 +23,20 @@ namespace AliceScript.NameSpaces.Core
         {
             return string.Compare(str, item, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
         }
-        public static int CompareTo(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        public static int CompareTo(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreWidth = false, bool ignoreKanaType = false)
+        {
+            var options = GetCompareOptions(ignoreCase, ignoreNonSpace, ignoreWidth, ignoreKanaType);
+            return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.Compare(str, item, options);
+        }
+        private static CompareOptions GetCompareOptions(bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreWidth = false, bool ignoreKanaType = false)
         {
             CompareOptions options = CompareOptions.None;
             options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
             options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
             options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
+            options |= ignoreWidth ? CompareOptions.IgnoreWidth : CompareOptions.None;
             options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
-
-            return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.Compare(str, item, options);
+            return options;
         }
         public static int IndexOf(this string str, string item)
         {
@@ -139,13 +144,9 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.EndsWith(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
-        public static bool EndsWith(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        public static bool EndsWith(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreWidth = false, bool ignoreKanaType = false)
         {
-            CompareOptions options = CompareOptions.None;
-            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
-            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
-            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
-            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+            CompareOptions options = GetCompareOptions(ignoreCase, ignoreNonSpace, ignoreSymbols, ignoreWidth, ignoreKanaType);
 
             return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.IsSuffix(str, item, options);
         }
@@ -174,14 +175,9 @@ namespace AliceScript.NameSpaces.Core
                 throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
-        public static bool Contains(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        public static bool Contains(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreWidth = false, bool ignoreKanaType = false)
         {
-            CompareOptions options = CompareOptions.None;
-            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
-            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
-            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
-            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
-
+            CompareOptions options = GetCompareOptions(ignoreCase, ignoreNonSpace, ignoreSymbols, ignoreWidth, ignoreKanaType);
             return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.IndexOf(str, item, options) > 0;
         }
         public static string ToUpper(this string str)
@@ -355,13 +351,9 @@ namespace AliceScript.NameSpaces.Core
                 throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
-        public static string Replace(this string str, string oldValue, string newValue, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        public static string Replace(this string str, string oldValue, string newValue, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreWidth = false, bool ignoreKanaType = false)
         {
-            CompareOptions options = CompareOptions.None;
-            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
-            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
-            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
-            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+            CompareOptions options = GetCompareOptions(ignoreCase, ignoreNonSpace, ignoreSymbols, ignoreWidth, ignoreKanaType);
 
             var comp = (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo;
 
@@ -509,13 +501,9 @@ namespace AliceScript.NameSpaces.Core
         {
             return str.Equals(value, considerCulture ? ignoreCase ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture : ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
-        public static bool Equals(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreKanaType = false)
+        public static bool Equals(this string str, string item, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreWidth = false, bool ignoreKanaType = false)
         {
-            CompareOptions options = CompareOptions.None;
-            options |= ignoreCase ? CompareOptions.IgnoreCase : CompareOptions.None;
-            options |= ignoreNonSpace ? CompareOptions.IgnoreNonSpace : CompareOptions.None;
-            options |= ignoreSymbols ? CompareOptions.IgnoreSymbols : CompareOptions.None;
-            options |= ignoreKanaType ? CompareOptions.IgnoreKanaType : CompareOptions.None;
+            CompareOptions options = GetCompareOptions(ignoreCase, ignoreNonSpace, ignoreSymbols, ignoreWidth, ignoreKanaType);
 
             return (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo.Compare(str, item, options) == 0;
         }
