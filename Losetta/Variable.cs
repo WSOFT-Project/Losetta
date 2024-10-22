@@ -693,41 +693,6 @@ namespace AliceScript
             {
                 return IsNull();
             }
-            if (obj is Variable item)
-            {
-                if (item.Type == VarType.VOID)
-                {
-                    return IsNull();
-                }
-                if (item.Type != Type)
-                {
-                    return false;
-                }
-                if (item.Type == VarType.NUMBER)
-                {
-                    return ValueEquals(item.Value);
-                }
-                if (item.Type == VarType.STRING)
-                {
-                    return ValueEquals(item.String);
-                }
-                if (item.Type == VarType.BOOLEAN)
-                {
-                    return ValueEquals(item.Bool);
-                }
-                if (item.Type == VarType.ARRAY)
-                {
-                    return ValueEquals(item.Tuple);
-                }
-                if (item.Type == VarType.DELEGATE)
-                {
-                    return ValueEquals(item.Delegate);
-                }
-                if (item.Type == VarType.BYTES)
-                {
-                    return ValueEquals(item.ByteArray);
-                }
-            }
             return ValueEquals(obj);
         }
         /// <summary>
@@ -822,6 +787,41 @@ namespace AliceScript
                 : other.Type == VarType.BOOLEAN
                 ? Bool.CompareTo(other.Bool)
                 : other.Type == VarType.OBJECT && Object is ObjectBase ob ? ob.CompareTo(other.Object) : 0;
+        }
+        /// <summary>
+        /// この変数ともう一方の変数が等しいかどうかを判断します
+        /// </summary>
+        /// <param name="other">比較するもう一方の変数</param>
+        /// <returns>ふたつの変数が等しい場合はtrue、そうでない場合はfalse</returns>
+        public bool Equals(Variable other)
+        {
+            if(Type != other.Type)
+            {
+                return false;
+            }
+            switch(Type)
+            {
+                case VarType.NUMBER:
+                    return Value == other.Value;
+                case VarType.STRING:
+                    return String.Equals(other.String, StringComparison.Ordinal);
+                case VarType.BOOLEAN:
+                    return Bool == other.Bool;
+                case VarType.ARRAY:
+                    return Tuple == other.Tuple;
+                case VarType.DICTIONARY:
+                    return Dictionary == other.Dictionary;
+                case VarType.DELEGATE:
+                    return Delegate == other.Delegate;
+                case VarType.BYTES:
+                    return ByteArray == other.ByteArray;
+                case VarType.OBJECT:
+                    return Object == other.Object;
+                case VarType.REFERENCE:
+                    return Reference == other.Reference;
+                default:
+                    return false;
+            }
         }
         /// <summary>
         /// この変数を指定した型に変換します
