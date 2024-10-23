@@ -9,7 +9,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces.Core
 {
-    internal partial class CoreFunctions
+    public partial class CoreFunctions
     {
         /// <summary>
         /// このブロック内で、指定された変数をすべて読み取り専用にします

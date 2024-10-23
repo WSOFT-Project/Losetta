@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace AliceScript.NameSpaces.Core
 {
-    internal partial class CoreFunctions
+    public partial class CoreFunctions
     {
         public static void Add(this VariableCollection ary, params Variable[] items)
         {

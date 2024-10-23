@@ -6,7 +6,7 @@ using AliceScript.Functions;
 
 namespace AliceScript.NameSpaces.Core
 {
-    internal partial class CoreFunctions
+    public partial class CoreFunctions
     {
         public static IEnumerable<Variable> ToArray(this Dictionary<Variable, Variable> dict)
         {

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace AliceScript.NameSpaces.Core
 {
-    internal partial class CoreFunctions
+    public partial class CoreFunctions
     {
         public static int CompareTo(this string str, string item)
         {
