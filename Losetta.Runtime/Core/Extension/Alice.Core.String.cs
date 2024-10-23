@@ -353,18 +353,25 @@ namespace AliceScript.NameSpaces.Core
         }
         public static string Replace(this string str, string oldValue, string newValue, string cultureName, bool ignoreCase = false, bool ignoreNonSpace = false, bool ignoreSymbols = false, bool ignoreWidth = false, bool ignoreKanaType = false)
         {
+#if NET5_0_OR_GREATER
             CompareOptions options = GetCompareOptions(ignoreCase, ignoreNonSpace, ignoreSymbols, ignoreWidth, ignoreKanaType);
 
             var comp = (cultureName == null ? CultureInfo.InvariantCulture : CultureInfo.GetCultureInfo(cultureName)).CompareInfo;
 
-            int pointer = 0;
-            char[] chars = str.ToCharArray();
-            char[] newChars = newValue.ToCharArray();
-            while((pointer = comp.IndexOf(str, oldValue, pointer, options)) > 0)
+            ReadOnlySpan<char> source = str.AsSpan();
+            string result = str;
+            int diff = 0;
+            int pointer;
+            while((pointer = comp.IndexOf(source, oldValue, options, out int matchLength)) >= 0)
             {
-                chars = ReplaceAt(chars, pointer++, newChars);
+                result = ReplaceAt(result, diff + pointer, matchLength, newValue);
+                source = source.Slice(pointer + matchLength);
+                diff += matchLength;
             }
-            return new string(chars);
+            return result;
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static string ReplaceAt(this string str, int index, char newChar)
         {
@@ -372,27 +379,17 @@ namespace AliceScript.NameSpaces.Core
             chars[index] = newChar;
             return new string(chars);
         }
-        public static string ReplaceAt(this string str, int index, string newChar)
+        public static string ReplaceAt(this string str, int index, string replacement)
         {
-            return new string(ReplaceAt(str.ToCharArray(), index, newChar.ToCharArray()));
+            return ReplaceAt(str, index, replacement.Length, replacement);
         }
-        private static char[] ReplaceAt(char[] chars, int index, char[] newChars)
+        public static string ReplaceAt(this string str, int index, int length, string replacement)
         {
-            if(index > chars.Length || index < 0)
+            if (index < str.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(index));
+                return str.Remove(index, Math.Min(length, str.Length - index)).Insert(index, replacement);
             }
-            if(chars.Length < index + newChars.Length)
-            {
-                // 配列の長さが足りない場合は拡張する
-                Array.Resize(ref chars, index + newChars.Length);
-            }
-            int pointer = index;
-            for (int i = 0; i < newChars.Length; i++)
-            {
-                chars[pointer++] = newChars[i];
-            }
-            return chars;
+            throw new ArgumentOutOfRangeException("index", "指定されたインデックスが文字列の範囲外です");
         }
         public static string ReplaceLineEndings(this string str)
         {
