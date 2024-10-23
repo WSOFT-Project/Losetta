@@ -17,7 +17,7 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="script">このブロックがあるスクリプト</param>
         /// <param name="items">読み取り専用にしたい変数</param>
         /// <returns>本文の実行結果</returns>
-        public static Variable Readonly(ParsingScript script, params Variable[] items)
+        public static Variable Readonly([BindInfo] ParsingScript script, params Variable[] items)
         {
             BitArray beforeStates = new BitArray(items.Length);
 
@@ -42,7 +42,7 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="script">このブロックがあるスクリプト</param>
         /// <param name="item">排他的ロックを行いたい変数</param>
         /// <returns>本文の実行結果</returns>
-        public static Variable Lock(ParsingScript script, Variable item)
+        public static Variable Lock([BindInfo] ParsingScript script, Variable item)
         {
             Variable result;
 
@@ -60,7 +60,7 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="script">このブロックがあるスクリプト</param>
         /// <returns>本文の実行結果</returns>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Block(ParsingScript script)
+        public static Variable Block([BindInfo] ParsingScript script)
         {
             return script.ProcessBlock();
         }
@@ -71,7 +71,7 @@ namespace AliceScript.NameSpaces.Core
         /// <exception cref="ScriptException">usingを許可しない設定である場合にスローされる例外</exception>
 
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static void Using(FunctionBaseEventArgs e)
+        public static void Using([BindInfo] FunctionBaseEventArgs e)
         {
             bool isGlobal = e.Keywords.Contains(Constants.PUBLIC);
             string name = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
@@ -98,7 +98,7 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="func">この関数がバインドされるFunctionBase</param>
         /// <param name="condition">本文を実行するかどうかを決める条件</param>
         /// <returns>本文の実行結果</returns>
-        public static Variable If(ParsingScript script, BindFunction func, bool condition)
+        public static Variable If([BindInfo] ParsingScript script, [BindInfo] BindFunction func, bool condition)
         {
             Variable result = Variable.EmptyInstance;
 
@@ -188,7 +188,7 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="item">比較する値</param>
         /// <returns>本文の実行結果</returns>
         /// <exception cref="ScriptException">内包する文がbreakまたはreturnで抜けることができない場合に発生する例外</exception>
-        public static Variable Switch(ParsingScript script, Variable item)
+        public static Variable Switch([BindInfo] ParsingScript script, Variable item)
         {
 
             Variable result = Variable.EmptyInstance;
@@ -268,7 +268,7 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable While(ParsingScript script)
+        public static Variable While([BindInfo] ParsingScript script)
         {
             bool stillValid = true;
             Variable result = Variable.EmptyInstance;
@@ -301,7 +301,7 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Do(ParsingScript script)
+        public static Variable Do([BindInfo] ParsingScript script)
         {
             int startDoCondition = script.Pointer;
             bool stillValid = true;
@@ -336,7 +336,7 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable For(ParsingScript script)
+        public static Variable For([BindInfo] ParsingScript script)
         {
             string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
             script.Forward();
@@ -397,7 +397,7 @@ namespace AliceScript.NameSpaces.Core
             return Variable.EmptyInstance;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Foreach(ParsingScript script, BindFunction func)
+        public static Variable Foreach([BindInfo] ParsingScript script, [BindInfo] BindFunction func)
         {
             //構文解析、トークン取得
             string forString = Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG);
@@ -518,7 +518,7 @@ namespace AliceScript.NameSpaces.Core
             return Variable.EmptyInstance;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Case(ParsingScript script)
+        public static Variable Case([BindInfo] ParsingScript script)
         {
             Utils.GetToken(script, Constants.TOKEN_SEPARATION);
             script.MoveForwardIf(':');
@@ -528,7 +528,7 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static void Goto(ParsingScript script, BindFunction func)
+        public static void Goto([BindInfo] ParsingScript script, [BindInfo] BindFunction func)
         {
             var labelName = Utils.GetToken(script, Constants.TOKEN_SEPARATION);
 
@@ -569,7 +569,7 @@ namespace AliceScript.NameSpaces.Core
             return;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static void NameSpace(ParsingScript script)
+        public static void NameSpace([BindInfo] ParsingScript script)
         {
             string spaceName = Utils.GetToken(script, Constants.TOKEN_SEPARATION).ToLowerInvariant();
 
@@ -610,12 +610,12 @@ namespace AliceScript.NameSpaces.Core
 
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static void GoSub(ParsingScript script, BindFunction func)
+        public static void GoSub([BindInfo] ParsingScript script, [BindInfo] BindFunction func)
         {
             Goto(script, func);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Default(ParsingScript script)
+        public static Variable Default([BindInfo] ParsingScript script)
         {
             script.MoveForwardIf(':');
 
@@ -647,7 +647,7 @@ namespace AliceScript.NameSpaces.Core
         /// <returns>本文の実行結果</returns>
         /// <exception cref="ScriptException">catchブロックおよびfinallyブロックがありません</exception>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static Variable Try(ParsingScript script, BindFunction func)
+        public static Variable Try([BindInfo] ParsingScript script, [BindInfo] BindFunction func)
         {
             int startTryCondition = script.Pointer - 1;
 
@@ -763,7 +763,7 @@ namespace AliceScript.NameSpaces.Core
         /// <param name="script">本文の実行結果</param>
         /// <returns>生成されたデリゲート</returns>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static DelegateObject Delegate(ParsingScript script)
+        public static DelegateObject Delegate([BindInfo] ParsingScript script)
         {
             string[] args = Utils.GetFunctionSignature(script);
             if (args.Length == 1 && string.IsNullOrWhiteSpace(args[0]))

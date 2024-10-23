@@ -1,4 +1,5 @@
-﻿using AliceScript.Functions;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 using System;
@@ -60,7 +61,21 @@ namespace AliceScript
             try
             {
                 value.Tuple = new VariableCollection();
-                value.Tuple.AddRange(GetArgs(script, start, end, (outList) => { isList = outList; }, null, true));
+                var items = GetArgs(script, start, end, (outList) => { isList = outList; }, null, true);
+                if (end == Constants.END_GROUP)
+                {
+                    return new Variable(items.ToDictionary(
+                        item => item.Is<KeyValuePair<Variable, Variable>>(out var kvp)
+                            ? kvp.Key
+                            : throw new ScriptException($"マップのキーが不正です。", Exceptions.NONE, script),
+                        item => item.Is<KeyValuePair<Variable, Variable>>(out var kvp)
+                            ? kvp.Value
+                            : throw new ScriptException($"マップの値が不正です。", Exceptions.NONE, script)));
+                }
+                else
+                {
+                    value.Tuple.AddRange(items);
+                }
             }
             finally
             {
@@ -401,7 +416,14 @@ namespace AliceScript
                 if (spread)
                 {
                     // スプレッド構文なら展開
-                    args.AddRange(item.Tuple);
+                    if(item.Type == Variable.VarType.ARRAY)
+                    {
+                        args.AddRange(item.Tuple);
+                    }
+                    else
+                    {
+                        throw new ScriptException("スプレッド構文は配列でのみ使用できます。", Exceptions.SPREAD_ONLY_FOR_ARRAYS, script);
+                    }
                 }
                 else
                 {
@@ -758,67 +780,72 @@ namespace AliceScript
             for (int i = 0; i < indices.Count; i++)
             {
                 Variable index = indices[i];
-                if (index is not null && index.TryConvertTo<RangeStruct>(out var range))
+
+                if (index.TryConvertTo<RangeStruct>(out var range))
                 {
-                    if(range.Start > currLevel.Count)
+                    if (range.Start > currLevel.Count)
                     {
                         throw new IndexOutOfRangeException("インデックス `" + range.Start + "`は配列の境界 `" + currLevel.Count + "` 外です。");
                     }
-                    if(range.End > currLevel.Count)
+                    if (range.End > currLevel.Count)
                     {
-                        throw new IndexOutOfRangeException("インデックス `" + range.End+ "`は配列の境界 `" + currLevel.Count + "` 外です。");
+                        throw new IndexOutOfRangeException("インデックス `" + range.End + "`は配列の境界 `" + currLevel.Count + "` 外です。");
                     }
                     range = range.ToActuallyRange(currLevel.Count);
                     switch (currLevel.Type)
                     {
                         case Variable.VarType.ARRAY:
-                        {
-                            currLevel = new Variable(currLevel.Tuple.Tuple.GetRange(range.Start, range.End));
-                            break;
-                        }
+                            {
+                                currLevel = new Variable(currLevel.Tuple.Tuple.GetRange(range.Start, range.End));
+                                continue;
+                            }
                         case Variable.VarType.STRING:
-                        {
-                            currLevel = new Variable(currLevel.String.Substring(range.Start, range.End));
-                            break;
-                        }
+                            {
+                                currLevel = new Variable(currLevel.String.Substring(range.Start, range.End));
+                                continue;
+                            }
                     }
-                    break;
                 }
-                int arrayIndex = currLevel.GetArrayIndex(index);
-
-                int tupleSize = currLevel.GetSize();
-
-                // インデックスの境界外アクセスが起こるのは
-                // i >= 0の場合 -> i >= max
-                // i < 0の場合  -> -i > max
-                // インデックスが正の場合 -> arrayIndex >= tupleSize
-                // インデックスが負の場合 -> |arrayIndex| > tupleSize
-
-                if(arrayIndex < 0)
+                else if (currLevel.Type == Variable.VarType.DICTIONARY)
                 {
-                    arrayIndex = tupleSize + arrayIndex;
+                    currLevel = currLevel.Dictionary[index];
+                    continue;
                 }
-                if (arrayIndex < 0 || arrayIndex >= tupleSize)
+                else if (index.Type == Variable.VarType.NUMBER)
                 {
-                    throw new IndexOutOfRangeException("インデックス `" + index.AsString() + "`は配列の境界 `" + tupleSize + "` 外です。");
-                }
-                switch (currLevel.Type)
-                {
-                    case Variable.VarType.ARRAY:
-                        {
+                    int tupleSize = currLevel.GetSize();
+                    int arrayIndex = currLevel.GetArrayIndex(index) ?? throw new IndexOutOfRangeException("インデクサーには整数値が必要です。");
+
+                    // インデックスの境界外アクセスが起こるのは
+                    // i >= 0の場合 -> i >= max
+                    // i < 0の場合  -> -i > max
+                    // インデックスが正の場合 -> arrayIndex >= tupleSize
+                    // インデックスが負の場合 -> |arrayIndex| > tupleSize
+
+                    if (arrayIndex < 0)
+                    {
+                        arrayIndex = tupleSize + arrayIndex;
+                    }
+                    if (arrayIndex < 0 || arrayIndex >= tupleSize)
+                    {
+                        throw new IndexOutOfRangeException("インデックス `" + index.AsString() + "`は配列の境界 `" + tupleSize + "` 外です。");
+                    }
+                    switch (currLevel.Type)
+                    {
+                        case Variable.VarType.ARRAY:
                             currLevel = currLevel.Tuple[arrayIndex];
-                            break;
-                        }
-                    case Variable.VarType.DELEGATE:
-                        {
-                            currLevel = new Variable(currLevel.Delegate.Functions[arrayIndex]);
-                            break;
-                        }
-                    case Variable.VarType.STRING:
-                        {
-                            currLevel = new Variable(currLevel.String[arrayIndex].ToString());
-                            break;
-                        }
+                            continue;
+                        case Variable.VarType.DELEGATE:
+                            currLevel = Variable.From(currLevel.Delegate.Functions[arrayIndex]);
+                            continue;
+                        case Variable.VarType.STRING:
+                            currLevel = Variable.From(currLevel.String[arrayIndex].ToString());
+                            continue;
+                    }
+                }
+                else
+                {
+                    throw new ScriptException("インデクサーの構文エラーです。", Exceptions.NONE, script);
                 }
             }
             return currLevel;

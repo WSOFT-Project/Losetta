@@ -45,18 +45,10 @@ namespace AliceScript.Functions
                 switch (value.Type)
                 {
                     case Variable.VarType.ARRAY:
-                        {
-                            break;
-                        }
-
                     case Variable.VarType.DELEGATE:
-                        {
-                            break;
-                        }
                     case Variable.VarType.STRING:
-                        {
-                            break;
-                        }
+                    case Variable.VarType.DICTIONARY:
+                        break;
                     default:
                         {
                             throw new ScriptException("この変数で配列添え字演算子を使用することはできません。", Exceptions.VARIABLE_CANT_USE_WITH_ARRAY_SUBSCRIPT, e.Script);

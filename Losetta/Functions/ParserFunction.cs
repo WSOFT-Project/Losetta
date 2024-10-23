@@ -72,9 +72,8 @@ namespace AliceScript.Functions
                 return;
             }
 
-            item = Constants.ConvertName(item);
+            //item = Constants.ConvertName(item);
 
-            
             m_impl = GetRegisteredAction(item, script, ref action);
             if (CheckValidFunction(m_impl, script.Context, keywords))
             {
@@ -109,7 +108,7 @@ namespace AliceScript.Functions
                 return;
             }
 
-            if (m_impl is null)
+            if (m_impl is null && !string.IsNullOrEmpty(item))
             {
                 Utils.ProcessErrorMsg(item, script);
             }
@@ -127,6 +126,7 @@ namespace AliceScript.Functions
         {
             if (string.IsNullOrEmpty(item))
             {
+                int startPoint = script.Pointer;
                 string body = script.Prev == Constants.START_GROUP
                     ? Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP)
                     : Utils.GetBodyBetween(script, Constants.START_ARG, Constants.END_ARG, ";\0");
@@ -142,6 +142,26 @@ namespace AliceScript.Functions
                 {
                     action = null;
                     return new StatementFunction(body, script);
+                    /*
+                    var statement = new StatementFunction(body, script);
+
+                    int nowPointer = statement.Script.Pointer;
+                    Utils.SkipRestExpr(statement.Script);
+
+                    // 一度前に進めてみて、カンマが来たらそれは辞書式
+                    if (statement.Script.Current == ',')
+                    {
+                        // この波括弧は辞書式だった
+                        script.Pointer = startPoint - 1;
+                        Variable arr = Utils.ProcessArrayMap(script);
+                        return new ValueFunction(arr);
+                    }
+                    else
+                    {
+                        statement.Script.Pointer = nowPointer;
+                        return statement;
+                    }
+                    */
                 }
             }
             return null;
@@ -563,7 +583,7 @@ namespace AliceScript.Functions
             string className = Constants.ConvertName(name);
 
             var csClass = AliceScriptClass.GetClass(className, script);
-            return csClass is not null ? new ValueFunction(new Variable(new TypeObject(csClass))) : GetFromNamespace(name, script);
+            return csClass is not null ? new ValueFunction(Variable.From(new TypeObject(csClass))) : GetFromNamespace(name, script);
         }
         internal static FunctionBase GetFromNamespcaeName(string name)
         {

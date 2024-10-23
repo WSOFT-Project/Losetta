@@ -5,6 +5,7 @@ using AliceScript.Packaging;
 using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace AliceScript.NameSpaces.Core
@@ -88,23 +89,23 @@ namespace AliceScript.NameSpaces.Core
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, int errorCode)
+        public static void Throw([BindInfo] ParsingScript script, int errorCode)
         {
             throw new ScriptException(string.Empty, (Exceptions)errorCode, script);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, string message)
+        public static void Throw([BindInfo] ParsingScript script, string message)
         {
             throw new ScriptException(message, Exceptions.USER_DEFINED, script);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, ExceptionObject exception)
+        public static void Throw([BindInfo] ParsingScript script, ExceptionObject exception)
         {
             var s = exception.MainScript ?? script;
             throw new ScriptException(exception.Message, exception.Error, s);
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static void Throw(ParsingScript script, string message, int errorCode)
+        public static void Throw([BindInfo] ParsingScript script, string message, int errorCode)
         {
             throw new ScriptException(message, (Exceptions)errorCode, script);
         }
@@ -112,7 +113,7 @@ namespace AliceScript.NameSpaces.Core
         private static readonly Dictionary<string, Variable> m_singletons =
            new Dictionary<string, Variable>();
 
-        public static Variable Singleton(ParsingScript script)
+        public static Variable Singleton([BindInfo] ParsingScript script)
         {
             string expr = Utils.GetBodyBetween(script, Constants.START_GROUP, Constants.END_GROUP, "\0", true);
 
@@ -129,7 +130,7 @@ namespace AliceScript.NameSpaces.Core
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static void Import(ParsingScript script, string filePath)
+        public static void Import([BindInfo] ParsingScript script, string filePath)
         {
             if (script.EnableImport)
             {
@@ -142,7 +143,7 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static void Import(ParsingScript script, string filePath, bool fromPackage = false)
+        public static void Import([BindInfo] ParsingScript script, string filePath, bool fromPackage = false)
         {
             if (script.EnableImport)
             {
@@ -155,7 +156,7 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static void Import(ParsingScript script, string filePath, bool fromPackage = false, bool isNativeLibrary = false)
+        public static void Import([BindInfo] ParsingScript script, string filePath, bool fromPackage = false, bool isNativeLibrary = false)
         {
             if (script.EnableImport)
             {
@@ -175,7 +176,7 @@ namespace AliceScript.NameSpaces.Core
             }
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
-        public static Variable Include(ParsingScript script, BindFunction func, string fileName)
+        public static Variable Include([BindInfo] ParsingScript script, [BindInfo] BindFunction func, string fileName)
         {
             ParsingScript tempScript = script.GetIncludeFileScript(fileName, func);
 
@@ -189,7 +190,7 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
-        public static Variable Return(ParsingScript script, Variable result = null)
+        public static Variable Return([BindInfo] ParsingScript script, Variable result = null)
         {
             // Returnに到達したら終了
             script.SetDone();
@@ -202,27 +203,27 @@ namespace AliceScript.NameSpaces.Core
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Context = ParsingScript.Contexts.IN_ARGS)]
-        public static Variable Ref(ParsingScript script)
+        public static Variable Ref([BindInfo] ParsingScript script)
         {
             Parser.NeedReferenceNext = true;
             return Utils.GetItem(script);
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__makeref")]
-        public static Variable MakeRef(ParsingScript script)
-        {
-            Parser.NeedReferenceNext = true;
-            return Utils.GetItem(script);
-        }
+        public static Variable MakeRef([BindInfo] ParsingScript script) => Ref(script);
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__useref")]
-        public static Variable UseRef(ParsingScript script)
+        public static Variable UseRef([BindInfo] ParsingScript script, [BindInfo] BindFunction func)
         {
-            Parser.NeedReferenceNext = true;
-            var r = Utils.GetItem(script);
-            if(r.Type == Variable.VarType.REFERENCE && r.Reference is not null)
+            var d = GetRefItem(script, func);
+            return d.GetValue(script);
+        }
+        private static ParserFunction GetRefItem(ParsingScript script, BindFunction func)
+        {
+            var r = script.GetFunctionArgs(func, Constants.START_ARG, Constants.END_ARG).FirstOrDefault();
+            if (r.Type == Variable.VarType.REFERENCE && r.Reference is not null)
             {
-                return r.Reference.GetValue(script);
+                return r.Reference;
             }
-            throw new ScriptException("そのような参照は存在しません",Exceptions.NONE,script);
+            throw new ScriptException("そのような参照は存在しません", Exceptions.NONE, script);
         }
     }
 }

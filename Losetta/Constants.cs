@@ -257,13 +257,33 @@ namespace AliceScript
         public const string EXTENSION = "extonly";
         public const string FUNCTION = "function";
 
+        // 型
+        public const string STRING = "string";
+        public const string NUMBER = "number";
+        public const string ARRAY = "array";
+        public const string BYTES = "bytes";
+        public const string OBJECT = "object";
+        public const string DELEGATE = "delegate";
+        public const string BOOL = "bool";
+        public const string DICTIONARY = "dictionary";
+        public const string VARIABLE = "variable";
+        public const string VOID = "void";
 
         /// <summary>
         /// 型指定修飾子
         /// </summary>
         public static readonly HashSet<string> TYPE_MODIFER = new HashSet<string>{
-             "string","number","array","bytes","object","enum","delegate","bool","variable","void",
-              "string?","number?","array?","bytes?","object?","enum?","delegate?","bool?","variable?","var"
+            STRING, $"{STRING}?",
+            NUMBER, $"{NUMBER}?",
+            ARRAY, $"{ARRAY}?",
+            BYTES, $"{BYTES}?",
+            OBJECT, $"{OBJECT}?",
+            DELEGATE, $"{DELEGATE}?",
+            BOOL, $"{BOOL}?",
+            DICTIONARY, $"{DICTIONARY}?",
+            VARIABLE, $"{VARIABLE}?",
+            VOID,
+            VAR,
         };
         /// <summary>
         /// AliceScriptのキーワード
@@ -352,13 +372,15 @@ namespace AliceScript
             {CONTINUE,new Variable(Variable.VarType.CONTINUE) },
             // 配列の全体を表します
             {RANGE, new Variable(new RangeStruct(0))},
-            {"string", Variable.AsType(Variable.VarType.STRING) },
-            {"number",Variable.AsType(Variable.VarType.NUMBER) },
-            {"bytes",Variable.AsType(Variable.VarType.BYTES) },
-            {"object",Variable.AsType(Variable.VarType.OBJECT) },
-            {"enum",Variable.AsType(Variable.VarType.ENUM) },
-            {"delegate",Variable.AsType(Variable.VarType.DELEGATE) },
-            {"bool",Variable.AsType(Variable.VarType.BOOLEAN) },
+
+            {STRING, Variable.AsType(Variable.VarType.STRING) },
+            {NUMBER,Variable.AsType(Variable.VarType.NUMBER) },
+            {BYTES,Variable.AsType(Variable.VarType.BYTES) },
+            {OBJECT,Variable.AsType(Variable.VarType.OBJECT) },
+            {ENUM,Variable.AsType(Variable.VarType.ENUM) },
+            {DELEGATE,Variable.AsType(Variable.VarType.DELEGATE) },
+            {BOOL,Variable.AsType(Variable.VarType.BOOLEAN) },
+            {DICTIONARY,Variable.AsType(Variable.VarType.DICTIONARY) },
 
         };
         /// <summary>
@@ -413,7 +435,7 @@ namespace AliceScript
                 case Variable.VarType.ARRAY_NUM:
                 case Variable.VarType.ARRAY: return "ARRAY";
                 case Variable.VarType.MAP_STR:
-                case Variable.VarType.MAP_NUM: return "MAP";
+                case Variable.VarType.DICTIONARY: return "DICTIONARY";
                 case Variable.VarType.OBJECT: return "OBJECT";
                 case Variable.VarType.BREAK: return "BREAK";
                 case Variable.VarType.CONTINUE: return "CONTINUE";
@@ -440,10 +462,6 @@ namespace AliceScript
                 case "LIST<INT>":
                 case "LIST<DOUBLE>": type = Variable.VarType.ARRAY_NUM; break;
                 case "LIST<STRING>": type = Variable.VarType.ARRAY_STR; break;
-                case "MAP<INT>":
-                case "MAP<STRING,INT>":
-                case "MAP<DOUBLE>":
-                case "MAP<STRING,DOUBLE>": type = Variable.VarType.MAP_NUM; break;
                 case "MAP<STRING>":
                 case "MAP<STRING,STRING>": type = Variable.VarType.MAP_STR; break;
                 case "TUPLE":

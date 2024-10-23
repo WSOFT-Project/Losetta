@@ -114,4 +114,21 @@ namespace AliceScript.Binding
         /// </summary>
         public string Operator { get; set; }
     }
+
+    /// <summary>
+    /// BindFunctionでバインド情報を取得するための引数
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public class BindInfoAttribute : Attribute
+    {
+
+    }
+    /// <summary>
+    /// BindFunctionで参照渡しを行うための引数
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public class RefAttribute : Attribute
+    {
+
+    }
 }

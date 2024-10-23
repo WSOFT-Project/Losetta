@@ -79,12 +79,8 @@ namespace AliceScript.Binding
         /// <returns>より先に解決されるべき場合は1,より後に解決されるべき場合は-1</returns>
         public int CompareTo(BindingOverloadFunction other)
         {
-            int result = MinimumArgCounts.CompareTo(other.MinimumArgCounts);
+            int result = Priority.CompareTo(other.Priority) * -1;
 
-            if(result == 0)
-            {
-                result = Priority.CompareTo(other.Priority) * -1;
-            }
             return result;
         }
 
@@ -115,42 +111,46 @@ namespace AliceScript.Binding
             {
                 paramType = TrueParameters[i].ParameterType;
 
-                if (paramType == typeof(FunctionBaseEventArgs))
+                if(TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(BindInfoAttribute)))
                 {
-                    diff++;
-                    parametors.Add(e);
-                    continue;
+                    if (paramType == typeof(FunctionBaseEventArgs))
+                    {
+                        diff++;
+                        parametors.Add(e);
+                        continue;
+                    }
+                    if (paramType == typeof(ParsingScript))
+                    {
+                        diff++;
+                        parametors.Add(e.Script);
+                        continue;
+                    }
+                    if (paramType == typeof(FunctionBase))
+                    {
+                        diff++;
+                        parametors.Add(parent);
+                        continue;
+                    }
+                    if (paramType == typeof(BindFunction) && parent is BindFunction)
+                    {
+                        diff++;
+                        parametors.Add(parent);
+                        continue;
+                    }
+                    if (paramType == typeof(BindValueFunction) && parent is BindFunction)
+                    {
+                        diff++;
+                        parametors.Add(parent);
+                        continue;
+                    }
+                    if (paramType == typeof(BindingOverloadFunction))
+                    {
+                        diff++;
+                        parametors.Add(this);
+                        continue;
+                    }
                 }
-                if (paramType == typeof(ParsingScript))
-                {
-                    diff++;
-                    parametors.Add(e.Script);
-                    continue;
-                }
-                if (paramType == typeof(FunctionBase))
-                {
-                    diff++;
-                    parametors.Add(parent);
-                    continue;
-                }
-                if (paramType == typeof(BindFunction) && parent is BindFunction)
-                {
-                    diff++;
-                    parametors.Add(parent);
-                    continue;
-                }
-                if (paramType == typeof(BindValueFunction) && parent is BindFunction)
-                {
-                    diff++;
-                    parametors.Add(parent);
-                    continue;
-                }
-                if (paramType == typeof(BindingOverloadFunction))
-                {
-                    diff++;
-                    parametors.Add(this);
-                    continue;
-                }
+                
                 if (i == 0 && IsMethod && e.CurentVariable is not null)
                 {
                     diff++;
@@ -189,7 +189,29 @@ namespace AliceScript.Binding
                 }
 
                 var item = e.Args[i - diff];
-                if (item is null)
+                if(TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(RefAttribute)) && paramType == typeof(Variable))
+                {
+                    if(item.Type == Variable.VarType.REFERENCE)
+                    {
+                        if(item.Reference is ValueFunction value)
+                        {
+                            parametors.Add(value.Value);
+                        }
+                        else
+                        {
+                            throw new ScriptException($"引数 `{TrueParameters[i].Name}` で、変数以外への参照が渡されました", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD);
+                        }
+                    }
+                    else
+                    {
+                        throw new ScriptException("引数 `" + TrueParameters[i].Name + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD);
+                    }
+                }
+                else if(item.Type == Variable.VarType.REFERENCE)
+                {
+                    throw new ScriptException("引数 `" + TrueParameters[i].Name + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD);
+                }
+                else if (item is null)
                 {
                     if (inParams)
                     {

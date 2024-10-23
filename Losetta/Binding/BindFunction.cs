@@ -172,7 +172,7 @@ namespace AliceScript.Binding
                 }
                 func.Overloads.Add(load);
             }
-
+            func.Overloads.Sort();
             return func.Overloads.Count > 0 ? func : null;
         }
         /// <summary>
@@ -244,10 +244,11 @@ namespace AliceScript.Binding
                 func.Overloads.Add(load);
             }
 
+            func.Overloads.Sort();
             return func.Overloads.Count > 0 ? func : null;
         }
 
-        private List<BindingOverloadFunction> Overloads = new List<BindingOverloadFunction>();
+        public List<BindingOverloadFunction> Overloads = new List<BindingOverloadFunction>();
         /// <summary>
         /// この関数がBindObjectのメソッドの場合、そのオブジェクト
         /// </summary>

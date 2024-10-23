@@ -241,7 +241,7 @@ namespace AliceScript
             var obj = new BindObject();
             obj.Name = type.Name;
             obj.Type = type;
-            
+
             bool defaultState = true;
 
             if (TryGetAttibutte<AliceObjectAttribute>(type, out var attr))
@@ -255,12 +255,12 @@ namespace AliceScript
             }
             Dictionary<string, HashSet<MethodInfo>> methods = new Dictionary<string, HashSet<MethodInfo>>();
             Dictionary<string, HashSet<MethodInfo>> staticmethods = new Dictionary<string, HashSet<MethodInfo>>();
-            Dictionary<string, HashSet<MethodInfo>> operators = new Dictionary<string,HashSet<MethodInfo>>();
+            Dictionary<string, HashSet<MethodInfo>> operators = new Dictionary<string, HashSet<MethodInfo>>();
             foreach (var m in type.GetMethods())
             {
                 if (m.IsPublic && !m.IsDefined(typeof(CompilerGeneratedAttribute)))
                 {
-                    if(TryGetAttibutte<AliceObjectOperatorAttribute>(m, out var opattr))
+                    if (TryGetAttibutte<AliceObjectOperatorAttribute>(m, out var opattr))
                     {
                         if (!operators.ContainsKey(opattr.Operator))
                         {
@@ -304,7 +304,7 @@ namespace AliceScript
                     obj.StaticFunctions[func.Name] = func;
                 }
             }
-            foreach (KeyValuePair<string,HashSet<MethodInfo>> mkv in operators)
+            foreach (KeyValuePair<string, HashSet<MethodInfo>> mkv in operators)
             {
                 var func = CreateBindFunction(mkv.Value);
                 if (func is not null)
@@ -351,21 +351,31 @@ namespace AliceScript
         internal static uint CalcPriority(ParameterInfo[] parameters)
         {
             uint priority = 0;
-            foreach(var param in parameters)
+            foreach (var param in parameters)
             {
                 // この引数のポイント
-                uint raw = 3;
-                if(param.ParameterType == typeof(char))
+                uint raw = 5;
+                if (param.ParameterType == typeof(char))
                 {
                     // charはstring(ほかの)よりも優先順位が高い
+                    raw = 6;
+                }
+                else if (param.ParameterType == typeof(VariableCollection))
+                {
                     raw = 4;
                 }
-                else if(param.ParameterType == typeof(VariableCollection))
+                else if (param.ParameterType == typeof(Variable))
                 {
                     raw = 2;
                 }
-                else if(param.ParameterType == typeof(Variable))
+                if (param.IsOptional)
                 {
+                    // 必須ではない引数は減点
+                    raw--;
+                }
+                if (param.CustomAttributes.Any(attr => attr.AttributeType == typeof(BindInfoAttribute)))
+                {
+                    // BindInfoの場合は減点
                     raw = 1;
                 }
                 priority += raw;

@@ -621,7 +621,7 @@ namespace AliceScript.Parsing
         {
             // 演算子は処理できたとしておく
             current.Action = string.Empty;
-            if(action == ")" || action == "\0")
+            if(action == ")" || action == "\0" || string.IsNullOrEmpty(action))
             {
                 return current;
             }
@@ -659,6 +659,10 @@ namespace AliceScript.Parsing
                 return Variable.EmptyInstance;
             }
 
+            if(leftCell.Action == ":")
+            {
+                return new Variable(new KeyValuePair<Variable, Variable>(leftCell, rightCell));
+            }
             if (leftCell.Action == Constants.IS && rightCell.Object is not null && rightCell.Object is TypeObject to)
             {
                 leftCell = new Variable(to.Match(leftCell));

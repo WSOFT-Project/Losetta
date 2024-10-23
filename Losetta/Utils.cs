@@ -291,7 +291,6 @@ namespace AliceScript
             throw new ScriptException($"`{identifier}`は現在のコンテキストに存在しません。", Exceptions.IDENTIFIER_NOT_FOUND, script);
         }
         private static readonly char[] separator = new char[] { ',', ':' };
-
         public static int GetNumberOfDigits(string data, int itemNumber = -1)
         {
             if (itemNumber >= 0)
