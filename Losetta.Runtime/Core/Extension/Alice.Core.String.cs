@@ -366,7 +366,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 result = ReplaceAt(result, diff + pointer, matchLength, newValue);
                 source = source.Slice(pointer + matchLength);
-                diff += matchLength;
+                diff += matchLength + pointer;
             }
             return result;
 #else
