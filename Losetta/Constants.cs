@@ -399,6 +399,24 @@ namespace AliceScript
         public const int MAX_CHARS_TO_SHOW = 45;
         private static readonly Dictionary<string, string> s_realNames = new Dictionary<string, string>();
 
+        /// <summary>
+        /// 文字列リテラルで使用できるエスケープ文字
+        /// </summary>
+        public static readonly Dictionary<char, string> ESCAPE_CHARS = new Dictionary<char, string>()
+        {
+            { '0', "\u0000" },
+            { 'a', "\u0007" },
+            { 'b', "\u0008" },
+            { 'e', "\u001B" },
+            { 'f', "\u000C" },
+            { 'n', "\u000A" },
+            { 'r', "\u000D" },
+            { 't', "\u0009" },
+            { 'v', "\u000B" },
+            { '\\', "\\" },
+            { QUOTE, $"{QUOTE_IN_LITERAL}" },
+            { QUOTE1, $"{QUOTE1_IN_LITERAL}" },
+        };
         public static string ConvertName(string name)
         {
             name = name.Trim();

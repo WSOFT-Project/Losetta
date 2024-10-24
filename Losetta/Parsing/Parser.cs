@@ -353,9 +353,7 @@ namespace AliceScript.Parsing
             {
                 case Constants.QUOTE:
                     {
-                        char prev = script.TryPrev(2);
-                        char prevprev = script.TryPrev(3);
-                        inQuotes = (prev != '\\' || prevprev == '\\') ? !inQuotes : inQuotes;
+                        inQuotes = !inQuotes;
                         return;
                     }
                 case Constants.START_ARRAY:

@@ -6,98 +6,98 @@ using NUnit.Framework;
 [TestFixture]
 public class NumberBinary
 {
-    private static T Evaluate<T>(double x, string op, double y)
+    public static object[][] NumberBinaryData = new object[][]
     {
-        string code = $"{x} {op} {y};";
-        return Alice.Execute<T>(code);
+        new object[] { 10, 0 },
+        new object[] { 1, 9 },
+        new object[] { 2, 8 },
+        new object[] { 3, 7 },
+        new object[] { 4, 6 },
+        new object[] { 5, 5 },
+        new object[] { 6, 4 },
+        new object[] { 7, 3 },
+        new object[] { 8, 2 },
+        new object[] { 9, 1 },
+        new object[] { 10, 0 },
+    };
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Add(int x, int y)
+    {
+        Utils.TestExpression(x, Constants.PLUS, y, (x,y) => x + y);
     }
-    private static void TestEvaluate<T>(double x, string op, double y, Func<double, double, T> testPredicate)
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Sub(int x, int y)
     {
-        Assert.That(Evaluate<T>(x, op, y),
-            Is.EqualTo(testPredicate(x, y)));
+        Utils.TestExpression(x, Constants.MINUS, y, (x, y) => x - y);
     }
-    private static void TestEvaluate<T>(double x, char op, double y, Func<double, double, T> testPredicate)
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Times(int x, int y)
     {
-        TestEvaluate(x, op.ToString(), y, testPredicate);
+        Utils.TestExpression(x, Constants.TIMES, y, (x, y) => x * y);
     }
-    [TestCase(Description = "数値の足し算ができる")]
-    public void Number_Add()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Div(int x, int y)
     {
-        TestEvaluate(5, Constants.PLUS, 2, (x, y) => x + y);
+        Utils.TestExpression(x, Constants.DIV, y, (x, y) => x / y);
     }
-    [TestCase(Description = "数値の引き算ができる")]
-    public void Number_Sub()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Mod(int x, int y)
     {
-        TestEvaluate(5, Constants.MINUS, 2, (x, y) => x - y);
+        Utils.TestExpression(x, Constants.MOD, y, (x, y) => x % y);
     }
-    [TestCase(Description = "数値の掛け算ができる")]
-    public void Number_Time()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Pow(int x, int  y)
     {
-        TestEvaluate(3, Constants.TIMES, 2, (x, y) => x * y);
+        Utils.TestExpression(x, Constants.POW, y, (x, y) => Math.Pow(x, y));
     }
-    [TestCase(Description = "数値の割り算ができる")]
-    public void Number_Div()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_GreaterThan(int x, int y)
     {
-        TestEvaluate(4, Constants.DIV, 2, (x, y) => x / y);
+        Utils.TestExpression(x, Constants.GREATER, y, (x, y) => x > y);
     }
-    [TestCase(Description = "数値の剰余演算ができる")]
-    public void Number_Mod()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_GreaterEquals(int x, int y)
     {
-        TestEvaluate(5, Constants.MOD, 2, (x, y) => x % y);
+        Utils.TestExpression(x, Constants.GREATER_EQ, y, (x, y) => x >= y);
     }
-    [TestCase(Description = "数値の冪乗演算ができる")]
-    public void Number_Pow()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_LessThan(int x, int y)
     {
-        TestEvaluate(3, Constants.POW, 2, Math.Pow);
+        Utils.TestExpression(x, Constants.LESS, y, (x, y) => x < y);
     }
-    [TestCase(Description = "xがyより大きいか判定できる")]
-    public void Number_GreaterThan()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_LessEquals(int x, int y)
     {
-        TestEvaluate(5, Constants.GREATER, 2, (x, y) => x > y);
+        Utils.TestExpression(x, Constants.LESS_EQ, y, (x, y) => x <= y);
     }
-    [TestCase(Description = "xがyより大きいか同値か判定できる")]
-    public void Number_GreaterEquals()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_LeftShift(int x, int y)
     {
-        TestEvaluate(5, Constants.GREATER_EQ, 2, (x, y) => x >= y);
+        Utils.TestExpression(x, Constants.LEFT_SHIFT, y, (x, y) => (long)x << (int)y);
     }
-    [TestCase(Description = "xがyより小さいか判定できる")]
-    public void Number_LessThan()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_RightShift(int x, int y)
     {
-        TestEvaluate(3, Constants.LESS, 5, (x, y) => x < y);
+        Utils.TestExpression(x, Constants.RIGHT_SHIFT, y, (x, y) => (long)x >> (int)y);
     }
-    [TestCase(Description = "xがyより小さいか同値か判定できる")]
-    public void Number_LessEquals()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_And(int x, int y)
     {
-        TestEvaluate(3, Constants.LESS_EQ, 5, (x, y) => x <= y);
+        Utils.TestExpression(x, '&', y, (x, y) => (long)x & (long)y);
     }
-    [TestCase(Description = "xをyだけ左シフトできる")]
-    public void Number_LeftShift()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Xor(int x, int y)
     {
-        TestEvaluate(5, Constants.LEFT_SHIFT, 2, (x, y) => (long)x << (int)y);
+        Utils.TestExpression(x, '^', y, (x, y) => (long)x ^ (long)y);
     }
-    [TestCase(Description = "xをyだけ右シフトできる")]
-    public void Number_RightShift()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Or(int x, int y)
     {
-        TestEvaluate(5, Constants.RIGHT_SHIFT, 2, (x, y) => (long)x >> (int)y);
+        Utils.TestExpression(x, '|', y, (x, y) => (long)x | (long)y);
     }
-    [TestCase]
-    public void Number_And()
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Ranges(int x, int y)
     {
-        TestEvaluate(5, '&', 2, (x, y) => (long)x & (long)y);
-    }
-    [TestCase]
-    public void Number_Xor()
-    {
-        TestEvaluate(5, '^', 2, (x, y) => (long)x ^ (long)y);
-    }
-    [TestCase]
-    public void Number_Or()
-    {
-        TestEvaluate(5, '|', 2, (x, y) => (long)x | (long)y);
-    }
-    [TestCase]
-    public void Number_Ranges()
-    {
-        TestEvaluate(2, Constants.RANGE, 5, (x, y) => new RangeStruct((int)x, (int)y));
+        Utils.TestExpression(x, Constants.RANGE, y, (x, y) => new RangeStruct((int)x, (int)y));
     }
 }

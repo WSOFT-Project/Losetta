@@ -3,7 +3,7 @@ namespace AliceScript.Tests.Losetta.Scripting;
 using NUnit.Framework;
 
 [TestFixture]
-public class Statement
+public class Others
 {
     [TestCase(Description = "Hello,Worldのコードを実行できる")]
     public void Hello_World()

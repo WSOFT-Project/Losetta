@@ -296,73 +296,15 @@ namespace AliceScript.PreProcessing
                             if (inQuotes2)
                             {
                                 i++;
-                                switch (next)
+                                if(Constants.ESCAPE_CHARS.TryGetValue(next, out string replace))
                                 {
-                                    case '0':
-                                        {
-                                            sb.Append('\u0000');
-                                            continue;
-                                        }
-                                    case 'a':
-                                        {
-                                            sb.Append('\u0007');
-                                            continue;
-                                        }
-                                    case 'b':
-                                        {
-                                            sb.Append('\u0008');
-                                            continue;
-                                        }
-                                    case 'e':
-                                        {
-                                            sb.Append('\u001B');
-                                            continue;
-                                        }
-                                    case 'f':
-                                        {
-                                            sb.Append('\u000C');
-                                            continue;
-                                        }
-                                    case 'n':
-                                        {
-                                            sb.Append('\u000A');
-                                            continue;
-                                        }
-                                    case 'r':
-                                        {
-                                            sb.Append('\u000D');
-                                            continue;
-                                        }
-                                    case 't':
-                                        {
-                                            sb.Append('\u0009');
-                                            continue;
-                                        }
-                                    case 'v':
-                                        {
-                                            sb.Append('\u000B');
-                                            continue;
-                                        }
-                                    case '\\':
-                                        {
-                                            sb.Append('\\');
-                                            continue;
-                                        }
-                                    case Constants.QUOTE:
-                                        {
-                                            sb.Append(Constants.QUOTE_IN_LITERAL);
-                                            continue;
-                                        }
-                                    case Constants.QUOTE1:
-                                        {
-                                            sb.Append(Constants.QUOTE1_IN_LITERAL);
-                                            continue;
-                                        }
-                                    default:
-                                        {
-                                            ThrowSyntaxError($"`\\{next}`は認識できないエスケープ文字です", source, Exceptions.UNKNOWN_ESCAPE_CHAR, 0, 0, lineNumber, filename);
-                                            break;
-                                        }
+                                    sb.Append(replace);
+                                    continue;
+                                }
+                                else
+                                {
+                                    ThrowSyntaxError($"`\\{next}`は認識できないエスケープ文字です", source, Exceptions.UNKNOWN_ESCAPE_CHAR, 0, 0, lineNumber, filename);
+                                    break;
                                 }
                             }
                             break;
