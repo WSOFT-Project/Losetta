@@ -1,5 +1,6 @@
 namespace AliceScript.Tests.Losetta.Scripting.Expression.Operator;
 
+using AliceScript.Objects;
 using NUnit.Framework;
 
 [TestFixture]
@@ -57,5 +58,18 @@ public class NumberPre
 
         int result = Alice.Execute<int>(code);
         Assert.That(result, Is.EqualTo(--val + val));
+    }
+    [TestCase(Description = "前置単項Range演算子が動作する")]
+    public void Number_Range()
+    {
+        int val = 123;
+        string code = $"""
+        number val = {val};
+        
+        return ..val;
+        """;
+
+        RangeStruct result = Alice.Execute<RangeStruct>(code);
+        Assert.That(result, Is.EqualTo(new RangeStruct(0, val)));
     }
 }

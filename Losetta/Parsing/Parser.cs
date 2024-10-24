@@ -604,7 +604,7 @@ namespace AliceScript.Parsing
                 case PreOperetors.BitwiseNot:
                     return new Variable(~(long)current.Value);
                 case PreOperetors.Range:
-                    return new Variable(new RangeStruct((int)current.Value));
+                    return new Variable(new RangeStruct(0, (int)current.Value));
                 default:
                     throw new ScriptException($"演算子`{action}`は`{current.GetTypeString()}`型のオペランドに適用できません。", Exceptions.INVALID_OPERAND);
             }
