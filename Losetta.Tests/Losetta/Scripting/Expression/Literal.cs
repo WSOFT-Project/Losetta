@@ -42,6 +42,6 @@ public class Literal
         Assert.That(() =>
         {
             Alice.Execute<string>(code);
-        }, Throws.TypeOf(typeof(ScriptException)).With.Message.EqualTo($"`{str}`は認識できないエスケープ文字です"));
+        }, Throws.TypeOf(typeof(ScriptException)).With.Property("ErrorCode").EqualTo(Exceptions.UNKNOWN_ESCAPE_CHAR));
     }
 }
