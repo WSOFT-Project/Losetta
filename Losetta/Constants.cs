@@ -34,6 +34,9 @@ namespace AliceScript
         public const char PLUS = '+';
         public const char MINUS = '-';
         public const char BITWISE_NOT = '~'; 
+        public const char MOD = '%';
+        public const char DIV = '/';
+        public const char TIMES = '*';
 
         public const char QUOTE_IN_LITERAL = '\ufdd2';
         public const char QUOTE1_IN_LITERAL = '\ufdd1';
@@ -69,7 +72,7 @@ namespace AliceScript
         public const string GREATER_EQ = ">=";
 
         public const string NOT = "!";
-        public const string EXPONENTIATION = "**";
+        public const string POW = "**";
         public const string LEFT_SHIFT = "<<";
         public const string RIGHT_SHIFT = ">>";
         public const string SPREAD = "...";
@@ -141,7 +144,7 @@ namespace AliceScript
 
         public static readonly string[] OPER_ACTIONS = {  ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
-                                                AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,EXPONENTIATION,LEFT_SHIFT,RIGHT_SHIFT,
+                                                AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,POW,LEFT_SHIFT,RIGHT_SHIFT,
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS, RANGE};
 
         /// <summary>

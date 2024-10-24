@@ -761,23 +761,25 @@ namespace AliceScript.Parsing
         {
             switch (leftCell.Action)
             {
-                case "%":
-                    return new Variable(leftCell.Value % rightCell.Value);
-                case "*":
-                    return new Variable(leftCell.Value * rightCell.Value);
-                case "/":
-                    return new Variable(leftCell.Value / rightCell.Value);
                 case "+":
                     return rightCell.Type != Variable.VarType.NUMBER
                         ? new Variable(leftCell.AsString() + rightCell.String)
                         : new Variable(leftCell.Value + rightCell.Value);
                 case "-":
                     return new Variable(leftCell.Value - rightCell.Value);
-                case "<":
+                case "*":
+                    return new Variable(leftCell.Value * rightCell.Value);
+                case "/":
+                    return new Variable(leftCell.Value / rightCell.Value);
+                case "%":
+                    return new Variable(leftCell.Value % rightCell.Value);
+                case Constants.POW:
+                    return new Variable(Math.Pow(leftCell.Value, rightCell.Value));
+                case Constants.LESS:
                     return new Variable(leftCell.Value < rightCell.Value);
                 case ">":
                     return new Variable(leftCell.Value > rightCell.Value);
-                case "<=":
+                case Constants.LESS_EQ:
                     return new Variable(leftCell.Value <= rightCell.Value);
                 case ">=":
                     return new Variable(leftCell.Value >= rightCell.Value);
@@ -786,13 +788,11 @@ namespace AliceScript.Parsing
                 case Constants.RIGHT_SHIFT:
                     return new Variable(leftCell.As<long>() >> rightCell.As<int>());
                 case "&":
-                    return new Variable((int)leftCell.Value & (int)rightCell.Value);
+                    return new Variable(leftCell.As<long>() & rightCell.As<long>());
                 case "^":
-                    return new Variable((int)leftCell.Value ^ (int)rightCell.Value);
+                    return new Variable(leftCell.As<long>() ^ rightCell.As<long>());
                 case "|":
-                    return new Variable((int)leftCell.Value | (int)rightCell.Value);
-                case "**":
-                    return new Variable(Math.Pow(leftCell.Value, rightCell.Value));
+                    return new Variable(leftCell.As<long>() | rightCell.As<long>());
                 case Constants.RANGE:
                     return new Variable(new RangeStruct((int)leftCell.Value, (int)rightCell.Value));
                 case null:

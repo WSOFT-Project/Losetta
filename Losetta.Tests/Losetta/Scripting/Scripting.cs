@@ -12,6 +12,10 @@ public class Scripting
         {
             TestContext.WriteLine(e.Output);
         };
+        ThrowErrorManager.ThrowError += (sender, e) =>
+        {
+            throw new ScriptException(e.Message, e.ErrorCode, e.Script, e.Exception);
+        };
         Runtime.Init();
     }
 }
