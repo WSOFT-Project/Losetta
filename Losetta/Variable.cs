@@ -844,6 +844,17 @@ namespace AliceScript
             return r;
         }
         /// <summary>
+        /// この変数を指定した型に変換できるか試みます
+        /// </summary>
+        /// <param name="result">変換されたオブジェクト</param>
+        /// <returns>変換に成功した場合はTrue、それ以外の場合はfalse</returns>
+        public bool Is(Type type, out object result)
+        {
+            bool r = TryConvertTo(type, out object o);
+            result = r ? o : default;
+            return r;
+        }
+        /// <summary>
         /// この変数を指定した型に変換します
         /// </summary>
         /// <typeparam name="T">変換先の型</typeparam>
@@ -1093,6 +1104,25 @@ namespace AliceScript
                         if (type is null || type == typeof(DelegateObject))
                         {
                             result = AsDelegate();
+                            return true;
+                        }
+                        break;
+                    }
+                case VarType.REFERENCE:
+                    {
+                        if (type == typeof(CustomFunction) && Reference is CustomFunction cf)
+                        {
+                            result = cf;
+                            return true;
+                        }
+                        if (type == typeof(FunctionBase) && Reference is FunctionBase fb)
+                        {
+                            result = fb;
+                            return true;
+                        }
+                        if (type is null || type == typeof(ParserFunction))
+                        {
+                            result = Reference;
                             return true;
                         }
                         break;

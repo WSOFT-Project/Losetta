@@ -38,4 +38,14 @@ public class BooleanBinary
     {
         Utils.TestExpression(a, "^", b, (x, y) => x ^ y);
     }
+    [TestCaseSource(nameof(BooleanCombinations))]
+    public void Equals(bool x, bool y)
+    {
+        Utils.TestExpression(x, Constants.EQUAL, y, (x, y) => x == y);
+    }
+    [TestCaseSource(nameof(BooleanCombinations))]
+    public void NotEquals(bool x, bool y)
+    {
+        Utils.TestExpression(x, Constants.NOT_EQUAL, y, (x, y) => x != y);
+    }
 }

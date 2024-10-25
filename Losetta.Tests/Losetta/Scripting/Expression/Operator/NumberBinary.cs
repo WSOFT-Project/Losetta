@@ -100,4 +100,14 @@ public class NumberBinary
     {
         Utils.TestExpression(x, Constants.RANGE, y, (x, y) => new RangeStruct((int)x, (int)y));
     }
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_Equals(double x, double y)
+    {
+        Utils.TestExpression(x, Constants.EQUAL, y, (x, y) => x == y);
+    }
+    [TestCaseSource(nameof(NumberBinaryData))]
+    public void Number_NotEquals(double x, double y)
+    {
+        Utils.TestExpression(x, Constants.NOT_EQUAL, y, (x, y) => x != y);
+    }
 }

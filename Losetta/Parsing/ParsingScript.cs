@@ -1413,7 +1413,7 @@ namespace AliceScript.Parsing
                 if (Function is CustomFunction cfx)
                 {
                     sb.Append(".custom ");
-                    sb.Append(Constants.TypeToString(cfx.ReturnType).ToLowerInvariant());
+                    sb.Append(cfx.ToString());
                 }
                 else
                 {

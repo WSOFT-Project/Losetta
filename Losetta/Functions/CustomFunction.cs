@@ -23,7 +23,7 @@ namespace AliceScript.Functions
         /// <param name="nullable"></param>
         /// <exception cref="ScriptException"></exception>
         public CustomFunction(string funcName,
-                                string body, string[] args, ParsingScript script, bool forceReturn = false, Variable.VarType returnType = Variable.VarType.VARIABLE, bool nullable = true)
+                                string body, string[] args, ParsingScript script, bool forceReturn = false, TypeObject returnType = null, bool nullable = true)
         {
             Name = funcName;
             m_body = body;
@@ -32,7 +32,7 @@ namespace AliceScript.Functions
             m_returnType = returnType;
             Run += CustomFunction_Run;
 
-            if (m_returnType == Variable.VarType.VOID)
+            if (m_returnType?.Type == Variable.VarType.VOID)
             {
                 m_nullable = true;
             }
@@ -218,19 +218,20 @@ namespace AliceScript.Functions
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(e.Args, e.Script, e.ClassInstance, e.CurentVariable);
-            if (m_nullable && m_returnType != Variable.VarType.VOID && result.IsNull())
+            if (m_nullable && m_returnType.Type != Variable.VarType.VOID && result.IsNull())
             {
                 // nullをとる場合は妥当なnull許容型に置き換える
-                result.Type = m_returnType;
+                result.Type = m_returnType.Type;
             }
             if (m_nullable)
             {
                 result.Nullable = true;
             }
-            if ((m_returnType != Variable.VarType.VARIABLE && (!result.Type.HasFlag(m_returnType) || (!m_nullable && result.Nullable))) || (m_returnType == Variable.VarType.VOID && result.Type != Variable.VarType.VOID))
+            if(m_returnType is not null && (!m_returnType.Match(result) || (m_nullable ^ result.Nullable)))
             {
                 throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.Nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
+
             e.Return = result;
         }
 
@@ -475,13 +476,15 @@ namespace AliceScript.Functions
         /// <summary>
         /// この関数のとる引数の個数
         /// </summary>
-        public int ArgumentCount => m_args.Length;
+        public int ArgumentCount => m_args?.Length ?? 0;
+
+        public Dictionary<int, TypeObject> ArgTypes => m_typArgMap; 
 
         public TypeObject MethodRequestType => IsMethod && m_typArgMap.Count >= m_this ? m_typArgMap[m_this] : new TypeObject();
 
         public int DefaultArgsCount => m_defaultArgs.Count;
 
-        public Variable.VarType ReturnType => m_returnType;
+        public TypeObject ReturnType => m_returnType;
 
         protected int m_this = -1;
         protected string m_body;
@@ -489,7 +492,7 @@ namespace AliceScript.Functions
         protected bool m_forceReturn;
         protected bool m_nullable;
         protected string[] m_args;
-        protected Variable.VarType m_returnType;
+        protected TypeObject m_returnType;
         protected ParsingScript m_parentScript = null;
         protected int m_parentOffset = 0;
         private Dictionary<int, TypeObject> m_typArgMap = new Dictionary<int, TypeObject>();

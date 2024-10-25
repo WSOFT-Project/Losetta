@@ -1,4 +1,5 @@
-﻿using AliceScript.Parsing;
+﻿using AliceScript.Objects;
+using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,19 +35,31 @@ namespace AliceScript.Functions
                 mode = false;
             }
 
-            Variable.VarType type_modifer = Variable.VarType.VARIABLE;
+            TypeObject type_modifer = null;
             bool nullable = false;
+            
             foreach (string str in keywords)
             {
-                string type_str = str;
-                if (type_str.EndsWith('?'))
+                string typeStr = str;
+                if (typeStr.EndsWith('?'))
                 {
                     nullable = true;
-                    type_str = type_str.Substring(0, type_str.Length - 1);
+                    typeStr = typeStr.Substring(0, typeStr.Length - 1);
                 }
-                if (Constants.TYPE_MODIFER.Contains(type_str))
+                Variable v;
+                if (typeStr.Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
                 {
-                    type_modifer = Constants.StringToType(type_str);
+                    // varキーワードの場合
+                    v = Variable.From(new TypeObject());
+                }
+                else
+                {
+                    // 他の型の場合は実行してみて確認
+                    v = script.GetTempScript(typeStr).Execute();
+                }
+                if (v.Is(out TypeObject to))
+                {
+                    type_modifer = to;
                     break;
                 }
             }
