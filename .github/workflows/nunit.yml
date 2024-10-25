@@ -32,6 +32,6 @@ jobs:
         if: always()
         with:
           name: 'NUnit Test'
-          path: 'test-results.trx'
+          path: '/home/runner/work/Losetta/Losetta/Losetta.Tests/TestResults/test-results.trx'
           reporter: 'dotnet-trx'
           fail-on-error: 'false'
