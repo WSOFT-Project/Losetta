@@ -145,7 +145,7 @@ namespace AliceScript
         public static readonly string[] OPER_ACTIONS = {  ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
                                                 AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,POW,LEFT_SHIFT,RIGHT_SHIFT,
-                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":",NULL_OP,AS,IS_NOT,IS, RANGE};
+                                                "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":", "?",NULL_OP,AS,IS_NOT,IS, RANGE};
 
         /// <summary>
         /// 単項前置演算子(1文字のもの)
@@ -185,13 +185,13 @@ namespace AliceScript
 
         public static readonly char[] COMPARE_ARRAY = "<>=)".ToCharArray();
         public static readonly char[] IF_ARG_ARRAY = "&|)".ToCharArray();
-        public static readonly char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n', '?' };
+        public static readonly char[] END_PARSE_ARRAY = { SPACE, END_STATEMENT, END_ARG, END_GROUP, '\n' };
         public static readonly char[] NEXT_OR_END_ARRAY = { NEXT_ARG, END_ARG, END_GROUP, END_STATEMENT, SPACE };
         public static readonly char[] NEXT_OR_END_ARRAY_EXT = { NEXT_ARG, END_ARG, END_GROUP, END_ARRAY, END_STATEMENT, SPACE };
 
         public static readonly string TOKEN_START = "(\"\'[{";
         public static readonly string TOKEN_END = ")\"\']}";
-        public static readonly string TOKEN_SEPARATION_STR = "<>=+-*/%&|^,!()[]{}\t\n;: ";
+        public static readonly string TOKEN_SEPARATION_STR = "<>=+-~*/%&|^,!()[]{}\t\n;: ";
         public static readonly char[] TOKEN_SEPARATION = TOKEN_SEPARATION_STR.ToCharArray();
         public static readonly string TOKEN_SEPARATION_ANDEND_STR = TOKEN_SEPARATION_STR + "\0";
         public static readonly string TOKENS_SEPARATION_STR = ",;)";
@@ -291,7 +291,7 @@ namespace AliceScript
         /// <summary>
         /// AliceScriptのキーワード
         /// </summary>
-        public static readonly HashSet<string> KEYWORD = TYPE_MODIFER.Union(new string[] { PUBLIC, PRIVATE, PROTECTED, VAR, CONST, FUNCTION, VIRTUAL, OVERRIDE, COMMAND, READONLY, EXTENSION, NEW }).ToHashSet();
+        public static readonly HashSet<string> KEYWORD = (new string[] { PUBLIC, PRIVATE, PROTECTED, CONST, FUNCTION, VIRTUAL, OVERRIDE, COMMAND, READONLY, EXTENSION, NEW }).ToHashSet();
 
         // シンボル
         public const string LIBRARY_IMPORT = "libimport";
@@ -376,6 +376,8 @@ namespace AliceScript
             // 配列の全体を表します
             {RANGE, new Variable(new RangeStruct(0))},
 
+            {VAR,Variable.AsType(Variable.VarType.VARIABLE) },
+            {VOID, Variable.AsType(Variable.VarType.VOID) },
             {STRING, Variable.AsType(Variable.VarType.STRING) },
             {NUMBER,Variable.AsType(Variable.VarType.NUMBER) },
             {BYTES,Variable.AsType(Variable.VarType.BYTES) },
@@ -466,6 +468,7 @@ namespace AliceScript
                 case Variable.VarType.UNDEFINED: return "UNDEFINED";
                 case Variable.VarType.VOID: return "VOID";
                 case Variable.VarType.REFERENCE: return "REFERENCE";
+                case Variable.VarType.VARIABLE: return "VAR";
                 default: return "NONE";
             }
         }

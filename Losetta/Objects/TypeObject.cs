@@ -1,13 +1,17 @@
-﻿using AliceScript.Functions;
+﻿using AliceScript.Binding;
+using AliceScript.Functions;
 using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
 
 namespace AliceScript.Objects
 {
-
     public class TypeObject : ObjectBase, IEquatable<TypeObject>
     {
+        public static TypeObject GetType(Type type)
+        {
+            return new TypeObject(Utils.CreateBindObject(type));
+        }
         public TypeObject()
         {
             Init();
@@ -17,19 +21,33 @@ namespace AliceScript.Objects
         {
             Init();
             Type = type;
+            if(type == Variable.VarType.VOID)
+            {
+                Nullable = true;
+            }
         }
         public TypeObject(AliceScriptClass type)
         {
             Init();
+            Type = Variable.VarType.OBJECT;
             ClassType = type;
             foreach (var kvs in type.StaticFunctions)
             {
                 Functions.Add(kvs.Key, kvs.Value);
             }
         }
+        public TypeObject(TypeObject other)
+        {
+            Init();
+            Type = other.Type;
+            ClassType = other.ClassType;
+            ArrayType = other.ArrayType;
+            Nullable = other.Nullable;
+        }
         private void Init()
         {
             Name = "Type";
+            Constructor = new ConstructorFunction();
             Functions.Add("Activate", new ActivateFunction(this));
             Functions.Add("ToString", new ToStringFunction(this));
             Functions.Add("ToNativeProperty", new ToNativeProperty(this));
@@ -40,6 +58,28 @@ namespace AliceScript.Objects
         public Variable.VarType Type { get; set; }
         public TypeObject ArrayType { get; set; }
         public AliceScriptClass ClassType { get; set; }
+        public bool Nullable { get; set; } = false;
+        public override string ToString()
+        {
+            string typeName;
+            if (ClassType is not null && ClassType is BindObject bind)
+            {
+                typeName = bind.Name;
+            }
+            else if (ClassType is not null)
+            {
+                typeName = ClassType.ToString();
+            }
+            else
+            {
+                typeName = Constants.TypeToString(Type);
+            }
+            if(Nullable)
+            {
+                typeName += "?";
+            }
+            return typeName;
+        }
         internal class NamespaceProperty : ValueFunction
         {
             public NamespaceProperty(TypeObject type)
@@ -123,6 +163,10 @@ namespace AliceScript.Objects
 
         public bool Match(Variable item)
         {
+            if(!Nullable && item.Nullable)
+            {
+                return false;
+            }
             if (Type == Variable.VarType.VARIABLE)
             {
                 return true;
@@ -155,6 +199,23 @@ namespace AliceScript.Objects
                 e.Return = Type.Activate(e.Args, e.Script);
             }
         }
+        internal class ConstructorFunction : FunctionBase
+        {
+            public ConstructorFunction()
+            {
+                Name = "Constructor";
+                Run += ConstructorFunction_Run;
+                MinimumArgCounts = 0;
+            }
+            private void ConstructorFunction_Run(object sender, FunctionBaseEventArgs e)
+            {
+                if(e.Args.Count == 1 && e.Args[0].Type == Variable.VarType.STRING)
+                {
+                    e.Return = new Variable(new TypeObject(Constants.StringToType(e.Args[0].AsString())));
+                }
+                e.Return = new Variable();
+            }
+        }
         internal class ToStringFunction : FunctionBase
         {
             public ToStringFunction(TypeObject type)
@@ -166,12 +227,14 @@ namespace AliceScript.Objects
             public TypeObject Type { get; set; }
             private void ToStringFunction_Run(object sender, FunctionBaseEventArgs e)
             {
+                e.Return = Variable.FromText(Type.ToString());
+                return;
                 if (Type.ClassType is not null && Type.ClassType is TypeObject to)
                 {
                     e.Return = new Variable("Alice.Interpreter.Type");
                     return;
                 }
-                e.Return = Type.ClassType is not null ? new Variable(Type.ClassType.ToString()) : new Variable(Constants.TypeToString(Type.Type));
+                e.Return = (Type.ClassType is not null ? new Variable(Type.ClassType.ToString()) : new Variable(Constants.TypeToString(Type.Type)));
             }
         }
     }

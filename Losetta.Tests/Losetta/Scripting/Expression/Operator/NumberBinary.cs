@@ -21,93 +21,93 @@ public class NumberBinary
         new object[] { 10, 0 },
     };
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Add(double x, double y)
+    public void Add(double x, double y)
     {
-        Utils.TestExpression(x, Constants.PLUS, y, (x,y) => x + y);
+        TestUtils.TestExpression(x, Constants.PLUS, y, (x,y) => x + y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Sub(double x, double y)
+    public void Sub(double x, double y)
     {
-        Utils.TestExpression(x, Constants.MINUS, y, (x, y) => x - y);
+        TestUtils.TestExpression(x, Constants.MINUS, y, (x, y) => x - y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Times(double x, double y)
+    public void Times(double x, double y)
     {
-        Utils.TestExpression(x, Constants.TIMES, y, (x, y) => x * y);
+        TestUtils.TestExpression(x, Constants.TIMES, y, (x, y) => x * y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Div(double x, double y)
+    public void Div(double x, double y)
     {
-        Utils.TestExpression(x, Constants.DIV, y, (x, y) => x / y);
+        TestUtils.TestExpression(x, Constants.DIV, y, (x, y) => x / y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Mod(double x, double y)
+    public void Mod(double x, double y)
     {
-        Utils.TestExpression(x, Constants.MOD, y, (x, y) => x % y);
+        TestUtils.TestExpression(x, Constants.MOD, y, (x, y) => x % y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Pow(double x, double  y)
+    public void Pow(double x, double  y)
     {
-        Utils.TestExpression(x, Constants.POW, y, (x, y) => Math.Pow(x, y));
+        TestUtils.TestExpression(x, Constants.POW, y, (x, y) => Math.Pow(x, y));
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_GreaterThan(double x, double y)
+    public void GreaterThan(double x, double y)
     {
-        Utils.TestExpression(x, Constants.GREATER, y, (x, y) => x > y);
+        TestUtils.TestExpression(x, Constants.GREATER, y, (x, y) => x > y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_GreaterEquals(double x, double y)
+    public void GreaterEquals(double x, double y)
     {
-        Utils.TestExpression(x, Constants.GREATER_EQ, y, (x, y) => x >= y);
+        TestUtils.TestExpression(x, Constants.GREATER_EQ, y, (x, y) => x >= y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_LessThan(double x, double y)
+    public void LessThan(double x, double y)
     {
-        Utils.TestExpression(x, Constants.LESS, y, (x, y) => x < y);
+        TestUtils.TestExpression(x, Constants.LESS, y, (x, y) => x < y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_LessEquals(double x, double y)
+    public void LessEquals(double x, double y)
     {
-        Utils.TestExpression(x, Constants.LESS_EQ, y, (x, y) => x <= y);
+        TestUtils.TestExpression(x, Constants.LESS_EQ, y, (x, y) => x <= y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_LeftShift(double x, double y)
+    public void LeftShift(double x, double y)
     {
-        Utils.TestExpression(x, Constants.LEFT_SHIFT, y, (x, y) => (long)x << (int)y);
+        TestUtils.TestExpression(x, Constants.LEFT_SHIFT, y, (x, y) => (long)x << (int)y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_RightShift(double x, double y)
+    public void RightShift(double x, double y)
     {
-        Utils.TestExpression(x, Constants.RIGHT_SHIFT, y, (x, y) => (long)x >> (int)y);
+        TestUtils.TestExpression(x, Constants.RIGHT_SHIFT, y, (x, y) => (long)x >> (int)y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_And(double x, double y)
+    public void And(double x, double y)
     {
-        Utils.TestExpression(x, '&', y, (x, y) => (long)x & (long)y);
+        TestUtils.TestExpression(x, '&', y, (x, y) => (long)x & (long)y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Xor(double x, double y)
+    public void Xor(double x, double y)
     {
-        Utils.TestExpression(x, '^', y, (x, y) => (long)x ^ (long)y);
+        TestUtils.TestExpression(x, '^', y, (x, y) => (long)x ^ (long)y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Or(double x, double y)
+    public void Or(double x, double y)
     {
-        Utils.TestExpression(x, '|', y, (x, y) => (long)x | (long)y);
+        TestUtils.TestExpression(x, '|', y, (x, y) => (long)x | (long)y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Ranges(double x, double y)
+    public void Ranges(double x, double y)
     {
-        Utils.TestExpression(x, Constants.RANGE, y, (x, y) => new RangeStruct((int)x, (int)y));
+        TestUtils.TestExpression(x, Constants.RANGE, y, (x, y) => new RangeStruct((int)x, (int)y));
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_Equals(double x, double y)
+    public void Equals(double x, double y)
     {
-        Utils.TestExpression(x, Constants.EQUAL, y, (x, y) => x == y);
+        TestUtils.TestExpression(x, Constants.EQUAL, y, (x, y) => x == y);
     }
     [TestCaseSource(nameof(NumberBinaryData))]
-    public void Number_NotEquals(double x, double y)
+    public void NotEquals(double x, double y)
     {
-        Utils.TestExpression(x, Constants.NOT_EQUAL, y, (x, y) => x != y);
+        TestUtils.TestExpression(x, Constants.NOT_EQUAL, y, (x, y) => x != y);
     }
 }

@@ -399,7 +399,7 @@ namespace AliceScript.Parsing
             char next = script.TryCurrent();
 
             if (to.Contains(ch) || ch == Constants.START_ARG ||
-                                   ch == Constants.START_GROUP || ch == '?' ||
+                                   ch == Constants.START_GROUP  ||
                                  next == Constants.EMPTY)
             {
                 return false;

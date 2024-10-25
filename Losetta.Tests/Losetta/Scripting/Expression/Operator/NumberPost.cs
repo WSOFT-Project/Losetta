@@ -7,7 +7,7 @@ using NUnit.Framework;
 public class NumberPost
 {
     [TestCase(Description = "後置インクリメント演算子を使うと値が増加する")]
-    public void Number_Increment()
+    public void Increment()
     {
         int val = 123;
         string code = $"""
@@ -16,11 +16,11 @@ public class NumberPost
         return((val++) + val);
         """;
 
-        int result = Alice.Execute<int>(code);
+        int result = TestUtils.Script.Execute<int>(code);
         Assert.That(result, Is.EqualTo(val++ + val));
     }
     [TestCase(Description = "後置デクリメント演算子を使うと値が増加する")]
-    public void Number_Decrement()
+    public void Decrement()
     {
         int val = 123;
         string code = $"""
@@ -29,11 +29,11 @@ public class NumberPost
         return((val--) + val);
         """;
 
-        int result = Alice.Execute<int>(code);
+        int result = TestUtils.Script.Execute<int>(code);
         Assert.That(result, Is.EqualTo(val-- + val));
     }
     [TestCase(Description = "後置単項Range演算子が動作する")]
-    public void Number_Range()
+    public void Range()
     {
         int val = 123;
         string code = $"""
@@ -42,7 +42,7 @@ public class NumberPost
         return val..;
         """;
 
-        RangeStruct result = Alice.Execute<RangeStruct>(code);
+        RangeStruct result = TestUtils.Script.Execute<RangeStruct>(code);
         Assert.That(result, Is.EqualTo(new RangeStruct(val)));
     }
 }

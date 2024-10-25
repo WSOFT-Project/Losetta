@@ -7,63 +7,114 @@ using NUnit.Framework;
 [TestFixture]
 public class DefineFunction
 {
-    [TestCase(Description = "引数・戻り値なしの関数を定義できる")]
-    public void Procedure()
+    public static object[][] FunctionSignatures = new object[][]
     {
-        string funcName = "test";
-        string code = $$"""
-        void {{funcName}}()
-        {
-            return;
-        }
-        __makeref(test());
-        """;
-        var result = Alice.Execute<CustomFunction>(code);
-        Assert.Multiple(()=>
-        {
-            Assert.That(result.ReturnType.Type, Is.EqualTo(Variable.VarType.VOID));
-            Assert.That(result.AccessModifier, Is.EqualTo(AccessModifier.PRIVATE));
-            Assert.That(result.ArgumentCount, Is.EqualTo(0));
-            Assert.That(result.Name, Is.EqualTo(funcName));
-        });
-    }
-    [TestCase(new Variable.VarType[] { }, new string[] { }, Variable.VarType.VOID, Description = "引数・戻り値なしの関数を定義できる")]
-    [TestCase(new Variable.VarType[] { Variable.VarType.STRING, Variable.VarType.NUMBER }, new string[] { "argStr", "argNum" }, Variable.VarType.VOID, Description = "引数あり・戻り値なしの関数を定義できる")]
-    [TestCase(new Variable.VarType[]{Variable.VarType.STRING, Variable.VarType.NUMBER}, new string[] { "argStr", "argNum" }, Variable.VarType.NUMBER, Description = "引数・戻り値ありの関数を定義できる")]
-    public void Action(Variable.VarType[] argTypes, string[] argNames, Variable.VarType returnVarType)
+        new object[] {
+            null,
+            new TypeObject(Variable.VarType.NUMBER),
+            "test",
+            new (TypeObject, string)[] {
+                (new TypeObject(Variable.VarType.STRING), "argStr"),
+                (new TypeObject(Variable.VarType.NUMBER), "argNum")
+            },
+        },
+        new object[] {
+            null,
+            TypeObject.GetType(typeof(DateTime)),
+            "testDateTime",
+            new (TypeObject, string)[] {
+                (TypeObject.GetType(typeof(DateTime)), "dateTime"),
+            },
+        },
+        new object[] {
+            null,
+            new TypeObject(Variable.VarType.VOID),
+            "testAction",
+            new (TypeObject, string)[] {
+                (new TypeObject(Variable.VarType.STRING), "argStr"),
+            },
+        },
+        new object[] {
+            null,
+            new TypeObject(Variable.VarType.VOID),
+            "procedure",
+            new (TypeObject, string)[] {
+            },
+        },
+        new object[] {
+            AccessModifier.PRIVATE,
+            new TypeObject(Variable.VarType.NUMBER),
+            "testPrivate",
+            new (TypeObject, string)[] {
+                (new TypeObject(Variable.VarType.STRING), "argStr"),
+                (new TypeObject(Variable.VarType.NUMBER), "argNum")
+            },
+        },
+        new object[] {
+            AccessModifier.PROTECTED,
+            new TypeObject(Variable.VarType.NUMBER),
+            "testProtected",
+            new (TypeObject, string)[] {
+                (new TypeObject(Variable.VarType.STRING), "argStr"),
+                (new TypeObject(Variable.VarType.NUMBER), "argNum")
+            },
+        },
+        new object[] {
+            AccessModifier.PUBLIC,
+            new TypeObject(Variable.VarType.NUMBER),
+            "testPublic",
+            new (TypeObject, string)[] {
+                (new TypeObject(Variable.VarType.STRING), "argStr"),
+                (new TypeObject(Variable.VarType.NUMBER), "argNum")
+            },
+        },
+    };
+    [TestCaseSource(nameof(FunctionSignatures))]
+    public void Define(AccessModifier? accessor, TypeObject returnType, string funcName, (TypeObject, string)[] args)
     {
-        string funcName = "test";
-
-        TypeObject returnType = new TypeObject(returnVarType);
-
-        // 引数リストを組み立てる
-        string args ="";
-        for(int i = 0;i < argTypes.Length;i++)
+        // 引数リストの組み立て
+        string resultTypeName = "TResult";
+        string argsTypeName = "TArgs";
+        string argStr ="";
+        string accessModifierStr = accessor.HasValue ? $"{accessor.Value.ToString().ToLower()} " : "";
+        AccessModifier accessModifier = accessor ?? AccessModifier.PRIVATE;
+        int id = 0;
+        List<(string, Variable)> tArgs = new List<(string, Variable)>(){ (Constants.GetRealName(resultTypeName), Variable.From(returnType)) };
+        foreach(var kvp in args)
         {
-            args += $"{Constants.TypeToString(argTypes[i])} {argNames[i]},";
+            string typeName = $"{argsTypeName}{id++}";
+            argStr += $"{Constants.GetRealName(typeName)} {kvp.Item2},";
+            tArgs.Add((typeName, Variable.From(kvp.Item1)));
         }
-        args = args.TrimEnd(',');
+        argStr = argStr.TrimEnd(',');
 
+        // 関数定義コードの組み立て
+        // 今回のテストでは定義された関数を参照するため、__makerefを使用して関数への参照を取得する
         string code = $$"""
-        {{Constants.TypeToString(returnType.Type)}} {{funcName}}({{args}})
-        {
-            return;
-        }
-        __makeref(test());
+        {{accessModifierStr}}{{Constants.GetRealName(resultTypeName)}} {{funcName}}({{argStr}}){ };
+        __makeref({{funcName}}());
         """;
 
-        var result = Alice.Execute<CustomFunction>(code);
+        // テスト実行
+        var result = TestUtils.Script.WithVariables(tArgs).Execute<CustomFunction>(code);
+        
         Assert.Multiple(() =>
         {
+            // 戻り値の型が正しい
             Assert.That(result.ReturnType, Is.EqualTo(returnType));
-            Assert.That(result.AccessModifier, Is.EqualTo(AccessModifier.PRIVATE));
-            Assert.That(result.ArgumentCount, Is.EqualTo(argTypes.Length));
+            // アクセス修飾子が正しい
+            Assert.That(result.AccessModifier, Is.EqualTo(accessModifier));
+            // 引数の数が正しい
+            Assert.That(result.ArgumentCount, Is.EqualTo(args.Length));
+            // 関数名が正しい
             Assert.That(result.Name, Is.EqualTo(funcName));
 
-            for(int i = 0; i < argTypes.Length; i++)
+            for(int i = 0; i < args.Length; i++)
             {
-                Assert.That(result.RealArgs[i], Is.EqualTo(argNames[i]));
-                Assert.That(result.ArgTypes[i].Type, Is.EqualTo(argTypes[i]));
+                // 引数名が正しい
+                Assert.That(result.RealArgs[i], Is.EqualTo(args[i].Item2));
+                // 引数の型が正しい
+                Assert.That(result.ArgTypes[i], Is.EqualTo(args[i].Item1));
             }
         });
     }

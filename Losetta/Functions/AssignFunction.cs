@@ -1,4 +1,5 @@
-﻿using AliceScript.Parsing;
+﻿using AliceScript.Objects;
+using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
 
@@ -17,14 +18,19 @@ namespace AliceScript.Functions
 
         private void AssignFunction_Run(object sender, FunctionBaseEventArgs e)
         {
-            e.Return = Assign(e.Script, m_name);
+            e.Return = Assign(e.Script, m_name, false, null, Keywords, null, this);
         }
 
-        public Variable Assign(ParsingScript script, string varName, bool localIfPossible = false, ParsingScript baseScript = null)
+        public static Variable Assign(ParsingScript script, string varName, bool localIfPossible = false, ParsingScript baseScript = null, HashSet<string> keywords = null, TypeObject varType = null, FunctionBase caller = null)
         {
-            m_name = Constants.GetRealName(varName);
+            string m_name = Constants.GetRealName(varName);
             script.CurrentAssign = m_name;
             Variable varValue = Utils.GetItem(script);
+            bool registVar = varType is not null;
+            if (varType is null)
+            {
+                varType = new TypeObject();
+            }
             if (baseScript is null)
             {
                 baseScript = script;
@@ -34,24 +40,12 @@ namespace AliceScript.Functions
                 return Variable.EmptyInstance;
             }
 
-            string type_modifer = null;
+            AccessModifier accessModifier = keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
+            accessModifier = keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
+            accessModifier = keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
+            bool isReadOnly = keywords.Contains(Constants.READONLY);
 
-            foreach (string str in Keywords)
-            {
-                if (Constants.TYPE_MODIFER.Contains(str.TrimEnd(Constants.TERNARY_OPERATOR)))
-                {
-                    type_modifer = str;
-                    break;
-                }
-            }
-
-            bool registVar = type_modifer is not null;
-            AccessModifier accessModifier = Keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
-            accessModifier = Keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
-            accessModifier = Keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
-            bool isReadOnly = Keywords.Contains(Constants.READONLY);
-
-            if (Keywords.Contains(Constants.CONST))
+            if (keywords.Contains(Constants.CONST))
             {
                 registVar = true;
                 isReadOnly = true;
@@ -74,11 +68,11 @@ namespace AliceScript.Functions
 
             // 設定する変数が x[a][b]... のような形式かどうかをチェックする
             // つまり、配列添え字演算子が書いてあるかどうかを確認
-            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (name) => { m_name = name; }, this);
+            List<Variable> arrayIndices = Utils.GetArrayIndices(script, m_name, (name) => { m_name = name; }, caller);
 
             if (arrayIndices.Count == 0)
             {
-                AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
+                AddGlobalOrLocalVariable(m_name, new ValueFunction(varValue), baseScript, localIfPossible, registVar, accessModifier, varType, isReadOnly, true);
                 Variable retVar = varValue.DeepClone();
                 retVar.CurrentAssign = m_name;
                 return retVar;
@@ -91,7 +85,7 @@ namespace AliceScript.Functions
 
             ExtendArray(array, arrayIndices, 0, varValue);
 
-            AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, type_modifer, isReadOnly, true);
+            AddGlobalOrLocalVariable(m_name, new ValueFunction(array), baseScript, localIfPossible, registVar, accessModifier, varType, isReadOnly, true);
             return array;
         }
         internal static Variable ProcessObject(string m_name, ParsingScript script, Variable varValue)

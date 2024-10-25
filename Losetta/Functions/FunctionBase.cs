@@ -275,6 +275,7 @@ namespace AliceScript.Functions
         /// <param name="prefix">識別子につけるプレフィックス(規定値は\0)</param>
         public static void Add(FunctionBase func, string name = "", ParsingScript script = null, AccessModifier accessModifier = AccessModifier.PRIVATE, bool byPassCheck = false, char prefix = '\0')
         {
+            func.Name = Constants.GetRealName(func.Name);
             string fname = func.Name;
             func.AccessModifier = accessModifier;
             if (!string.IsNullOrEmpty(name))

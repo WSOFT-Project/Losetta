@@ -14,13 +14,24 @@ namespace AliceScript.Functions
             Attribute = FunctionAttribute.LANGUAGE_STRUCTURE;
             Run += FunctionCreator_Run;
         }
-        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords, HashSet<FunctionBase> attributes)
+        internal static bool DefineFunction(string funcName, ParsingScript script, HashSet<string> keywords, HashSet<FunctionBase> attributes, TypeObject returnType)
         {
             bool? mode = null;
 
-            AccessModifier accessModifier = keywords.Contains(Constants.PUBLIC) ? AccessModifier.PUBLIC : AccessModifier.PRIVATE;
-            accessModifier = keywords.Contains(Constants.PRIVATE) ? AccessModifier.PUBLIC : accessModifier;
-            accessModifier = keywords.Contains(Constants.PROTECTED) ? AccessModifier.PROTECTED : accessModifier;
+            AccessModifier accessModifier = AccessModifier.PRIVATE;
+            
+            if(keywords.Contains(Constants.PUBLIC))
+            {
+                accessModifier = AccessModifier.PUBLIC;
+            }
+            else if(keywords.Contains(Constants.PRIVATE))
+            {
+                accessModifier = AccessModifier.PRIVATE;
+            }
+            else if(keywords.Contains(Constants.PROTECTED))
+            {
+                accessModifier = AccessModifier.PROTECTED;
+            }
 
             bool isCommand = keywords.Contains(Constants.COMMAND);
             bool isExtension = keywords.Contains(Constants.EXTENSION);
@@ -33,35 +44,6 @@ namespace AliceScript.Functions
             else if (keywords.Contains(Constants.VIRTUAL))
             {
                 mode = false;
-            }
-
-            TypeObject type_modifer = null;
-            bool nullable = false;
-            
-            foreach (string str in keywords)
-            {
-                string typeStr = str;
-                if (typeStr.EndsWith('?'))
-                {
-                    nullable = true;
-                    typeStr = typeStr.Substring(0, typeStr.Length - 1);
-                }
-                Variable v;
-                if (typeStr.Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
-                {
-                    // varキーワードの場合
-                    v = Variable.From(new TypeObject());
-                }
-                else
-                {
-                    // 他の型の場合は実行してみて確認
-                    v = script.GetTempScript(typeStr).Execute();
-                }
-                if (v.Is(out TypeObject to))
-                {
-                    type_modifer = to;
-                    break;
-                }
             }
 
             funcName = Constants.ConvertName(funcName);
@@ -135,7 +117,7 @@ namespace AliceScript.Functions
                 body = Constants.RETURN_PATTERN.Replace(body, $"{{readonly var \ufdd4return=$1;Alice.Diagnostics.Assert({ensure},\"この関数は、関数が表明した事後条件を満たしませんでした\");return \ufdd4return;}}");
             }
 
-            CustomFunction customFunc = new CustomFunction(funcName, body, args, script, forceReturn, type_modifer, nullable);
+            CustomFunction customFunc = new CustomFunction(funcName, body, args, script, forceReturn, returnType);
 
             customFunc.ParentScript = attributes?.OfType<IndependentFunction>().FirstOrDefault() is null ? script : ParsingScript.GetTopLevelScript();
             customFunc.ParentOffset = parentOffset;
@@ -179,7 +161,7 @@ namespace AliceScript.Functions
         private void FunctionCreator_Run(object sender, FunctionBaseEventArgs e)
         {
             string funcName = Utils.GetToken(e.Script, Constants.TOKEN_SEPARATION);
-            DefineFunction(funcName, e.Script, Keywords, e.AttributeFunctions);
+            // DefineFunction(funcName, e.Script, Keywords, e.AttributeFunctions, );
         }
 
     }

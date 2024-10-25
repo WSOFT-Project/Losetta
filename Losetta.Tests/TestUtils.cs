@@ -1,21 +1,25 @@
+using AliceScript.Functions;
+using AliceScript.Parsing;
+
 namespace AliceScript.Tests;
 
-public static class Utils
+public static class TestUtils
 {
+    public static TestScript Script => new TestScript();
     private static TResult ExecExpression<TLeft, TRight, TResult>(TLeft x, string op, TRight y)
     {
         string code = $"{x} {op} {y};";
-        return Alice.Execute<TResult>(code);
+        return Script.Execute<TResult>(code);
     }
     private static TResult ExecExpression<TRight, TResult>(string op, TRight x)
     {
         string code = $"{op}{x};";
-        return Alice.Execute<TResult>(code);
+        return Script.Execute<TResult>(code);
     }
     private static TResult ExecExpression<TLeft, TResult>(TLeft x, string op)
     {
         string code = $"{x}{op};";
-        return Alice.Execute<TResult>(code);
+        return Script.Execute<TResult>(code);
     }
     /// <summary>
     /// 二項演算のテストを行います。
@@ -86,4 +90,5 @@ public static class Utils
     /// <param name="op">演算子</param>
     /// <param name="testPredicate">対応するC#の演算</param>
     public static void TestExpression<TRight, TResult>(char op, TRight x, Func<TRight, TResult> testPredicate) => TestExpression(op.ToString(), x, testPredicate);
+
 }

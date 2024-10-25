@@ -16,36 +16,36 @@ public class BooleanBinary
     [TestCaseSource(nameof(BooleanCombinations))]
     public void And(bool a, bool b)
     {
-        Utils.TestExpression(a, "&", b, (x, y) => x & y);
+        TestUtils.TestExpression(a, "&", b, (x, y) => x & y);
     }
     [TestCaseSource(nameof(BooleanCombinations))]
     public void And_Short(bool a, bool b)
     {
-        Utils.TestExpression(a, "&&", b, (x, y) => x && y);
+        TestUtils.TestExpression(a, "&&", b, (x, y) => x && y);
     }
     [TestCaseSource(nameof(BooleanCombinations))]
     public void Or(bool a, bool b)
     {
-        Utils.TestExpression(a, "|", b, (x, y) => x | y);
+        TestUtils.TestExpression(a, "|", b, (x, y) => x | y);
     }
     [TestCaseSource(nameof(BooleanCombinations))]
     public void Or_Short(bool a, bool b)
     {
-        Utils.TestExpression(a, "||", b, (x, y) => x || y);
+        TestUtils.TestExpression(a, "||", b, (x, y) => x || y);
     }
     [TestCaseSource(nameof(BooleanCombinations))]
     public void Xor(bool a, bool b)
     {
-        Utils.TestExpression(a, "^", b, (x, y) => x ^ y);
+        TestUtils.TestExpression(a, "^", b, (x, y) => x ^ y);
     }
     [TestCaseSource(nameof(BooleanCombinations))]
     public void Equals(bool x, bool y)
     {
-        Utils.TestExpression(x, Constants.EQUAL, y, (x, y) => x == y);
+        TestUtils.TestExpression(x, Constants.EQUAL, y, (x, y) => x == y);
     }
     [TestCaseSource(nameof(BooleanCombinations))]
     public void NotEquals(bool x, bool y)
     {
-        Utils.TestExpression(x, Constants.NOT_EQUAL, y, (x, y) => x != y);
+        TestUtils.TestExpression(x, Constants.NOT_EQUAL, y, (x, y) => x != y);
     }
 }

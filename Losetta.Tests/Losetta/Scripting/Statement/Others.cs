@@ -11,7 +11,7 @@ public class Others
         string code = "print(\"Hello,World!\");";
         Assert.That(() =>
         {
-            Alice.Execute(code);
+            TestUtils.Script.Execute<Variable>(code);
         }, Throws.Nothing);
     }
 }

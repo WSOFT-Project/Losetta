@@ -23,19 +23,18 @@ namespace AliceScript.Functions
         /// <param name="nullable"></param>
         /// <exception cref="ScriptException"></exception>
         public CustomFunction(string funcName,
-                                string body, string[] args, ParsingScript script, bool forceReturn = false, TypeObject returnType = null, bool nullable = true)
+                                string body, string[] args, ParsingScript script, bool forceReturn = false, TypeObject returnType = null)
         {
             Name = funcName;
             m_body = body;
-            m_nullable = nullable;
             m_forceReturn = forceReturn;
             m_returnType = returnType;
-            Run += CustomFunction_Run;
-
-            if (m_returnType?.Type == Variable.VarType.VOID)
+            if(m_returnType is null)
             {
-                m_nullable = true;
+                m_returnType = new TypeObject();
+                m_returnType.Nullable = true;
             }
+            Run += CustomFunction_Run;
 
             //正確な変数名の一覧
             List<string> trueArgs = new List<string>();
@@ -218,18 +217,19 @@ namespace AliceScript.Functions
                 throw new ScriptException($"関数`{m_args.Length}`は引数`{m_args.Length}`を受取ることが出来ません。", Exceptions.TOO_MANY_ARGUREMENTS, e.Script);
             }
             Variable result = ARun(e.Args, e.Script, e.ClassInstance, e.CurentVariable);
-            if (m_nullable && m_returnType.Type != Variable.VarType.VOID && result.IsNull())
+            if (m_returnType.Nullable && m_returnType.Type != Variable.VarType.VOID && result.IsNull())
             {
                 // nullをとる場合は妥当なnull許容型に置き換える
                 result.Type = m_returnType.Type;
             }
-            if (m_nullable)
+            if (m_returnType.Nullable)
             {
+                // null許容性は伝搬する
                 result.Nullable = true;
             }
-            if(m_returnType is not null && (!m_returnType.Match(result) || (m_nullable ^ result.Nullable)))
+            if(m_returnType is not null && (!m_returnType.Match(result)))
             {
-                throw new ScriptException($"関数は宣言とは異なり{result.Type}{(result.Nullable ? "?" : "")}型を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
+                throw new ScriptException($"関数は宣言とは異なり{(result.IsNull() ? "null" : (result.AsType() + "型"))}を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
 
             e.Return = result;
@@ -490,7 +490,6 @@ namespace AliceScript.Functions
         protected string m_body;
         protected object m_tag;
         protected bool m_forceReturn;
-        protected bool m_nullable;
         protected string[] m_args;
         protected TypeObject m_returnType;
         protected ParsingScript m_parentScript = null;

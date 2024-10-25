@@ -42,32 +42,32 @@ namespace AliceScript.Functions
             {
                 // overrideやvirtualなど、関数定義時にしか使わないキーワードがあれば先に関数モードにする
                 m_impl = TryCustomFunction(item, script, keywords);
-                if(CheckValidFunction(m_impl, script.Context, keywords))
+                if(CheckValidFunction(ref m_impl, script, keywords, ref action))
                 {
                     return;
                 }
             }
 
             m_impl = CheckGroup(script, ref item, ch, ref action);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
 
             m_impl = CheckDefineFunction(script, item, keywords);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
 
             m_impl = CheckString(script, item, ch, action);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
 
             m_impl = GetLambdaFunction(script, item, ch, ref action);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
@@ -75,19 +75,19 @@ namespace AliceScript.Functions
             //item = Constants.ConvertName(item);
 
             m_impl = GetRegisteredAction(item, script, ref action);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
 
             m_impl = GetArrayFunction(item, script, action);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
 
             m_impl = GetObjectFunction(item, script, keywords);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
@@ -97,13 +97,13 @@ namespace AliceScript.Functions
             {
                 m_impl = new ConstructorFunction(t);
             }
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
 
             m_impl = TryCustomFunction(item, script, keywords);
-            if (CheckValidFunction(m_impl, script.Context, keywords))
+            if (CheckValidFunction(ref m_impl, script, keywords, ref action))
             {
                 return;
             }
@@ -113,9 +113,31 @@ namespace AliceScript.Functions
                 Utils.ProcessErrorMsg(item, script);
             }
         }
-        private bool CheckValidFunction(ParserFunction func, ParsingScript.Contexts context,HashSet<string> keywords)
+        private bool CheckValidFunction(ref ParserFunction func, ParsingScript script,HashSet<string> keywords, ref string action)
         {
-            if(func is not null && (func is not FunctionBase fb || fb.Context.HasFlag(context)))
+            if(func is ValueFunction vf && vf.Value.Is<TypeObject>(out var type) && !Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Current))
+            {
+                if(action == "?")
+                {
+                    type = new TypeObject(type);
+                    type.Nullable = true;
+                    action = null;
+                }
+                string name = Utils.GetNextToken(script, false, true);
+                if(script.Current == Constants.START_ARG)
+                {
+                    FunctionCreator.DefineFunction(name, script, keywords, Parser.m_attributeFuncs, type);
+                    func = new ValueFunction();
+                    return true;
+                }
+                else if(script.Current == Constants.ASSIGNMENT[0])
+                {
+                    var value = AssignFunction.Assign(script, name, false, null, keywords, type);
+                    func = new ValueFunction(value);
+                    return true;
+                }
+            }
+            if(func is not null && (func is not FunctionBase fb || fb.Context.HasFlag(script.Context)))
             {
                 func.Keywords = keywords;
                 return true;
@@ -218,7 +240,7 @@ namespace AliceScript.Functions
             if (script is not null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
             {
                 //ここまでくる=その関数は存在しない=存在チェックは不要
-                return FunctionCreator.DefineFunction(name, script, keywords, Parser.m_attributeFuncs) ? new ValueFunction(Variable.EmptyInstance) : null;
+                //return FunctionCreator.DefineFunction(name, script, keywords, Parser.m_attributeFuncs) ? new ValueFunction(Variable.EmptyInstance) : null;
             }
             return null;
         }
@@ -660,10 +682,15 @@ namespace AliceScript.Functions
         }
 
         public static void AddGlobalOrLocalVariable(string name, ValueFunction function,
-            ParsingScript script, bool localIfPossible = false, bool registVar = false, AccessModifier accessModifier = AccessModifier.PRIVATE, string type_modifer = null, bool isReadOnly = false, bool fromAssign = false)
+            ParsingScript script, bool localIfPossible = false, bool registVar = false, AccessModifier accessModifier = AccessModifier.PRIVATE, TypeObject varType = null, bool isReadOnly = false, bool fromAssign = false)
         {
             name = Constants.ConvertName(name);
             Utils.CheckLegalName(name, fromAssign);
+
+            if(varType is null)
+            {
+                varType = new TypeObject();
+            }
 
             function.Name = Constants.GetRealName(name);
             function.Value.ParamName = function.Name;
@@ -709,18 +736,10 @@ namespace AliceScript.Functions
                 ValueFunction value = new ValueFunction();
                 Variable newVar = value.Value;
                 newVar.Parent = script;
-                if (type_modifer != Constants.VAR)
+                if (varType.Type != Variable.VarType.VARIABLE)
                 {
                     newVar.TypeChecked = true;
-                    if (type_modifer is not null)
-                    {
-                        if (type_modifer.EndsWith('?'))
-                        {
-                            newVar.Nullable = true;
-                            type_modifer = type_modifer.Substring(0, type_modifer.Length - 1);
-                        }
-                        newVar.Type = Constants.StringToType(type_modifer);
-                    }
+                    newVar.Type = varType.Type;
                 }
                 else
                 {
@@ -728,7 +747,7 @@ namespace AliceScript.Functions
                     newVar.Nullable = true;
                 }
                 newVar.Assign(function.Value);
-                if (type_inference && type_modifer == Constants.VAR)
+                if (type_inference && varType.Type == Variable.VarType.VARIABLE)
                 {
                     newVar.TypeChecked = true;
                     if (!newVar.IsNull())

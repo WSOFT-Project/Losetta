@@ -95,7 +95,8 @@ namespace AliceScript
         }
         public static Variable AsType(VarType type)
         {
-            return From(new TypeObject(type));
+            var t = new TypeObject(type);
+            return From(t);
         }
         public Variable()
         {
@@ -670,12 +671,17 @@ namespace AliceScript
         /// <returns>この変数の種類を表すTypeオブジェクト</returns>
         public virtual TypeObject AsType()
         {
+            TypeObject type;
             if (Tuple is not null && Tuple.Type is not null)
             {
-                var to = new TypeObject(Type);
-                to.ArrayType = Tuple.Type;
+                type = new TypeObject(Type);
+                type.ArrayType = Tuple.Type;
             }
-            return Object is not null && Object is AliceScriptClass c ? new TypeObject(c) : new TypeObject(Type);
+            type = Object is not null && Object is AliceScriptClass c ? new TypeObject(c) : new TypeObject(Type);
+
+            type.Nullable = Nullable || IsNull();
+
+            return type;
         }
         public override string ToString()
         {
@@ -1349,6 +1355,11 @@ namespace AliceScript
                 case VarType.DELEGATE:
                     {
                         m_delegate ??= new DelegateObject();
+                        break;
+                    }
+                case VarType.VOID:
+                    {
+                        Nullable = true;
                         break;
                     }
             }
