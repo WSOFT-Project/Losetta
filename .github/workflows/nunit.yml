@@ -25,13 +25,13 @@ jobs:
         run: dotnet build
 
       - name: Test
-        run: dotnet test > test_report.log
+        run: dotnet test --logger "trx;LogFileName=test-results.trx"
 
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: 'NUnit Test'
-          path: 'test_report.log'
-          reporter: 'dotnet-nunit'
+          path: 'test-results.trx'
+          reporter: 'dotnet-trx'
           fail-on-error: 'false'
