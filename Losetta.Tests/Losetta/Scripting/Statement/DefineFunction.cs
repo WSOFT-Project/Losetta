@@ -92,11 +92,10 @@ public class DefineFunction
         // 今回のテストでは定義された関数を参照するため、__makerefを使用して関数への参照を取得する
         string code = $$"""
         {{accessModifierStr}}{{Constants.GetRealName(resultTypeName)}} {{funcName}}({{argStr}}){ };
-        __makeref({{funcName}}());
         """;
 
         // テスト実行
-        var result = TestUtils.Script.WithVariables(tArgs).Execute<CustomFunction>(code);
+        var result = TestUtils.Script.WithVariables(tArgs).Execute(code).GetFunction<CustomFunction>(funcName);
         
         Assert.Multiple(() =>
         {

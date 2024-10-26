@@ -47,11 +47,36 @@ public class TestScript
     /// <returns>スクリプトの実行結果</returns>
     public T Execute<T>(string code)
     {
+        return (T)Execute(code, typeof(T));
+    }
+    public object Execute(string code, Type type)
+    {
         code = PreProcessor.ConvertToScript(code, out _, out var defines, out var settings);
         var script = Script.GetTempScript(code);
         script.Defines = defines;
         script.Settings = settings;
         var result = script.Process();
-        return result.As<T>();
+        return result.ConvertTo(type);
+    }
+    public TestScript Execute(string code)
+    {
+        code = PreProcessor.ConvertToScript(code, out _, out var defines, out var settings);
+        var script = Script.GetTempScript(code);
+        script.Defines = defines;
+        script.Settings = settings;
+        script.Process();
+        return new TestScript(script);
+    }
+    public T GetFunction<T>(string funcName) where T : ParserFunction
+    {
+        return Execute<T>($"__makeref({funcName}());");
+    }
+    public object GetValue(string varName, Type type)
+    {
+        return Execute($"{varName};", type);
+    }
+    public T GetValue<T>(string varName)
+    {
+        return Execute<T>($"{varName};");
     }
 }

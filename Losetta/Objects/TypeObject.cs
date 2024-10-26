@@ -12,6 +12,14 @@ namespace AliceScript.Objects
         {
             return new TypeObject(Utils.CreateBindObject(type));
         }
+        public static TypeObject GetType<T>()
+        {
+            return GetType(typeof(T));
+        }
+        public static TypeObject GetType(Variable.VarType type)
+        {
+            return new TypeObject(type);
+        }
         public TypeObject()
         {
             Init();
