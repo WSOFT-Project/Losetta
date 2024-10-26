@@ -173,6 +173,10 @@ namespace AliceScript.Objects
             }
             if (item.Type.HasFlag(Type))
             {
+                if(Type == Variable.VarType.OBJECT && item.Object is BindObject bind && item.Is(bind.Type, out _))
+                {
+                    return true;
+                }
                 if (Type == Variable.VarType.OBJECT && item.Object is AliceScriptClass c && ClassType != c)
                 {
                     return false;
