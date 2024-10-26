@@ -38,15 +38,6 @@ namespace AliceScript.Functions
             {
                 keywords = new HashSet<string>();
             }
-            else if (keywords.Contains(Constants.FUNCTION) || keywords.Contains(Constants.OVERRIDE) || keywords.Contains(Constants.VIRTUAL))
-            {
-                // overrideやvirtualなど、関数定義時にしか使わないキーワードがあれば先に関数モードにする
-                m_impl = TryCustomFunction(item, script, keywords);
-                if(CheckValidFunction(ref m_impl, script, keywords, ref action))
-                {
-                    return;
-                }
-            }
 
             m_impl = CheckGroup(script, ref item, ch, ref action);
             if (CheckValidFunction(ref m_impl, script, keywords, ref action))
@@ -240,7 +231,7 @@ namespace AliceScript.Functions
             if (script is not null && !string.IsNullOrEmpty(name) && script.TryPrev() == Constants.START_ARG)
             {
                 //ここまでくる=その関数は存在しない=存在チェックは不要
-                //return FunctionCreator.DefineFunction(name, script, keywords, Parser.m_attributeFuncs) ? new ValueFunction(Variable.EmptyInstance) : null;
+                return FunctionCreator.DefineFunction(name, script, keywords, Parser.m_attributeFuncs, null) ? new ValueFunction(Variable.EmptyInstance) : null;
             }
             return null;
         }
