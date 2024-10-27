@@ -39,9 +39,9 @@ public class Literal
         string str = @"\x";
         string code = $"\"{str}\";";
         
-        Assert.That(() =>
-        {
-            Alice.Execute<string>(code);
-        }, Throws.TypeOf(typeof(ScriptException)).With.Property("ErrorCode").EqualTo(Exceptions.UNKNOWN_ESCAPE_CHAR));
+        Assert.That(() => 
+            Alice.Execute<string>(code), 
+            TestUtils.WithErrorCode(Exceptions.UNKNOWN_ESCAPE_CHAR)
+        );
     }
 }

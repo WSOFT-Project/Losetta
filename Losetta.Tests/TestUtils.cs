@@ -1,5 +1,6 @@
 using AliceScript.Functions;
 using AliceScript.Parsing;
+using NUnit.Framework.Constraints;
 
 namespace AliceScript.Tests;
 
@@ -91,4 +92,8 @@ public static class TestUtils
     /// <param name="testPredicate">対応するC#の演算</param>
     public static void TestExpression<TRight, TResult>(char op, TRight x, Func<TRight, TResult> testPredicate) => TestExpression(op.ToString(), x, testPredicate);
 
+    public static IResolveConstraint WithErrorCode(Exceptions errorCode)
+    {
+        return Throws.TypeOf(typeof(ScriptException)).With.Property("ErrorCode").EqualTo(errorCode);
+    }
 }

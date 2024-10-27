@@ -393,26 +393,18 @@ namespace AliceScript
             }
             if (TypeChecked && (m_type != v.Type || (!Nullable && v.Nullable)))
             {
-                try
+                // asを使えば変換できるかを確認する
+                if (v.IsNull())
                 {
-                    // asを使えば変換できるかを確認する
-                    if (v.IsNull())
-                    {
-                        throw new ScriptException("nullを代入することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
-                    }
-                    _ = v.Convert(m_type, true);
-                    throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。明示的な変換が存在します。型変換を忘れていませんか？", Exceptions.CANT_IMPLICITLY_CONVERT);
+                    throw new ScriptException("nullを代入することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
                 }
-                catch (ScriptException ex)
+                if(v.Convert(m_type, false).IsNull())
                 {
-                    if (ex.ErrorCode == Exceptions.COULDNT_CONVERT_VARIABLE)
-                    {
-                        throw new ScriptException($"`{m_type}{(Nullable ? '?' : '\0')}`型の変数には`{v.Type}{(v.Nullable ? '?' : '\0')}`型の値を代入できません。", Exceptions.TYPE_MISMATCH);
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
+                    throw new ScriptException($"`{AsType()}`型の変数には`{v.AsType()}`型の値を代入できません。", Exceptions.TYPE_MISMATCH);
+                }
+                else
+                {
+                    throw new ScriptException($"`{AsType()}`型の変数には`{v.AsType()}`型の値を代入できません。明示的な変換が存在します。型変換を忘れていませんか？", Exceptions.CANT_IMPLICITLY_CONVERT);
                 }
             }
 

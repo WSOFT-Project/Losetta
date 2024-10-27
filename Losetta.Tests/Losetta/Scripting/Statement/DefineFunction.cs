@@ -7,9 +7,9 @@ using NUnit.Framework;
 [TestFixture]
 public class DefineFunction
 {
-    public static object[][] FunctionSignatures = new object[][]
-    {
-        new object[] {
+    public static object[][] FunctionSignatures =
+    [
+        [
             null,
             new TypeObject(Variable.VarType.NUMBER),
             "test",
@@ -17,31 +17,31 @@ public class DefineFunction
                 (new TypeObject(Variable.VarType.STRING), "argStr"),
                 (new TypeObject(Variable.VarType.NUMBER), "argNum")
             },
-        },
-        new object[] {
+        ],
+        [
             null,
             TypeObject.GetType(typeof(DateTime)),
             "testDateTime",
             new (TypeObject, string)[] {
                 (TypeObject.GetType(typeof(DateTime)), "dateTime"),
             },
-        },
-        new object[] {
+        ],
+        [
             null,
             new TypeObject(Variable.VarType.VOID),
             "testAction",
             new (TypeObject, string)[] {
                 (new TypeObject(Variable.VarType.STRING), "argStr"),
             },
-        },
-        new object[] {
+        ],
+        [
             null,
             new TypeObject(Variable.VarType.VOID),
             "procedure",
             new (TypeObject, string)[] {
             },
-        },
-        new object[] {
+        ],
+        [
             AccessModifier.PRIVATE,
             new TypeObject(Variable.VarType.NUMBER),
             "testPrivate",
@@ -49,8 +49,8 @@ public class DefineFunction
                 (new TypeObject(Variable.VarType.STRING), "argStr"),
                 (new TypeObject(Variable.VarType.NUMBER), "argNum")
             },
-        },
-        new object[] {
+        ],
+        [
             AccessModifier.PROTECTED,
             new TypeObject(Variable.VarType.NUMBER),
             "testProtected",
@@ -58,8 +58,8 @@ public class DefineFunction
                 (new TypeObject(Variable.VarType.STRING), "argStr"),
                 (new TypeObject(Variable.VarType.NUMBER), "argNum")
             },
-        },
-        new object[] {
+        ],
+        [
             AccessModifier.PUBLIC,
             new TypeObject(Variable.VarType.NUMBER),
             "testPublic",
@@ -67,8 +67,8 @@ public class DefineFunction
                 (new TypeObject(Variable.VarType.STRING), "argStr"),
                 (new TypeObject(Variable.VarType.NUMBER), "argNum")
             },
-        },
-    };
+        ],
+    ];
     [TestCaseSource(nameof(FunctionSignatures))]
     public void Define(AccessModifier? accessor, TypeObject returnType, string funcName, (TypeObject, string)[] args)
     {

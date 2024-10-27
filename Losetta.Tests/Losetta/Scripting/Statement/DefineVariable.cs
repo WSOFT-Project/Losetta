@@ -18,6 +18,11 @@ public class DefineVariable
         [TypeObject.GetType<DateTime>(), "dt", DateTime.Parse("2021/01/01")],
         [TypeObject.GetType<TimeSpan>(), "ts", TimeSpan.FromDays(1)],
     ];
+    public static object[][] CantDefineButConvertValues = [
+        // ネイティブ型
+        [TypeObject.GetType(Variable.VarType.NUMBER), "num", "123"],
+        [TypeObject.GetType(Variable.VarType.STRING), "str", 123],
+    ];
     [TestCaseSource(nameof(DefineValues))]
     public void Define(TypeObject varType, string varName, object value)
     {
@@ -29,5 +34,17 @@ public class DefineVariable
 
         Assert.That(TestUtils.Script.WithVariables([(typeName, varType), (valueName, value)])
             .Execute(code).GetValue(varName, value.GetType()), Is.EqualTo(value));
+    }
+    [TestCaseSource(nameof(CantDefineButConvertValues))]
+    public void CantDefineButConvert(TypeObject varType, string varName, object value)
+    {
+        string typeName = "T";
+        string valueName = "value";
+        string code = $@"
+        {typeName} {varName} = {valueName};
+        ";
+
+        Assert.That(() => TestUtils.Script.WithVariables([(typeName, varType), (valueName, value)]).Execute(code), 
+            TestUtils.WithErrorCode(Exceptions.CANT_IMPLICITLY_CONVERT));
     }
 }
