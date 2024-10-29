@@ -391,7 +391,7 @@ namespace AliceScript
                 AssignNull();
                 return;
             }
-            if (TypeChecked && (m_type != v.Type || (!Nullable && v.Nullable)))
+            if (TypeChecked && !CanAssign(v))
             {
                 // asを使えば変換できるかを確認する
                 if (v.IsNull())
@@ -408,7 +408,6 @@ namespace AliceScript
                 }
             }
 
-
             m_bool = v.m_bool;
             m_byteArray = v.m_byteArray;
             m_customFunctionGet = v.m_customFunctionGet;
@@ -424,6 +423,45 @@ namespace AliceScript
             m_type = v.m_type;
             m_value = v.m_value;
             Reference = v.Reference;
+        }
+        private bool CanAssign(Variable item)
+        {
+            if(!TypeChecked)
+            {
+                // 型チェックが無効ならそもそも大丈夫
+                return true;
+            }
+            if(!Nullable && item.Nullable)
+            {
+                // nullabilityが異なる場合
+                // value? -> value? はOK
+                // value -> value?  もOK
+                // value? -> value  はNG
+                return false;
+            }
+            if(m_type != item.Type)
+            {
+                // 型が異なる場合は無理
+                return false;
+            }
+            if(m_type == VarType.OBJECT)
+            {
+                // オブジェクトの場合はその型チェックまでやる
+                if(Object is BindObject)
+                {
+                    if(item.Object is not BindObject rightObj)
+                    {
+                        // 左右でObjectを持つクラスが違う場合は無理
+                        return false;
+                    }
+                    if(!this.Is(rightObj.Type, out _))
+                    {
+                        // クラスが異なる場合は無理
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
         public static Variable NewEmpty()
         {
