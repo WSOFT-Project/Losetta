@@ -154,7 +154,10 @@ namespace AliceScript.Objects
         {
             if (ClassType is not null)
             {
-                //TODO:非ObjectBaseのクラスのアクティベート
+                if(ClassType is BindObject bind)
+                {
+                    return new Variable(bind.Constructor.Evaluate(args, script));
+                }
                 if (ClassType is ObjectBase csClass)
                 {
                     return csClass.GetImplementation(args, script);
@@ -165,6 +168,20 @@ namespace AliceScript.Objects
                 Variable v = new Variable(Variable.VarType.ARRAY);
                 v.Tuple.Type = ArrayType;
                 return v;
+            }
+            if(!Nullable)
+            {
+                switch(Type)
+                {
+                    case Variable.VarType.BOOLEAN:
+                        return new Variable(args.Count > 0 ? args[0].AsBool() : false);
+                    case Variable.VarType.NUMBER:
+                        return new Variable(args.Count > 0 ? args[0].AsDouble() : 0);
+                    case Variable.VarType.STRING:
+                        return new Variable(args.Count > 0 ? args[0].AsString() : "");
+                    case Variable.VarType.VOID:
+                        return Variable.EmptyInstance;
+                }
             }
             return new Variable(Type);
         }

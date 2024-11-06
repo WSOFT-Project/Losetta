@@ -121,12 +121,11 @@ namespace AliceScript.Functions
                     func = new ValueFunction();
                     return true;
                 }
-                else if(script.Current == Constants.ASSIGNMENT[0])
-                {
-                    var value = AssignFunction.Assign(script, name, false, null, keywords, type);
-                    func = new ValueFunction(value);
-                    return true;
-                }
+                
+                var value = AssignFunction.Assign(script, name, false, null, keywords, type);
+                func = new ValueFunction(value);
+                return true;
+                
             }
             if(func is not null && (func is not FunctionBase fb || fb.Context.HasFlag(script.Context)))
             {

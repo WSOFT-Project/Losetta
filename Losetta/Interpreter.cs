@@ -278,7 +278,7 @@ namespace AliceScript
             }
             return toParse;
         }
-        public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null)
+        public Variable Process(string script, string filename = "", bool mainFile = false, object tag = null, AlicePackage package = null, (string, object)[] variables = null)
         {
             string data = PreProcessor.ConvertToScript(script, out Dictionary<int, int> char2Line, out var def, out var setting, filename);
             if (string.IsNullOrWhiteSpace(data))
@@ -294,6 +294,14 @@ namespace AliceScript
             toParse.Filename = filename;
             toParse.Tag = tag;
             toParse.Package = package;
+
+            if(variables is not null)
+            {
+                foreach (var (name, value) in variables)
+                {
+                    toParse.Variables[name] = new ValueFunction(new Variable(value));
+                }
+            }
 
             if (mainFile)
             {

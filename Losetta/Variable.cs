@@ -907,7 +907,7 @@ namespace AliceScript
         /// <exception cref="ScriptException">型の不一致により変換できない場合にスローされる例外</exception>
         public object ConvertTo(Type type)
         {
-            return TryConvertTo(type, out object o) ? o : throw new ScriptException("型が一致しないか、変換できません。", Exceptions.WRONG_TYPE_VARIABLE);
+            return TryConvertTo(type, out object o) ? o : throw new ScriptException($"`{this.AsType()}`を`{type}`にキャストできません。", Exceptions.WRONG_TYPE_VARIABLE);
         }
         /// <summary>
         /// この変数を指定した型に変換できるか試みます
@@ -1092,6 +1092,26 @@ namespace AliceScript
                         if (type is null || type == typeof(Dictionary<Variable, Variable>))
                         {
                             result = m_dictionary;
+                            return true;
+                        }
+                        if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                        {
+                            var keyType = type.GetGenericArguments()[0];
+                            var valueType = type.GetGenericArguments()[1];
+                            var dict = (IDictionary)Activator.CreateInstance(type);
+                            foreach (var kv in m_dictionary)
+                            {
+                                if (kv.Key.TryConvertTo(keyType, out var k) && kv.Value.TryConvertTo(valueType, out var v))
+                                {
+                                    dict.Add(k, v);
+                                }
+                                else
+                                {
+                                    result = null;
+                                    return false;
+                                }
+                            }
+                            result = dict;
                             return true;
                         }
                         if (type is null || type == typeof(VariableCollection))

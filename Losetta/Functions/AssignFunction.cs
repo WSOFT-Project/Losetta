@@ -25,7 +25,8 @@ namespace AliceScript.Functions
         {
             string m_name = Constants.GetRealName(varName);
             script.CurrentAssign = m_name;
-            Variable varValue = Utils.GetItem(script);
+            script.MoveForwardIf(Constants.ASSIGNMENT.ToCharArray());
+            Variable varValue = script.Prev == Constants.ASSIGNMENT[0] ? Utils.GetItem(script) : varType.Activate(new List<Variable>(), script);
             bool registVar = varType is not null;
             if (varType is null)
             {

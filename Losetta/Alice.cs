@@ -20,6 +20,10 @@ namespace AliceScript
         {
             return Interpreter.Instance.Process(code, filename, mainFile);
         }
+        public static Variable Execute(string code, (string, object)[] variables, string filename = "", bool mainFile = false)
+        {
+            return Interpreter.Instance.Process(code, filename, mainFile, variables: variables);
+        }
         /// <summary>
         /// このインタプリタで読み込み可能なファイルを読み込みます
         /// </summary>

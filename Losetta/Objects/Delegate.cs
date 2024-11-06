@@ -1,6 +1,7 @@
 ﻿using AliceScript.Functions;
 using AliceScript.Parsing;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace AliceScript.Objects
@@ -112,6 +113,16 @@ namespace AliceScript.Objects
                 args.Add(arg);
             }
             return Invoke(args, script, instance);
+        }
+        public Variable Invoke(object[] args, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
+        {
+            var vars = args.Select(arg => new Variable(arg)).ToList();
+            return Invoke(vars, script, instance);
+        }
+        public Variable Invoke(params object[] args)
+        {
+            var vars = args.Select(arg => new Variable(arg)).ToList();
+            return Invoke(args, ParsingScript.GetTopLevelScript(), null);
         }
         public void BeginInvoke(List<Variable> args = null, ParsingScript script = null, AliceScriptClass.ClassInstance instance = null)
         {
