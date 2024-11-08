@@ -1,5 +1,6 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Functions;
+using AliceScript.Objects;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,6 +10,53 @@ using System.Text;
 
 namespace AliceScript.NameSpaces.Core
 {
+    public class StringType
+    {
+        public static TypeObject Type
+        {
+            get
+            {
+                var typeObj = new TypeObject(Variable.VarType.STRING);
+                typeObj.Constructor = new Constructor();
+                return typeObj;
+            }
+        }
+        public class Constructor : FunctionBase
+        {
+            public Constructor()
+            {
+                Name = Constants.STRING;
+                Run += delegate (object sender, FunctionBaseEventArgs e)
+                {
+                    if(e.Args.Count == 0)
+                    {
+                        e.Return = new Variable(Variable.VarType.STRING);
+                        return;
+                    }
+                    if (e.Args.Count == 1 && e.Args[0].Type == Variable.VarType.STRING)
+                    {
+                        e.Return = new Variable(e.Args[0].AsString());
+                        return;
+                    }
+                    if (e.Args.Count == 2 && e.Args[0].Type == Variable.VarType.BYTES && e.Args[1].Type == Variable.VarType.STRING)
+                    {
+                        string charCode = e.Args[1].AsString();
+                        byte[] data = e.Args[0].As<byte[]>();
+                        e.Return = new Variable(Encoding.GetEncoding(charCode).GetString(data));
+                        return;
+                    }
+                    if (e.Args.Count == 2 && e.Args[0].Type == Variable.VarType.BYTES && e.Args[1].Type == Variable.VarType.NUMBER)
+                    {
+                        int codePage = e.Args[1].As<int>();
+                        byte[] data = e.Args[0].ByteArray;
+                        e.Return = new Variable(Encoding.GetEncoding(codePage).GetString(data));
+                        return;
+                    }
+                    throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
+                };
+            }
+        }
+    }
     public partial class CoreFunctions
     {
         public static int CompareTo(this string str, string item)

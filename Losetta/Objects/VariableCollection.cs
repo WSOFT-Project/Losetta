@@ -11,7 +11,10 @@ namespace AliceScript.Objects
             get => m_tuple;
             set => m_tuple = value;
         }
-        public VariableCollection(){ }
+        public VariableCollection()
+        {
+             m_tuple = new List<Variable>();
+        }
         public VariableCollection (List<Variable> list)
         {
             m_tuple = list;
@@ -57,7 +60,7 @@ namespace AliceScript.Objects
 
         public Variable this[int index] { get => m_tuple[index]; set => Insert(index, value); }
 
-        private List<Variable> m_tuple = new List<Variable>();
+        private List<Variable> m_tuple;
         public IEnumerator<Variable> GetEnumerator()
         {
             return m_tuple.GetEnumerator();

@@ -8,6 +8,46 @@ using System.Linq;
 
 namespace AliceScript.NameSpaces.Core
 {
+    public class ArrayType
+    {
+        public static TypeObject Type
+        {
+            get
+            {
+                var typeObj = new TypeObject(Variable.VarType.ARRAY);
+                typeObj.Constructor = new Constructor();
+                return typeObj;
+            }
+        }
+        public class Constructor : FunctionBase
+        {
+            public Constructor()
+            {
+                Name = Constants.ARRAY;
+                Run += delegate (object sender, FunctionBaseEventArgs e)
+                {
+                    if(e.Args.Count == 0)
+                    {
+                        e.Return = new Variable(Variable.VarType.ARRAY);
+                        return;
+                    }
+                    if (e.Args.Count == 1 && e.Args[0].Is(out TypeObject type))
+                    {
+                        var aryType = new TypeObject(Variable.VarType.ARRAY);
+                        aryType.ArrayType = type;
+                        e.Return = aryType.Activate(new List<Variable>(), e.Script);
+                        return;
+                    }
+                    if (e.Args.Count == 1 && e.Args[0].Is(out int capacity))
+                    {
+                        e.Return = new Variable(new List<Variable>(capacity));
+                        return;
+                    }
+                    throw new ScriptException($"`{Name}`に対応するオーバーロードを解決できませんでした", Exceptions.COULDNT_FIND_FUNCTION);
+                };
+            }
+        }
+    }
     public partial class CoreFunctions
     {
         public static void Add(this VariableCollection ary, params Variable[] items)
@@ -243,7 +283,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static void Sort(this VariableCollection ary, DelegateObject comparator, [BindInfo] ParsingScript script)
         {
-            ary.Tuple.Sort((a,b) => comparator.Invoke(script,a,b).As<int>());
+            ary.Tuple.Sort((a, b) => comparator.Invoke(script, a, b).As<int>());
         }
         public static void Sort(this VariableCollection ary, int index, int count)
         {
@@ -298,11 +338,11 @@ namespace AliceScript.NameSpaces.Core
         }
         public static List<Variable> Slice(this List<Variable> list, int start, int end)
         {
-            if(start < 0) 
+            if (start < 0)
             {
                 start += list.Count;
             }
-            if(end < 0)
+            if (end < 0)
             {
                 end += list.Count;
             }
@@ -331,7 +371,7 @@ namespace AliceScript.NameSpaces.Core
             return result;
 #endif
         }
-        public static List<Variable> Zip(this List<Variable> list,params List<Variable>[] others)
+        public static List<Variable> Zip(this List<Variable> list, params List<Variable>[] others)
         {
             // 結果の長さを決める(もっとも小さいもの)
             int size = Math.Min(list.Count, others.Min(x => x.Count));
@@ -339,8 +379,8 @@ namespace AliceScript.NameSpaces.Core
             var result = new List<Variable>(size);
             for (int i = 0; i < size; i++)
             {
-                List<Variable> element = new List<Variable>(1 + others.Length){ list[i] };
-                foreach(var other in others)
+                List<Variable> element = new List<Variable>(1 + others.Length) { list[i] };
+                foreach (var other in others)
                 {
                     element.Add(other[i]);
                 }
@@ -357,7 +397,7 @@ namespace AliceScript.NameSpaces.Core
             for (int i = 0; i < size; i++)
             {
                 // 引数を作成
-                var args = new List<Variable>{ list[i] };
+                var args = new List<Variable> { list[i] };
                 args.AddRange(others.Select(x => x[i]));
                 result.Add(predicate.Invoke(args, script));
             }
@@ -370,14 +410,14 @@ namespace AliceScript.NameSpaces.Core
         public static Dictionary<Variable, Variable> ToDictionary(this VariableCollection ary, DelegateObject source, [BindInfo] ParsingScript script)
         {
             Dictionary<Variable, Variable> dict = new Dictionary<Variable, Variable>(ary.Count);
-            foreach(var element in ary)
+            foreach (var element in ary)
             {
                 var key = source.Invoke(element, script);
-                if(key.Is<KeyValuePair<Variable, Variable>>(out var kvp))
+                if (key.Is<KeyValuePair<Variable, Variable>>(out var kvp))
                 {
                     dict.Add(kvp.Key, kvp.Value);
                 }
-                else if(key.Type == Variable.VarType.ARRAY && key.Tuple.Count >= 2)
+                else if (key.Type == Variable.VarType.ARRAY && key.Tuple.Count >= 2)
                 {
                     dict.Add(key.Tuple[0], key.Tuple[1]);
                 }
@@ -432,7 +472,7 @@ namespace AliceScript.NameSpaces.Core
         }
         public static double Median(this double[] ary)
         {
-            if(ary.Length % 2 == 0)
+            if (ary.Length % 2 == 0)
             {
                 return ary.OrderBy(x => x).Skip((ary.Length / 2) - 1).Take(2).Average();
             }
@@ -492,6 +532,11 @@ namespace AliceScript.NameSpaces.Core
         public static int Length(this VariableCollection ary)
         {
             return ary.Count;
+        }
+        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
+        public static int Capacity(this VariableCollection ary)
+        {
+            return ary.Tuple.Capacity;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Size(this VariableCollection ary)

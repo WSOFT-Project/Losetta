@@ -34,6 +34,17 @@ namespace AliceScript.Objects
                 Nullable = true;
             }
         }
+        public TypeObject(BindObject bind)
+        {
+            Init();
+            Type = Variable.VarType.OBJECT;
+            ClassType = bind;
+            Constructor = bind.Constructor;
+            foreach (var kvs in bind.StaticFunctions)
+            {
+                Functions.Add(kvs.Key, kvs.Value);
+            }
+        }
         public TypeObject(AliceScriptClass type)
         {
             Init();
@@ -55,7 +66,6 @@ namespace AliceScript.Objects
         private void Init()
         {
             Name = "Type";
-            Constructor = new ConstructorFunction();
             Functions.Add("Activate", new ActivateFunction(this));
             Functions.Add("ToString", new ToStringFunction(this));
             Functions.Add("ToNativeProperty", new ToNativeProperty(this));

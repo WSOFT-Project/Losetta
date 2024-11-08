@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using AliceScript.Functions;
 using AliceScript.Objects;
 
 namespace AliceScript
@@ -378,7 +379,7 @@ namespace AliceScript
 
             {VAR,Variable.AsType(Variable.VarType.VARIABLE) },
             {VOID, Variable.AsType(Variable.VarType.VOID) },
-            {STRING, Variable.AsType(Variable.VarType.STRING) },
+            //{STRING, Variable.AsType(Variable.VarType.STRING) },
             {NUMBER,Variable.AsType(Variable.VarType.NUMBER) },
             {BYTES,Variable.AsType(Variable.VarType.BYTES) },
             {OBJECT,Variable.AsType(Variable.VarType.OBJECT) },

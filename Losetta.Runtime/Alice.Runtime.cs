@@ -1,5 +1,6 @@
 ﻿using AliceScript.Interop;
 using AliceScript.NameSpaces;
+using AliceScript.NameSpaces.Core;
 using System.Collections.Generic;
 
 namespace AliceScript
@@ -36,6 +37,9 @@ namespace AliceScript
             Alice_Reflection.Init();
             Alice_Interop.Init();
             Alice_Legacy.Init();
+
+            Constants.CONSTS[Constants.STRING] = Variable.From(StringType.Type);
+            Constants.CONSTS[Constants.ARRAY] = Variable.From(ArrayType.Type);
         }
         /// <summary>
         /// 基本的なAPIのみを読み込みます

@@ -26,30 +26,6 @@ namespace AliceScript.Functions
         }
     }
 
-    internal sealed class ArrayTypeFunction : FunctionBase
-    {
-        public ArrayTypeFunction()
-        {
-            Name = "array";
-            Attribute = FunctionAttribute.FUNCT_WITH_SPACE;
-            Run += ArrayTypeFunction_Run;
-        }
-
-        private void ArrayTypeFunction_Run(object sender, FunctionBaseEventArgs e)
-        {
-            if (e.Args.Count > 0 && e.Args[0].Object is TypeObject t)
-            {
-                var to = new TypeObject(Variable.VarType.ARRAY);
-                to.ArrayType = t;
-                e.Return = Variable.From(to);
-            }
-            else
-            {
-                e.Return = Variable.AsType(Variable.VarType.ARRAY);
-            }
-        }
-    }
-
     /// <summary>
     /// (1+2)や、{;}などの空のステートメントを実行するための関数
     /// </summary>
