@@ -216,12 +216,14 @@ namespace AliceScript.Functions
                 return literalFunction;
             }
 
+            /*
             if (script.ProcessingList && ch == ':')
             {
                 literalFunction.Item = '"' + item + '"';
                 literalFunction.StringMode = true;
                 return literalFunction;
             }
+            */
 
             return null;
         }
