@@ -38,6 +38,11 @@ namespace AliceScript.NameSpaces.Core
                         e.Return = aryType.Activate(new List<Variable>(), e.Script);
                         return;
                     }
+                    if(e.Args.Count == 1 && e.Args[0].Is(out IEnumerable<Variable> dict))
+                    {
+                        e.Return = new Variable(dict.ToList());
+                        return;
+                    }
                     if (e.Args.Count == 1 && e.Args[0].Is(out int capacity))
                     {
                         e.Return = new Variable(new List<Variable>(capacity));

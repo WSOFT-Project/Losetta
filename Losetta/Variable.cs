@@ -1123,7 +1123,6 @@ namespace AliceScript
                     }
                 case VarType.ARRAY:
                     {
-
                         if (type is null || type == typeof(VariableCollection))
                         {
                             result = Tuple;
@@ -1151,6 +1150,21 @@ namespace AliceScript
                                 }
                             }
                             result = ary.ToArray(target);
+                            return true;
+                        }
+                        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                        {
+                            IList tuple = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(type.GetGenericArguments()[0]));
+                            foreach(var item in Tuple)
+                            {
+                                if(!item.TryConvertTo(type.GetGenericArguments()[0], out var obj))
+                                {
+                                    result = null;
+                                    return false;
+                                }
+                                tuple.Add(obj);
+                            }
+                            result = tuple;
                             return true;
                         }
                         break;
@@ -1199,10 +1213,6 @@ namespace AliceScript
                         result = System.Convert.ChangeType(Object, type);
                         return true;
                     }
-            }
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) && TryConvertTo(null, out result))
-            {
-                return true;
             }
             result = null;
             return false;
