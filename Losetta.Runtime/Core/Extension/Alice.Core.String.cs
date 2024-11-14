@@ -38,17 +38,21 @@ namespace AliceScript.NameSpaces.Core
                         e.Return = new Variable(e.Args[0].AsString());
                         return;
                     }
-                    if (e.Args.Count == 2 && e.Args[0].Type == Variable.VarType.BYTES && e.Args[1].Type == Variable.VarType.STRING)
+                    byte[] data;
+                    if(e.Args.Count == 2 && e.Args[0].Is(out data))
+                    {
+                        e.Return = new Variable(Encoding.UTF8.GetString(data));
+                        return;
+                    }
+                    if (e.Args.Count == 2 && e.Args[0].Is(out data) && e.Args[1].Type == Variable.VarType.STRING)
                     {
                         string charCode = e.Args[1].AsString();
-                        byte[] data = e.Args[0].As<byte[]>();
                         e.Return = new Variable(Encoding.GetEncoding(charCode).GetString(data));
                         return;
                     }
-                    if (e.Args.Count == 2 && e.Args[0].Type == Variable.VarType.BYTES && e.Args[1].Type == Variable.VarType.NUMBER)
+                    if (e.Args.Count == 2 && e.Args[0].Is(out data) && e.Args[1].Type == Variable.VarType.NUMBER)
                     {
                         int codePage = e.Args[1].As<int>();
-                        byte[] data = e.Args[0].ByteArray;
                         e.Return = new Variable(Encoding.GetEncoding(codePage).GetString(data));
                         return;
                     }
