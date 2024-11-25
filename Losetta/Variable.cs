@@ -398,7 +398,7 @@ namespace AliceScript
                 {
                     throw new ScriptException("nullを代入することはできません", Exceptions.COULDNT_CONVERT_VARIABLE);
                 }
-                if(v.Convert(m_type, false).IsNull())
+                if (v.Convert(m_type, false).IsNull())
                 {
                     throw new ScriptException($"`{AsType()}`型の変数には`{v.AsType()}`型の値を代入できません。", Exceptions.TYPE_MISMATCH);
                 }
@@ -426,12 +426,12 @@ namespace AliceScript
         }
         private bool CanAssign(Variable item)
         {
-            if(!TypeChecked)
+            if (!TypeChecked)
             {
                 // 型チェックが無効ならそもそも大丈夫
                 return true;
             }
-            if(!Nullable && item.Nullable)
+            if (!Nullable && item.Nullable)
             {
                 // nullabilityが異なる場合
                 // value? -> value? はOK
@@ -439,22 +439,22 @@ namespace AliceScript
                 // value? -> value  はNG
                 return false;
             }
-            if(m_type != item.Type)
+            if (m_type != item.Type)
             {
                 // 型が異なる場合は無理
                 return false;
             }
-            if(m_type == VarType.OBJECT)
+            if (m_type == VarType.OBJECT)
             {
                 // オブジェクトの場合はその型チェックまでやる
-                if(Object is BindObject)
+                if (Object is BindObject)
                 {
-                    if(item.Object is not BindObject rightObj)
+                    if (item.Object is not BindObject rightObj)
                     {
                         // 左右でObjectを持つクラスが違う場合は無理
                         return false;
                     }
-                    if(!this.Is(rightObj.Type, out _))
+                    if (!this.Is(rightObj.Type, out _))
                     {
                         // クラスが異なる場合は無理
                         return false;
@@ -791,19 +791,39 @@ namespace AliceScript
         /// <returns>二つのオブジェクトが等しければTrue、それ以外の場合はFalse</returns>
         private bool ValueEquals(object obj)
         {
-            return obj is double || obj is int || obj is decimal || obj is float
-                ? Value == (double)obj
-                : obj is string str
-                ? string.Equals(String, str, StringComparison.Ordinal)
-                : obj is bool bol
-                ? Bool == bol
-                : obj is VariableCollection tup
-                ? Tuple == tup
-                : obj is DelegateObject del
-                ? Delegate == del
-                : obj is byte[] data
-                ? ByteArray == data
-                : obj is ObjectBase ob && Object is ObjectBase ob2 ? ob.Equals(ob2) : obj.Equals(Object);
+            if (obj is double || obj is int || obj is decimal || obj is float)
+            {
+                return Value == (double)obj;
+            }
+            if (obj is string str)
+            {
+                return string.Equals(String, str, StringComparison.Ordinal);
+            }
+            if (obj is bool bol)
+            {
+                return Bool == bol;
+            }
+            if (obj is VariableCollection tup)
+            {
+                return Tuple == tup;
+            }
+            if (obj is DelegateObject del)
+            {
+                return Delegate == del;
+            }
+            if (obj is byte[] data)
+            {
+                return ByteArray == data;
+            }
+            if (obj is Variable v)
+            {
+                return this.Equals(v);
+            }
+            if (obj is ObjectBase ob && Object is ObjectBase ob2)
+            {
+                return ob.Equals(ob2);
+            }
+            return obj.Equals(Object);
         }
         /// <summary>
         /// この変数と指定された変数を並べ替えるとき、どちらが前に来るかを比較します
@@ -831,11 +851,11 @@ namespace AliceScript
         /// <returns>ふたつの変数が等しい場合はtrue、そうでない場合はfalse</returns>
         public bool Equals(Variable other)
         {
-            if(Type != other.Type)
+            if (Type != other.Type)
             {
                 return false;
             }
-            switch(Type)
+            switch (Type)
             {
                 case VarType.NUMBER:
                     return Value == other.Value;
@@ -1094,7 +1114,7 @@ namespace AliceScript
                             result = m_dictionary;
                             return true;
                         }
-                        if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                         {
                             var keyType = type.GetGenericArguments()[0];
                             var valueType = type.GetGenericArguments()[1];
@@ -1155,9 +1175,9 @@ namespace AliceScript
                         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                         {
                             IList tuple = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(type.GetGenericArguments()[0]));
-                            foreach(var item in Tuple)
+                            foreach (var item in Tuple)
                             {
-                                if(!item.TryConvertTo(type.GetGenericArguments()[0], out var obj))
+                                if (!item.TryConvertTo(type.GetGenericArguments()[0], out var obj))
                                 {
                                     result = null;
                                     return false;

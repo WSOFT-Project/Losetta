@@ -28,6 +28,15 @@ namespace AliceScript.NameSpaces.Core
         {
             return dict.TryAdd(kvp.Key, kvp.Value);
         }
+        public static bool TryGetValue(this Dictionary<Variable, Variable> dict, Variable key, [Ref] Variable value)
+        {
+            bool cond = dict.TryGetValue(key, out var result);
+            if (cond)
+            {
+                value.Assign(result);
+            }
+            return cond;
+        }
         public static void Clear(this Dictionary<Variable, Variable> dict)
         {
             dict.Clear();
