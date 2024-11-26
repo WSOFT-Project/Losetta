@@ -104,30 +104,30 @@ namespace AliceScript.Functions
                 Utils.ProcessErrorMsg(item, script);
             }
         }
-        private bool CheckValidFunction(ref ParserFunction func, ParsingScript script,HashSet<string> keywords, ref string action)
+        private bool CheckValidFunction(ref ParserFunction func, ParsingScript script, HashSet<string> keywords, ref string action)
         {
-            if(func is ValueFunction vf && vf.Value.Is<TypeObject>(out var type) && !Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Current))
+            if (func is ValueFunction vf && vf.Value.Is<TypeObject>(out var type) && !Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Current))
             {
-                if(action == "?")
+                if (action == "?")
                 {
                     type = new TypeObject(type);
                     type.Nullable = true;
                     action = null;
                 }
                 string name = Utils.GetNextToken(script, false, true);
-                if(script.Current == Constants.START_ARG)
+                if (script.Current == Constants.START_ARG)
                 {
                     FunctionCreator.DefineFunction(name, script, keywords, Parser.m_attributeFuncs, type);
                     func = new ValueFunction();
                     return true;
                 }
-                
+
                 var value = AssignFunction.Assign(script, name, false, null, keywords, type);
                 func = new ValueFunction(value);
                 return true;
-                
+
             }
-            if(func is not null && (func is not FunctionBase fb || fb.Context.HasFlag(script.Context)))
+            if (func is not null && (func is not FunctionBase fb || fb.Context.HasFlag(script.Context)))
             {
                 func.Keywords = keywords;
                 return true;
@@ -679,7 +679,7 @@ namespace AliceScript.Functions
             name = Constants.ConvertName(name);
             Utils.CheckLegalName(name, fromAssign);
 
-            if(varType is null)
+            if (varType is null)
             {
                 varType = new TypeObject();
             }
@@ -716,7 +716,7 @@ namespace AliceScript.Functions
                 {
                     v.Value.Parent = script;
                 }
-                if(v.Value is null)
+                if (v.Value is null)
                 {
                     v.Value = function.Value;
                 }
@@ -728,6 +728,8 @@ namespace AliceScript.Functions
                 ValueFunction value = new ValueFunction();
                 Variable newVar = value.Value;
                 newVar.Parent = script;
+                // Null許容性はそのまま型から引き継ぐ
+                newVar.Nullable = varType.Nullable;
                 if (varType.Type != Variable.VarType.VARIABLE)
                 {
                     newVar.TypeChecked = true;
