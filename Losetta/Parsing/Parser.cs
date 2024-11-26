@@ -102,7 +102,7 @@ namespace AliceScript.Parsing
                     }
                 }
                 Variable current;
-                if(NeedReferenceNext)
+                if (NeedReferenceNext)
                 {
                     // 参照が必要な場合
                     current = new Variable(func.m_impl);
@@ -124,7 +124,7 @@ namespace AliceScript.Parsing
             return listToMerge;
         }
 
-        public static bool NeedReferenceNext {get;set;}
+        public static bool NeedReferenceNext { get; set; }
         public static string ExtractNextToken(ParsingScript script, char[] to, ref bool inQuotes,
             ref int arrayIndexDepth, ref int negated, out char ch, out string action, bool throwExc = true)
         {
@@ -399,7 +399,7 @@ namespace AliceScript.Parsing
             char next = script.TryCurrent();
 
             if (to.Contains(ch) || ch == Constants.START_ARG ||
-                                   ch == Constants.START_GROUP  ||
+                                   ch == Constants.START_GROUP ||
                                  next == Constants.EMPTY)
             {
                 return false;
@@ -619,11 +619,11 @@ namespace AliceScript.Parsing
         {
             // 演算子は処理できたとしておく
             current.Action = string.Empty;
-            if(action == ")" || action == "\0" || string.IsNullOrEmpty(action))
+            if (action == ")" || action == "\0" || string.IsNullOrEmpty(action))
             {
                 return current;
             }
-            if(current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
+            if (current.Type == Variable.VarType.NUMBER && current.m_value.HasValue)
             {
                 switch (action)
                 {
@@ -657,7 +657,7 @@ namespace AliceScript.Parsing
                 return Variable.EmptyInstance;
             }
 
-            if(leftCell.Action == ":")
+            if (leftCell.Action == ":")
             {
                 return new Variable(new KeyValuePair<Variable, Variable>(leftCell, rightCell));
             }
@@ -698,7 +698,9 @@ namespace AliceScript.Parsing
                     leftCell = MergeNumbers(leftCell, rightCell, script);
                 }
                 else
-                if (leftCell.Type == Variable.VarType.BOOLEAN && rightCell.Type == Variable.VarType.BOOLEAN)
+                // メモ: ここで両辺がnullの場合が吸われている
+                if ((leftCell.Type == Variable.VarType.BOOLEAN || leftCell.Type == Variable.VarType.VARIABLE) &&
+                (rightCell.Type == Variable.VarType.BOOLEAN) || (rightCell.Type == Variable.VarType.VARIABLE))
                 {
                     leftCell = MergeBooleans(leftCell, rightCell, script);
                 }
@@ -734,18 +736,29 @@ namespace AliceScript.Parsing
         //Bool同士の演算
         private static Variable MergeBooleans(Variable leftCell, Variable rightCell, ParsingScript script)
         {
+            // 左右どちらかがnullオペランドの場合はbool型とみておく
+            if (leftCell.Type == Variable.VarType.VARIABLE)
+            {
+                leftCell.Type = Variable.VarType.BOOLEAN;
+                leftCell.m_bool = null;
+            }
+            if (rightCell.Type == Variable.VarType.VARIABLE)
+            {
+                rightCell.Type = Variable.VarType.BOOLEAN;
+                rightCell.m_bool = null;
+            }
             switch (leftCell.Action)
             {
                 case "&":
-                    return new Variable(leftCell.Bool & rightCell.Bool);
+                    return new Variable(leftCell.m_bool & rightCell.m_bool);
                 case "&&":
                     return new Variable(leftCell.Bool && rightCell.Bool);
                 case "|":
-                    return new Variable(leftCell.Bool | rightCell.Bool);
+                    return new Variable(leftCell.m_bool | rightCell.m_bool);
                 case "||":
                     return new Variable(leftCell.Bool || rightCell.Bool);
                 case "^":
-                    return new Variable(leftCell.Bool ^ rightCell.Bool);
+                    return new Variable(leftCell.m_bool ^ rightCell.m_bool);
                 case null:
                 case "\0":
                 case ")":
