@@ -851,9 +851,15 @@ namespace AliceScript
         /// <returns>ふたつの変数が等しい場合はtrue、そうでない場合はfalse</returns>
         public bool Equals(Variable other)
         {
-            if (Type != other.Type)
+            // ちゃんと型マッチさせる
+            if (!AsType().Match(other))
             {
                 return false;
+            }
+            // 片方がnullならば、もう片方nullであるかどうか
+            if (other.IsNull())
+            {
+                return IsNull();
             }
             switch (Type)
             {
@@ -976,11 +982,6 @@ namespace AliceScript
                 }
                 //null許容値型かつnullでない場合、その型パラメーターについてチェックする
                 type = type.GetGenericArguments()[0];
-            }
-            if (!type.IsValueType && isNull)
-            {
-                result = null;
-                return true;
             }
             switch (Type)
             {

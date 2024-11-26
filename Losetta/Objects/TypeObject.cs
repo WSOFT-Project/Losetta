@@ -29,7 +29,7 @@ namespace AliceScript.Objects
         {
             Init();
             Type = type;
-            if(type == Variable.VarType.VOID)
+            if (type == Variable.VarType.VOID)
             {
                 Nullable = true;
             }
@@ -92,7 +92,7 @@ namespace AliceScript.Objects
             {
                 typeName = Constants.TypeToString(Type);
             }
-            if(Nullable)
+            if (Nullable)
             {
                 typeName += "?";
             }
@@ -164,7 +164,7 @@ namespace AliceScript.Objects
         {
             if (ClassType is not null)
             {
-                if(ClassType is BindObject bind)
+                if (ClassType is BindObject bind)
                 {
                     return new Variable(bind.Constructor.Evaluate(args, script));
                 }
@@ -179,9 +179,9 @@ namespace AliceScript.Objects
                 v.Tuple.Type = ArrayType;
                 return v;
             }
-            if(!Nullable)
+            if (!Nullable)
             {
-                switch(Type)
+                switch (Type)
                 {
                     case Variable.VarType.BOOLEAN:
                         return new Variable(args.Count > 0 ? args[0].AsBool() : false);
@@ -198,7 +198,7 @@ namespace AliceScript.Objects
 
         public bool Match(Variable item)
         {
-            if(!Nullable && item.Nullable)
+            if (!Nullable && item.Nullable)
             {
                 return false;
             }
@@ -208,7 +208,7 @@ namespace AliceScript.Objects
             }
             if (item.Type.HasFlag(Type))
             {
-                if(Type == Variable.VarType.OBJECT && item.Object is BindObject bind && item.Is(bind.Type, out _))
+                if (Type == Variable.VarType.OBJECT && item.Object is BindObject bind && item.Is(bind.Type, out _))
                 {
                     return true;
                 }
@@ -248,7 +248,7 @@ namespace AliceScript.Objects
             }
             private void ConstructorFunction_Run(object sender, FunctionBaseEventArgs e)
             {
-                if(e.Args.Count == 1 && e.Args[0].Type == Variable.VarType.STRING)
+                if (e.Args.Count == 1 && e.Args[0].Type == Variable.VarType.STRING)
                 {
                     e.Return = new Variable(new TypeObject(Constants.StringToType(e.Args[0].AsString())));
                 }

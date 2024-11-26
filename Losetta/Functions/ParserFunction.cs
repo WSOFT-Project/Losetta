@@ -700,7 +700,6 @@ namespace AliceScript.Functions
             var func = GetVariable(name, script, true);
             bool exists = func is not null;
             bool unneed = script.UnneedVarKeyword;
-
             if (exists && registVar)
             {
                 throw new ScriptException("変数[" + name + "]はすでに定義されています", Exceptions.VARIABLE_ALREADY_DEFINED, script);
