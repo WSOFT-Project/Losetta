@@ -47,12 +47,11 @@ namespace AliceScript.NameSpaces.Core
         {
             return v.CompareTo(other);
         }
-        #region プロパティ
-        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static TypeObject Type(this Variable v)
+        public static TypeObject GetType(this Variable v)
         {
             return v.AsType();
         }
+        #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static Variable Value(this Variable v)
         {
