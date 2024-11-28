@@ -790,5 +790,9 @@ namespace AliceScript.NameSpaces.Core
             customFunc.ParentOffset = parentOffset;
             return new DelegateObject(customFunc);
         }
+        public static TypeObject TypeOf(Variable item)
+        {
+            return item.AsType();
+        }
     }
 }
