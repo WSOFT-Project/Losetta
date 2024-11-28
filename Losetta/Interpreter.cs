@@ -171,6 +171,7 @@ namespace AliceScript
             space.Add(new ExternFunctionCreator());
             space.Add(new LibImportFunction());
             space.Add(new NetImportFunction());
+            space.Add(new TypeObject());
 
             NameSpace experimental = new NameSpace("WSOFT.Interpreter.Services");
             experimental.Add<RangeStruct>();
@@ -294,7 +295,7 @@ namespace AliceScript
             toParse.Tag = tag;
             toParse.Package = package;
 
-            if(variables is not null)
+            if (variables is not null)
             {
                 foreach (var (name, value) in variables)
                 {
