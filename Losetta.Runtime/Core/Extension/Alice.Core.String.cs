@@ -28,7 +28,7 @@ namespace AliceScript.NameSpaces.Core
                 Name = Constants.STRING;
                 Run += delegate (object sender, FunctionBaseEventArgs e)
                 {
-                    if(e.Args.Count == 0)
+                    if (e.Args.Count == 0)
                     {
                         e.Return = new Variable(Variable.VarType.STRING);
                         return;
@@ -39,7 +39,7 @@ namespace AliceScript.NameSpaces.Core
                         return;
                     }
                     byte[] data;
-                    if(e.Args.Count == 2 && e.Args[0].Is(out data))
+                    if (e.Args.Count == 1 && e.Args[0].Is(out data))
                     {
                         e.Return = new Variable(Encoding.UTF8.GetString(data));
                         return;
@@ -414,7 +414,7 @@ namespace AliceScript.NameSpaces.Core
             string result = str;
             int diff = 0;
             int pointer;
-            while((pointer = comp.IndexOf(source, oldValue, options, out int matchLength)) >= 0)
+            while ((pointer = comp.IndexOf(source, oldValue, options, out int matchLength)) >= 0)
             {
                 result = ReplaceAt(result, diff + pointer, matchLength, newValue);
                 source = source.Slice(pointer + matchLength);
