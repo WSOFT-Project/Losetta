@@ -30,7 +30,7 @@ namespace AliceScript.Binding
             {
                 if ((!wantMethod || load.IsMethod) && load.TryConvertParameters(e, this, out var args))
                 {
-                    if(e.AttributeFunctions?.OfType<TestCallFunction>().FirstOrDefault() is not null)
+                    if (e.AttributeFunctions?.OfType<TestCallFunction>().FirstOrDefault() is not null)
                     {
                         e.Return = Variable.EmptyInstance;
                         return;
@@ -78,7 +78,7 @@ namespace AliceScript.Binding
             foreach (var methodInfo in methodInfos)
             {
                 string name = methodInfo.Name;
-                if(Utils.TryGetAttibutte<ObsoleteAttribute>(methodInfo, out var obs))
+                if (Utils.TryGetAttibutte<ObsoleteAttribute>(methodInfo, out var obs))
                 {
                     func.HandleAttributes.Add(new ObsoleteFunction(obs.IsError, obs.Message));
                 }
@@ -113,7 +113,7 @@ namespace AliceScript.Binding
                     load.HasParams = load.TrueParameters[^1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0;
                     load.IsMethod = methodInfo.IsDefined(typeof(ExtensionAttribute), true);
                     load.Priority = Utils.CalcPriority(load.TrueParameters);
-                    func.RequestType = load.IsMethod ? new TypeObject() : null;
+                    func.RequestType = load.IsMethod ? TypeObject.VarOrNull : null;
                 }
                 int i = 0;
                 for (; i < load.TrueParameters.Length; i++)

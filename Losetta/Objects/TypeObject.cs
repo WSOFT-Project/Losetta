@@ -20,6 +20,15 @@ namespace AliceScript.Objects
         {
             return new TypeObject(type);
         }
+        public static TypeObject VarOrNull
+        {
+            get
+            {
+                var t = new TypeObject();
+                t.Nullable = true;
+                return t;
+            }
+        }
         public TypeObject()
         {
             Init();
