@@ -851,10 +851,14 @@ namespace AliceScript
         /// <returns>ふたつの変数が等しい場合はtrue、そうでない場合はfalse</returns>
         public bool Equals(Variable other)
         {
+            if (other.Type == VarType.VARIABLE && other.IsNull())
+            {
+                return IsNull();
+            }
             // ちゃんと型マッチさせる
             if (!AsType().Match(other))
             {
-                return false;
+                throw new ScriptException($"`{AsType()}`型と`{other.AsType()}`型のオペランドを等価比較できません。", Exceptions.TYPE_MISMATCH); ;
             }
             // 片方がnullならば、もう片方nullであるかどうか
             if (other.IsNull())
