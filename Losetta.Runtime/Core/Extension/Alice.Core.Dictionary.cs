@@ -35,6 +35,10 @@ namespace AliceScript.NameSpaces.Core
             {
                 value.Assign(result);
             }
+            else
+            {
+                value.AssignNull();
+            }
             return cond;
         }
         public static void Clear(this Dictionary<Variable, Variable> dict)

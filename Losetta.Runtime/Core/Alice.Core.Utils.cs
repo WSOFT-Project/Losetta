@@ -212,7 +212,8 @@ namespace AliceScript.NameSpaces.Core
         public static Variable Out([BindInfo] ParsingScript script)
         {
             Parser.NeedReferenceNext = true;
-            var vf = Utils.GetItem(script).Reference as ValueFunction;
+            var item = Utils.GetItem(script);
+            var vf = item.Reference as ValueFunction;
             string name = vf.Name;
             script.ParentScript.Variables[name] = vf;
             return new Variable(vf);
