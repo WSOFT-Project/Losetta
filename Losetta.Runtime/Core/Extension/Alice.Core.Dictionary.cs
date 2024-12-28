@@ -76,11 +76,6 @@ namespace AliceScript.NameSpaces.Core
             return dict.Count;
         }
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
-        public static int Capacity(this Dictionary<Variable, Variable> dict)
-        {
-            return dict.Capacity();
-        }
-        [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
         public static int Size(this Dictionary<Variable, Variable> dict)
         {
             return dict.Count;
