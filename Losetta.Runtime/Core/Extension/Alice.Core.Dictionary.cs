@@ -65,6 +65,24 @@ namespace AliceScript.NameSpaces.Core
         {
             return dict.Remove(key);
         }
+        public static bool Remove(this Dictionary<Variable, Variable> dict, Variable key, [Ref] Variable value)
+        {
+#if NETCOREAPP2_0_OR_GREATER
+            bool cond = dict.Remove(key, out var result);
+#else
+            dict.TryGetValue(key, out var result);
+            bool cond = dict.Remove();
+#endif
+            if (cond)
+            {
+                value.Assign(result);
+            }
+            else
+            {
+                value.AssignNull();
+            }
+            return dict.Remove(key);
+        }
         public static void TrimExcess(this Dictionary<Variable, Variable> dict)
         {
             dict.TrimExcess();
