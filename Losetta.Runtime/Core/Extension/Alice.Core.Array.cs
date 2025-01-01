@@ -26,7 +26,7 @@ namespace AliceScript.NameSpaces.Core
                 Name = Constants.ARRAY;
                 Run += delegate (object sender, FunctionBaseEventArgs e)
                 {
-                    if(e.Args.Count == 0)
+                    if (e.Args.Count == 0)
                     {
                         e.Return = new Variable(Variable.VarType.ARRAY);
                         return;
@@ -38,7 +38,7 @@ namespace AliceScript.NameSpaces.Core
                         e.Return = aryType.Activate(new List<Variable>(), e.Script);
                         return;
                     }
-                    if(e.Args.Count == 1 && e.Args[0].Is(out IEnumerable<Variable> dict))
+                    if (e.Args.Count == 1 && e.Args[0].Is(out IEnumerable<Variable> dict))
                     {
                         e.Return = new Variable(dict.ToList());
                         return;
@@ -432,6 +432,14 @@ namespace AliceScript.NameSpaces.Core
                 }
             }
             return dict;
+        }
+        public static int EnsureCapacity(this List<Variable> list, int capacity)
+        {
+#if NET6_0_OR_GREATER
+            return list.EnsureCapacity(capacity);
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         #region 配列集計
         public static double Mean(this VariableCollection ary, [BindInfo] ParsingScript script, DelegateObject func)

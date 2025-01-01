@@ -55,7 +55,11 @@ namespace AliceScript.NameSpaces.Core
         }
         public static int EnsureCapacity(this Dictionary<Variable, Variable> dict, int capacity)
         {
+#if NETCOREAPP2_1_OR_GREATER
             return dict.EnsureCapacity(capacity);
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static bool Remove(this Dictionary<Variable, Variable> dict, Variable key)
         {
