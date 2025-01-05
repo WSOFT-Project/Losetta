@@ -81,7 +81,7 @@ namespace AliceScript.NameSpaces.Core
             {
                 value.AssignNull();
             }
-            return dict.Remove(key);
+            return cond;
         }
         public static void TrimExcess(this Dictionary<Variable, Variable> dict)
         {
