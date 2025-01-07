@@ -441,13 +441,9 @@ namespace AliceScript.NameSpaces.Core
             throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
-        public static int TrimExcess(this List<Variable> list)
+        public static void TrimExcess(this List<Variable> list)
         {
-            return list.TrimExcess();
-        }
-        public static int TrimExcess(this List<Variable> list, int capacity)
-        {
-            return list.TrimExcess(capacity);
+            list.TrimExcess();
         }
         #region 配列集計
         public static double Mean(this VariableCollection ary, [BindInfo] ParsingScript script, DelegateObject func)
