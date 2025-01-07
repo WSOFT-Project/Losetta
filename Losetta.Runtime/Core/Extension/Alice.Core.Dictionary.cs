@@ -85,11 +85,19 @@ namespace AliceScript.NameSpaces.Core
         }
         public static void TrimExcess(this Dictionary<Variable, Variable> dict)
         {
+#if NETCOREAPP2_1_OR_GREATER
             dict.TrimExcess();
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         public static void TrimExcess(this Dictionary<Variable, Variable> dict, int capacity)
         {
+#if NETCOREAPP2_1_OR_GREATER
             dict.TrimExcess(capacity);
+#else
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+#endif
         }
         #region プロパティ
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE)]
