@@ -63,7 +63,7 @@ namespace AliceScript.NameSpaces
             if (fromPackage)
             {
                 byte[] data = script?.Package?.GetEntryData(path);
-                if (data == null)
+                if (data is null)
                 {
                     throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
                 }
@@ -77,7 +77,7 @@ namespace AliceScript.NameSpaces
             if (fromPackage)
             {
                 byte[] data = script?.Package?.GetEntryData(path);
-                if (data == null)
+                if (data is null)
                 {
                     throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
                 }
@@ -91,7 +91,7 @@ namespace AliceScript.NameSpaces
             if (fromPackage)
             {
                 byte[] data = script?.Package?.GetEntryData(path);
-                if (data == null)
+                if (data is null)
                 {
                     throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
                 }
@@ -105,7 +105,7 @@ namespace AliceScript.NameSpaces
             if (fromPackage)
             {
                 byte[] data = script?.Package?.GetEntryData(path);
-                if (data == null)
+                if (data is null)
                 {
                     throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
                 }
@@ -123,7 +123,7 @@ namespace AliceScript.NameSpaces
             if (fromPackage)
             {
                 byte[] data = script?.Package?.GetEntryData(path);
-                if (data == null)
+                if (data is null)
                 {
                     throw new FileNotFoundException("パッケージ内でファイルが見つかりませんでした", path);
                 }
