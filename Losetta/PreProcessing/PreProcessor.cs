@@ -296,7 +296,7 @@ namespace AliceScript.PreProcessing
                             if (inQuotes2)
                             {
                                 i++;
-                                if(Constants.ESCAPE_CHARS.TryGetValue(next, out string replace))
+                                if (Constants.ESCAPE_CHARS.TryGetValue(next, out string replace))
                                 {
                                     sb.Append(replace);
                                     continue;
@@ -363,7 +363,7 @@ namespace AliceScript.PreProcessing
                     else
                     {
                         //引数がなかった場合は空の引数リストで関数呼び出しをつける
-                        sb.Append(Constants.START_ARG + Constants.END_ARG);
+                        sb.Append($"{Constants.START_ARG}{Constants.END_ARG}");
                     }
                     sb.Append(Constants.END_STATEMENT);
                     pragmaCommand.Clear();
