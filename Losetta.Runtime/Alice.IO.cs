@@ -58,7 +58,7 @@ namespace AliceScript.NameSpaces
         {
             File.Delete(path);
         }
-        public static string File_Read_Text(ParsingScript script, string path, bool fromPackage = false)
+        public static string File_Read_Text([BindInfo] ParsingScript script, string path, bool fromPackage = false)
         {
             if (fromPackage)
             {
@@ -71,7 +71,7 @@ namespace AliceScript.NameSpaces
             }
             return SafeReader.ReadAllText(path, out _, out _);
         }
-        public static string File_Read_Text(ParsingScript script, string path, string charCode, bool fromPackage = false)
+        public static string File_Read_Text([BindInfo] ParsingScript script, string path, string charCode, bool fromPackage = false)
         {
             Encoding encode = Encoding.GetEncoding(charCode);
             if (fromPackage)
@@ -85,7 +85,7 @@ namespace AliceScript.NameSpaces
             }
             return File.ReadAllText(path, encode);
         }
-        public static string File_Read_Text(ParsingScript script, string path, int codePage, bool fromPackage = false)
+        public static string File_Read_Text([BindInfo] ParsingScript script, string path, int codePage, bool fromPackage = false)
         {
             Encoding encode = Encoding.GetEncoding(codePage);
             if (fromPackage)
@@ -99,7 +99,7 @@ namespace AliceScript.NameSpaces
             }
             return File.ReadAllText(path, encode);
         }
-        public static string File_Read_CharCode(ParsingScript script, string path, bool fromPackage = false)
+        public static string File_Read_CharCode([BindInfo] ParsingScript script, string path, bool fromPackage = false)
         {
             string charCode;
             if (fromPackage)
@@ -117,7 +117,7 @@ namespace AliceScript.NameSpaces
             }
             return charCode;
         }
-        public static int File_Read_CodePage(ParsingScript script, string path, bool fromPackage = false)
+        public static int File_Read_CodePage([BindInfo] ParsingScript script, string path, bool fromPackage = false)
         {
             int codePage;
             if (fromPackage)
@@ -135,7 +135,7 @@ namespace AliceScript.NameSpaces
             }
             return codePage;
         }
-        public static byte[] File_Read_Data(ParsingScript script, string path, bool fromPackage = false)
+        public static byte[] File_Read_Data([BindInfo] ParsingScript script, string path, bool fromPackage = false)
         {
             return Utils.GetFileFromPackageOrLocal(path, fromPackage, script);
         }
@@ -298,7 +298,7 @@ namespace AliceScript.NameSpaces
             }
             return;
         }
-        public static byte[] File_Read_Decrypt(ParsingScript script, string path, string password, bool fromPackage = false, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
+        public static byte[] File_Read_Decrypt([BindInfo] ParsingScript script, string path, string password, bool fromPackage = false, int keySize = 128, int iterations = 1024, bool useSHA512 = false)
         {
             int len;
             byte[] buffer = new byte[4096];
