@@ -383,6 +383,14 @@ namespace AliceScript
             return priority;
         }
 
+        /// <summary>
+        /// 指定されたメンバーに属性があるかどうかを取得します
+        /// </summary>
+        /// <typeparam name="T">想定する属性</typeparam>
+        /// <param name="memberInfo">取得元のメンバー</param>
+        /// <param name="attribute">属性があった場合はそのインスタンス、ない場合は<paramref name="createNew"/>の動作による</param>
+        /// <param name="createNew">属性がない場合に新たに作成してtrueを返す場合はtrue、そうでない場合はfalse</param>
+        /// <returns>属性があるか作成した場合はtrue、そうでない場合はfalse</returns>
         internal static bool TryGetAttibutte<T>(MemberInfo memberInfo, out T attribute, bool createNew = false) where T : Attribute, new()
         {
             attribute = null;
@@ -400,6 +408,11 @@ namespace AliceScript
             return false;
         }
 
+        /// <summary>
+        /// ref引数の場合、refの中身の型を取得します
+        /// </summary>
+        /// <param name="t">ref引数になる可能性のある型</param>
+        /// <returns><paramref name="t"/>がref引数の場合はその中身の型、そうでない場合は<paramref name="t"/></returns>
         internal static Type GetTrueParametor(Type t)
         {
             return t.IsByRef ? t.GetElementType() : t;
