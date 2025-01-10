@@ -41,10 +41,8 @@ namespace AliceScript.NameSpaces.Core
 
         private static void AddOutput(string text, bool addLine = true)
         {
-
             string output = text + (addLine ? Environment.NewLine : string.Empty);
             Interpreter.Instance.AppendOutput(output);
-
         }
 
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
@@ -186,7 +184,9 @@ namespace AliceScript.NameSpaces.Core
                 result = tempScript.Execute();
                 tempScript.GoToNextStatement();
             }
-            if (result is null) { result = Variable.EmptyInstance; }
+            if (result is null)
+                result = Variable.EmptyInstance;
+
             return result;
         }
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
@@ -208,8 +208,19 @@ namespace AliceScript.NameSpaces.Core
             Parser.NeedReferenceNext = true;
             return Utils.GetItem(script);
         }
+        /// <summary>
+        /// 後続のオペランドの参照を作成します
+        /// </summary>
+        /// <param name="script">現在読み取っているスクリプト</param>
+        /// <returns>後続のオペランドの参照</returns>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__makeref")]
         public static Variable MakeRef([BindInfo] ParsingScript script) => Ref(script);
+        /// <summary>
+        /// 後続のオペランドの参照を、その参照先の実態リテラルとして扱います
+        /// </summary>
+        /// <param name="script">現在読み取っているスクリプト</param>
+        /// <param name="func">この関数の情報</param>
+        /// <returns>後続のオペランドの参照先の値</returns>
         [AliceFunction(Attribute = FunctionAttribute.LANGUAGE_STRUCTURE, Name = "__useref")]
         public static Variable UseRef([BindInfo] ParsingScript script, [BindInfo] BindFunction func)
         {
