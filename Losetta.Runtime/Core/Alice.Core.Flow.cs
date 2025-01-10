@@ -178,7 +178,6 @@ namespace AliceScript.NameSpaces.Core
             {
                 result = Variable.EmptyInstance;
             }
-
             return result;
         }
         /// <summary>

@@ -28,6 +28,24 @@
     <RootNamespace>AliceScript.NameSpaces</RootNamespace>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<DefineConstants>ALICE;</DefineConstants>
+	</PropertyGroup>
+	<!-- 新規バージョンのリリース毎にこの定数を変える -->
+	<PropertyGroup>
+		<DefineConstants>ALICE4;</DefineConstants>
+	</PropertyGroup>
+	<!-- 新規バージョンのリリース毎にこの定数を追記 -->
+	<PropertyGroup>
+		<DefineConstants>ALICE1_OR_GREATER;</DefineConstants>
+		<DefineConstants>ALICE2_0_OR_GREATER;</DefineConstants>
+		<DefineConstants>ALICE2_1_OR_GREATER;</DefineConstants>
+		<DefineConstants>ALICE2_2_OR_GREATER;</DefineConstants>
+		<DefineConstants>ALICE2_3_OR_GREATER;</DefineConstants>
+		<DefineConstants>ALICE3_OR_GREATER;</DefineConstants>
+		<DefineConstants>ALICE4_OR_GREATER;</DefineConstants>
+	</PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Win_X64|AnyCPU'">
     <Optimize>True</Optimize>
   </PropertyGroup>
