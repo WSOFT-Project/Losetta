@@ -91,7 +91,7 @@ namespace AliceScript.NameSpaces
         {
             return Environment.OSVersion.VersionString;
         }
-#endregion
+        #endregion
 
         #region プロセスの情報
         [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE_ONC)]
@@ -211,7 +211,8 @@ namespace AliceScript.NameSpaces
         {
             Environment.Exit(exitCode);
         }
-        public static int env_exitCode{
+        public static int env_exitCode
+        {
             get { return Environment.ExitCode; }
             set { Environment.ExitCode = value; }
         }
