@@ -36,11 +36,11 @@ namespace AliceScript.NameSpaces
             ThreadQueueStateInfo tqsi = (ThreadQueueStateInfo)stateInfo;
             tqsi.Delegate.Invoke(tqsi.Args, tqsi.Script);
         }
-        public static void Task_Run(DelegateObject d, ParsingScript script)
+        public static void Task_Run(DelegateObject d, [BindInfo] ParsingScript script)
         {
             Task.Run(() => d.Invoke(new List<Variable> { }, script));
         }
-        public static void Task_Run(DelegateObject d, ParsingScript script, params Variable[] args)
+        public static void Task_Run(DelegateObject d, [BindInfo] ParsingScript script, params Variable[] args)
         {
             Task.Run(() => d.Invoke(args.ToList(), script));
         }
