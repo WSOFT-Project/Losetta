@@ -16,7 +16,7 @@ public class Flow
         }
         return 0;
         """;
-        
+
         return TestUtils.Script.WithVariables([(nameof(condition), condition)]).Execute<int>(code);
     }
     [TestCase(true, ExpectedResult = 1, Description = "条件が真の場合にif文の本文が実行でき、else文がスキップできる")]
@@ -56,5 +56,41 @@ public class Flow
         """;
 
         return TestUtils.Script.WithVariables([(nameof(condA), condA), (nameof(condB), condB)]).Execute<int>(code);
+    }
+    [TestCase(15, ExpectedResult = 15, Description = "for文が指定回数ループしている")]
+    [TestCase(150, ExpectedResult = 150, Description = "for文が指定回数ループしている(数が大きくても平気)")]
+    [TestCase(0, ExpectedResult = 0, Description = "0回ループのときに本文がスキップできる")]
+    [TestCase(-5, ExpectedResult = 0, Description = "負の回数ループのときに本文がスキップできる")]
+    public int For_Common(int count)
+    {
+        string code = $$"""
+        number sum = 0;
+        for(number i = 0; i < {{nameof(count)}}; i++)
+        {
+            sum += 1;
+        }
+        return sum;
+        """;
+
+
+        return TestUtils.Script.WithVariables([(nameof(count), count)]).Execute<int>(code);
+    }
+    [TestCase(15, ExpectedResult = 15, Description = "変数定義をせずにfor文が指定回数ループしている")]
+    [TestCase(150, ExpectedResult = 150, Description = "変数定義をせずにfor文が指定回数ループしている(数が大きくても平気)")]
+    [TestCase(0, ExpectedResult = 0, Description = "変数定義をせずに0回ループのときに本文がスキップできる")]
+    [TestCase(-5, ExpectedResult = 0, Description = "変数定義をせずに負の回数ループのときに本文がスキップできる")]
+    public int For_WithOutDefine(int count)
+    {
+        string code = $$"""
+        number sum = 0;
+        number i = 0;
+        for(; i < {{nameof(count)}}; i++)
+        {
+            sum += 1;
+        }
+        return sum;
+        """;
+
+        return TestUtils.Script.WithVariables([(nameof(count), count)]).Execute<int>(code);
     }
 }

@@ -31,16 +31,16 @@ public class Others
 
         return c + 2;
         ";
-        
+
         Assert.That(TestUtils.Script.Execute<int>(code), Is.EqualTo(5));
     }
-    [TestCase]
+    [TestCase(Description = "辞書が作成できて、値を読み出せる")]
     public void Dictionary()
     {
         string code = @"
         dictionary dic = {""key1"": 1, ""key2"": 2};
         return dic;
         ";
-        Assert.That(TestUtils.Script.Execute<Dictionary<string,int>>(code)["key1"], Is.EqualTo(1));
+        Assert.That(TestUtils.Script.Execute<Dictionary<string, int>>(code)["key1"], Is.EqualTo(1));
     }
 }
