@@ -1,5 +1,6 @@
 ﻿using AliceScript.Binding;
 using AliceScript.Extra;
+using AliceScript.Objects;
 using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
@@ -467,7 +468,7 @@ namespace AliceScript.NameSpaces
 #if NET6_0
             Directory.CreateSymbolicLink(path, pathToTarget);
 #else
-                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+            throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
 #endif
         }
         public static void Directory_Delete(string path)
@@ -755,8 +756,11 @@ namespace AliceScript.NameSpaces
                 }
                 catch { }
             }
-
             return result.ToArray();
+        }
+        public static void Directory_Grep(Func<string, bool> action)
+        {
+            Console.WriteLine($"\"A\" -> {action("A")}");
         }
         #endregion
         #region パス関連

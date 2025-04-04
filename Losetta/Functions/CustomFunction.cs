@@ -29,7 +29,7 @@ namespace AliceScript.Functions
             m_body = body;
             m_forceReturn = forceReturn;
             m_returnType = returnType;
-            if(m_returnType is null)
+            if (m_returnType is null)
             {
                 m_returnType = new TypeObject();
                 m_returnType.Nullable = true;
@@ -103,11 +103,11 @@ namespace AliceScript.Functions
                     parms = options.Contains(Constants.PARAMS);
                     refs = options.Contains(Constants.REF);
                     readonlys = options.Contains(Constants.READONLY);
-                    if(parms)
+                    if (parms)
                     {
                         zure++;
                     }
-                    if(refs)
+                    if (refs)
                     {
                         zure++;
                     }
@@ -133,7 +133,7 @@ namespace AliceScript.Functions
                     {
                         string typeStr = options[options.Count - 2];
                         Variable v;
-                        if(typeStr.Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
+                        if (typeStr.Equals(Constants.VAR, StringComparison.OrdinalIgnoreCase))
                         {
                             // varキーワードの場合
                             v = Variable.From(new TypeObject());
@@ -227,7 +227,7 @@ namespace AliceScript.Functions
                 // null許容性は伝搬する
                 result.Nullable = true;
             }
-            if(m_returnType is not null && (!m_returnType.Match(result)))
+            if (m_returnType is not null && (!m_returnType.Match(result)))
             {
                 throw new ScriptException($"関数は宣言とは異なり{(result.IsNull() ? "null" : (result.AsType() + "型"))}を返しました", Exceptions.TYPE_MISMATCH, m_parentScript);
             }
@@ -359,12 +359,12 @@ namespace AliceScript.Functions
                     bool refd = args[i].Type == Variable.VarType.REFERENCE;
                     if (m_refMap.Contains(i))
                     {
-                        if(!refd)
+                        if (!refd)
                         {
                             throw new ScriptException("引数 `" + ArgMap.Where(kvp => kvp.Value == i).FirstOrDefault().Key + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD, script);
                         }
                         var v = args[i].Reference;
-                        if(v is ValueFunction vf)
+                        if (v is ValueFunction vf)
                         {
                             val = vf.Value;
                         }
@@ -478,7 +478,7 @@ namespace AliceScript.Functions
         /// </summary>
         public int ArgumentCount => m_args?.Length ?? 0;
 
-        public Dictionary<int, TypeObject> ArgTypes => m_typArgMap; 
+        public Dictionary<int, TypeObject> ArgTypes => m_typArgMap;
 
         public TypeObject MethodRequestType => IsMethod && m_typArgMap.Count >= m_this ? m_typArgMap[m_this] : new TypeObject();
 

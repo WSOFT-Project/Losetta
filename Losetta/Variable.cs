@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -1201,7 +1202,19 @@ namespace AliceScript
                             result = AsDelegate();
                             return true;
                         }
-                        break;
+                        if (!type.IsGenericType)
+                        {
+                            result = null;
+                            return false;
+                        }
+                        Type genericType = type.GetGenericTypeDefinition();
+                        if (genericType == typeof(Action))
+                        {
+                            result = (Action)(() => AsDelegate().Invoke(Parent));
+                            return true;
+                        }
+                        result = Utils.ConvertDelegate(type, AsDelegate());
+                        return result != null;
                     }
                 case VarType.REFERENCE:
                     {

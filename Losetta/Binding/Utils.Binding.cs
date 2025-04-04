@@ -1,6 +1,8 @@
 ﻿using AliceScript.Binding;
+using AliceScript.Functions;
 using AliceScript.NameSpaces;
 using AliceScript.Objects;
+using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -416,6 +418,192 @@ namespace AliceScript
         internal static Type GetTrueParametor(Type t)
         {
             return t.IsByRef ? t.GetElementType() : t;
+        }
+        internal static Delegate ConvertDelegate(Type actionType, DelegateObject d)
+        {
+            if (actionType.GetGenericTypeDefinition() == typeof(Action<>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,,,,,,>))
+            {
+                return CreateTypedAction(actionType.GenericTypeArguments, args => d.Invoke(args.Select(a => Variable.From(a)).ToArray(), ParsingScript.GetTopLevelScript(), null));
+            }
+            if (actionType.GetGenericTypeDefinition() == typeof(Func<>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,,,,,>) ||
+                actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,,,,,,>))
+            {
+                return CreateTypedFunc(actionType.GenericTypeArguments[0..^1], actionType.GenericTypeArguments[^1], args => d.Invoke(args.Select(a => Variable.From(a)).ToArray(), ParsingScript.GetTopLevelScript(), null).ConvertTo(actionType.GenericTypeArguments[^1]));
+            }
+            return null;
+        }
+        /// <summary>
+        /// 各パラメータの型情報とActionの実装から、Action T1, T2...型にキャストできるデリゲートを生成します。パラメータは1~16個指定できます。
+        /// </summary>
+        /// <param name="parameterTypes">各ジェネリクスパラメータ</param>
+        /// <param name="actionImpl">Actionの実装</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        internal static Delegate CreateTypedAction(Type[] parameterTypes, Action<object[]> actionImpl)
+        {
+            if (parameterTypes == null || parameterTypes.Length == 0)
+                throw new ArgumentException("少なくとも1つのパラメータ型が必要です", nameof(parameterTypes));
+
+            // パラメータ式の配列を作成
+            ParameterExpression[] parameters = parameterTypes
+                .Select((type, index) => Expression.Parameter(type, $"param{index}"))
+                .ToArray();
+
+            // パラメータをobject[]にパックする式を作成
+            Expression[] parameterConversions = parameters
+                .Select(param => Expression.Convert(param, typeof(object)))
+                .ToArray();
+
+            // object[]を作成する式
+            NewArrayExpression argsArray = Expression.NewArrayInit(typeof(object), parameterConversions);
+
+            // アクション実装を呼び出す式
+            MethodCallExpression actionCall = Expression.Call(
+                Expression.Constant(actionImpl.Target),
+                actionImpl.Method,
+                argsArray);
+
+            Type actionType = GetActionType(parameterTypes);
+
+            LambdaExpression lambda = Expression.Lambda(actionType, actionCall, parameters);
+            return lambda.Compile();
+        }
+        internal static Delegate CreateTypedFunc(Type[] parameterTypes, Type returnType, Func<object[], object> funcImpl)
+        {
+            // パラメータ式の配列を作成
+            ParameterExpression[] parameters = parameterTypes
+                .Select((type, index) => Expression.Parameter(type, $"param{index}"))
+                .ToArray();
+
+            // パラメータをobject[]にパックする式を作成
+            Expression[] parameterConversions = parameters
+                .Select(param => Expression.Convert(param, typeof(object)))
+                .ToArray();
+
+            // object[]を作成する式
+            NewArrayExpression argsArray = Expression.NewArrayInit(typeof(object), parameterConversions);
+
+            // アクション実装を呼び出す式
+            MethodCallExpression actionCall = Expression.Call(
+                Expression.Constant(funcImpl.Target),
+                funcImpl.Method,
+                argsArray);
+
+            // 戻り値を指定された型に変換する式
+            Expression convertedReturnValue = Expression.Convert(actionCall, returnType);
+
+            Type actionType = GetFuncType(parameterTypes, returnType);
+
+            LambdaExpression lambda = Expression.Lambda(actionType, convertedReturnValue, parameters);
+            return lambda.Compile();
+        }
+
+        /// <summary>
+        /// 指定されたパラメータ型に基づいてAction T1, T2, ... を取得します
+        /// </summary>
+        private static Type GetActionType(Type[] parameterTypes)
+        {
+            if (parameterTypes.Length == 1)
+                return typeof(Action<>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 2)
+                return typeof(Action<,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 3)
+                return typeof(Action<,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 4)
+                return typeof(Action<,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 5)
+                return typeof(Action<,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 6)
+                return typeof(Action<,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 7)
+                return typeof(Action<,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 8)
+                return typeof(Action<,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 9)
+                return typeof(Action<,,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 10)
+                return typeof(Action<,,,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 11)
+                return typeof(Action<,,,,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 12)
+                return typeof(Action<,,,,,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 13)
+                return typeof(Action<,,,,,,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 14)
+                return typeof(Action<,,,,,,,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 15)
+                return typeof(Action<,,,,,,,,,,,,,,>).MakeGenericType(parameterTypes);
+            else if (parameterTypes.Length == 16)
+                return typeof(Action<,,,,,,,,,,,,,,,>).MakeGenericType(parameterTypes);
+            else
+                throw new ArgumentException($"パラメータ数 {parameterTypes.Length} はサポートされていません。16個までのパラメータがサポートされています。");
+        }
+        private static Type GetFuncType(Type[] parameterTypes, Type returnType)
+        {
+            Type[] genericTypes = [.. parameterTypes, returnType];
+            if (genericTypes.Length == 1)
+                return typeof(Func<>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 2)
+                return typeof(Func<,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 3)
+                return typeof(Func<,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 4)
+                return typeof(Func<,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 5)
+                return typeof(Func<,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 6)
+                return typeof(Func<,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 7)
+                return typeof(Func<,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 8)
+                return typeof(Func<,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 9)
+                return typeof(Func<,,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 10)
+                return typeof(Func<,,,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 11)
+                return typeof(Func<,,,,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 12)
+                return typeof(Func<,,,,,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 13)
+                return typeof(Func<,,,,,,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 14)
+                return typeof(Func<,,,,,,,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 15)
+                return typeof(Func<,,,,,,,,,,,,,,>).MakeGenericType(genericTypes);
+            else if (genericTypes.Length == 16)
+                return typeof(Func<,,,,,,,,,,,,,,,>).MakeGenericType(genericTypes);
+            else
+                throw new ArgumentException($"パラメータ数 {genericTypes.Length} はサポートされていません。16個までのパラメータがサポートされています。");
         }
     }
 }
