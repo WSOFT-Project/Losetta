@@ -1207,13 +1207,7 @@ namespace AliceScript
                             result = null;
                             return false;
                         }
-                        Type genericType = type.GetGenericTypeDefinition();
-                        if (genericType == typeof(Action))
-                        {
-                            result = (Action)(() => AsDelegate().Invoke(Parent));
-                            return true;
-                        }
-                        result = Utils.ConvertDelegate(type, AsDelegate());
+                        result = Utils.ConvertToDelegate(type, AsDelegate(), Parent);
                         return result != null;
                     }
                 case VarType.REFERENCE:

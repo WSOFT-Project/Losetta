@@ -419,8 +419,12 @@ namespace AliceScript
         {
             return t.IsByRef ? t.GetElementType() : t;
         }
-        internal static Delegate ConvertDelegate(Type actionType, DelegateObject d)
+        internal static Delegate ConvertToDelegate(Type actionType, DelegateObject d, ParsingScript script)
         {
+            if (actionType == typeof(Action))
+            {
+                return (Action)(() => d.Invoke(script));
+            }
             if (actionType.GetGenericTypeDefinition() == typeof(Action<>) ||
                 actionType.GetGenericTypeDefinition() == typeof(Action<,>) ||
                 actionType.GetGenericTypeDefinition() == typeof(Action<,,>) ||
@@ -438,7 +442,7 @@ namespace AliceScript
                 actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,,,,,>) ||
                 actionType.GetGenericTypeDefinition() == typeof(Action<,,,,,,,,,,,,,,,>))
             {
-                return CreateTypedAction(actionType.GenericTypeArguments, args => d.Invoke(args.Select(a => Variable.From(a)).ToArray(), ParsingScript.GetTopLevelScript(), null));
+                return CreateTypedAction(actionType.GenericTypeArguments, args => d.Invoke(args.Select(a => Variable.From(a)).ToArray(), script, null));
             }
             if (actionType.GetGenericTypeDefinition() == typeof(Func<>) ||
                 actionType.GetGenericTypeDefinition() == typeof(Func<,>) ||
@@ -457,7 +461,7 @@ namespace AliceScript
                 actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,,,,,>) ||
                 actionType.GetGenericTypeDefinition() == typeof(Func<,,,,,,,,,,,,,,,>))
             {
-                return CreateTypedFunc(actionType.GenericTypeArguments[0..^1], actionType.GenericTypeArguments[^1], args => d.Invoke(args.Select(a => Variable.From(a)).ToArray(), ParsingScript.GetTopLevelScript(), null).ConvertTo(actionType.GenericTypeArguments[^1]));
+                return CreateTypedFunc(actionType.GenericTypeArguments[0..^1], actionType.GenericTypeArguments[^1], args => d.Invoke(args.Select(a => Variable.From(a)).ToArray(), script, null).ConvertTo(actionType.GenericTypeArguments[^1]));
             }
             return null;
         }

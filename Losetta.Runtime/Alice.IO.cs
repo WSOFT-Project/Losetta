@@ -739,8 +739,9 @@ namespace AliceScript.NameSpaces
                 }
             }
         }
-        public static string[] Directory_Grep(string path, string pattern, string filePattern, bool ignoreCase = false)
+        public static List<string> Directory_Grep(string path, string pattern, string filePattern = null, bool ignoreCase = false)
         {
+            filePattern ??= "*";
             Regex textPattern = new Regex(pattern, ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
             List<string> result = new List<string>();
 
@@ -756,11 +757,26 @@ namespace AliceScript.NameSpaces
                 }
                 catch { }
             }
-            return result.ToArray();
+            return result;
         }
-        public static void Directory_Grep(Func<string, bool> action)
+        public static void Directory_Grep(string path, Func<string, bool> filter, string filePattern = null)
         {
-            Console.WriteLine($"\"A\" -> {action("A")}");
+            filePattern ??= "*";
+
+            List<string> result = new List<string>();
+
+            foreach (string file in Directory.GetFiles(path, filePattern))
+            {
+                try
+                {
+                    string str = SafeReader.ReadAllText(file, out _, out _);
+                    if (filter(str))
+                    {
+                        result.Add(str);
+                    }
+                }
+                catch { }
+            }
         }
         #endregion
         #region パス関連
