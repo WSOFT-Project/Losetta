@@ -876,7 +876,13 @@ namespace AliceScript.NameSpaces
 #if NETCOREAPP3_0_OR_GREATER
             return Path.Join(paths);
 #else
-                throw new ScriptException("この実装では操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
+            StringBuilder sb = new StringBuilder();
+            foreach (string path in paths)
+            {
+                sb.Append(Path.DirectorySeparatorChar);
+                sb.Append(path);
+            }
+            return sb.ToString().TrimEnd(Path.DirectorySeparatorChar);
 #endif
         }
         #endregion
