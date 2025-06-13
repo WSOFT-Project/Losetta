@@ -1,9 +1,9 @@
-﻿using AliceScript.Objects;
+﻿using AliceScript.Binding;
+using AliceScript.Objects;
 using AliceScript.Parsing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace AliceScript.Functions
 {
@@ -210,6 +210,67 @@ namespace AliceScript.Functions
         /// この関数が呼び出されたときに発生するイベント
         /// </summary>
         public event FunctionBaseEventHandler Run;
+
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            foreach (string k in this.Keywords)
+            {
+                sb.Append(k);
+                sb.Append(Constants.SPACE);
+            }
+            if (this.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || this.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
+            {
+                sb.Append(Constants.COMMAND);
+                sb.Append(Constants.SPACE);
+            }
+            if (this is BindFunction)
+            {
+                sb.Append(".bind ");
+            }
+            if (this.IsMethod)
+            {
+                sb.Append(".method ");
+            }
+            if (this.IsMethod && !this.MethodOnly)
+            {
+                sb.Append(Constants.EXTENSION);
+                sb.Append(Constants.SPACE);
+            }
+
+            if (this.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
+            {
+                sb.Append(".structure ");
+            }
+            if (this is CustomFunction cfx)
+            {
+                sb.Append(".custom ");
+            }
+            else
+            {
+                sb.Append(Constants.FUNCTION);
+            }
+            sb.Append(Constants.SPACE);
+            if (!string.IsNullOrEmpty(this.RelatedNameSpace))
+            {
+                sb.Append(this.RelatedNameSpace);
+                sb.Append('.');
+            }
+            sb.Append(string.IsNullOrWhiteSpace(this.Name) ? "Anonymous" : this.Name);
+            sb.Append(Constants.START_ARG);
+            int args_count = 0;
+            if (this is CustomFunction cf && cf.RealArgs is not null && cf.RealArgs.Length > 0)
+            {
+                foreach (string a in this.RealArgs)
+                {
+                    sb.Append(a);
+                    sb.Append(++args_count == this.RealArgs.Length ? string.Empty : ",");
+                }
+            }
+            sb.Append(");");
+            return sb.ToString();
+        }
     }
     /// <summary>
     /// 関数の機能の種類を表します
@@ -286,9 +347,9 @@ namespace AliceScript.Functions
             {
                 Utils.CheckLegalName(fname);
             }
-            if(prefix != '\0')
+            if (prefix != '\0')
             {
-                fname = prefix + fname; 
+                fname = prefix + fname;
             }
             script ??= ParsingScript.GetTopLevelScript(script);
             if (accessModifier == AccessModifier.PRIVATE)

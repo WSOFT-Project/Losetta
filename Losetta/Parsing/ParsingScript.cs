@@ -1377,72 +1377,7 @@ namespace AliceScript.Parsing
             }
             public override string ToString()
             {
-                var sb = new StringBuilder();
-                foreach (string k in Function.Keywords)
-                {
-                    sb.Append(k);
-                    sb.Append(Constants.SPACE);
-                }
-                if (Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE) || Function.Attribute.HasFlag(FunctionAttribute.FUNCT_WITH_SPACE_ONC))
-                {
-                    sb.Append(Constants.COMMAND);
-                    sb.Append(Constants.SPACE);
-                }
-                if (Function is BindFunction)
-                {
-                    sb.Append(".bind ");
-                }
-                if (Function is FunctionBase fb)
-                {
-                    if (fb.IsMethod)
-                    {
-                        sb.Append(".method ");
-                    }
-                    if (fb.IsMethod && !fb.MethodOnly)
-                    {
-                        sb.Append(Constants.EXTENSION);
-                        sb.Append(Constants.SPACE);
-                    }
-                }
-
-                if (Function.Attribute.HasFlag(FunctionAttribute.LANGUAGE_STRUCTURE))
-                {
-                    sb.Append(".structure ");
-                }
-                if (Function is CustomFunction cfx)
-                {
-                    sb.Append(".custom ");
-                }
-                else
-                {
-                    sb.Append(Constants.FUNCTION);
-                }
-                sb.Append(Constants.SPACE);
-                if (!string.IsNullOrEmpty(Function.RelatedNameSpace))
-                {
-                    sb.Append(Function.RelatedNameSpace);
-                    sb.Append('.');
-                }
-                sb.Append(string.IsNullOrWhiteSpace(Function.Name) ? "Anonymous" : Function.Name);
-                sb.Append(Constants.START_ARG);
-                int args_count = 0;
-                if (Function is CustomFunction cf && cf.RealArgs is not null && cf.RealArgs.Length > 0)
-                {
-                    foreach (string a in Function.RealArgs)
-                    {
-                        sb.Append(a);
-                        sb.Append(++args_count == Function.RealArgs.Length ? string.Empty : ",");
-                    }
-                }
-                sb.Append(");");
-                if (!string.IsNullOrWhiteSpace(FileName))
-                {
-                    sb.Append(" 場所 ");
-                    sb.Append(FileName);
-                    sb.Append(":行 ");
-                    sb.Append(LineNumber);
-                }
-                return sb.ToString();
+                return $"{Function}";
             }
         }
     }
