@@ -138,7 +138,7 @@ namespace AliceScript
             }
             tempScript.ParentScript = script;
             tempScript.ClassInstance = instance;
-            tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.StackTrace);
+            tempScript.m_stacktrace = new Stack<ParsingScript.StackInfo>(script.StackTrace);
             if (script is not null)
             {
                 tempScript.Package = script.Package;
@@ -257,7 +257,7 @@ namespace AliceScript
             }
             // 数値リテラル中のアンダースコアを削除
             str = str.Replace('_', '\0');
-            
+
             //0xから始まる実数の16進表現を確認します
             try
             {

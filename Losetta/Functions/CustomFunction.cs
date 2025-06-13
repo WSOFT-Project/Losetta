@@ -422,8 +422,8 @@ namespace AliceScript.Functions
             tempScript.Filename = m_parentScript.Filename;
             if (script is not null)
             {
-                tempScript.m_stacktrace = new List<ParsingScript.StackInfo>(script.m_stacktrace);
-                tempScript.m_stacktrace.Add(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
+                tempScript.m_stacktrace = new Stack<ParsingScript.StackInfo>(script.m_stacktrace);
+                tempScript.m_stacktrace.Push(new ParsingScript.StackInfo(this, script.OriginalLine, script.OriginalLineNumber, script.Filename));
             }
             tempScript.Tag = m_tag;
             //tempScript.Variables = m_VarMap;

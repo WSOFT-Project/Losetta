@@ -36,7 +36,7 @@ namespace AliceScript.Parsing
         private Dictionary<string, ParserFunction> m_variables = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された変数
         private Dictionary<string, ParserFunction> m_functions = new Dictionary<string, ParserFunction>();// スクリプトの内部で定義された関数
         private HashSet<string> m_namespaces = new HashSet<string>();
-        internal List<StackInfo> m_stacktrace = new List<StackInfo>();
+        internal Stack<StackInfo> m_stacktrace = new Stack<StackInfo>();
 
         [Flags]
         public enum Contexts
@@ -1269,12 +1269,12 @@ namespace AliceScript.Parsing
                 Package = Package,
                 Generation = Generation + 1,
                 ThrowError = ThrowError,
-                m_stacktrace = new List<StackInfo>(m_stacktrace),
+                m_stacktrace = new Stack<StackInfo>(m_stacktrace),
                 Context = Context.HasFlag(Contexts.INHERITANCE) ? Context : Contexts.DEFAULT
             };
             if (callFrom is not null)
             {
-                tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
+                tempScript.m_stacktrace.Push(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
             }
 
             return tempScript;
@@ -1314,13 +1314,13 @@ namespace AliceScript.Parsing
                     Tag = Tag,
                     Generation = Generation + 1,
                     ThrowError = ThrowError,
-                    m_stacktrace = new List<StackInfo>(m_stacktrace)
+                    m_stacktrace = new Stack<StackInfo>(m_stacktrace)
                 };
 
 
                 if (callFrom is not null)
                 {
-                    tempScript.m_stacktrace.Add(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
+                    tempScript.m_stacktrace.Push(new StackInfo(callFrom, OriginalLine, OriginalLineNumber, Filename));
                 }
                 if (isPackageFile)
                 {
@@ -1378,7 +1378,6 @@ namespace AliceScript.Parsing
             public override string ToString()
             {
                 var sb = new StringBuilder();
-                sb.Append("場所 ");
                 foreach (string k in Function.Keywords)
                 {
                     sb.Append(k);
@@ -1413,7 +1412,6 @@ namespace AliceScript.Parsing
                 if (Function is CustomFunction cfx)
                 {
                     sb.Append(".custom ");
-                    sb.Append(cfx.ToString());
                 }
                 else
                 {
