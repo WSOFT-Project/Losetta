@@ -7,8 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest 
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,7 +15,7 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
-            dotnet-version: '6.0.x'
+          dotnet-version: "8.0.x"
 
       - name: Dependency Install
         run: dotnet restore
@@ -31,7 +30,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: 'NUnit Test'
-          path: '/home/runner/work/Losetta/Losetta/Losetta.Tests/TestResults/test-results.trx'
-          reporter: 'dotnet-trx'
-          fail-on-error: 'false'
+          name: "NUnit Test"
+          path: "/home/runner/work/Losetta/Losetta/Losetta.Tests/TestResults/test-results.trx"
+          reporter: "dotnet-trx"
+          fail-on-error: "false"
