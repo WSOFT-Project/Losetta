@@ -1,5 +1,4 @@
 ﻿using AliceScript.Binding;
-using AliceScript.Functions;
 using AliceScript.NameSpaces;
 using AliceScript.Objects;
 using AliceScript.Parsing;

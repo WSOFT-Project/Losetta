@@ -1,5 +1,4 @@
-﻿using AliceScript.Binding;
-using AliceScript.Functions;
+﻿using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 using System;
@@ -379,7 +378,7 @@ namespace AliceScript
             List<Variable> args = new List<Variable>();
             bool isList = script.StillValid() && script.Current == Constants.START_GROUP;
 
-            if(!isList && !arrayMode)
+            if (!isList && !arrayMode)
             {
                 script.Context = ParsingScript.Contexts.IN_ARGS;
             }
@@ -416,7 +415,7 @@ namespace AliceScript
                 if (spread)
                 {
                     // スプレッド構文なら展開
-                    if(item.Type == Variable.VarType.ARRAY)
+                    if (item.Type == Variable.VarType.ARRAY)
                     {
                         args.AddRange(item.Tuple);
                     }

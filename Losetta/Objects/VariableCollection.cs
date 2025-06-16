@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace AliceScript.Objects
@@ -13,9 +12,9 @@ namespace AliceScript.Objects
         }
         public VariableCollection()
         {
-             m_tuple = new List<Variable>();
+            m_tuple = new List<Variable>();
         }
-        public VariableCollection (List<Variable> list)
+        public VariableCollection(List<Variable> list)
         {
             m_tuple = list;
         }

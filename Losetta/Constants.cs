@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using AliceScript.Functions;
 using AliceScript.Objects;
 
 namespace AliceScript
@@ -34,7 +33,7 @@ namespace AliceScript
         public const char DOLLER = '$';
         public const char PLUS = '+';
         public const char MINUS = '-';
-        public const char BITWISE_NOT = '~'; 
+        public const char BITWISE_NOT = '~';
         public const char MOD = '%';
         public const char DIV = '/';
         public const char TIMES = '*';
@@ -143,7 +142,7 @@ namespace AliceScript
         public static readonly string END_ARG_STR = END_ARG.ToString();
         public static readonly string NULL_ACTION = END_ARG.ToString();
 
-        public static readonly string[] OPER_ACTIONS = {  ARROW };
+        public static readonly string[] OPER_ACTIONS = { ARROW };
         public static readonly string[] MATH_ACTIONS = { "===", "!==",
                                                 AND, OR, EQUAL,NOT_EQUAL, LESS_EQ, GREATER_EQ, INCREMENT,DECREMENT,POW,LEFT_SHIFT,RIGHT_SHIFT,
                                                 "%", "*", "/", "+", "-", "^", "&", "|", "<", ">", "=",":", "?",NULL_OP,AS,IS_NOT,IS, RANGE};
@@ -155,7 +154,7 @@ namespace AliceScript
         /// <summary>
         /// 単項前置演算子(2文字のもの)
         /// </summary>
-        public static readonly string[] PRE_DOUBLE_SIZE_ACTIONS = { INCREMENT, DECREMENT, RANGE};
+        public static readonly string[] PRE_DOUBLE_SIZE_ACTIONS = { INCREMENT, DECREMENT, RANGE };
         public static readonly string[] ACTIONS = OPER_ACTIONS.Union(MATH_ACTIONS).ToArray();
 
         public static readonly string[] CORE_OPERATORS = { TRY, FOR, WHILE };

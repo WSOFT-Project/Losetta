@@ -1,10 +1,5 @@
 using AliceScript.Functions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AliceScript
 {
@@ -21,18 +16,18 @@ namespace AliceScript
         }
         public void PreCall(FunctionBase function, FunctionBaseEventArgs args)
         {
-            if(Target == GetPlatformId())
+            if (Target == GetPlatformId())
             {
                 throw new ScriptException("このプラットフォームでは操作がサポートされていません", Exceptions.NOT_IMPLEMENTED);
             }
         }
         public void PostCall(FunctionBase function, FunctionBaseEventArgs args)
         {
-            
+
         }
         public string GetPlatformId()
         {
-            if(OperatingSystem.IsAndroid())
+            if (OperatingSystem.IsAndroid())
             {
                 return "android";
             }
@@ -44,11 +39,11 @@ namespace AliceScript
             {
                 return "freebsd";
             }
-            else if(OperatingSystem.IsIOS())
+            else if (OperatingSystem.IsIOS())
             {
                 return "ios";
             }
-            else if(OperatingSystem.IsLinux())
+            else if (OperatingSystem.IsLinux())
             {
                 return "linux";
             }
@@ -56,11 +51,11 @@ namespace AliceScript
             {
                 return "mac-catalyst";
             }
-            else if(OperatingSystem.IsMacOS())
+            else if (OperatingSystem.IsMacOS())
             {
                 return "osx";
             }
-            else if(OperatingSystem.IsTvOS())
+            else if (OperatingSystem.IsTvOS())
             {
                 return "tvos";
             }

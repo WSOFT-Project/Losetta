@@ -1,5 +1,4 @@
-﻿using AliceScript.Objects;
-using AliceScript.Parsing;
+﻿using AliceScript.Parsing;
 
 namespace AliceScript.Functions
 {

@@ -1,5 +1,4 @@
 ﻿using AliceScript.Functions;
-using AliceScript.Objects;
 using AliceScript.Parsing;
 using System;
 using System.Collections;
@@ -111,7 +110,7 @@ namespace AliceScript.Binding
             {
                 paramType = TrueParameters[i].ParameterType;
 
-                if(TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(BindInfoAttribute)))
+                if (TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(BindInfoAttribute)))
                 {
                     if (paramType == typeof(FunctionBaseEventArgs))
                     {
@@ -150,7 +149,7 @@ namespace AliceScript.Binding
                         continue;
                     }
                 }
-                
+
                 if (i == 0 && IsMethod && e.CurentVariable is not null)
                 {
                     diff++;
@@ -189,11 +188,11 @@ namespace AliceScript.Binding
                 }
 
                 var item = e.Args[i - diff];
-                if(TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(RefAttribute)) && paramType == typeof(Variable))
+                if (TrueParameters[i].CustomAttributes.Any(attr => attr.AttributeType == typeof(RefAttribute)) && paramType == typeof(Variable))
                 {
-                    if(item.Type == Variable.VarType.REFERENCE)
+                    if (item.Type == Variable.VarType.REFERENCE)
                     {
-                        if(item.Reference is ValueFunction value)
+                        if (item.Reference is ValueFunction value)
                         {
                             parametors.Add(value.Value);
                         }
@@ -207,7 +206,7 @@ namespace AliceScript.Binding
                         throw new ScriptException("引数 `" + TrueParameters[i].Name + "` は `" + Constants.REF + "` キーワードと共に渡さなければなりません。", Exceptions.ARGUMENT_MUST_BE_PASSED_WITH_KEYWORD);
                     }
                 }
-                else if(item.Type == Variable.VarType.REFERENCE)
+                else if (item.Type == Variable.VarType.REFERENCE)
                 {
                     throw new ScriptException("引数 `" + TrueParameters[i].Name + "` は `" + Constants.REF + "' キーワードと共に使用することができません。", Exceptions.ARGUMENT_CANT_USE_WITH_KEYWORD);
                 }
