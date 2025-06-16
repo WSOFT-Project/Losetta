@@ -1235,6 +1235,18 @@ namespace AliceScript.Parsing
         {
             return GetBlock().Process();
         }
+        public Variable ProcessStatement(bool checkBreak = true)
+        {
+            Variable result = Execute();
+            result ??= Variable.EmptyInstance;
+            if (checkBreak && (result.IsReturn || result.Type == Variable.VarType.BREAK))
+            {
+                SkipBlock();
+                return result;
+            }
+            GoToNextStatement();
+            return result;
+        }
         /// <summary>
         /// 波かっこで始まって終わるブロックを取得します
         /// </summary>
