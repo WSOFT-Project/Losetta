@@ -217,15 +217,6 @@ namespace AliceScript.NameSpaces
             }
         }
         #endregion
-        #region デバッグ関連
-        public static void BreakPoint()
-        {
-            if (Interpreter.Instance.DebugMode)
-            {
-                throw new ScriptException(string.Empty, Exceptions.BREAK_POINT);
-            }
-        }
-        #endregion
     }
 
     [AliceObject(Name = "Process")]

@@ -107,6 +107,20 @@ namespace AliceScript.NameSpaces.Core
         {
             throw new ScriptException(message, (Exceptions)errorCode, script);
         }
+        public static void BreakPoint()
+        {
+            if (Interpreter.Instance.DebugMode)
+            {
+                throw new ScriptException(string.Empty, Exceptions.BREAK_POINT);
+            }
+        }
+        public static void BreakPoint(string message)
+        {
+            if (Interpreter.Instance.DebugMode)
+            {
+                throw new ScriptException(message, Exceptions.BREAK_POINT);
+            }
+        }
 
         private static readonly Dictionary<string, Variable> m_singletons =
            new Dictionary<string, Variable>();
