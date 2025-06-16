@@ -18,6 +18,10 @@ namespace AliceScript
         /// </summary>
         COULDNT_FIND_ARRAY = 0x002,
         /// <summary>
+        /// ブレークポイントに到達しました
+        /// </summary>
+        BREAK_POINT = 0x003,
+        /// <summary>
         /// `identifier`は現在のコンテキストに存在しません。
         /// </summary>
         [Obsolete("IDENTIFIER_NOT_FOUNDを使用してください。")]
