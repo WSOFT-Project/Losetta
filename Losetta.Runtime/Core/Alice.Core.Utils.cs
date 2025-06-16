@@ -107,6 +107,7 @@ namespace AliceScript.NameSpaces.Core
         {
             throw new ScriptException(message, (Exceptions)errorCode, script);
         }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
         public static void BreakPoint()
         {
             if (Interpreter.Instance.DebugMode)
@@ -114,6 +115,7 @@ namespace AliceScript.NameSpaces.Core
                 throw new ScriptException(string.Empty, Exceptions.BREAK_POINT);
             }
         }
+        [AliceFunction(Attribute = FunctionAttribute.FUNCT_WITH_SPACE)]
         public static void BreakPoint(string message)
         {
             if (Interpreter.Instance.DebugMode)
