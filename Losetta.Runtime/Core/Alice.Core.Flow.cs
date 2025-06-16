@@ -710,6 +710,12 @@ namespace AliceScript.NameSpaces.Core
 
             mainScript.ThrowError += delegate (object sender, ThrowErrorEventArgs e)
             {
+                if (e.ErrorCode == Exceptions.BREAK_POINT)
+                {
+                    // ブレークポイントはそのままスロー
+                    e.Handled = false;
+                    return;
+                }
                 foreach (var data in catches)
                 {
                     ValueFunction excMsgFunc = new ValueFunction(new Variable(new ExceptionObject(e.Message, e.ErrorCode, e.Script, e.Source, e.HelpLink)));
