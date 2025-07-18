@@ -225,7 +225,7 @@ namespace AliceScript
         /// <summary>
         /// 複合代入式がとるパターン
         /// </summary>
-        public static readonly Regex COMPOUND_ASSIGN_PATTERN = new Regex(@"(.*)([\+\-\\\*\/\%\^\&\|\?])=(.*)", RegexOptions.Compiled);
+        public static readonly Regex COMPOUND_ASSIGN_PATTERN = new Regex(@"\s*(\w+)\s*([+\-*/%&|^]=)\s*(\w+)\s*", RegexOptions.Compiled);
 
         /// <summary>
         /// UTF16表現がとるパターン
