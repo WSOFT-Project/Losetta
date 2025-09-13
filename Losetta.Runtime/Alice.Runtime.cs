@@ -37,6 +37,7 @@ namespace AliceScript
             Alice_Reflection.Init();
             Alice_Interop.Init();
             Alice_Legacy.Init();
+            Alice_Timers.Init();
 
             Constants.CONSTS[Constants.STRING] = Variable.From(StringType.Type);
             Constants.CONSTS[Constants.ARRAY] = Variable.From(ArrayType.Type);

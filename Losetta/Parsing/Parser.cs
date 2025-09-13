@@ -941,7 +941,7 @@ namespace AliceScript.Parsing
                         }
                         else
                         {
-                            Utils.ThrowErrorMsg("デリゲートにに対象の変数が見つかりませんでした", Exceptions.COULDNT_FIND_ITEM,
+                            Utils.ThrowErrorMsg("デリゲートに対象の変数が見つかりませんでした", Exceptions.COULDNT_FIND_ITEM,
                          script, leftCell.Action);
                             return leftCell;
                         }
