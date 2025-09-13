@@ -207,31 +207,68 @@ namespace AliceScript.Objects
 
         public bool Match(Variable item)
         {
-            if (!Nullable && item.Nullable)
+            if (item is null)
             {
                 return false;
             }
+
+            // nullableでないにもかかわらず相手がnullの場合は不一致
+            if (!Nullable && item.IsNull())
+            {
+                return false;
+            }
+
             if (Type == Variable.VarType.VARIABLE)
             {
                 return true;
             }
-            if (item.Type.HasFlag(Type))
+
+            // 型フラグが合わない場合は不一致
+            if (!item.Type.HasFlag(Type))
             {
-                if (Type == Variable.VarType.OBJECT && item.Object is BindObject bind && item.Is(bind.Type, out _))
-                {
-                    return true;
-                }
-                if (Type == Variable.VarType.OBJECT && item.Object is AliceScriptClass c && ClassType != c)
-                {
-                    return false;
-                }
-                else if (item.Type != Variable.VarType.STRING && Type == Variable.VarType.ARRAY && item.Tuple.Type != ArrayType)
-                {
-                    return false;
-                }
-                return true;
+                return false;
             }
-            else { return false; }
+            if (Type == Variable.VarType.OBJECT && ClassType is not null)
+            {
+                // BindObjectの場合は.NETの型互換性をチェック
+                if (ClassType is BindObject targetBind)
+                {
+                    if (item.Object is BindObject sourceBind)
+                    {
+                        return targetBind.Type.IsAssignableFrom(sourceBind.Type);
+                    }
+                    // .NETの型変換を試みる
+                    return item.TryConvertTo(targetBind.Type, out _);
+                }
+
+                // 名前と型が同じかどうかをチェック
+                if (item.Object is AliceScriptClass c)
+                {
+                    return ClassType.ToString() == c.ToString();
+                }
+            }
+
+            if (Type == Variable.VarType.ARRAY)
+            {
+                if (item.Type == Variable.VarType.STRING)
+                {
+                    return false;
+                }
+                if (ArrayType is not null)
+                {
+                    var itemArrayType = item.Tuple?.Type;
+                    if (itemArrayType is null)
+                    {
+                        return false;
+                    }
+                    if (!ArrayType.Equals(itemArrayType))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
         internal class ActivateFunction : FunctionBase
         {
@@ -277,12 +314,6 @@ namespace AliceScript.Objects
             {
                 e.Return = Variable.FromText(Type.ToString());
                 return;
-                if (Type.ClassType is not null && Type.ClassType is TypeObject to)
-                {
-                    e.Return = new Variable("Alice.Interpreter.Type");
-                    return;
-                }
-                e.Return = (Type.ClassType is not null ? new Variable(Type.ClassType.ToString()) : new Variable(Constants.TypeToString(Type.Type)));
             }
         }
     }
