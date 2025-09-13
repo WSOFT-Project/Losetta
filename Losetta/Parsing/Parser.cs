@@ -85,7 +85,7 @@ namespace AliceScript.Parsing
                         return listToMerge;
                     }
 
-                    Stack<PreOperators> negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子取得
+                    Stack<PreOperators> negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子を取得
                     ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
                     if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || (fb is not LiteralFunction && fb is not ValueFunction)))
                     {
