@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <!-- Enable built-in .NET analyzers -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!-- Use the latest analysis rules available for the target framework -->
+    <AnalysisLevel>latest</AnalysisLevel>
+    <!-- Do not fail the default CI on warnings by default; strict workflow can enable TreatWarningsAsErrors -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  <!-- Suppress specific compiler/analyzer warnings across the repository -->
+  <!-- CS1591: Missing XML comment for publicly visible type or member -->
+  <NoWarn>$(NoWarn);1591</NoWarn>
+  <!-- Optionally avoid treating missing XML docs as errors in projects that enable DocumentationMode -->
+  <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Use Microsoft official Roslyn analyzers package; PrivateAssets prevents it from flowing to consumers -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

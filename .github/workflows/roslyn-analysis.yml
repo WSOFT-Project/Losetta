@@ -1,0 +1,25 @@
+name: Roslyn analysis
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+    branches: [develop, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore Losetta.sln
+
+      - name: Build (run analyzers)
+        run: dotnet build Losetta.sln --no-restore -v minimal
