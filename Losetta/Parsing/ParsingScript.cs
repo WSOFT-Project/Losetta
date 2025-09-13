@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AliceScript.Parsing
 {
@@ -340,19 +341,7 @@ namespace AliceScript.Parsing
         /// </summary>
         public bool UnneedVarKeyword
         {
-            get
-            {
-                bool result = false;//規定値
-                if (Settings.UnneedVarKeyword.HasValue)
-                {
-                    result = Settings.UnneedVarKeyword.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.UnneedVarKeyword;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.UnneedVarKeyword, ps => ps.UnneedVarKeyword, false);
             set => Settings.UnneedVarKeyword = value;
         }
         /// <summary>
@@ -360,19 +349,7 @@ namespace AliceScript.Parsing
         /// </summary>
         public bool TypeInference
         {
-            get
-            {
-                bool result = true;//規定値
-                if (Settings.TypeInference.HasValue)
-                {
-                    result = Settings.TypeInference.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.TypeInference;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.TypeInference, ps => ps.TypeInference, true);
             set => Settings.TypeInference = value;
 
         }
@@ -381,19 +358,7 @@ namespace AliceScript.Parsing
         /// </summary>
         public bool FallThrough
         {
-            get
-            {
-                bool result = false;//規定値
-                if (Settings.FallThrough.HasValue)
-                {
-                    result = Settings.FallThrough.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.FallThrough;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.FallThrough, ps => ps.FallThrough, false);
             set => Settings.FallThrough = value;
         }
         /// <summary>
@@ -401,19 +366,7 @@ namespace AliceScript.Parsing
         /// </summary>
         public bool CheckBreakWhenEndCaseBlock
         {
-            get
-            {
-                bool result = true;//規定値
-                if (Settings.CheckBreakWhenEndCaseBlock.HasValue)
-                {
-                    result = Settings.CheckBreakWhenEndCaseBlock.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.CheckBreakWhenEndCaseBlock;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.CheckBreakWhenEndCaseBlock, ps => ps.CheckBreakWhenEndCaseBlock, true);
             set => Settings.CheckBreakWhenEndCaseBlock = value;
         }
         /// <summary>
@@ -421,19 +374,7 @@ namespace AliceScript.Parsing
         /// </summary>
         public bool EnableUsing
         {
-            get
-            {
-                bool result = true;//規定値
-                if (Settings.EnableUsing.HasValue)
-                {
-                    result = Settings.EnableUsing.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.EnableUsing;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.EnableUsing, ps => ps.EnableUsing, true);
             set => Settings.EnableUsing = value;
         }
         /// <summary>
@@ -441,19 +382,7 @@ namespace AliceScript.Parsing
         /// </summary>
         public bool EnableImport
         {
-            get
-            {
-                bool result = true;//規定値
-                if (Settings.EnableImport.HasValue)
-                {
-                    result = Settings.EnableImport.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.EnableImport;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.EnableImport, ps => ps.EnableImport, true);
             set => Settings.EnableImport = value;
         }
         /// <summary>
@@ -461,37 +390,13 @@ namespace AliceScript.Parsing
         /// </summary>
         public bool EnableInclude
         {
-            get
-            {
-                bool result = true;//規定値
-                if (Settings.EnableInclude.HasValue)
-                {
-                    result = Settings.EnableInclude.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.EnableInclude;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.EnableInclude, ps => ps.EnableInclude, true);
             set => Settings.EnableInclude = value;
         }
 
         public bool DenyAccessToTopLevelScript
         {
-            get
-            {
-                bool result = false;//規定値
-                if (Settings.DenyAccessToTopLevelScript.HasValue)
-                {
-                    result = Settings.DenyAccessToTopLevelScript.Value;
-                }
-                else if (ParentScript is not null && !ParentScript.TopInFile)
-                {
-                    result = ParentScript.DenyAccessToTopLevelScript;
-                }
-                return result;
-            }
+            get => GetInheritedSetting(Settings.DenyAccessToTopLevelScript, ps => ps.DenyAccessToTopLevelScript, false);
             set => Settings.DenyAccessToTopLevelScript = value;
         }
 
@@ -635,18 +540,8 @@ namespace AliceScript.Parsing
         /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
         public bool TryGetVariable(string name, out ParserFunction function)
         {
-            if (Variables.TryGetValue(name, out function))
-            {
-                return true;
-            }
-            else
-            {
-                if (ParentScript is not null && ParentScript.TryGetVariable(name, out function))
-                {
-                    return true;
-                }
-            }
-            return false;
+            if (Variables.TryGetValue(name, out function)) return true;
+            return ParentScript is not null && ParentScript.TryGetVariable(name, out function);
         }
         /// <summary>
         /// このスクリプトから関数を取得します。取得できない場合は親スクリプトも試みます。
@@ -656,15 +551,8 @@ namespace AliceScript.Parsing
         /// <returns>取得できた場合はtrue、それ以外の場合はfalse</returns>
         public bool TryGetFunction(string name, out ParserFunction function)
         {
-            if (Functions.TryGetValue(name, out function))
-            {
-                return true;
-            }
-            else if (ParentScript is not null && ParentScript.TryGetFunction(name, out function))
-            {
-                return true;
-            }
-            return false;
+            if (Functions.TryGetValue(name, out function)) return true;
+            return ParentScript is not null && ParentScript.TryGetFunction(name, out function);
         }
         /// <summary>
         /// このスクリプトから任意の識別子をもつ関数を取得します。取得できない場合は親スクリプトも試みます。
@@ -761,36 +649,22 @@ namespace AliceScript.Parsing
             {
                 return -1;
             }
-
             int pos = m_scriptOffset + charNumber;
-            List<int> lineStart = m_char2Line.Keys.ToList();
+            List<int> lineStart = m_char2Line.Keys.OrderBy(k => k).ToList();
             int lower = 0;
-            int index = lower;
-
-            if (pos <= lineStart[lower])
-            { // First line.
-                return m_char2Line[lineStart[lower]];
-            }
             int upper = lineStart.Count - 1;
-            if (pos >= lineStart[upper])
-            { // Last line.
-                return m_char2Line[lineStart[upper]];
-            }
-
+            if (pos <= lineStart[lower]) return m_char2Line[lineStart[lower]];
+            if (pos >= lineStart[upper]) return m_char2Line[lineStart[upper]];
             while (lower <= upper)
             {
-                index = (lower + upper) / 2;
+                int index = (lower + upper) / 2;
                 int guessPos = lineStart[index];
-                if (pos == guessPos)
+                if (pos == guessPos || (pos < guessPos && (index == 0 || pos > lineStart[index - 1])))
                 {
-                    break;
+                    return m_char2Line[guessPos];
                 }
                 if (pos < guessPos)
                 {
-                    if (index == 0 || pos > lineStart[index - 1])
-                    {
-                        break;
-                    }
                     upper = index - 1;
                 }
                 else
@@ -798,9 +672,9 @@ namespace AliceScript.Parsing
                     lower = index + 1;
                 }
             }
-
-            int charIndex = lineStart[index];
-            return m_char2Line[charIndex];
+            // フォールバック: 近い位置を線形検索
+            int closest = lineStart.Where(k => k <= pos).DefaultIfEmpty(lineStart[0]).Max();
+            return m_char2Line[closest];
         }
 
         public char At(int i) { return m_data[i]; }
@@ -952,11 +826,7 @@ namespace AliceScript.Parsing
             }
 
             Variable result = null;
-
-
-#if !DEBUG_THROW
             try
-#endif
             {
                 result = Parser.AliceScript(this, toArray);
             }
@@ -965,7 +835,6 @@ namespace AliceScript.Parsing
             {
                 OnThrowError(otherExc);
             }
-
 #endif
             return result;
 
@@ -1070,11 +939,9 @@ namespace AliceScript.Parsing
             }
 
             Variable result = null;
-
-
-            result = Parser.AliceScript(this, toArray);
             try
             {
+                await Task.Yield();
                 result = Parser.AliceScript(this, toArray);
             }
             catch (Exception e)
@@ -1291,6 +1158,17 @@ namespace AliceScript.Parsing
 
             return tempScript;
         }
+        /// <summary>
+        /// 親スクリプトから継承する設定値を取得します。
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool GetInheritedSetting(bool? local, Func<ParsingScript, bool> parentAccessor, bool defaultValue)
+        {
+            if (local.HasValue) return local.Value;
+            if (ParentScript is not null && !ParentScript.TopInFile) return parentAccessor(ParentScript);
+            return defaultValue;
+        }
+
         /// <summary>
         /// ユーザーの入力から、子スクリプトを作成します。
         /// </summary>
