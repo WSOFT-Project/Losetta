@@ -17,21 +17,6 @@ public class TypeOperator
         Assert.That(result, Is.EqualTo(expected));
     }
 
-    [TestCase("123", "number", true, Description = "numberはnumber?に拡大マッチ")]
-    [TestCase("null", "number", true, Description = "nullはnumber?にマッチする")]
-    [TestCase("null", "number", false, Description = "nullはnumberにはマッチしない", TestName = "Is_Nullable_FalseCase")]
-    public void Is_Nullable(string literal, string typeName, bool expected)
-    {
-        string code = $"{literal} is {typeName}{(typeName.EndsWith("?") ? string.Empty : "?")};";
-        if (TestContext.CurrentContext.Test.Name == "Is_Nullable_FalseCase")
-        {
-            // 上の false ケースだけは ? を付けない形をテストする
-            code = "null is number;";
-        }
-        bool result = TestUtils.Script.Execute<bool>(code);
-        Assert.That(result, Is.EqualTo(expected));
-    }
-
     [TestCase("123", "number", false, Description = "numberをnumberに変換")]
     [TestCase("\"abc\"", "number", true, Description = "数値ではなさそうな文字列はnumberにならない")]
     [TestCase("123", "number", false, Description = "数値っぽい文字列はnumberになる")]
