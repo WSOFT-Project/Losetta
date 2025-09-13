@@ -83,7 +83,7 @@ namespace AliceScript.Parsing
                     return listToMerge;
                 }
 
-                Stack<PreOperetors> negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子を取得
+                Stack<PreOperators> negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子を取得
 
                 // このトークンに対応する関数を取得する
                 ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
@@ -186,8 +186,8 @@ namespace AliceScript.Parsing
             return result;
         }
 
-        private static bool UpdateResult(ParsingScript script, char[] to, List<Variable> listToMerge, string token, Stack<PreOperetors> preops,
-                                 ref Variable current, ref int negated, ref string action)
+        private static bool UpdateResult(ParsingScript script, char[] to, List<Variable> listToMerge, string token, Stack<PreOperators> preops,
+                                     ref Variable current, ref int negated, ref string action)
         {
             if (current is null)
             {
@@ -199,7 +199,7 @@ namespace AliceScript.Parsing
             {
                 while (preops.Count > 0)
                 {
-                    PreOperetors op = preops.Pop();
+                    PreOperators op = preops.Pop();
                     current = ProcessUnaryPreOperation(current, op);
                 }
             }
@@ -257,13 +257,13 @@ namespace AliceScript.Parsing
             return false;
         }
 
-        private static Stack<PreOperetors> CheckConsistencyAndSign(ParsingScript script, List<Variable> listToMerge, string action, ref string token)
+        private static Stack<PreOperators> CheckConsistencyAndSign(ParsingScript script, List<Variable> listToMerge, string action, ref string token)
         {
             if (Constants.CONTROL_FLOW.Contains(token) && listToMerge.Count > 0)
             {
                 listToMerge.Clear();
             }
-            var result = new Stack<PreOperetors>();
+            var result = new Stack<PreOperators>();
 
             script.MoveForwardIf(Constants.SPACE);
 
@@ -277,17 +277,17 @@ namespace AliceScript.Parsing
                 if (MatchPreOperator(token, Constants.INCREMENT))
                 {
                     token = token.Substring(2);
-                    result.Push(PreOperetors.Increment);
+                    result.Push(PreOperators.Increment);
                 }
                 else if (MatchPreOperator(token, Constants.DECREMENT))
                 {
                     token = token.Substring(2);
-                    result.Push(PreOperetors.Decrement);
+                    result.Push(PreOperators.Decrement);
                 }
                 else if (MatchPreOperator(token, Constants.RANGE))
                 {
                     token = token.Substring(2);
-                    result.Push(PreOperetors.Range);
+                    result.Push(PreOperators.Range);
                 }
                 else if (MatchPreOperator(token, Constants.PLUS))
                 {
@@ -297,12 +297,12 @@ namespace AliceScript.Parsing
                 else if (MatchPreOperator(token, Constants.MINUS))
                 {
                     token = token.Substring(1);
-                    result.Push(PreOperetors.Minus);
+                    result.Push(PreOperators.Minus);
                 }
                 else if (MatchPreOperator(token, Constants.BITWISE_NOT))
                 {
                     token = token.Substring(1);
-                    result.Push(PreOperetors.BitwiseNot);
+                    result.Push(PreOperators.BitwiseNot);
                 }
                 else
                 {
@@ -322,7 +322,7 @@ namespace AliceScript.Parsing
         /// <summary>
         /// 前置演算子の種類
         /// </summary>
-        private enum PreOperetors
+        private enum PreOperators
         {
             /// <summary>
             /// 前置インクリメント
@@ -587,21 +587,21 @@ namespace AliceScript.Parsing
         /// <param name="action">前置演算子</param>
         /// <returns>演算結果の値</returns>
         /// <exception cref="ScriptException">不明な演算子の場合にスローされる例外</exception>
-        private static Variable ProcessUnaryPreOperation(Variable current, PreOperetors action)
+        private static Variable ProcessUnaryPreOperation(Variable current, PreOperators action)
         {
             switch (action)
             {
-                case PreOperetors.Increment:
+                case PreOperators.Increment:
                     current.Value++;
                     return current;
-                case PreOperetors.Decrement:
+                case PreOperators.Decrement:
                     current.Value--;
                     return current;
-                case PreOperetors.Minus:
+                case PreOperators.Minus:
                     return new Variable(current.Value * -1);
-                case PreOperetors.BitwiseNot:
+                case PreOperators.BitwiseNot:
                     return new Variable(~(long)current.Value);
-                case PreOperetors.Range:
+                case PreOperators.Range:
                     return new Variable(new RangeStruct(0, (int)current.Value));
                 default:
                     throw new ScriptException($"演算子`{action}`は`{current.GetTypeString()}`型のオペランドに適用できません。", Exceptions.INVALID_OPERAND);
