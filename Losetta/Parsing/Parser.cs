@@ -13,6 +13,9 @@ namespace AliceScript.Parsing
     /// </summary>
     public class Parser
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsTerminalAction(string action)
+            => string.IsNullOrEmpty(action) || action == ")" || action == "\0";
         /// <summary>
         /// スクリプトを解析・実行し、実行結果を返します
         /// </summary>
@@ -56,65 +59,63 @@ namespace AliceScript.Parsing
             do
             {
                 HashSet<string> keywords = new HashSet<string>();
-            ExtractNextToken:
-                string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
-
-                if (string.IsNullOrEmpty(token) && script.Prev != Constants.START_ARG && script.Prev != Constants.START_GROUP && script.StillValid())
+                while (true)
                 {
-                    //トークンが空で、無意味だった場合
-                    goto ExtractNextToken;
-                }
-                if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
-                {
-                    //null許容型修飾子の場合(bool?とか)
-                    if (script.Current == '?')
+                    string token = ExtractNextToken(script, to, ref inQuotes, ref arrayIndexDepth, ref negated, out ch, out action);
+                    if (string.IsNullOrEmpty(token) && script.Prev != Constants.START_ARG && script.Prev != Constants.START_GROUP && script.StillValid())
                     {
-                        token += '?';
-                        //本来の位置に進めておく
-                        script.Forward();
+                        // 空トークンをスキップ
+                        continue;
                     }
-                    keywords.Add(token.ToLowerInvariant());//キーワード一覧に格納
-                    goto ExtractNextToken;
-                }
-
-                bool ternary = UpdateIfTernary(script, token, ch, listToMerge, (List<Variable> newList) => { listToMerge = newList; });
-                if (ternary)
-                {
-                    return listToMerge;
-                }
-
-                Stack<PreOperators> negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子を取得
-
-                // このトークンに対応する関数を取得する
-                ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
-                if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || (fb is not LiteralFunction && fb is not ValueFunction)))
-                {
-                    script.ProcessingFunction = fb;//現在処理中としてマーク
-                    if (fb.Name.StartsWith(Constants.ANNOTATION_FUNCTION_REFIX))
+                    if (!(script.Current == ';' || Constants.TOKEN_SEPARATION_ANDEND_STR.Contains(script.Next)) && Constants.KEYWORD.Contains(token))
                     {
-                        m_attributeFuncs ??= new HashSet<FunctionBase>();
-                        m_attributeFuncs.Add(fb);
+                        if (script.Current == '?')
+                        {
+                            token += '?';
+                            script.Forward();
+                        }
+                        keywords.Add(token.ToLowerInvariant());
+                        // 次のトークンを読む
+                        continue;
                     }
-                    else if (m_attributeFuncs is not null && m_attributeFuncs.Count > 0)
+
+                    bool ternary = UpdateIfTernary(script, token, ch, listToMerge, (List<Variable> newList) => { listToMerge = newList; });
+                    if (ternary)
                     {
-                        fb.AttributeFunctions = m_attributeFuncs;
-                        m_attributeFuncs = null;
+                        return listToMerge;
                     }
-                }
-                Variable current;
-                if (NeedReferenceNext)
-                {
-                    // 参照が必要な場合
-                    current = new Variable(func.m_impl);
-                    NeedReferenceNext = false;
-                }
-                else
-                {
-                    current = func.GetValue(script);
-                }
-                if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
-                {
-                    return listToMerge;
+
+                    Stack<PreOperators> negSign = CheckConsistencyAndSign(script, listToMerge, action, ref token);//前置演算子取得
+                    ParserFunction func = new ParserFunction(script, token, ch, ref action, keywords);
+                    if (func.m_impl is FunctionBase fb && (script.ProcessingFunction is null || (fb is not LiteralFunction && fb is not ValueFunction)))
+                    {
+                        script.ProcessingFunction = fb;
+                        if (fb.Name.StartsWith(Constants.ANNOTATION_FUNCTION_REFIX))
+                        {
+                            m_attributeFuncs ??= new HashSet<FunctionBase>();
+                            m_attributeFuncs.Add(fb);
+                        }
+                        else if (m_attributeFuncs is not null && m_attributeFuncs.Count > 0)
+                        {
+                            fb.AttributeFunctions = m_attributeFuncs;
+                            m_attributeFuncs = null;
+                        }
+                    }
+                    Variable current;
+                    if (NeedReferenceNext)
+                    {
+                        current = new Variable(func.m_impl);
+                        NeedReferenceNext = false;
+                    }
+                    else
+                    {
+                        current = func.GetValue(script);
+                    }
+                    if (UpdateResult(script, to, listToMerge, token, negSign, ref current, ref negated, ref action))
+                    {
+                        return listToMerge;
+                    }
+                    break; // while(true) 脱出して do-while 継続
                 }
             } while (script.StillValid() &&
                     (inQuotes || arrayIndexDepth > 0 || !to.Contains(script.Current)));
@@ -617,9 +618,8 @@ namespace AliceScript.Parsing
         /// <exception cref="ScriptException">不明な演算子の場合にスローされる例外</exception>
         private static Variable ProcessUnaryPostOperation(Variable current, string action)
         {
-            // 演算子は処理できたとしておく
             current.Action = string.Empty;
-            if (action == ")" || action == "\0" || string.IsNullOrEmpty(action))
+            if (IsTerminalAction(action))
             {
                 return current;
             }
@@ -635,8 +635,6 @@ namespace AliceScript.Parsing
                     case Constants.DECREMENT:
                         current.Value--;
                         return current;
-                    default:
-                        break;
                 }
             }
             throw new ScriptException($"演算子`{action}`は`{current.GetTypeString()}`型のオペランドに適用できません。", Exceptions.INVALID_OPERAND);
@@ -644,15 +642,11 @@ namespace AliceScript.Parsing
         /// <summary>
         /// 2項演算子を処理します
         /// </summary>
-        /// <param name="leftCell">演算対象の左辺の値</param>
-        /// <param name="rightCell">演算対象の右辺の値</param>
-        /// <param name="script">処理中のスクリプト</param>
-        /// <returns>演算結果の値</returns>
         private static Variable ProcessBinaryOperation(Variable leftCell, Variable rightCell, ParsingScript script)
         {
             if (leftCell.IsReturn ||
-     leftCell.Type == Variable.VarType.BREAK ||
-     leftCell.Type == Variable.VarType.CONTINUE)
+                leftCell.Type == Variable.VarType.BREAK ||
+                leftCell.Type == Variable.VarType.CONTINUE)
             {
                 return Variable.EmptyInstance;
             }
@@ -661,11 +655,11 @@ namespace AliceScript.Parsing
             {
                 return new Variable(new KeyValuePair<Variable, Variable>(leftCell, rightCell));
             }
-            if (leftCell.Action == Constants.IS && rightCell.Object is not null && rightCell.Object is TypeObject to)
+            if (leftCell.Action == Constants.IS && rightCell.Object is TypeObject to)
             {
                 leftCell = new Variable(to.Match(leftCell));
             }
-            else if (leftCell.Action == Constants.IS_NOT && rightCell.Object is not null && rightCell.Object is TypeObject t)
+            else if (leftCell.Action == Constants.IS_NOT && rightCell.Object is TypeObject t)
             {
                 leftCell = new Variable(!t.Match(leftCell));
             }
@@ -687,40 +681,33 @@ namespace AliceScript.Parsing
                 {
                     leftCell = new Variable(leftCell.Equals(rightCell));
                 }
-                else
-                if (leftCell.Action == Constants.NOT_EQUAL || leftCell.Action == "!==")
+                else if (leftCell.Action == Constants.NOT_EQUAL || leftCell.Action == "!==")
                 {
                     leftCell = new Variable(!leftCell.Equals(rightCell));
                 }
-                else
-                if (leftCell.Type == Variable.VarType.NUMBER && rightCell.Type == Variable.VarType.NUMBER)
+                else if (leftCell.Type == Variable.VarType.NUMBER && rightCell.Type == Variable.VarType.NUMBER)
                 {
                     leftCell = MergeNumbers(leftCell, rightCell, script);
                 }
-                else
-                // メモ: ここで両辺がnullの場合が吸われている
-                if ((leftCell.Type == Variable.VarType.BOOLEAN || leftCell.Type == Variable.VarType.VARIABLE) &&
-                (rightCell.Type == Variable.VarType.BOOLEAN) || (rightCell.Type == Variable.VarType.VARIABLE))
+                else if ((leftCell.Type == Variable.VarType.BOOLEAN || leftCell.Type == Variable.VarType.VARIABLE) &&
+                         (rightCell.Type == Variable.VarType.BOOLEAN || rightCell.Type == Variable.VarType.VARIABLE))
                 {
+                    // 両辺がbool系(null含む)扱いの場合
                     leftCell = MergeBooleans(leftCell, rightCell, script);
                 }
-                else
-                if (leftCell.Type == Variable.VarType.STRING || rightCell.Type == Variable.VarType.STRING)
+                else if (leftCell.Type == Variable.VarType.STRING || rightCell.Type == Variable.VarType.STRING)
                 {
                     leftCell = MergeStrings(leftCell, rightCell, script);
                 }
-                else
-                if (leftCell.Type == Variable.VarType.ARRAY)
+                else if (leftCell.Type == Variable.VarType.ARRAY)
                 {
                     leftCell = MergeArray(leftCell, rightCell, script);
                 }
-                else
-                if (leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE)
+                else if (leftCell.Type == Variable.VarType.DELEGATE && rightCell.Type == Variable.VarType.DELEGATE)
                 {
                     leftCell = MergeDelegate(leftCell, rightCell, script);
                 }
-                else
-                if (leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator)
+                else if (leftCell.Type == Variable.VarType.OBJECT && leftCell.Object is ObjectBase obj && obj.HandleOperator)
                 {
                     leftCell = obj.Operator(leftCell, rightCell, leftCell.Action, script);
                 }
@@ -728,7 +715,6 @@ namespace AliceScript.Parsing
                 {
                     leftCell = MergeObjects(leftCell, rightCell, script);
                 }
-
             }
             leftCell.Action = rightCell.Action;
             return leftCell;
@@ -759,10 +745,10 @@ namespace AliceScript.Parsing
                     return new Variable(leftCell.Bool || rightCell.Bool);
                 case "^":
                     return new Variable(leftCell.m_bool ^ rightCell.m_bool);
-                case null:
+                case null: // 終端アクション(評価済み)
                 case "\0":
                 case ")":
-                    return leftCell;
+                    return leftCell; // no-op
                 default:
                     throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
@@ -806,10 +792,10 @@ namespace AliceScript.Parsing
                     return new Variable(leftCell.As<long>() | rightCell.As<long>());
                 case Constants.RANGE:
                     return new Variable(new RangeStruct((int)leftCell.Value, (int)rightCell.Value));
-                case null:
+                case null: // 終端アクション
                 case "\0":
                 case ")":
-                    return leftCell;
+                    return leftCell; // no-op
                 default:
                     throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
@@ -856,10 +842,10 @@ namespace AliceScript.Parsing
                     }
                     return Variable.FromText(sb.ToString());
 #endif
-                case null:
+                case null: // 終端アクション
                 case "\0":
                 case ")":
-                    break;
+                    break; // no-op
                 default:
                     throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
@@ -907,10 +893,10 @@ namespace AliceScript.Parsing
                         var union = leftCell.Tuple.Union(rightCell.Tuple);
                         return new Variable(union.Except(intersect));
                     }
-                case null:
+                case null: // 終端アクション
                 case "\0":
                 case ")":
-                    return leftCell;
+                    return leftCell; // no-op
                 default:
                     throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
@@ -954,10 +940,10 @@ namespace AliceScript.Parsing
 
                         return v;
                     }
-                case null:
+                case null: // 終端アクション
                 case "\0":
                 case ")":
-                    return leftCell;
+                    return leftCell; // no-op
                 default:
                     throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
@@ -969,10 +955,10 @@ namespace AliceScript.Parsing
             switch (leftCell.Action)
             {
                 case ">":
-                case null:
+                case null: // 終端アクション
                 case "\0":
                 case ")":
-                    return leftCell;
+                    return leftCell; // no-op
                 default:
                     throw new ScriptException($"演算子`{leftCell.Action}`を`{leftCell.GetTypeString()}`と`{rightCell.GetTypeString()}`型のオペランド間に適用できません。", Exceptions.INVALID_OPERAND);
             }
@@ -985,33 +971,25 @@ namespace AliceScript.Parsing
 
         private static int GetPriority(string action)
         {
-            switch (action)
-            {
-                case "++":
-                case "--": return 14;
-                case "**": return 13;
-                case "%":
-                case "*":
-                case "/": return 12;
-                case "+":
-                case "-": return 11;
-                case Constants.LEFT_SHIFT:
-                case Constants.RIGHT_SHIFT: return 10;
-                case "<":
-                case ">":
-                case ">=":
-                case "<=": return 9;
-                case "==":
-                case "!=": return 8;
-                case "&": return 7;
-                case "^": return 6;
-                case "|": return 5;
-                case "&&": return 4;
-                case "||": return 3;
-                case "??": return 2;
-                case "=": return 1;
-                default: return 0;// NULL action has priority 0.
-            }
+            return _priority.TryGetValue(action, out int p) ? p : 0;
         }
+
+        private static readonly Dictionary<string, int> _priority = new(StringComparer.Ordinal)
+        {
+            {"++",14},{"--",14},
+            {"**",13},
+            {"%",12},{"*",12},{"/",12},
+            {"+",11},{"-",11},
+            {Constants.LEFT_SHIFT,10},{Constants.RIGHT_SHIFT,10},
+            {"<",9},{">",9},{">=",9},{"<=",9},
+            {"==",8},{"!=",8},
+            {"&",7},
+            {"^",6},
+            {"|",5},
+            {"&&",4},
+            {"||",3},
+            {"??",2},
+            {"=",1}
+        };
     }
 }
