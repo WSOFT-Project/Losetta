@@ -44,19 +44,15 @@ namespace AliceScript.NameSpaces
         {
             ReportTest(!condition, testName, script);
         }
-        public static void Is(Variable expected, Variable actual, string testName)
+        public static void Is(Variable expected, Variable actual, string testName, [BindInfo] ParsingScript script)
         {
-            if (!Equals(expected, actual))
-            {
-                throw new Exception($"Test failed: {testName}. Expected: {expected}, Actual: {actual}");
-            }
+            bool condition = Equals(expected, actual);
+            ReportTest(condition, testName, script);
         }
-        public static void IsNot(Variable notExpected, Variable actual, string testName)
+        public static void IsNot(Variable notExpected, Variable actual, string testName, [BindInfo] ParsingScript script)
         {
-            if (Equals(notExpected, actual))
-            {
-                throw new Exception($"Test failed: {testName}. Not Expected: {notExpected}, Actual: {actual}");
-            }
+            bool condition = !Equals(notExpected, actual);
+            ReportTest(condition, testName, script);
         }
         public static void Test(int tests, [BindInfo] ParsingScript script)
         {
