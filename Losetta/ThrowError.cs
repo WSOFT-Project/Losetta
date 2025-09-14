@@ -54,6 +54,14 @@ namespace AliceScript
                 Alice.OnExiting(256);
             }
         }
+        /// <summary>
+        /// 優先順位最高でイベントを購読します
+        /// </summary>
+        /// <param name="handler"></param>
+        public static void Subscribe(ThrowErrorEventhandler handler)
+        {
+            ThrowError = handler + ThrowError;
+        }
     }
     public class ScriptException : Exception
     {

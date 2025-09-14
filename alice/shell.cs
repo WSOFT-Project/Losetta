@@ -47,7 +47,7 @@ namespace AliceScript.CLI
 
         internal static void ThrowErrorManager_ThrowError(object sender, ThrowErrorEventArgs e)
         {
-            if (!Program.allow_throw)
+            if (!Program.allow_throw || e.Handled)
             {
                 return;
             }
