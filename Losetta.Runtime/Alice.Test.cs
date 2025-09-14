@@ -16,6 +16,7 @@ namespace AliceScript.NameSpaces
     [AliceNameSpace(Name = "Alice.Test")]
     internal sealed class TestFunctions
     {
+        private static readonly string TEST_ID_VARNAME = Constants.USER_CANT_USE_VARIABLE_PREFIX + "Alice.Test.TestID";
         /// <summary>
         /// 可能であればテスト結果をテストコンテキストに報告します
         /// </summary>
@@ -25,7 +26,7 @@ namespace AliceScript.NameSpaces
         /// <exception cref="ScriptException"></exception>
         private static void ReportTest(bool condition, string testName, ParsingScript script)
         {
-            if (script.TryGetVariable("??test_id", out ParserFunction func)) // テスト中であれば例外として出す
+            if (script.TryGetVariable(TEST_ID_VARNAME, out ParserFunction func)) // テスト中であれば例外として出す
             {
                 throw new ScriptException($"Alice.Test:{func.GetValue(script).As<string>()}:{(condition ? "OK" : "Not OK")}:{testName}", Exceptions.USER_DEFINED);
             }
@@ -60,7 +61,7 @@ namespace AliceScript.NameSpaces
         public static void Test(int tests, [BindInfo] ParsingScript script)
         {
             string test_id = Guid.NewGuid().ToString();
-            script.Variables.Add("??test_id", new ValueFunction(Variable.From(test_id))); // 秘密変数test_idを作成
+            script.Variables.Add(TEST_ID_VARNAME, new ValueFunction(Variable.From(test_id))); // 秘密変数test_idを作成
             int testCount = 1;
             string testName = $"Alice.Test:{test_id}:";
             ThrowErrorEventhandler handler = (s, e) =>
