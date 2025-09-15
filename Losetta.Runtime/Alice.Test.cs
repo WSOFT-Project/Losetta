@@ -3,6 +3,7 @@ using AliceScript.Functions;
 using AliceScript.Objects;
 using AliceScript.Parsing;
 using System;
+using System.Linq;
 
 namespace AliceScript.NameSpaces
 {
@@ -11,6 +12,10 @@ namespace AliceScript.NameSpaces
         public static void Init()
         {
             Alice.RegisterFunctions<TestFunctions>();
+            NameSpace skipFuncs = new NameSpace("Alice.Test");
+
+            skipFuncs.Add(new SkipFunction());
+            NameSpaceManager.Add(skipFuncs);
         }
     }
     [AliceNameSpace(Name = "Alice.Test")]
@@ -31,26 +36,65 @@ namespace AliceScript.NameSpaces
                 throw new ScriptException($"Alice.Test:{func.GetValue(script).As<string>()}:{(condition ? "OK" : "Not OK")}:{testName}", Exceptions.USER_DEFINED);
             }
         }
-        public static void Ok(bool condition, string testName, [BindInfo] ParsingScript script)
+        private static bool ShouldSkip(FunctionBaseEventArgs e, out string why)
         {
+            var skipFunc = e.AttributeFunctions?.OfType<SkipFunction>().FirstOrDefault();
+            why = skipFunc?.Why ?? string.Empty;
+            if (skipFunc?.Comparer is not null)
+            {
+                if (skipFunc.Comparer.Invoke([]).As<bool>() == false)
+                {
+                    why = string.Empty; // 比較関数がfalseを返した場合はスキップしない
+                    return false;
+                }
+            }
+            return skipFunc is not null;
+        }
+        public static void Ok(bool condition, string testName, [BindInfo] ParsingScript script, [BindInfo] FunctionBaseEventArgs e)
+        {
+            if (ShouldSkip(e, out string why))
+            {
+                ReportTest(true, $"{testName} # SKIP because {why}", script);
+                return;
+            }
             ReportTest(condition, testName, script);
         }
-        public static void Ok(Variable got, Variable excepted, DelegateObject comparer, string testName, [BindInfo] ParsingScript script)
+        public static void Ok(Variable got, Variable excepted, DelegateObject comparer, string testName, [BindInfo] ParsingScript script, [BindInfo] FunctionBaseEventArgs e)
         {
+            if (ShouldSkip(e, out string why))
+            {
+                ReportTest(true, $"{testName} # SKIP because {why}", script);
+                return;
+            }
             bool condition = comparer.Invoke([got, excepted]).As<bool>();
             ReportTest(condition, testName, script);
         }
-        public static void NotOk(bool condition, string testName, [BindInfo] ParsingScript script)
+        public static void NotOk(bool condition, string testName, [BindInfo] ParsingScript script, [BindInfo] FunctionBaseEventArgs e)
         {
+            if (ShouldSkip(e, out string why))
+            {
+                ReportTest(true, $"{testName} # SKIP because {why}", script);
+                return;
+            }
             ReportTest(!condition, testName, script);
         }
-        public static void Is(Variable expected, Variable actual, string testName, [BindInfo] ParsingScript script)
+        public static void Is(Variable expected, Variable actual, string testName, [BindInfo] ParsingScript script, [BindInfo] FunctionBaseEventArgs e)
         {
+            if (ShouldSkip(e, out string why))
+            {
+                ReportTest(true, $"{testName} # SKIP because {why}", script);
+                return;
+            }
             bool condition = Equals(expected, actual);
             ReportTest(condition, testName, script);
         }
-        public static void IsNot(Variable notExpected, Variable actual, string testName, [BindInfo] ParsingScript script)
+        public static void IsNot(Variable notExpected, Variable actual, string testName, [BindInfo] ParsingScript script, [BindInfo] FunctionBaseEventArgs e)
         {
+            if (ShouldSkip(e, out string why))
+            {
+                ReportTest(true, $"{testName} # SKIP because {why}", script);
+                return;
+            }
             bool condition = !Equals(notExpected, actual);
             ReportTest(condition, testName, script);
         }
@@ -84,5 +128,29 @@ namespace AliceScript.NameSpaces
             script.ProcessBlock();
             ThrowErrorManager.ThrowError -= handler;
         }
+    }
+    public class SkipFunction : FunctionBase
+    {
+        public SkipFunction()
+        {
+            Name = Constants.ANNOTATION_FUNCTION_REFIX + "skip";
+            Run += SkipFunction_Run;
+        }
+        private void SkipFunction_Run(object sender, FunctionBaseEventArgs e)
+        {
+            if (e.Args.Count > 0 && e.Args[0].Is(out string? arg))
+            {
+                Why = arg ?? string.Empty;
+                e.Return = Variable.From(true);
+                if (e.Args[1].Is(out DelegateObject? cmp))
+                {
+                    Comparer = cmp;
+                }
+                return;
+            }
+            throw new ScriptException("Alice.Test.Skip: 引数の数が違います", Exceptions.INVALID_ARGUMENT);
+        }
+        internal string Why { get; set; } = string.Empty;
+        internal DelegateObject Comparer { get; set; } = null;
     }
 }
